@@ -7,7 +7,15 @@ there is a single source of truth.
 
 ## What this is
 
-A description of your project and the problem it solves.
+A web application replacing the Fischereiforschungsstelle Baden-Württemberg's PDF-based
+electrofishing survey form, the Protokoll E-Befischung. Users log in, fill in the
+protocol over several sittings, and submit it. FFS staff review it, and accepted
+protocols are later transferred into FiaKa, the official fisheries database.
+
+The domain is German and stays German: identifiers, database columns and API fields
+use the German terms from the legacy form. English exists only in interface
+translation files. Read `CONTEXT.md` for the vocabulary and `docs/decisions.md` for
+why the stack and data model are what they are.
 
 This project is built with the **AI Blueprint**, a workflow layer, not an
 app skeleton. To start a new project, scaffold the app first in an empty folder
@@ -102,13 +110,28 @@ checks do not make the Blueprint unusable.
 
 ## Commands
 
-For a standard Next.js project. Change or remove if you're using something else.
+A monorepo with two runtimes. There is no root `package.json`; run commands from
+the relevant directory. The containerised stack arrives with build item 1.
 
-- Dev server: `npm run dev` (http://localhost:3000)
+**Frontend** (from `frontend/`)
+
+- Dev server: `npm run dev` (http://localhost:5173)
 - Build: `npm run build`
-- Production server: `npm run start`
+- Preview the build: `npm run preview`
 - Lint: `npm run lint`
 
-Testing is opt-in. If this project does not already have a unit test runner, run
-`/tests` or `$tests` to add one and update this section with the real test
-commands.
+**Backend** (from `backend/`, needs Python 3.12 or newer and an activated venv)
+
+- Dev server: `uvicorn app.main:app --reload` (http://localhost:8000)
+- API docs: http://localhost:8000/api/v1/docs
+- Lint: `ruff check .`
+- Types: `mypy .`
+
+Testing is opt-in and **not yet switched on**. A `pytest` configuration and one
+example test exist in `backend/`, and the frontend has no runner at all. Neither is
+declared here on purpose: declaring a `test` command turns it into a gate for every
+logic-bearing step, and a gate that cannot run is worse than no gate. Run `/tests`
+to install the frontend runner and add the real test commands to this section.
+
+There is no `Verify` command yet. Run `/ci` to define one and add matching GitHub
+checks; that is a separate setup step from the feature loop.
