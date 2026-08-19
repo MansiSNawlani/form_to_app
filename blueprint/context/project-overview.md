@@ -277,33 +277,28 @@ Docker containers on an FFS-approved platform, with a reverse proxy as the only 
 
 Ordered by how much they could still change.
 
-1. **The backend language is committed but unconfirmed.** `project-plan.md` §5 names FastAPI and
-   Python, but `docs/decisions.md` §14 still lists "is FastAPI genuinely required, or was it the
-   requirements author's preference?" as open. If the answer is "preference", ADR 0002 says to
-   revisit the whole two-service split, because it stops paying for itself. Settle this before
-   feature 1.
-
-2. **Coordinates sit in two places across the documents.** This overview puts the boundary
+1. **Coordinates sit in two places across the documents.** This overview puts the boundary
    coordinates on `Probestrecke`, where they belong, since a stretch has boundaries independent of
    any one visit. `docs/decisions.md` §7 lists coordinates among the `Submission` columns. These
    need reconciling. Per-submission as-surveyed coordinates become relevant with feature 18, which
    requires storing both typed and snapped values.
 
-3. **Build item 1 bundles roughly seven things** - Compose, database, backend, frontend, theming,
-   translation wiring and Verify. It will almost certainly split into 1a, 1b and so on when
-   `/feature` specs it. That is expected, not a problem, but do not expect it to be one step.
+2. **Build item 1 still bundles several things** - Compose, Postgres, the readiness check, KERN
+   theming, translation wiring, theme tokens and Verify. The pre-build restructure has already
+   taken the bare frontend and backend scaffolds off its plate, but it will still likely split into
+   1a, 1b and so on when `/feature` specs it. That is expected, not a problem.
 
-4. **Route language is unspecified** by either plan. See the TODO under UI/UX.
+3. **Route language is unspecified** by either plan. See the TODO under UI/UX.
 
-5. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
+4. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
    numbers and cathode types. This is on the pre-build list in `build-plan.md` and blocks features
    4 and 9, not features 1 to 3.
 
-6. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
+5. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
    building, but the `Person` and `Submission` split already assumes personal details can be
    anonymised independently of the survey record. If FFS decides otherwise, revisit.
 
-7. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
+6. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
    gives Super Admins that job and `build-plan.md` has it as item 16. Minor, but the plan's feature
    list should gain a line.
 

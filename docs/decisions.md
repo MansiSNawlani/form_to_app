@@ -359,7 +359,6 @@ files is simple work. Deferring all three at once was the risk.
 
 | Question | Who decides |
 |---|---|
-| Is FastAPI genuinely required, or was it a preference? | Whoever owns the requirements document |
 | How long is data kept, and what happens on a deletion request | FFS, with data protection advice |
 | May this application use the state logo and wordmark | FFS |
 | Which set of regional authority email addresses is correct | FFS (see defect 5) |
