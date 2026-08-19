@@ -16,10 +16,9 @@ container is "a React production build served by a minimal web server".
 ## Considered options
 
 **Next.js on its own, dropping FastAPI.** This would have been a good answer and would have let
-Next.js earn its keep. It was ruled out because the backend needs to be Python, which appears to be
-an FFS operational constraint rather than a preference. If that turns out to be wrong, this
-decision should be revisited before much is built, because the two-service split stops paying for
-itself.
+Next.js earn its keep. It was ruled out because the backend must be Python, which was confirmed as
+a real constraint rather than a preference. That confirmation is what settles this decision: the
+two-service split only pays for itself when the backend language is fixed, and it is.
 
 **Next.js frontend with a FastAPI backend.** Works, and many teams run this. Rejected because it
 carries Next.js's operational cost without access to its benefits.
