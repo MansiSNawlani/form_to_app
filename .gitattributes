@@ -1,0 +1,13 @@
+# The application runs in Linux containers, so line endings are LF everywhere.
+# Without this, files authored on Windows arrive in the image with CRLF and shell
+# scripts fail with confusing "not found" errors.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

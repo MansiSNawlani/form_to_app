@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Protokoll E-Befischung
 
-## Getting Started
+Web application replacing the Fischereiforschungsstelle Baden-Württemberg's PDF-based
+electrofishing survey form, with drafts, review, and a controlled path into the state fisheries
+database.
 
-First, run the development server:
+## Start here
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Document | What it covers |
+|---|---|
+| [docs/decisions.md](docs/decisions.md) | What we decided before building, and why. Written for non-developers too |
+| [CONTEXT.md](CONTEXT.md) | The domain glossary. The German terms and what they mean |
+| [blueprint/context/project-overview.md](blueprint/context/project-overview.md) | The data model, feature list and stack. The single source of truth |
+| [docs/adr/](docs/adr/) | The five hard-to-reverse architecture decisions |
+| [docs/ffs-defect-list.md](docs/ffs-defect-list.md) | Bugs found in the legacy PDF form, for FFS |
+| [AGENTS.md](AGENTS.md) | How AI coding agents should work in this repository |
+
+## Layout
+
+```
+frontend/     React + TypeScript, built by Vite
+backend/      FastAPI + Python
+database/     Alembic migrations and seed data
+deployment/   Docker Compose, reverse proxy config
+docs/         decisions, ADRs, the FFS defect list
+blueprint/    the plans and the build workflow
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running it
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The full containerised stack arrives with build item 1. Until then, the two halves run separately.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Frontend**
 
-## Learn More
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+**Backend** (needs Python 3.12 or newer)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cd backend
+python -m venv .venv
+.venv/Scripts/activate      # Windows
+source .venv/bin/activate   # macOS and Linux
+pip install -e ".[dev]"
+uvicorn app.main:app --reload
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+API docs are then at `http://localhost:8000/api/v1/docs`.
 
-## Deploy on Vercel
+## Language
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The domain is German and stays German. Identifiers, database columns and API fields use the German
+terms, matching the legacy PDF form's field paths. English exists only in the interface translation
+files. [CONTEXT.md](CONTEXT.md) explains the vocabulary.
