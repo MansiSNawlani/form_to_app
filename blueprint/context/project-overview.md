@@ -40,8 +40,16 @@ FFS staff.
 In `build-plan.md` order. **Items 4 to 9 are the headline**: they are the protocol itself, and
 everything else exists to support them. Item 9 carries the most risk.
 
-1. **Project skeleton** - Docker Compose, Postgres with PostGIS, FastAPI, the React shell, KERN
-   themed, translation and theme wiring, and the Verify command.
+1. **Project skeleton** - split into three sub-features in the build plan:
+   - **1a. App shell and theme** - clear the Vite scaffold, port the `prototypes/theme.css` tokens,
+     install KERN, build the header, main and footer shell with a light and dark toggle.
+   - **1b. Translation wiring** - an i18n library with a German locale file, every shell string read
+     from it, ready for English in feature 17.
+   - **1c. Backend and database** - Docker Compose, PostgreSQL with PostGIS, FastAPI health and
+     readiness endpoints, frontend reaching the backend through the proxy.
+
+   The Verify command is deliberately outside this split. `AGENTS.md` makes CI a separate explicit
+   setup, so it belongs to a `/ci` run after 1c, not to the feature loop.
 2. **Accounts and login** - JWT in an httpOnly cookie, the six roles, first-admin command,
    activate and deactivate.
 3. **Draft lifecycle** - create a submission, automatic saving, local safety copy, "my
@@ -67,6 +75,18 @@ everything else exists to support them. Item 9 carries the most risk.
 
 After MVP: the map picker and official water body dataset (18), transfer to FiaKa (19), PDF
 generation (20), the Protokoll Krebs (21), offline field use (22).
+
+### The deferred KERN risk
+
+The throwaway prototype of the catch table in KERN was meant to run before the build started, to
+find out early whether the KERN React kit holds up. It was deferred by decision on 2026-08-22 to
+after the form screens are built. The risk it would have retired therefore stays open right through
+features 1 to 8 and lands in full on feature 9.
+
+This is the main reason item 9 is the riskiest. It is somewhat softened by the 2026-08-24
+confirmation that KERN is our choice rather than an FFS mandate (see Tech stack), so a kit that
+fails at feature 9 now has an ordinary answer instead of forcing a redesign. Feature 1a's KERN
+install is the first real signal and should be treated as an early read on this risk.
 
 ## Data model
 
@@ -214,13 +234,29 @@ bemerkungen           free text
 | **React Hook Form** | Form state. Required at 338 fields, where re-rendering everything per keystroke makes typing sticky |
 | **Zod** | Browser-side validation for instant feedback. Never a gate |
 | **TanStack Query** | Server calls, retries, and the automatic-save indicator |
-| **KERN UX Standard** | Components, themed with BW colours ([ADR 0005](../../docs/adr/0005-kern-design-system.md)). Species picker and catch table built in-house |
+| **KERN UX Standard** | Components, themed with BW colours ([ADR 0005](../../docs/adr/0005-kern-design-system.md)). Species picker and catch table built in-house. **Preferred, not mandated** - see below |
 | **FastAPI + Python** | The backend and the authoritative validation gate |
 | **Pydantic** | Request and response validation. The rules enforced here are the real ones |
 | **PostgreSQL + PostGIS** | Storage. PostGIS is present from v1 but only exercised by feature 18 |
 | **Alembic** | Schema migrations |
+| **JWT in an httpOnly cookie** | Sessions, roughly eight hours |
 | **MapLibre GL JS** | Maps, from feature 18 onward |
 | **Docker + Docker Compose** | Packaging and local development |
+
+### On KERN
+
+FFS confirmed on 2026-08-24 that KERN is not something they mandate. It was our choice, made to
+satisfy the state design guidance in a way a developer can actually install, and that reasoning
+still holds, so KERN stays the default and the first thing to reach for.
+
+Where KERN genuinely falls short, another component library is now allowed rather than forbidden.
+"Falls short" means a demonstrated limitation: a missing component, a conflict with our React
+version, or broken types. It does not mean an unfamiliar API or a plainer look, since plainness is
+the point. Anything brought in still has to meet the same accessibility bar and still has to theme
+to the Baden-Württemberg palette. Replacing KERN wholesale, rather than supplementing it, needs a
+new ADR superseding 0005. Recorded in the amendment on
+[ADR 0005](../../docs/adr/0005-kern-design-system.md) and in
+[docs/decisions.md](../../docs/decisions.md) §5.
 
 ## Monetization
 
@@ -249,8 +285,9 @@ Main screens:
 - `/pruefung` - the review queue with filters and search
 - `/verwaltung/benutzer` - user administration
 
-> TODO: neither plan specifies whether routes are German or English. The German forms above follow
-> the domain-language decision but are a guess.
+Route paths are German, decided on 2026-08-24, following the same rule as the rest of the domain
+language. Component and variable names stay English, since those are general programming
+vocabulary rather than domain terms.
 
 ## Deployment
 
@@ -283,22 +320,15 @@ Ordered by how much they could still change.
    need reconciling. Per-submission as-surveyed coordinates become relevant with feature 18, which
    requires storing both typed and snapped values.
 
-2. **Build item 1 still bundles several things** - Compose, Postgres, the readiness check, KERN
-   theming, translation wiring, theme tokens and Verify. The pre-build restructure has already
-   taken the bare frontend and backend scaffolds off its plate, but it will still likely split into
-   1a, 1b and so on when `/feature` specs it. That is expected, not a problem.
-
-3. **Route language is unspecified** by either plan. See the TODO under UI/UX.
-
-4. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
+2. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
    numbers and cathode types. This is on the pre-build list in `build-plan.md` and blocks features
    4 and 9, not features 1 to 3.
 
-5. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
+3. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
    building, but the `Person` and `Submission` split already assumes personal details can be
    anonymised independently of the survey record. If FFS decides otherwise, revisit.
 
-6. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
+4. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
    gives Super Admins that job and `build-plan.md` has it as item 16. Minor, but the plan's feature
    list should gain a line.
 

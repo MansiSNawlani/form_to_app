@@ -60,9 +60,13 @@ next to each other in the code and change them together.
 
 ## Styling and components
 
-- **KERN UX Standard** for components, themed with Baden-Württemberg colours and typography
-- Do not introduce a second component library. Where KERN falls short, build the component in-house
-  on a headless primitive and style it to match
+- **KERN UX Standard** for components, themed with Baden-Württemberg colours and typography. It is
+  the default, and it is our choice rather than something FFS mandates
+- Where KERN falls short, prefer building the component in-house on a headless primitive and
+  styling it to match. Reaching for a second component library is allowed but is a real decision:
+  it needs a demonstrated limitation (a missing component, a React version conflict, broken types),
+  it has to meet the same accessibility bar, it has to theme to the BW palette, and it gets written
+  down in an ADR. An unfamiliar API or a plainer look is not a reason
 - Light and dark both supported, defined as tokens, never hard-coded colours
 - Accessibility is a requirement, not a later pass: keyboard navigation, correct labels, visible
   focus, sufficient contrast

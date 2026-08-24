@@ -64,7 +64,8 @@ automated transfer into FiaKa, PDF generation, the crayfish protocol, and offlin
 - **Frontend:** React with TypeScript, built by Vite. React Hook Form for the form itself, Zod for
   browser-side validation, TanStack Query for server calls.
 - **UI:** KERN UX Standard, themed with Baden-Württemberg colours and typography. Two components
-  built in-house: the species picker and the catch table.
+  built in-house: the species picker and the catch table. KERN is our choice rather than an FFS
+  mandate, so where it genuinely falls short we may use another library instead.
 - **Backend:** FastAPI with Python. Pydantic for validation, which is the authoritative gate.
 - **Database:** PostgreSQL with PostGIS. Alembic for migrations.
 - **Maps (later):** MapLibre GL JS.
@@ -90,6 +91,9 @@ value at once. Saving is automatic and always visible.
 
 Accessibility is a requirement from the start, not a later pass: keyboard navigation, correct
 labels, visible focus, sufficient contrast.
+
+Route paths are German, decided on 2026-08-24. `/protokolle/neu`, not `/protocols/new`. This
+follows the same rule as the rest of the domain language.
 
 ## 8. Deployment - Where and how will this ship?
 
