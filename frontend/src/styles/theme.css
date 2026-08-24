@@ -1,0 +1,101 @@
+/* Design tokens for the whole application.
+
+   Ported verbatim from prototypes/theme.css, approved on 2026-08-22. The variable
+   names are a locked contract: every later UI feature styles against them and the
+   approved mockups are written against them, so renaming one is a wide change.
+
+   Colour direction: plain and official rather than decorative, per the UI/UX
+   section of blueprint/context/project-overview.md. One accent (a sober
+   Baden-Wuerttemberg mid-blue) carries the current step, the focus ring and the
+   primary action, and nothing else. No shadows, no gradients.
+
+   TODO: the accent and grey ramp are chosen to sit in the right place, not
+   sampled from the official state palette. Confirm the exact BW values against
+   the state design portal before this ships. Carried over from the prototype and
+   deliberately still open. */
+
+:root {
+  color-scheme: light;
+
+  /* surfaces */
+  --bg: #eef1f5;            /* page background            */
+  --surface: #ffffff;       /* cards, header, form panels */
+  --surface-sunken: #f4f6f9; /* table heads, read-only fields */
+  --border: #d3dae2;        /* hairlines, input borders   */
+  --border-strong: #9aa6b4; /* borders that must be found by eye */
+
+  /* text */
+  --text: #16202b;          /* primary            */
+  --muted: #4f5c6b;         /* labels, secondary  */
+  --faint: #78848f;         /* hints, timestamps  */
+
+  /* accent */
+  --accent: #17457a;        /* current step, primary button, links */
+  --accent-hover: #0e3160;
+  --accent-ink: #ffffff;    /* text on accent      */
+  --accent-soft: #e5edf6;   /* accent-tinted fill  */
+  --focus: #1a6fd4;         /* focus ring, deliberately brighter than --accent */
+
+  /* status - used by the workflow states and by field validation */
+  --ok: #1d6b40;
+  --ok-soft: #e3f1e8;
+  --warn: #8a5300;
+  --warn-soft: #fbeedb;
+  --danger: #a0181f;
+  --danger-soft: #fbe6e7;
+  --info: #1f4f77;
+  --info-soft: #e4eef6;
+  --neutral: #55606d;
+  --neutral-soft: #e9edf2;
+
+  /* type */
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, "Cascadia Mono", monospace;
+
+  --step--1: 0.8125rem;   /* hints, badges       */
+  --step-0: 1rem;         /* body, inputs        */
+  --step-1: 1.125rem;     /* fieldset legends    */
+  --step-2: 1.375rem;     /* page title          */
+  --step-3: 1.75rem;      /* rare, list headings */
+
+  /* scale */
+  --radius: 4px;          /* official, not playful: barely rounded */
+  --space: 1rem;
+  --field-h: 2.75rem;     /* large targets, per the accessibility requirement */
+  --shell-max: 1180px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #10161d;
+  --surface: #18202a;
+  --surface-sunken: #1f2833;
+  --border: #2d3945;
+  --border-strong: #56646f;
+
+  --text: #e8edf2;
+  --muted: #a8b4c0;
+  --faint: #7d8996;
+
+  --accent: #6ba3e0;
+  --accent-hover: #8fbcec;
+  --accent-ink: #0c1218;
+  --accent-soft: #1b2c3f;
+  --focus: #79b4f5;
+
+  --ok: #6cc38d;
+  --ok-soft: #17301f;
+  --warn: #e0a851;
+  --warn-soft: #33260f;
+  --danger: #ef8a8f;
+  --danger-soft: #37181a;
+  --info: #7fb2d8;
+  --info-soft: #16283a;
+  --neutral: #a8b4c0;
+  --neutral-soft: #232d38;
+}
+
+/* Tokens only, no rules. MUI's CssBaseline owns the reset and paints the body,
+   using the same values by way of src/theme/tokens.ts. Two owners for the body
+   background would be one too many. */
