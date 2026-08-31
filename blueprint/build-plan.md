@@ -8,10 +8,13 @@
 
 These are not features and are not tracked here. They happen first.
 
+- ~~Remove the Next.js scaffold and restructure as a monorepo~~ - done.
+- ~~Throwaway prototype of the look: header, form, footer, the submissions list and the reviewer
+  view. `prototypes/`, via `/prototype`.~~ - done.
 - Throwaway prototype of the catch table in KERN, to decide whether the KERN React kit holds up.
-  Use `/prototype`.
-- Remove the Next.js scaffold and restructure as a monorepo: `frontend/`, `backend/`, `database/`,
-  `deployment/`, `docs/`.
+  **Deferred by decision on 2026-08-22: this now happens after the form screens are built, not
+  before the build starts.** The risk it was meant to retire early therefore stays open through
+  features 1 to 8, and lands in full on feature 9.
 - Extract the remaining dropdown option lists from the PDF with a proper PDF toolchain: the species
   list, `Anlass` values, monitoring stretch numbers, cathode types.
 - Send [../docs/ffs-defect-list.md](../docs/ffs-defect-list.md) to FFS.
@@ -21,6 +24,15 @@ These are not features and are not tracked here. They happen first.
 - [ ] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, KERN themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
+  - [ ] 1a. App shell and theme: clear the Vite scaffold, port the `prototypes/theme.css` tokens,
+        install KERN, and build the header, main and footer shell with a light and dark toggle
+  - [ ] 1b. Translation wiring: an i18n library with a German locale file, every shell string read
+        from it, ready for the English locale in feature 17
+  - [ ] 1c. Backend and database: Docker Compose, PostgreSQL with PostGIS, FastAPI health and
+        readiness endpoints, and the frontend reaching the backend through the proxy
+
+  The Verify command is deliberately not a sub-item. `AGENTS.md` makes CI a separate explicit
+  setup, so it belongs to `/ci` after 1c, not to the feature loop.
 - [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
       activate and deactivate
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
