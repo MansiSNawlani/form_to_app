@@ -8,7 +8,7 @@ function SiteHeader() {
       <div className="site-header__inner">
         <div className="brand">
           <span className="brand__mark" aria-hidden="true">
-            BW
+            FFS
           </span>
           <span className="brand__text">
             <span className="brand__org">

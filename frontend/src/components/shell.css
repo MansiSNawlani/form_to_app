@@ -68,8 +68,9 @@
   min-width: 0;
 }
 
-/* Placeholder for the state coat of arms, which FFS has to supply. Kept as a
-   plain lettered box so it reads as unfinished rather than as a real mark. */
+/* Placeholder for the real FFS or LAZBW mark, which FFS has to supply. Kept as a
+   plain lettered box so it reads as unfinished. The thin yellow rule echoes the
+   striped E in the LAZBW logo without pretending to be the logo. */
 .brand__mark {
   flex: none;
   width: 2.5rem;
@@ -82,6 +83,7 @@
   font-size: var(--step--1);
   letter-spacing: 0.04em;
   border-radius: var(--radius);
+  border-bottom: 3px solid var(--logo-yellow);
 }
 
 .brand__text {

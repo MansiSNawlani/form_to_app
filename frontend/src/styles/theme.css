@@ -5,14 +5,16 @@
    approved mockups are written against them, so renaming one is a wide change.
 
    Colour direction: plain and official rather than decorative, per the UI/UX
-   section of blueprint/context/project-overview.md. One accent (a sober
-   Baden-Wuerttemberg mid-blue) carries the current step, the focus ring and the
-   primary action, and nothing else. No shadows, no gradients.
+   section of blueprint/context/project-overview.md. One accent (the LAZBW
+   green) carries the current step, the focus ring and the primary action, and
+   nothing else. No shadows, no gradients.
 
-   TODO: the accent and grey ramp are chosen to sit in the right place, not
-   sampled from the official state palette. Confirm the exact BW values against
-   the state design portal before this ships. Carried over from the prototype and
-   deliberately still open. */
+   The accent is the real LAZBW green, #597425, taken from the live site at
+   lazbw.landwirtschaft-bw.de on 2026-08-31. It is no longer provisional.
+
+   TODO: the grey ramp is still a placeholder and is faintly blue-tinted, which was
+   chosen to sit under a navy accent. It has not been resampled against the LAZBW
+   palette now that the accent is green. */
 
 :root {
   color-scheme: light;
@@ -29,12 +31,23 @@
   --muted: #4f5c6b;         /* labels, secondary  */
   --faint: #78848f;         /* hints, timestamps  */
 
-  /* accent */
-  --accent: #17457a;        /* current step, primary button, links */
-  --accent-hover: #0e3160;
+  /* accent - the LAZBW green, taken from lazbw.landwirtschaft-bw.de */
+  --accent: #597425;        /* current step, primary button, links. 5.32:1 with white */
+  --accent-hover: #42551b;  /* 8.25:1 with white */
   --accent-ink: #ffffff;    /* text on accent      */
-  --accent-soft: #e5edf6;   /* accent-tinted fill  */
-  --focus: #1a6fd4;         /* focus ring, deliberately brighter than --accent */
+  --accent-soft: #eef4e1;   /* accent-tinted fill  */
+  /* The focus ring is DARKER than the accent, which inverts the relationship the
+     navy placeholder had. The navy was very dark, so a brighter ring stood out
+     against it; the LAZBW green is much lighter, so a brighter ring would sink
+     into the page. 7.95:1 on the page, against the 3:1 WCAG needs for a UI element. */
+  --focus: #3d4f19;
+
+  /* Brand secondary, the yellow in the LAZBW logo. Used sparingly.
+     NEVER put white text on this: it scores 1.36:1 and fails outright. It also
+     cannot be a text colour on a light background for the same reason. Use it as
+     a fill with --logo-yellow-ink on top, which scores 12.10:1. */
+  --logo-yellow: #f2e006;
+  --logo-yellow-ink: #16202b;
 
   /* status - used by the workflow states and by field validation */
   --ok: #1d6b40;
@@ -78,11 +91,17 @@
   --muted: #a8b4c0;
   --faint: #7d8996;
 
-  --accent: #6ba3e0;
-  --accent-hover: #8fbcec;
+  /* The green lightened for a dark ground. Hover and focus stay brighter than the
+     accent here, because on a dark page brighter is what gains contrast. */
+  --accent: #94bd42;        /* 8.33:1 on the page background */
+  --accent-hover: #a6cc5c;
   --accent-ink: #0c1218;
-  --accent-soft: #1b2c3f;
-  --focus: #79b4f5;
+  --accent-soft: #2d351d;
+  --focus: #b1cd7a;         /* 10.29:1 on the page background */
+
+  /* --logo-yellow and --logo-yellow-ink are brand constants and are deliberately
+     NOT overridden here. A logo colour does not change with the interface theme,
+     and the yellow needs dark text on it in either scheme. */
 
   --ok: #6cc38d;
   --ok-soft: #17301f;
