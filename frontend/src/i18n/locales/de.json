@@ -1,0 +1,32 @@
+{
+  "shell": {
+    "documentTitle": "Protokoll E-Befischung",
+    "a11y": {
+      "skipToContent": "Zum Inhalt springen"
+    },
+    "header": {
+      "themeToggle": "Dunkles Design"
+    },
+    "footer": {
+      "legalNavLabel": "Rechtliches",
+      "impressum": "Impressum",
+      "datenschutz": "Datenschutz",
+      "barrierefreiheit": "Barrierefreiheit",
+      "hilfe": "Hilfe",
+      "kontakt": "Kontakt",
+      "formVersion": "Formularversion {{version}}"
+    }
+  },
+  "common": {
+    "roles": {
+      "submitter": "Einreicher"
+    }
+  },
+  "protokolle": {
+    "list": {
+      "title": "Meine Protokolle",
+      "empty": "Hier erscheinen die Protokolle, die Sie angelegt haben.",
+      "new": "Neues Protokoll"
+    }
+  }
+}

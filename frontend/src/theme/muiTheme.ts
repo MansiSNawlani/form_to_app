@@ -1,4 +1,5 @@
 import { createTheme, type Shadows } from '@mui/material/styles'
+import { deDE } from '@mui/material/locale'
 import {
   darkTokens,
   fontSans,
@@ -150,4 +151,7 @@ export const muiTheme = createTheme({
       },
     },
   },
-})
+  // MUI ships English defaults for its own internal strings: the Autocomplete's
+  // "No options", pagination labels, and so on. Feature 9's species picker would
+  // otherwise announce English inside an otherwise German form.
+}, deDE)

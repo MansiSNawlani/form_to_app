@@ -30,7 +30,7 @@ These are not features and are not tracked here. They happen first.
       and dark tokens, and the Verify command
   - [x] 1a. App shell and theme: clear the Vite scaffold, port the `prototypes/theme.css` tokens,
         install MUI, and build the header, main and footer shell with a light and dark toggle
-  - [ ] 1b. Translation wiring: an i18n library with a German locale file, every shell string read
+  - [x] 1b. Translation wiring: an i18n library with a German locale file, every shell string read
         from it, ready for the English locale in feature 17
   - [ ] 1c. Backend and database: Docker Compose, PostgreSQL with PostGIS, FastAPI health and
         readiness endpoints, and the frontend reaching the backend through the proxy
