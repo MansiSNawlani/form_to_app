@@ -1,8 +1,16 @@
+import { useTranslation } from 'react-i18next'
 import ThemeToggle from './ThemeToggle'
 
-/* Strings are hard-coded German here on purpose. Sub-feature 1b moves every one
-   of them into a locale file; doing both at once makes the diff unreadable. */
+/* Three strings here are deliberately NOT in the locale file and must never be
+   translated:
+     - "FFS" and the organisation name are proper nouns.
+     - "Protokoll E-Befischung" is the name of the legacy form and a domain term,
+       which coding-standards.md keeps German in every locale.
+   Keeping them literal means feature 17's English pass cannot reach them by
+   accident. */
 function SiteHeader() {
+  const { t } = useTranslation()
+
   return (
     <header className="site-header">
       <div className="site-header__inner">
@@ -20,10 +28,12 @@ function SiteHeader() {
         <div className="site-header__spacer" />
         <div className="site-header__user">
           <ThemeToggle />
-          {/* Placeholder identity. Feature 2 replaces this with the signed-in user. */}
+          {/* Placeholder identity, not a translatable string. The name is sample
+              data and the role label comes from the locale file. Feature 2
+              replaces both with the signed-in user. */}
           <span>
             <strong>M. Bergmann</strong>{' '}
-            <span className="role-tag">Einreicher</span>
+            <span className="role-tag">{t('common.roles.submitter')}</span>
           </span>
         </div>
       </div>
