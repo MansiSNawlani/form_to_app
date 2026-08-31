@@ -11,9 +11,10 @@ These are not features and are not tracked here. They happen first.
 - ~~Remove the Next.js scaffold and restructure as a monorepo~~ - done.
 - ~~Throwaway prototype of the look: header, form, footer, the submissions list and the reviewer
   view. `prototypes/`, via `/prototype`.~~ - done.
-- ~~Throwaway prototype of the catch table in KERN, to decide whether the KERN React kit holds
-  up.~~ - **dropped on 2026-08-24.** Moot now that the library is MUI, not KERN. See
-  [../docs/adr/0006-mui-supersedes-kern.md](../docs/adr/0006-mui-supersedes-kern.md).
+- Throwaway prototype of the catch table in KERN, to decide whether the KERN React kit holds up.
+  **Deferred by decision on 2026-08-22: this now happens after the form screens are built, not
+  before the build starts.** The risk it was meant to retire early therefore stays open through
+  features 1 to 8, and lands in full on feature 9.
 - Extract the remaining dropdown option lists from the PDF with a proper PDF toolchain: the species
   list, `Anlass` values, monitoring stretch numbers, cathode types.
 - `prototypes/` is committed to the repository rather than discarded at feature 1a, even
