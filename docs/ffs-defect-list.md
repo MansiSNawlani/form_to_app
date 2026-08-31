@@ -4,7 +4,7 @@ Found while reading `Formular_Protokoll_E-Befischung_V20260609.pdf` and its embe
 (`all_js_Formular.js`, `validation.js`) in preparation for building the replacement web
 application.
 
-Two of these mean data already in FiaKa is wrong, so they need FFS attention regardless of what
+Three of these mean data already in FiaKa is wrong, so they need FFS attention regardless of what
 happens with the new application. The rest will be fixed in the new application, which means new
 records will differ from historical ones. That divergence is intentional and is flagged per item.
 
@@ -114,18 +114,46 @@ user who fills the first box and clears the rest passes validation with an incom
 
 Combined with defect 2, multi-word names in the chain would not have matched anyway.
 
+## 9. Both Altwasser options are dead buttons
+
+**Severity: high. Historical data is affected.**
+
+`probestrecke.gewaessertyp` is a radio group. Its eight buttons export the values `11`, `12`, `13`,
+`14`, `21`, `26`, `28` and `29`. The JavaScript behind the two Altwasser buttons tests for values
+the field can never hold:
+
+- the button exporting `28` (angebundenes Altwasser) runs `if (gewaessertyp == 31)`
+- the button exporting `29` (abgeschnittenes Altwasser) runs `if (gewaessertyp == 32)`
+
+Neither branch ever executes. Selecting either Altwasser type therefore leaves the hydrology
+section showing whatever the previously selected type left behind, instead of switching it. For a
+connected oxbow the section should appear, and for a cut-off oxbow it should disappear.
+
+`validation()` compounds this. It requires the hydrology answers when the type is `< 20` or `== 31`.
+Angebundenes Altwasser is `28`, so it satisfies neither test, and a protocol for a connected oxbow
+can be sent with the entire hydrology section empty.
+
+Records in FiaKa for either Altwasser type should be treated as possibly missing hydrology, or as
+carrying hydrology left over from a type the user selected earlier and changed.
+
+Please also confirm the intended codes. If FiaKa stores `31` and `32` for the two Altwasser types,
+then the form has been exporting the wrong numbers as well, and the affected records need
+remapping rather than only rechecking.
+
 ---
 
 ## What we intend to do
 
-Fix all eight in the new application. This means new records will be more correct than historical
+Fix all nine in the new application. This means new records will be more correct than historical
 ones, and specifically:
 
 - Substrate percentages will be enforced to total exactly 100
 - Water body names will be stored exactly as entered
 - Estimates outside their chosen band will be rejected
 - The full Vorfluter chain will be verified
+- Hydrology will appear and be required for angebundenes Altwasser, and disappear for
+  abgeschnittenes Altwasser, keyed to the codes the field actually exports
 
-Defects 2 and 1 mean historical FiaKa data cannot be assumed clean. If any reporting depends on
-joining by water body name, or on substrate percentages summing correctly, that reporting needs
-review.
+Defects 1, 2 and 9 mean historical FiaKa data cannot be assumed clean. If any reporting depends on
+joining by water body name, on substrate percentages summing correctly, or on hydrology being
+present for oxbows, that reporting needs review.
