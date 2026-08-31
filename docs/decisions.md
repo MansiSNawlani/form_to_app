@@ -121,8 +121,16 @@ a year old. We will find out how solid it is by building the hardest screen firs
 
 **Where KERN will need help.** Two parts of this form are hard, and they are exactly where "plain
 HTML, minimal JavaScript" is weakest: the species picker (hundreds of entries, needs type-ahead)
-and the catch table (338 cells with live totals). We will build those two ourselves on top of
-headless helpers, styled to match KERN. We will not mix in a second full design system.
+and the catch table (338 cells with live totals). Building those two ourselves on top of headless
+helpers, styled to match KERN, is still the plan.
+
+**Update, 2026-08-24: KERN is our choice, not an FFS mandate.** FFS have confirmed they do not
+require it. The reasoning above is unchanged, so KERN stays the default, but where it genuinely
+falls short we may bring in another component library rather than always building in-house. That
+means a real limitation such as a missing component, a React version conflict or broken types, not
+just an unfamiliar API. Anything we bring in still has to clear the same accessibility bar and
+still has to theme to the BW palette. See the amendment on
+[ADR 0005](adr/0005-kern-design-system.md).
 
 ---
 

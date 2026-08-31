@@ -1,0 +1,746 @@
+/* Throwaway layout for the mockups. Unlike theme.css, none of this ports into
+   the real app: KERN supplies the components, and this file only exists so the
+   three static pages share a shell without duplicating it three times.
+
+   Every value here reads from a theme.css variable. Nothing is hard-coded, so
+   editing theme.css restyles all three mockups at once. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ---------- header ---------- */
+
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header__inner {
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 0.875rem var(--space);
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Stand-in for the state coat of arms. The real mark is supplied by FFS. */
+.brand__mark {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  border-radius: var(--radius);
+}
+
+.brand__text {
+  min-width: 0;
+}
+
+.brand__org {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand__app {
+  display: block;
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.site-header__spacer {
+  flex: 1;
+}
+
+.site-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.site-header__user strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.role-tag {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.4rem;
+  color: var(--muted);
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  margin-top: auto;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.site-footer__inner {
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 1.25rem var(--space);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.site-footer__version {
+  margin-left: auto;
+  color: var(--faint);
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--accent);
+}
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* ---------- page shell ---------- */
+
+.page {
+  max-width: var(--shell-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem var(--space) 3rem;
+}
+
+.page__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.page__title {
+  margin: 0;
+  font-size: var(--step-2);
+  font-weight: 600;
+}
+
+.page__sub {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.page__head-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* ---------- step bar ---------- */
+
+/* Six sections with long German labels do not fit one row below roughly
+   1100px, so the bar scrolls sideways rather than shrinking labels to
+   unreadable. Users may jump to any section in any order, so every step is a
+   real link, not a gated wizard. */
+.steps {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+}
+
+.steps__list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: max-content;
+}
+
+.steps__item {
+  flex: 1;
+}
+
+.steps__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.7rem;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.steps__link:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.steps__num {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+
+.steps__label {
+  font-size: var(--step--1);
+}
+
+.steps__item--done .steps__num {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.steps__item--current .steps__link {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.steps__item--current .steps__num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.steps__item--current .steps__label {
+  font-weight: 600;
+}
+
+/* ---------- form ---------- */
+
+.form-section {
+  border: none;
+  margin: 0;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.form-section:first-of-type {
+  border-top: none;
+}
+
+.form-section > legend {
+  padding: 0;
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.form-section__hint {
+  margin: 0.25rem 0 1.25rem;
+  color: var(--muted);
+  font-size: var(--step--1);
+  max-width: 62ch;
+}
+
+/* minmax(0, 1fr), not 1fr: a plain 1fr floors at the column's content width, so
+   one long select option or a wide input drags its column out and squeezes the
+   rest of the row. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+.col-1 { grid-column: span 1; }
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+.col-4 { grid-column: span 4; }
+.col-5 { grid-column: span 5; }
+.col-6 { grid-column: span 6; }
+.col-7 { grid-column: span 7; }
+.col-8 { grid-column: span 8; }
+.col-9 { grid-column: span 9; }
+.col-10 { grid-column: span 10; }
+.col-11 { grid-column: span 11; }
+.col-12 { grid-column: span 12; }
+
+@media (max-width: 800px) {
+  .grid > * {
+    grid-column: span 12;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.field > label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field__req {
+  color: var(--danger);
+  margin-left: 0.15rem;
+}
+
+.field__hint {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.field__error {
+  font-size: var(--step--1);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 0 0.7rem;
+  height: var(--field-h);
+  width: 100%;
+  min-width: 0;
+}
+
+textarea {
+  height: auto;
+  padding: 0.6rem 0.7rem;
+  resize: vertical;
+}
+
+input[type="number"],
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.field--error input,
+.field--error select {
+  border-color: var(--danger);
+  border-width: 2px;
+  background: var(--danger-soft);
+}
+
+.readonly-value {
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.7rem;
+  min-height: var(--field-h);
+  color: var(--text);
+}
+
+.unit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unit-row__unit {
+  color: var(--muted);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  height: var(--field-h);
+  padding: 0 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-sunken);
+}
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--accent);
+  padding: 0 0.5rem;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--sm {
+  height: 2.1rem;
+  padding: 0 0.75rem;
+  font-size: var(--step--1);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.form-actions__spacer {
+  flex: 1;
+}
+
+/* ---------- save indicator ---------- */
+
+.save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.save-state__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--ok);
+  flex: none;
+}
+
+/* ---------- badges ---------- */
+
+.badge {
+  display: inline-block;
+  font-size: var(--step--1);
+  font-weight: 600;
+  padding: 0.1rem 0.55rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badge--draft { background: var(--neutral-soft); color: var(--neutral); border-color: var(--border); }
+.badge--submitted { background: var(--info-soft); color: var(--info); border-color: var(--info); }
+.badge--review { background: var(--info-soft); color: var(--info); border-color: var(--info); }
+.badge--changes { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+.badge--rejected { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+.badge--accepted { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+
+/* ---------- tables ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step-0);
+}
+
+table.data th,
+table.data td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+table.data thead th {
+  background: var(--surface-sunken);
+  font-size: var(--step--1);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+table.data tbody tr:hover {
+  background: var(--surface-sunken);
+}
+
+table.data tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cell-title {
+  font-weight: 600;
+}
+
+.cell-sub {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* ---------- filter bar ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.filters .field {
+  flex: 1 1 12rem;
+}
+
+/* ---------- empty state ---------- */
+
+.empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--muted);
+}
+
+.empty h3 {
+  margin: 0 0 0.35rem;
+  color: var(--text);
+  font-size: var(--step-1);
+}
+
+.empty p {
+  margin: 0 auto 1.25rem;
+  max-width: 46ch;
+}
+
+/* ---------- review layout ---------- */
+
+.review {
+  display: grid;
+  grid-template-columns: 1fr 22rem;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 950px) {
+  .review {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel__head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.panel__body {
+  padding: 1.25rem;
+}
+
+.summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.summary-bar dt {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.summary-bar dd {
+  margin: 0.1rem 0 0;
+  font-weight: 600;
+}
+
+.decision {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.decision label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+  cursor: pointer;
+}
+
+.decision label:hover {
+  background: var(--surface-sunken);
+}
+
+.decision input {
+  margin-top: 0.25rem;
+  accent-color: var(--accent);
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+}
+
+.decision strong {
+  display: block;
+}
+
+.decision span {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.history li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--step--1);
+}
+
+.history li:last-child {
+  border-bottom: none;
+}
+
+.history time {
+  color: var(--faint);
+  font-family: var(--font-mono);
+}
+
+.history blockquote {
+  margin: 0.4rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--muted);
+}
+
+.callout {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--info);
+  background: var(--info-soft);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: var(--step--1);
+  color: var(--text);
+}
+
+.callout--warn {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}

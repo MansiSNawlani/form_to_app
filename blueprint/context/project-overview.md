@@ -40,8 +40,16 @@ FFS staff.
 In `build-plan.md` order. **Items 4 to 9 are the headline**: they are the protocol itself, and
 everything else exists to support them. Item 9 carries the most risk.
 
-1. **Project skeleton** - Docker Compose, Postgres with PostGIS, FastAPI, the React shell, KERN
-   themed, translation and theme wiring, and the Verify command.
+1. **Project skeleton** - split into three sub-features in the build plan:
+   - **1a. App shell and theme** - clear the Vite scaffold, port the `prototypes/theme.css` tokens,
+     install MUI, build the header, main and footer shell with a light and dark toggle.
+   - **1b. Translation wiring** - an i18n library with a German locale file, every shell string read
+     from it, ready for English in feature 17.
+   - **1c. Backend and database** - Docker Compose, PostgreSQL with PostGIS, FastAPI health and
+     readiness endpoints, frontend reaching the backend through the proxy.
+
+   The Verify command is deliberately outside this split. `AGENTS.md` makes CI a separate explicit
+   setup, so it belongs to a `/ci` run after 1c, not to the feature loop.
 2. **Accounts and login** - JWT in an httpOnly cookie, the six roles, first-admin command,
    activate and deactivate.
 3. **Draft lifecycle** - create a submission, automatic saving, local safety copy, "my
@@ -67,6 +75,16 @@ everything else exists to support them. Item 9 carries the most risk.
 
 After MVP: the map picker and official water body dataset (18), transfer to FiaKa (19), PDF
 generation (20), the Protokoll Krebs (21), offline field use (22).
+
+### Why item 9 is still the riskiest
+
+The original reason was the KERN React kit: it was young, the prototype meant to test it was
+deferred on 2026-08-22, and the risk was due to land in full on the catch table. Moving to MUI on
+2026-08-24 retired that, and the deferred KERN prototype is now moot.
+
+Item 9 remains the hardest item regardless. It is 338 cells with live row totals, a species picker
+over hundreds of entries, the young-of-year rule and the "no detection" rule. Whether MUI's table
+is the right base or the grid is better hand-built is decided when feature 9 is specced, not now.
 
 ## Data model
 
@@ -214,13 +232,37 @@ bemerkungen           free text
 | **React Hook Form** | Form state. Required at 338 fields, where re-rendering everything per keystroke makes typing sticky |
 | **Zod** | Browser-side validation for instant feedback. Never a gate |
 | **TanStack Query** | Server calls, retries, and the automatic-save indicator |
-| **KERN UX Standard** | Components, themed with BW colours ([ADR 0005](../../docs/adr/0005-kern-design-system.md)). Species picker and catch table built in-house |
+| **MUI** | Components, themed hard against our own tokens ([ADR 0006](../../docs/adr/0006-mui-supersedes-kern.md), superseding ADR 0005) |
 | **FastAPI + Python** | The backend and the authoritative validation gate |
 | **Pydantic** | Request and response validation. The rules enforced here are the real ones |
 | **PostgreSQL + PostGIS** | Storage. PostGIS is present from v1 but only exercised by feature 18 |
 | **Alembic** | Schema migrations |
+| **JWT in an httpOnly cookie** | Sessions, roughly eight hours |
 | **MapLibre GL JS** | Maps, from feature 18 onward |
 | **Docker + Docker Compose** | Packaging and local development |
+
+### On MUI
+
+The component library changed on 2026-08-24. FFS confirmed that KERN was never something they
+mandate, which removed the premise ADR 0005 rested on, and MUI was chosen in its place. KERN was
+never installed, so there is nothing to migrate.
+
+The gain is that MUI ships an autocomplete and a table, so the species picker and the catch table
+become configuration rather than construction, and the unretired KERN React kit risk that was due
+to land on feature 9 disappears.
+
+Two constraints come with it, and both are load-bearing:
+
+1. **Theme it, do not ship it stock.** The tokens in `frontend/src/styles/theme.css` outrank MUI's
+   defaults and MUI's theme is configured from them in one place. The BW accent, the 4px radius,
+   flat surfaces, no elevation shadows. The app must not read as a Material app.
+2. **Accessibility is not free here.** It was KERN's primary design goal and it is not MUI's, so
+   keyboard navigation, labels, visible focus and contrast in both themes stay explicit acceptance
+   criteria on every UI feature.
+
+The known risk, accepted knowingly: MUI is structurally Material Design, so if FFS ever hardens the
+state design guidance into a real requirement, this is the decision they would challenge. Recorded
+in [ADR 0006](../../docs/adr/0006-mui-supersedes-kern.md).
 
 ## Monetization
 
@@ -230,8 +272,9 @@ advertising, and none should be added.
 ## UI/UX
 
 Plain and official rather than decorative, which is what the Baden-Württemberg guidance calls for
-and what KERN is built to deliver. High contrast, large targets, obvious labels. Light and dark
-both supported via tokens.
+calls for. High contrast, large targets, obvious labels. Light and dark both supported via tokens.
+MUI is themed to deliver this rather than shipped stock, since Material's defaults pull the other
+way.
 
 The protocol is long, so it is split into sections shown one at a time with a progress list, and
 users may jump to any section in any order. Locking the order makes surveyors type placeholder
@@ -249,8 +292,9 @@ Main screens:
 - `/pruefung` - the review queue with filters and search
 - `/verwaltung/benutzer` - user administration
 
-> TODO: neither plan specifies whether routes are German or English. The German forms above follow
-> the domain-language decision but are a guess.
+Route paths are German, decided on 2026-08-24, following the same rule as the rest of the domain
+language. Component and variable names stay English, since those are general programming
+vocabulary rather than domain terms.
 
 ## Deployment
 
@@ -283,22 +327,15 @@ Ordered by how much they could still change.
    need reconciling. Per-submission as-surveyed coordinates become relevant with feature 18, which
    requires storing both typed and snapped values.
 
-2. **Build item 1 still bundles several things** - Compose, Postgres, the readiness check, KERN
-   theming, translation wiring, theme tokens and Verify. The pre-build restructure has already
-   taken the bare frontend and backend scaffolds off its plate, but it will still likely split into
-   1a, 1b and so on when `/feature` specs it. That is expected, not a problem.
-
-3. **Route language is unspecified** by either plan. See the TODO under UI/UX.
-
-4. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
+2. **Option lists are not yet extracted** - the species list, `Anlass` values, monitoring stretch
    numbers and cathode types. This is on the pre-build list in `build-plan.md` and blocks features
    4 and 9, not features 1 to 3.
 
-5. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
+3. **Data retention is undefined.** `project-plan.md` §8 defers it to FFS. It does not block
    building, but the `Person` and `Submission` split already assumes personal details can be
    anonymised independently of the survey record. If FFS decides otherwise, revisit.
 
-6. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
+4. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
    gives Super Admins that job and `build-plan.md` has it as item 16. Minor, but the plan's feature
    list should gain a line.
 

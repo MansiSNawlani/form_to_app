@@ -8,19 +8,34 @@
 
 These are not features and are not tracked here. They happen first.
 
-- Throwaway prototype of the catch table in KERN, to decide whether the KERN React kit holds up.
-  Use `/prototype`.
-- Remove the Next.js scaffold and restructure as a monorepo: `frontend/`, `backend/`, `database/`,
-  `deployment/`, `docs/`.
+- ~~Remove the Next.js scaffold and restructure as a monorepo~~ - done.
+- ~~Throwaway prototype of the look: header, form, footer, the submissions list and the reviewer
+  view. `prototypes/`, via `/prototype`.~~ - done.
+- ~~Throwaway prototype of the catch table in KERN, to decide whether the KERN React kit holds
+  up.~~ - **dropped on 2026-08-24.** Moot now that the library is MUI, not KERN. See
+  [../docs/adr/0006-mui-supersedes-kern.md](../docs/adr/0006-mui-supersedes-kern.md).
 - Extract the remaining dropdown option lists from the PDF with a proper PDF toolchain: the species
   list, `Anlass` values, monitoring stretch numbers, cathode types.
+- `prototypes/` is committed to the repository rather than discarded at feature 1a, even
+  though the 1a spec called for discarding it. Only `theme.css` was consumed there. The
+  remaining mockups are still the design reference for features 3, 4, 11 and 12, so the folder
+  is deleted at the `/complete` of the last feature that uses it, not before.
 - Send [../docs/ffs-defect-list.md](../docs/ffs-defect-list.md) to FFS.
 
 ## MVP
 
 - [ ] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
-      React and Vite shell, KERN themed with BW colours, translation wiring with German only, light
+      React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
+  - [x] 1a. App shell and theme: clear the Vite scaffold, port the `prototypes/theme.css` tokens,
+        install MUI, and build the header, main and footer shell with a light and dark toggle
+  - [ ] 1b. Translation wiring: an i18n library with a German locale file, every shell string read
+        from it, ready for the English locale in feature 17
+  - [ ] 1c. Backend and database: Docker Compose, PostgreSQL with PostGIS, FastAPI health and
+        readiness endpoints, and the frontend reaching the backend through the proxy
+
+  The Verify command is deliberately not a sub-item. `AGENTS.md` makes CI a separate explicit
+  setup, so it belongs to `/ci` after 1c, not to the feature loop.
 - [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
       activate and deactivate
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my

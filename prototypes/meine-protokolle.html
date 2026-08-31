@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meine Protokolle</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">BW</span>
+      <span class="brand__text">
+        <span class="brand__org">Fischereiforschungsstelle Baden-W&uuml;rttemberg</span>
+        <span class="brand__app">Protokoll E-Befischung</span>
+      </span>
+    </div>
+    <div class="site-header__spacer"></div>
+    <div class="site-header__user">
+      <button type="button" class="btn btn--sm" data-theme-toggle aria-pressed="false">
+        Dunkles Design
+      </button>
+      <span><strong>M. Bergmann</strong> <span class="role-tag">Einreicher</span></span>
+      <a href="#">Abmelden</a>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="inhalt">
+
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">Meine Protokolle</h1>
+      <p class="page__sub">6 Protokolle, davon 2 Entw&uuml;rfe</p>
+    </div>
+    <div class="page__head-actions">
+      <a href="protokoll-teil-1.html" class="btn btn--primary">Neues Protokoll</a>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="filters">
+      <div class="field">
+        <label for="suche">Suche</label>
+        <input type="text" id="suche" placeholder="Gew&auml;sser oder Ortsangabe">
+      </div>
+      <div class="field">
+        <label for="f-status">Status</label>
+        <select id="f-status">
+          <option>Alle</option>
+          <option>Entwurf</option>
+          <option>Eingereicht</option>
+          <option>In Pr&uuml;fung</option>
+          <option>&Auml;nderung erforderlich</option>
+          <option>Angenommen</option>
+          <option>Abgelehnt</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-jahr">Jahr</label>
+        <select id="f-jahr">
+          <option>Alle</option>
+          <option>2026</option>
+          <option>2025</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-anlass">Anlass</label>
+        <select id="f-anlass">
+          <option>Alle</option>
+          <option>WRRL-Monitoring</option>
+          <option>FFH-Monitoring</option>
+          <option>Allgemeine Bestandserhebung</option>
+          <option>Besatzkontrolle</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th scope="col">Gew&auml;sser und Probestrecke</th>
+            <th scope="col">Datum</th>
+            <th scope="col">Anlass</th>
+            <th scope="col">Status</th>
+            <th scope="col">Zuletzt bearbeitet</th>
+            <th scope="col"><span class="sr-only">Aktion</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="cell-title">Schussen</span>
+              <span class="cell-sub">Wei&szlig;enau, oberhalb der Br&uuml;cke &middot; 120 m</span>
+            </td>
+            <td class="tabular">14.08.2026</td>
+            <td>WRRL-Monitoring</td>
+            <td><span class="badge badge--draft">Entwurf</span></td>
+            <td class="tabular">heute, 14:32</td>
+            <td><a class="btn btn--sm" href="protokoll-teil-1.html">Weiter ausf&uuml;llen</a></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="cell-title">Argen</span>
+              <span class="cell-sub">Unterhalb Wehr Gie&szlig;en &middot; 90 m</span>
+            </td>
+            <td class="tabular">02.08.2026</td>
+            <td>Allgemeine Bestandserhebung</td>
+            <td><span class="badge badge--draft">Entwurf</span></td>
+            <td class="tabular">11.08.2026</td>
+            <td><a class="btn btn--sm" href="protokoll-teil-1.html">Weiter ausf&uuml;llen</a></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="cell-title">Rotach</span>
+              <span class="cell-sub">Bei Sto&szlig;wang &middot; 75 m</span>
+            </td>
+            <td class="tabular">21.07.2026</td>
+            <td>FFH-Monitoring</td>
+            <td><span class="badge badge--submitted">Eingereicht</span></td>
+            <td class="tabular">22.07.2026</td>
+            <td><a class="btn btn--sm" href="pruefung-protokoll.html">Ansehen</a></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="cell-title">Wolfegger Ach</span>
+              <span class="cell-sub">Kiesbank unterhalb Vogt &middot; 110 m</span>
+            </td>
+            <td class="tabular">09.07.2026</td>
+            <td>WRRL-Monitoring</td>
+            <td><span class="badge badge--review">In Pr&uuml;fung</span></td>
+            <td class="tabular">15.07.2026</td>
+            <td><a class="btn btn--sm" href="pruefung-protokoll.html">Ansehen</a></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="cell-title">Sch&uuml;ssenbach</span>
+              <span class="cell-sub">M&uuml;ndungsbereich &middot; 60 m</span>
+            </td>
+            <td class="tabular">18.06.2026</td>
+            <td>Besatzkontrolle</td>
+            <td><span class="badge badge--changes">&Auml;nderung erforderlich</span></td>
+            <td class="tabular">30.06.2026</td>
+            <td><a class="btn btn--sm btn--primary" href="protokoll-teil-1.html">&Auml;nderung vornehmen</a></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="cell-title">Schussen</span>
+              <span class="cell-sub">Wei&szlig;enau, oberhalb der Br&uuml;cke &middot; 120 m</span>
+            </td>
+            <td class="tabular">12.08.2025</td>
+            <td>WRRL-Monitoring</td>
+            <td><span class="badge badge--accepted">Angenommen</span></td>
+            <td class="tabular">03.09.2025</td>
+            <td><a class="btn btn--sm" href="pruefung-protokoll.html">Ansehen</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 class="page__title" style="font-size: var(--step-1); margin: 2.5rem 0 0.75rem;">
+    Zustand ohne Protokolle
+  </h2>
+  <p class="page__sub" style="margin: 0 0 0.75rem;">
+    Dieselbe Seite bei einem neuen Konto. Nur zum Vergleich in diesem Entwurf, sp&auml;ter
+    nicht gleichzeitig sichtbar.
+  </p>
+
+  <section class="card">
+    <div class="empty">
+      <h3>Noch kein Protokoll angelegt</h3>
+      <p>
+        Ein Protokoll kann &uuml;ber mehrere Sitzungen ausgef&uuml;llt werden. Es wird laufend
+        gespeichert und erst eingereicht, wenn Sie es ausdr&uuml;cklich abschicken.
+      </p>
+      <a href="protokoll-teil-1.html" class="btn btn--primary">Erstes Protokoll anlegen</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <span>Fischereiforschungsstelle Baden-W&uuml;rttemberg</span>
+    <nav aria-label="Rechtliches">
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">Barrierefreiheit</a>
+      <a href="#">Hilfe</a>
+      <a href="#">Kontakt</a>
+    </nav>
+    <span class="site-footer__version">Formularversion 20260609</span>
+  </div>
+</footer>
+
+<script src="theme-toggle.js"></script>
+</body>
+</html>

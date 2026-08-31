@@ -1,0 +1,161 @@
+/* Shell chrome: header, footer, skip link and the page wrapper.
+
+   Hand-built rather than assembled from MUI. MUI's AppBar is Material furniture
+   that brings elevation and its own layout assumptions, and the approved mockups
+   want a flat bordered bar, so fighting AppBar into that shape costs more than
+   writing the markup. MUI is still the source of every control inside the shell.
+
+   Class names deliberately match prototypes/mockup.css so the two can be
+   compared side by side. Every value is a token from styles/theme.css. */
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/* ---------- header ---------- */
+
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header__inner {
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 0.875rem var(--space);
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+
+.site-header__spacer {
+  flex: 1;
+}
+
+.site-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.site-header__user strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Placeholder for the state coat of arms, which FFS has to supply. Kept as a
+   plain lettered box so it reads as unfinished rather than as a real mark. */
+.brand__mark {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  border-radius: var(--radius);
+}
+
+.brand__text {
+  min-width: 0;
+}
+
+.brand__org {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand__app {
+  display: block;
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.role-tag {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.4rem;
+  color: var(--muted);
+}
+
+/* ---------- main ---------- */
+
+.page {
+  max-width: var(--shell-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem var(--space) 3rem;
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  margin-top: auto;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.site-footer__inner {
+  max-width: var(--shell-max);
+  margin: 0 auto;
+  padding: 1.25rem var(--space);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.site-footer__version {
+  margin-left: auto;
+  color: var(--faint);
+  font-family: var(--font-mono);
+}
+
+.shell-link {
+  color: var(--accent);
+}
+
+.shell-link:hover {
+  color: var(--accent-hover);
+}

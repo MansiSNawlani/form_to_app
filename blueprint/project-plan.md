@@ -63,8 +63,9 @@ automated transfer into FiaKa, PDF generation, the crayfish protocol, and offlin
 
 - **Frontend:** React with TypeScript, built by Vite. React Hook Form for the form itself, Zod for
   browser-side validation, TanStack Query for server calls.
-- **UI:** KERN UX Standard, themed with Baden-Württemberg colours and typography. Two components
-  built in-house: the species picker and the catch table.
+- **UI:** MUI, themed hard against our own design tokens so the app does not read as a Material
+  app. Chosen on 2026-08-24 once FFS confirmed KERN was never a mandate. See
+  [../docs/adr/0006-mui-supersedes-kern.md](../docs/adr/0006-mui-supersedes-kern.md).
 - **Backend:** FastAPI with Python. Pydantic for validation, which is the authoritative gate.
 - **Database:** PostgreSQL with PostGIS. Alembic for migrations.
 - **Maps (later):** MapLibre GL JS.
@@ -81,8 +82,9 @@ subscription and no advertising, and none should be added.
 
 ## 7. UI/UX - How should this look and feel?
 
-Plain and official rather than decorative, which is what the Baden-Württemberg guidance calls for
-and what KERN is built to deliver. High contrast, large targets, obvious labels.
+Plain and official rather than decorative, which is what the Baden-Württemberg guidance calls for.
+High contrast, large targets, obvious labels. MUI is themed to deliver this rather than shipped
+stock, since Material's defaults pull the other way.
 
 The form is long, so it is split into sections shown one at a time, with a progress list down the
 side. Users can jump to any section in any order, because surveyors genuinely do not have every
@@ -90,6 +92,9 @@ value at once. Saving is automatic and always visible.
 
 Accessibility is a requirement from the start, not a later pass: keyboard navigation, correct
 labels, visible focus, sufficient contrast.
+
+Route paths are German, decided on 2026-08-24. `/protokolle/neu`, not `/protocols/new`. This
+follows the same rule as the rest of the domain language.
 
 ## 8. Deployment - Where and how will this ship?
 

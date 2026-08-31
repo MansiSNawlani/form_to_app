@@ -60,9 +60,18 @@ next to each other in the code and change them together.
 
 ## Styling and components
 
-- **KERN UX Standard** for components, themed with Baden-Württemberg colours and typography
-- Do not introduce a second component library. Where KERN falls short, build the component in-house
-  on a headless primitive and style it to match
+- **MUI** for components, themed against our own design tokens
+  ([ADR 0006](../../docs/adr/0006-mui-supersedes-kern.md), superseding ADR 0005, which chose KERN)
+- **The tokens in `frontend/src/styles/theme.css` outrank MUI's defaults.** Configure MUI's theme
+  from them in one place. Do not scatter per-component `sx` colour overrides, and never hard-code a
+  colour to work around the theme
+- **The app must not read as a Material app.** The BW accent, the 4px radius, flat surfaces, no
+  elevation shadows. The approved mockups in `prototypes/` are the target
+- Do not introduce a second component library alongside MUI. Where MUI falls short, build the
+  component in-house on a headless primitive and style it from the tokens
+- **Accessibility does not come free with MUI**, unlike KERN, where it was the primary design goal.
+  Keyboard navigation, label association, visible focus and contrast in both themes are explicit
+  acceptance criteria on every UI feature, checked against our tokens rather than assumed
 - Light and dark both supported, defined as tokens, never hard-coded colours
 - Accessibility is a requirement, not a later pass: keyboard navigation, correct labels, visible
   focus, sufficient contrast

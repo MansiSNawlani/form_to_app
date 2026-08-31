@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protokoll E-Befischung - Teil 1</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+
+<a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">BW</span>
+      <span class="brand__text">
+        <span class="brand__org">Fischereiforschungsstelle Baden-W&uuml;rttemberg</span>
+        <span class="brand__app">Protokoll E-Befischung</span>
+      </span>
+    </div>
+    <div class="site-header__spacer"></div>
+    <div class="site-header__user">
+      <button type="button" class="btn btn--sm" data-theme-toggle aria-pressed="false">
+        Dunkles Design
+      </button>
+      <span><strong>M. Bergmann</strong> <span class="role-tag">Einreicher</span></span>
+      <a href="#">Abmelden</a>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="inhalt">
+
+  <div class="page__head">
+    <div>
+      <h1 class="page__title">Schussen, Wei&szlig;enau</h1>
+      <p class="page__sub">Entwurf &middot; angelegt am 14.08.2026 &middot; Formularversion 20260609</p>
+    </div>
+    <div class="page__head-actions">
+      <span class="save-state">
+        <span class="save-state__dot" aria-hidden="true"></span>
+        Automatisch gespeichert um 14:32
+      </span>
+      <a href="meine-protokolle.html" class="btn btn--sm">Alle Protokolle</a>
+    </div>
+  </div>
+
+  <nav class="steps" aria-label="Abschnitte des Protokolls">
+    <ol class="steps__list">
+      <li class="steps__item steps__item--current">
+        <a class="steps__link" href="#" aria-current="step">
+          <span class="steps__num">1</span>
+          <span class="steps__label">Anlass und Probestrecke</span>
+        </a>
+      </li>
+      <li class="steps__item">
+        <a class="steps__link" href="#">
+          <span class="steps__num">2</span>
+          <span class="steps__label">Messdaten und Hydrologie</span>
+        </a>
+      </li>
+      <li class="steps__item">
+        <a class="steps__link" href="#">
+          <span class="steps__num">3</span>
+          <span class="steps__label">Umland, Ufer und Sohle</span>
+        </a>
+      </li>
+      <li class="steps__item">
+        <a class="steps__link" href="#">
+          <span class="steps__num">4</span>
+          <span class="steps__label">Struktur und Bewirtschaftung</span>
+        </a>
+      </li>
+      <li class="steps__item">
+        <a class="steps__link" href="#">
+          <span class="steps__num">5</span>
+          <span class="steps__label">Ausr&uuml;stung und Bereiche</span>
+        </a>
+      </li>
+      <li class="steps__item">
+        <a class="steps__link" href="#">
+          <span class="steps__num">6</span>
+          <span class="steps__label">F&auml;nge</span>
+        </a>
+      </li>
+    </ol>
+  </nav>
+
+  <form class="card">
+
+    <fieldset class="form-section">
+      <legend>Anlass der Befischung</legend>
+      <p class="form-section__hint">
+        Der Anlass bestimmt, welche weiteren Angaben Pflicht werden.
+      </p>
+
+      <div class="grid">
+        <div class="field col-5">
+          <label for="anlass">Anlass <span class="field__req" aria-hidden="true">*</span></label>
+          <select id="anlass">
+            <option>WRRL-Monitoring</option>
+            <option>Allgemeine Bestandserhebung</option>
+            <option>FFH-Monitoring</option>
+            <option>Besatzkontrolle</option>
+            <option>Sonstiges</option>
+          </select>
+        </div>
+
+        <div class="field col-4 field--error">
+          <label for="mon-nr">
+            Monitoringstrecken-Nr. <span class="field__req" aria-hidden="true">*</span>
+          </label>
+          <input type="text" id="mon-nr" value="" aria-describedby="mon-nr-fehler" aria-invalid="true">
+          <span class="field__error" id="mon-nr-fehler">
+            Beim Anlass &bdquo;WRRL-Monitoring&ldquo; ist die Monitoringstrecken-Nr. erforderlich.
+          </span>
+        </div>
+
+        <div class="field col-3">
+          <label for="rp">Regierungspr&auml;sidium <span class="field__req" aria-hidden="true">*</span></label>
+          <select id="rp">
+            <option>4 - T&uuml;bingen</option>
+            <option>1 - Stuttgart</option>
+            <option>2 - Karlsruhe</option>
+            <option>3 - Freiburg</option>
+          </select>
+        </div>
+
+        <div class="field col-3">
+          <label for="datum">Datum <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="date" id="datum" value="2026-08-14">
+        </div>
+
+        <div class="field col-3">
+          <label for="uhrzeit">Uhrzeit <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="time" id="uhrzeit" value="09:15">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+      <legend>Bearbeiter</legend>
+      <p class="form-section__hint">
+        Die Person, die die Befischung durchgef&uuml;hrt hat. Das ist nicht zwingend das Konto,
+        das das Protokoll einreicht.
+      </p>
+
+      <div class="grid">
+        <div class="field col-5">
+          <label for="b-name">Name <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="text" id="b-name" value="Dr. Anne Kr&uuml;ger">
+        </div>
+        <div class="field col-7">
+          <label for="b-firma">Firma oder Verein</label>
+          <input type="text" id="b-firma" value="B&uuml;ro f&uuml;r Gew&auml;sser&ouml;kologie S&uuml;d GmbH">
+        </div>
+
+        <div class="field col-6">
+          <label for="b-strasse">Stra&szlig;e und Hausnummer</label>
+          <input type="text" id="b-strasse" value="Uferweg 12">
+        </div>
+        <div class="field col-2">
+          <label for="b-plz">PLZ</label>
+          <input type="text" id="b-plz" class="tabular" value="88214" inputmode="numeric">
+        </div>
+        <div class="field col-4">
+          <label for="b-ort">Ort</label>
+          <input type="text" id="b-ort" value="Ravensburg">
+        </div>
+
+        <div class="field col-4">
+          <label for="b-tel">Telefon</label>
+          <input type="tel" id="b-tel" class="tabular" value="0751 3345-18">
+        </div>
+        <div class="field col-5">
+          <label for="b-mail">E-Mail <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="email" id="b-mail" value="a.krueger@geoeko-sued.de">
+        </div>
+        <div class="field col-3">
+          <label for="anodenfuehrer">Anodenf&uuml;hrer</label>
+          <input type="text" id="anodenfuehrer" value="T. Vogel">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+      <legend>Probestrecke</legend>
+      <p class="form-section__hint">
+        Der befischte Abschnitt. Dieselbe Strecke kann in mehreren Jahren befischt werden und
+        beh&auml;lt dabei ihre Angaben.
+      </p>
+
+      <div class="grid">
+        <div class="field col-5">
+          <label for="gewaesser">Gew&auml;sser <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="text" id="gewaesser" value="Schussen">
+        </div>
+
+        <div class="field col-4">
+          <label for="gew-typ">Gew&auml;ssertyp <span class="field__req" aria-hidden="true">*</span></label>
+          <select id="gew-typ" aria-describedby="typ-hinweis">
+            <option>14 - Fluss</option>
+            <option>11 - Graben</option>
+            <option>12 - Kanal</option>
+            <option>13 - Bach</option>
+            <option>21 - See</option>
+            <option>26 - Teich</option>
+            <option>31 - angebundenes Altwasser</option>
+            <option>32 - abgeschnittenes Altwasser</option>
+          </select>
+          <span class="field__hint" id="typ-hinweis">
+            Bei See, Teich und abgeschnittenem Altwasser entf&auml;llt Abschnitt 2 (Hydrologie).
+          </span>
+        </div>
+
+        <div class="field col-3">
+          <label for="laenge">L&auml;nge der Strecke <span class="field__req" aria-hidden="true">*</span></label>
+          <div class="unit-row">
+            <input type="number" id="laenge" value="120">
+            <span class="unit-row__unit">m</span>
+          </div>
+        </div>
+
+        <div class="field col-12">
+          <label for="ortsangabe">Ortsangabe <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="text" id="ortsangabe"
+                 value="Oberhalb der Br&uuml;cke Wei&szlig;enau, H&ouml;he Kl&auml;rwerk">
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 1.5rem;">
+        <div class="col-12">
+          <div class="callout">
+            <strong>Vorfluterkette.</strong> Von der Probestrecke abw&auml;rts eintragen. Die Kette
+            muss beim Rhein oder bei der Donau enden, damit die Strecke im Gew&auml;ssernetz
+            eingeordnet werden kann.
+          </div>
+        </div>
+
+        <div class="field col-4">
+          <label for="vf1">Vorfluter 1 <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="text" id="vf1" value="Bodensee-Obersee">
+        </div>
+        <div class="field col-4">
+          <label for="vf2">Vorfluter 2</label>
+          <input type="text" id="vf2" value="Rhein">
+        </div>
+        <div class="field col-4">
+          <label for="vf3">Vorfluter 3</label>
+          <input type="text" id="vf3" value="" placeholder="Kette endet beim Rhein">
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 1.5rem;">
+        <div class="col-12">
+          <div class="callout">
+            <strong>Koordinaten in EPSG:25832</strong> (ETRS89 / UTM Zone 32N), wie im bisherigen
+            Formular. Werte au&szlig;erhalb Baden-W&uuml;rttembergs werden abgewiesen.
+          </div>
+        </div>
+
+        <div class="field col-3">
+          <label for="ug-r">Untere Grenze, Rechtswert <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="number" id="ug-r" value="545212">
+        </div>
+        <div class="field col-3">
+          <label for="ug-h">Untere Grenze, Hochwert <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="number" id="ug-h" value="5292184">
+        </div>
+        <div class="field col-3">
+          <label for="og-r">Obere Grenze, Rechtswert <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="number" id="og-r" value="545301">
+        </div>
+        <div class="field col-3">
+          <label for="og-h">Obere Grenze, Hochwert <span class="field__req" aria-hidden="true">*</span></label>
+          <input type="number" id="og-h" value="5292255">
+        </div>
+
+        <div class="col-12">
+          <p class="field__hint" style="margin: 0;">
+            Die Kartenauswahl folgt sp&auml;ter. Bis dahin werden die Koordinaten eingetippt.
+          </p>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="button" class="btn" disabled>Zur&uuml;ck</button>
+      <button type="button" class="btn btn--primary">Weiter: Messdaten und Hydrologie</button>
+      <div class="form-actions__spacer"></div>
+      <span class="save-state">
+        <span class="save-state__dot" aria-hidden="true"></span>
+        Alle &Auml;nderungen gespeichert
+      </span>
+      <button type="button" class="btn btn--quiet">Entwurf schlie&szlig;en</button>
+    </div>
+
+  </form>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <span>Fischereiforschungsstelle Baden-W&uuml;rttemberg</span>
+    <nav aria-label="Rechtliches">
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">Barrierefreiheit</a>
+      <a href="#">Hilfe</a>
+      <a href="#">Kontakt</a>
+    </nav>
+    <span class="site-footer__version">Formularversion 20260609</span>
+  </div>
+</footer>
+
+<script src="theme-toggle.js"></script>
+</body>
+</html>
