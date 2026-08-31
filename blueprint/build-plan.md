@@ -25,14 +25,14 @@ These are not features and are not tracked here. They happen first.
 
 ## MVP
 
-- [ ] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
+- [x] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
   - [x] 1a. App shell and theme: clear the Vite scaffold, port the `prototypes/theme.css` tokens,
         install MUI, and build the header, main and footer shell with a light and dark toggle
   - [x] 1b. Translation wiring: an i18n library with a German locale file, every shell string read
         from it, ready for the English locale in feature 17
-  - [ ] 1c. Backend and database: Docker Compose, PostgreSQL with PostGIS, FastAPI health and
+  - [x] 1c. Backend and database: Docker Compose, PostgreSQL with PostGIS, FastAPI health and
         readiness endpoints, and the frontend reaching the backend through the proxy
 
   The Verify command is deliberately not a sub-item. `AGENTS.md` makes CI a separate explicit

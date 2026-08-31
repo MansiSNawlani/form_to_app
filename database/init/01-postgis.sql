@@ -1,0 +1,11 @@
+-- Runs once, on the very first start of an empty data volume.
+--
+-- PostGIS is installed from v1 even though nothing uses it yet. Feature 18, the
+-- map picker and official water body dataset, is the first feature that will,
+-- and adding a spatial extension to a database that already holds real survey
+-- data is a far riskier operation than having it present from the beginning.
+--
+-- The postgis/postgis image already creates this extension in its own
+-- entrypoint. Doing it explicitly here means the requirement is stated in this
+-- repository rather than inherited from an image we could later replace.
+CREATE EXTENSION IF NOT EXISTS postgis;

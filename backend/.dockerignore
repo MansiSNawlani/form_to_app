@@ -1,0 +1,24 @@
+# Keeping the build context small makes builds faster and, more importantly,
+# stops local files reaching the image by accident.
+
+# Never ship a real environment file. Configuration comes from the runtime
+# environment, per project-overview.md.
+.env
+.env.*
+
+# The host virtualenv is built against a different Python and platform.
+.venv/
+venv/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Tests are not part of a shipped service.
+**/*_test.py
+**/test_*.py
+
+.git/
+.gitignore
