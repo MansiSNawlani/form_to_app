@@ -18,6 +18,10 @@ dev = [
     "httpx>=0.27",
     "ruff>=0.7",
     "mypy>=1.13",
+    # scripts/extract_form_definition.py only. The legacy PDF is encrypted, so
+    # pypdf needs cryptography to open it even though there is no password.
+    "pypdf>=6.0",
+    "cryptography>=44",
 ]
 
 [build-system]

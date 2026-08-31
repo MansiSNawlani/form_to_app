@@ -140,14 +140,16 @@ The same stretch surveyed in different years is one record with several submissi
   monitoring sites
 - `ortsangabe` (string)
 - `gewaessertyp` (int) - `11` Graben, `12` Kanal, `13` Bach, `14` Fluss, `21` See, `26` Teich,
-  `31` angebundenes Altwasser, `32` abgeschnittenes Altwasser
+  `28` angebundenes Altwasser, `29` abgeschnittenes Altwasser. Read out of the form itself, not
+  the form's JavaScript, which tests for `31` and `32` and is broken. See
+  [defect 9](../../docs/ffs-defect-list.md)
 - `laenge_m` (int)
 - `untere_grenze_rechtswert`, `untere_grenze_hochwert` (int) - EPSG:25832
 - `obere_grenze_rechtswert`, `obere_grenze_hochwert` (int) - EPSG:25832
 - `regierungspraesidium` (int 1-4) - drives regional access and notification routing
 
-> Locked shape. `gewaessertyp` values below 20 plus `31` require the hydrology section; `21`, `26`
-> and `32` suppress it entirely. Feature 5 depends on this.
+> Locked shape. `gewaessertyp` values below 20 plus `28` require the hydrology section; `21`, `26`
+> and `29` suppress it entirely. Feature 5 depends on this.
 
 ### Submission
 

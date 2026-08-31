@@ -1,0 +1,4008 @@
+{
+  "version": "20260609",
+  "quelle": "Formular_Protokoll_E-Befischung_V20260609.pdf",
+  "listen": {
+    "anlass": [
+      {
+        "wert": "best",
+        "label": "allgemeine Bestandserhebung"
+      },
+      {
+        "wert": "bergung",
+        "label": "Bestandsbergung"
+      },
+      {
+        "wert": "wrrl",
+        "label": "Fischmonitoring gemäß WRRL"
+      },
+      {
+        "wert": "ffh",
+        "label": "Fischmonitoring gemäß FFH"
+      },
+      {
+        "wert": "maps",
+        "label": "Erhebung für MAPS"
+      },
+      {
+        "wert": "sonst",
+        "label": "Sonstiges"
+      }
+    ],
+    "arten": [
+      {
+        "wert": "ANGU",
+        "label": "Aal"
+      },
+      {
+        "wert": "ALAN",
+        "label": "Aland / Nerfling"
+      },
+      {
+        "wert": "AESC",
+        "label": "Äsche"
+      },
+      {
+        "wert": "BFOR",
+        "label": "Bachforelle"
+      },
+      {
+        "wert": "BNEU",
+        "label": "Bachneunauge"
+      },
+      {
+        "wert": "BNEA",
+        "label": "Bachneunauge, adult"
+      },
+      {
+        "wert": "BNEQ",
+        "label": "Bachneunauge, Querder"
+      },
+      {
+        "wert": "BSAI",
+        "label": "Bachsaibling"
+      },
+      {
+        "wert": "BARB",
+        "label": "Barbe"
+      },
+      {
+        "wert": "BARS",
+        "label": "Barsch / Flussbarsch"
+      },
+      {
+        "wert": "BITT",
+        "label": "Bitterling"
+      },
+      {
+        "wert": "BLAB",
+        "label": "Blaubandbärbling"
+      },
+      {
+        "wert": "BRAC",
+        "label": "Brachse / Blei"
+      },
+      {
+        "wert": "DICK",
+        "label": "Dickkopfelritze"
+      },
+      {
+        "wert": "DOEB",
+        "label": "Döbel / Aitel"
+      },
+      {
+        "wert": "DOHL",
+        "label": "Dohlenkrebs"
+      },
+      {
+        "wert": "STIC",
+        "label": "Dreistachliger Stichling"
+      },
+      {
+        "wert": "EDEL",
+        "label": "Edelkrebs"
+      },
+      {
+        "wert": "ELRI",
+        "label": "Elritze"
+      },
+      {
+        "wert": "ELSA",
+        "label": "Elsässer Saibling"
+      },
+      {
+        "wert": "CORE",
+        "label": "Felchen / Maräne / Renke"
+      },
+      {
+        "wert": "FINT",
+        "label": "Finte"
+      },
+      {
+        "wert": "FLUN",
+        "label": "Flunder"
+      },
+      {
+        "wert": "FLGR",
+        "label": "Flussgrundel"
+      },
+      {
+        "wert": "KREB",
+        "label": "Flusskrebs (unbestimmt)"
+      },
+      {
+        "wert": "MBLA",
+        "label": "Flussmuschel, Große "
+      },
+      {
+        "wert": "MKLE",
+        "label": "Flussmuschel, Kleine / Bachmuschel"
+      },
+      {
+        "wert": "FNEU",
+        "label": "Flussneunauge"
+      },
+      {
+        "wert": "FNEQ",
+        "label": "Flussneunauge, Querder"
+      },
+      {
+        "wert": "MFLU",
+        "label": "Flussperlmuschel"
+      },
+      {
+        "wert": "FORE",
+        "label": "Forelle (nicht spezifiziert)"
+      },
+      {
+        "wert": "FOBA",
+        "label": "Forellenbarsch / Schwarzbarsch"
+      },
+      {
+        "wert": "FRAU",
+        "label": "Frauennerfling"
+      },
+      {
+        "wert": "GALI",
+        "label": "Galizier / Sumpfkrebs, Galizischer"
+      },
+      {
+        "wert": "GIEB",
+        "label": "Giebel"
+      },
+      {
+        "wert": "GOLD",
+        "label": "Goldfisch"
+      },
+      {
+        "wert": "GOST",
+        "label": "Goldsteinbeißer"
+      },
+      {
+        "wert": "GRAS",
+        "label": "Graskarpfen"
+      },
+      {
+        "wert": "GROP",
+        "label": "Groppe / Mühlkoppe"
+      },
+      {
+        "wert": "GRUE",
+        "label": "Gründling"
+      },
+      {
+        "wert": "GUES",
+        "label": "Güster"
+      },
+      {
+        "wert": "HASL",
+        "label": "Hasel"
+      },
+      {
+        "wert": "HECH",
+        "label": "Hecht"
+      },
+      {
+        "wert": "HUCH",
+        "label": "Huchen"
+      },
+      {
+        "wert": "KALI",
+        "label": "Kalikokrebs"
+      },
+      {
+        "wert": "KAMB",
+        "label": "Kamberkrebs"
+      },
+      {
+        "wert": "KARA",
+        "label": "Karausche"
+      },
+      {
+        "wert": "KARP",
+        "label": "Karpfen"
+      },
+      {
+        "wert": "GAMB",
+        "label": "Kärpfling"
+      },
+      {
+        "wert": "KAUL",
+        "label": "Kaulbarsch"
+      },
+      {
+        "wert": "OFAN",
+        "label": "kein Nachweis"
+      },
+      {
+        "wert": "OFAF",
+        "label": "kein Nachweis, Fische"
+      },
+      {
+        "wert": "KNKR",
+        "label": "kein Nachweis, Krebse"
+      },
+      {
+        "wert": "KNMU",
+        "label": "kein Nachweis, Muscheln"
+      },
+      {
+        "wert": "KESS",
+        "label": "Kesslergrundel"
+      },
+      {
+        "wert": "KOIK",
+        "label": "Koi-Karpfen"
+      },
+      {
+        "wert": "LACH",
+        "label": "Lachs, Atlantischer"
+      },
+      {
+        "wert": "MAIF",
+        "label": "Maifisch"
+      },
+      {
+        "wert": "MAIR",
+        "label": "Mairenke"
+      },
+      {
+        "wert": "MMAL",
+        "label": "Malermuschel"
+      },
+      {
+        "wert": "MARG",
+        "label": "Marmorgrundel"
+      },
+      {
+        "wert": "MARM",
+        "label": "Marmorkarpfen"
+      },
+      {
+        "wert": "KMAR",
+        "label": "Marmorkrebs"
+      },
+      {
+        "wert": "MFOR",
+        "label": "Meerforelle"
+      },
+      {
+        "wert": "MNEU",
+        "label": "Meerneunauge"
+      },
+      {
+        "wert": "MNEQ",
+        "label": "Meerneunauge, Querder"
+      },
+      {
+        "wert": "MOLI",
+        "label": "Moderlieschen"
+      },
+      {
+        "wert": "MUSC",
+        "label": "Muschel (unbestimmt)"
+      },
+      {
+        "wert": "NAGR",
+        "label": "Nackthalsgrundel"
+      },
+      {
+        "wert": "NASE",
+        "label": "Nase"
+      },
+      {
+        "wert": "ANEU",
+        "label": "Neunauge, Querder (unbestimmt)"
+      },
+      {
+        "wert": "PERL",
+        "label": "Perlfisch"
+      },
+      {
+        "wert": "QUAP",
+        "label": "Quappe / Trüsche / Rutte"
+      },
+      {
+        "wert": "RAPF",
+        "label": "Rapfen"
+      },
+      {
+        "wert": "RFOR",
+        "label": "Regenbogenforelle"
+      },
+      {
+        "wert": "ROTA",
+        "label": "Rotauge / Plötze"
+      },
+      {
+        "wert": "ROBR",
+        "label": "Rotauge x Brachsen"
+      },
+      {
+        "wert": "ROFE",
+        "label": "Rotfeder"
+      },
+      {
+        "wert": "SAIB",
+        "label": "Saibling (unspezifiziert)"
+      },
+      {
+        "wert": "SPEI",
+        "label": "Schlammpeitzger"
+      },
+      {
+        "wert": "SLEI",
+        "label": "Schleie"
+      },
+      {
+        "wert": "SMER",
+        "label": "Schmerle"
+      },
+      {
+        "wert": "SNEI",
+        "label": "Schneider"
+      },
+      {
+        "wert": "SRAE",
+        "label": "Schrätzer"
+      },
+      {
+        "wert": "SBAR",
+        "label": "Schwarzbarsch"
+      },
+      {
+        "wert": "SMUG",
+        "label": "Schwarzmundgrundel"
+      },
+      {
+        "wert": "SFOR",
+        "label": "Seeforelle"
+      },
+      {
+        "wert": "SSAI",
+        "label": "Seesaibling"
+      },
+      {
+        "wert": "SIGN",
+        "label": "Signalkrebs"
+      },
+      {
+        "wert": "SILK",
+        "label": "Silberkarpfen"
+      },
+      {
+        "wert": "SONN",
+        "label": "Sonnenbarsch"
+      },
+      {
+        "wert": "SONS",
+        "label": "Sonstige Art"
+      },
+      {
+        "wert": "STEI",
+        "label": "Steinbeißer"
+      },
+      {
+        "wert": "STEG",
+        "label": "Steingressling"
+      },
+      {
+        "wert": "STKR",
+        "label": "Steinkrebs"
+      },
+      {
+        "wert": "RUTH",
+        "label": "Sterlet"
+      },
+      {
+        "wert": "STEL",
+        "label": "Sternhausen"
+      },
+      {
+        "wert": "BIST",
+        "label": "Stint (Binnenform)"
+      },
+      {
+        "wert": "STOE",
+        "label": "Stör, Atlantischer"
+      },
+      {
+        "wert": "STHY",
+        "label": "Störhybride"
+      },
+      {
+        "wert": "STRE",
+        "label": "Streber"
+      },
+      {
+        "wert": "STRO",
+        "label": "Strömer"
+      },
+      {
+        "wert": "SUES",
+        "label": "Südlicher Steinbeißer"
+      },
+      {
+        "wert": "PROC",
+        "label": "Sumpfkrebs, Amerikanischer"
+      },
+      {
+        "wert": "MTEU",
+        "label": "Teichmuschel (unbestimmt)"
+      },
+      {
+        "wert": "MCOM",
+        "label": "Teichmuschel, Abgeplattete"
+      },
+      {
+        "wert": "MFLA",
+        "label": "Teichmuschel, Gemeine / Flache"
+      },
+      {
+        "wert": "MTEI",
+        "label": "Teichmuschel, Große / Schwanenmuschel"
+      },
+      {
+        "wert": "TSSA",
+        "label": "Tiefseesaibling"
+      },
+      {
+        "wert": "TIGR",
+        "label": "Tigerfisch"
+      },
+      {
+        "wert": "UKEL",
+        "label": "Ukelei / Laube"
+      },
+      {
+        "wert": "UNEU",
+        "label": "Ukrainisches Bachneunauge"
+      },
+      {
+        "wert": "WEGR",
+        "label": "Weißflossengründling"
+      },
+      {
+        "wert": "WELS",
+        "label": "Wels"
+      },
+      {
+        "wert": "WOLL",
+        "label": "Wollhandkrabbe"
+      },
+      {
+        "wert": "ZAEH",
+        "label": "Zährte"
+      },
+      {
+        "wert": "ZAND",
+        "label": "Zander"
+      },
+      {
+        "wert": "ZIEG",
+        "label": "Ziege"
+      },
+      {
+        "wert": "ZING",
+        "label": "Zingel"
+      },
+      {
+        "wert": "ZOBL",
+        "label": "Zobel"
+      },
+      {
+        "wert": "ZOPE",
+        "label": "Zope"
+      },
+      {
+        "wert": "NEUN",
+        "label": "Zwergstichling"
+      },
+      {
+        "wert": "ZWEL",
+        "label": "Zwergwels"
+      }
+    ],
+    "ausruestung.egeraet": [
+      {
+        "wert": "EFGI 1300",
+        "label": "BSE / EFGI 1300"
+      },
+      {
+        "wert": "EFGI 1650",
+        "label": "BSE / EFGI 1650"
+      },
+      {
+        "wert": "EFGI 4000",
+        "label": "BSE / EFGI 4000"
+      },
+      {
+        "wert": "EFGI 650",
+        "label": "BSE / EFGI 650"
+      },
+      {
+        "wert": "FEG 1000",
+        "label": "Efko / FEG 1000"
+      },
+      {
+        "wert": "FEG 11000",
+        "label": "Efko / FEG 11000"
+      },
+      {
+        "wert": "FEG 13000",
+        "label": "Efko / FEG 13000"
+      },
+      {
+        "wert": "FEG 1500",
+        "label": "Efko / FEG 1500"
+      },
+      {
+        "wert": "FEG 15000",
+        "label": "Efko / FEG 15000"
+      },
+      {
+        "wert": "FEG 1700",
+        "label": "Efko / FEG 1700"
+      },
+      {
+        "wert": "FEG 2000",
+        "label": "Efko / FEG 2000"
+      },
+      {
+        "wert": "FEG 2500",
+        "label": "Efko / FEG 2500"
+      },
+      {
+        "wert": "FEG 3000",
+        "label": "Efko / FEG 3000"
+      },
+      {
+        "wert": "FEG 3000 S",
+        "label": "Efko / FEG 3000 S"
+      },
+      {
+        "wert": "FEG 4000",
+        "label": "Efko / FEG 4000"
+      },
+      {
+        "wert": "FEG 5000",
+        "label": "Efko / FEG 5000"
+      },
+      {
+        "wert": "FEG 6000",
+        "label": "Efko / FEG 6000"
+      },
+      {
+        "wert": "FEG 6600",
+        "label": "Efko / FEG 6600"
+      },
+      {
+        "wert": "FEG 7000",
+        "label": "Efko / FEG 7000"
+      },
+      {
+        "wert": "FEG 7500",
+        "label": "Efko / FEG 7500"
+      },
+      {
+        "wert": "FEG 8000",
+        "label": "Efko / FEG 8000"
+      },
+      {
+        "wert": "EL 61",
+        "label": "Grassl / EL 61"
+      },
+      {
+        "wert": "EL 62",
+        "label": "Grassl / EL 62"
+      },
+      {
+        "wert": "EL 63",
+        "label": "Grassl / EL 63"
+      },
+      {
+        "wert": "EL 64",
+        "label": "Grassl / EL 64"
+      },
+      {
+        "wert": "EL 65",
+        "label": "Grassl / EL 65"
+      },
+      {
+        "wert": "ELD 5",
+        "label": "Grassl / ELD 5"
+      },
+      {
+        "wert": "ELT 60",
+        "label": "Grassl / ELT 60"
+      },
+      {
+        "wert": "ELT 60 II",
+        "label": "Grassl / ELT 60 II"
+      },
+      {
+        "wert": "ELT 61",
+        "label": "Grassl / ELT 61"
+      },
+      {
+        "wert": "ELT 62",
+        "label": "Grassl / ELT 62"
+      },
+      {
+        "wert": "IG200/2",
+        "label": "Grassl / IG200/2"
+      },
+      {
+        "wert": "keine Angabe",
+        "label": "keine Angabe"
+      },
+      {
+        "wert": "keine Angabe",
+        "label": "unbekannt"
+      }
+    ],
+    "ausruestung.kathode": [
+      {
+        "wert": "andere",
+        "label": "andere"
+      },
+      {
+        "wert": "Band",
+        "label": "Band"
+      },
+      {
+        "wert": "Drahtseilkathode",
+        "label": "Drahtseilkathode"
+      },
+      {
+        "wert": "Kupferlitze",
+        "label": "Kupferlitze"
+      },
+      {
+        "wert": "Kupferseil",
+        "label": "Kupferseil"
+      },
+      {
+        "wert": "Litze",
+        "label": "Litze"
+      },
+      {
+        "wert": "ohne Angabe",
+        "label": "ohne Angabe"
+      },
+      {
+        "wert": "Schleppkathode",
+        "label": "Schleppkathode"
+      },
+      {
+        "wert": "Streifenkathode",
+        "label": "Streifenkathode"
+      }
+    ],
+    "besatz_fischart": [
+      {
+        "wert": "ANGU",
+        "label": "Aal"
+      },
+      {
+        "wert": "ALAN",
+        "label": "Aland / Nerfling"
+      },
+      {
+        "wert": "AESC",
+        "label": "Äsche"
+      },
+      {
+        "wert": "BFOR",
+        "label": "Bachforelle"
+      },
+      {
+        "wert": "BNEU",
+        "label": "Bachneunauge"
+      },
+      {
+        "wert": "BSAI",
+        "label": "Bachsaibling"
+      },
+      {
+        "wert": "BARB",
+        "label": "Barbe"
+      },
+      {
+        "wert": "BARS",
+        "label": "Barsch / Flussbarsch"
+      },
+      {
+        "wert": "BITT",
+        "label": "Bitterling"
+      },
+      {
+        "wert": "BLAB",
+        "label": "Blaubandbärbling"
+      },
+      {
+        "wert": "BRAC",
+        "label": "Brachse / Blei"
+      },
+      {
+        "wert": "DOEB",
+        "label": "Döbel / Aitel"
+      },
+      {
+        "wert": "DOHL",
+        "label": "Dohlenkrebs"
+      },
+      {
+        "wert": "STIC",
+        "label": "Dreistachliger Stichling"
+      },
+      {
+        "wert": "EDEL",
+        "label": "Edelkrebs"
+      },
+      {
+        "wert": "ELRI",
+        "label": "Elritze"
+      },
+      {
+        "wert": "CORE",
+        "label": "Felchen / Maräne / Renke"
+      },
+      {
+        "wert": "FINT",
+        "label": "Finte"
+      },
+      {
+        "wert": "FLUN",
+        "label": "Flunder"
+      },
+      {
+        "wert": "KREB",
+        "label": "Flusskrebs (unbestimmt)"
+      },
+      {
+        "wert": "MBLA",
+        "label": "Flussmuschel, Große "
+      },
+      {
+        "wert": "MKLE",
+        "label": "Flussmuschel, Kleine / Bachmuschel"
+      },
+      {
+        "wert": "FNEU",
+        "label": "Flussneunauge"
+      },
+      {
+        "wert": "FNEQ",
+        "label": "Flussneunauge, Querder"
+      },
+      {
+        "wert": "MFLU",
+        "label": "Flussperlmuschel"
+      },
+      {
+        "wert": "FORE",
+        "label": "Forelle (nicht spezifiziert)"
+      },
+      {
+        "wert": "FRAU",
+        "label": "Frauennerfling"
+      },
+      {
+        "wert": "GIEB",
+        "label": "Giebel"
+      },
+      {
+        "wert": "GROP",
+        "label": "Groppe / Mühlkoppe"
+      },
+      {
+        "wert": "GRUE",
+        "label": "Gründling"
+      },
+      {
+        "wert": "GUES",
+        "label": "Güster"
+      },
+      {
+        "wert": "HASL",
+        "label": "Hasel"
+      },
+      {
+        "wert": "HECH",
+        "label": "Hecht"
+      },
+      {
+        "wert": "HUCH",
+        "label": "Huchen"
+      },
+      {
+        "wert": "KARA",
+        "label": "Karausche"
+      },
+      {
+        "wert": "KARP",
+        "label": "Karpfen"
+      },
+      {
+        "wert": "KAUL",
+        "label": "Kaulbarsch"
+      },
+      {
+        "wert": "LACH",
+        "label": "Lachs, Atlantischer"
+      },
+      {
+        "wert": "MAIF",
+        "label": "Maifisch"
+      },
+      {
+        "wert": "MAIR",
+        "label": "Mairenke"
+      },
+      {
+        "wert": "MMAL",
+        "label": "Malermuschel"
+      },
+      {
+        "wert": "MFOR",
+        "label": "Meerforelle"
+      },
+      {
+        "wert": "MNEU",
+        "label": "Meerneunauge"
+      },
+      {
+        "wert": "MNEQ",
+        "label": "Meerneunauge, Querder"
+      },
+      {
+        "wert": "MOLI",
+        "label": "Moderlieschen"
+      },
+      {
+        "wert": "MUSC",
+        "label": "Muschel (unbestimmt)"
+      },
+      {
+        "wert": "NASE",
+        "label": "Nase"
+      },
+      {
+        "wert": "ANEU",
+        "label": "Neunauge, Querder (unbestimmt)"
+      },
+      {
+        "wert": "QUAP",
+        "label": "Quappe / Trüsche / Rutte"
+      },
+      {
+        "wert": "RAPF",
+        "label": "Rapfen"
+      },
+      {
+        "wert": "RFOR",
+        "label": "Regenbogenforelle"
+      },
+      {
+        "wert": "ROTA",
+        "label": "Rotauge / Plötze"
+      },
+      {
+        "wert": "ROFE",
+        "label": "Rotfeder"
+      },
+      {
+        "wert": "SAIB",
+        "label": "Saibling (unspezifiziert)"
+      },
+      {
+        "wert": "SPEI",
+        "label": "Schlammpeitzger"
+      },
+      {
+        "wert": "SLEI",
+        "label": "Schleie"
+      },
+      {
+        "wert": "SMER",
+        "label": "Schmerle"
+      },
+      {
+        "wert": "SNEI",
+        "label": "Schneider"
+      },
+      {
+        "wert": "SRAE",
+        "label": "Schrätzer"
+      },
+      {
+        "wert": "SFOR",
+        "label": "Seeforelle"
+      },
+      {
+        "wert": "SSAI",
+        "label": "Seesaibling"
+      },
+      {
+        "wert": "SONS",
+        "label": "Sonstige Art"
+      },
+      {
+        "wert": "STEI",
+        "label": "Steinbeißer"
+      },
+      {
+        "wert": "STKR",
+        "label": "Steinkrebs"
+      },
+      {
+        "wert": "STOE",
+        "label": "Stör, Atlantischer"
+      },
+      {
+        "wert": "STRE",
+        "label": "Streber"
+      },
+      {
+        "wert": "STRO",
+        "label": "Strömer"
+      },
+      {
+        "wert": "MTEU",
+        "label": "Teichmuschel (unbestimmt)"
+      },
+      {
+        "wert": "MCOM",
+        "label": "Teichmuschel, Abgeplattete"
+      },
+      {
+        "wert": "MFLA",
+        "label": "Teichmuschel, Gemeine / Flache"
+      },
+      {
+        "wert": "MTEI",
+        "label": "Teichmuschel, Große / Schwanenmuschel"
+      },
+      {
+        "wert": "TSSA",
+        "label": "Tiefseesaibling"
+      },
+      {
+        "wert": "UKEL",
+        "label": "Ukelei / Laube"
+      },
+      {
+        "wert": "WELS",
+        "label": "Wels"
+      },
+      {
+        "wert": "ZAEH",
+        "label": "Zährte"
+      },
+      {
+        "wert": "ZAND",
+        "label": "Zander"
+      },
+      {
+        "wert": "ZING",
+        "label": "Zingel"
+      }
+    ],
+    "gewaessertyp": [
+      {
+        "wert": "14",
+        "label": "Fluss"
+      },
+      {
+        "wert": "12",
+        "label": "Kanal"
+      },
+      {
+        "wert": "13",
+        "label": "Bach"
+      },
+      {
+        "wert": "11",
+        "label": "Graben"
+      },
+      {
+        "wert": "26",
+        "label": "Teich"
+      },
+      {
+        "wert": "29",
+        "label": "abgeschnittenes Altwasser"
+      },
+      {
+        "wert": "28",
+        "label": "angebundenes Altwasser"
+      },
+      {
+        "wert": "21",
+        "label": "See"
+      }
+    ],
+    "probestrecke.monitoringnummer": [
+      {
+        "wert": "1001000001",
+        "label": "1001000001 - Untere Argen bei Herfatz"
+      },
+      {
+        "wert": "1001000002",
+        "label": "1001000002 - Tobelbach"
+      },
+      {
+        "wert": "1001000003",
+        "label": "1001000003 - Schwarzenbach oberhalb Wolfatz"
+      },
+      {
+        "wert": "1001081001",
+        "label": "1001081001 - Untere Argen bei Neumühle"
+      },
+      {
+        "wert": "1001081002",
+        "label": "1001081002 - Untere Argen bei Karbach"
+      },
+      {
+        "wert": "1001081003",
+        "label": "1001081003 - Untere Argen zwischen Karbach und Herfatz"
+      },
+      {
+        "wert": "1001081004",
+        "label": "1001081004 - Untere Argen bei Unterried"
+      },
+      {
+        "wert": "1001082001",
+        "label": "1001082001 - Obere Argen bei Niederwangen"
+      },
+      {
+        "wert": "1001082002",
+        "label": "1001082002 - Obere Argen bei Reute"
+      },
+      {
+        "wert": "1001082003",
+        "label": "1001082003 - Obere Argen bei Mühlbolz"
+      },
+      {
+        "wert": "1001191001",
+        "label": "1001191001 - Haslach östlich Helbler"
+      },
+      {
+        "wert": "1001191002",
+        "label": "1001191002 - Haslach bei Siglisberg"
+      },
+      {
+        "wert": "1002000001",
+        "label": "1002000001 - Nonnenbach bei Kressbronn"
+      },
+      {
+        "wert": "1002000002",
+        "label": "1002000002 - Wielandsbach oberhalb Apflau"
+      },
+      {
+        "wert": "1002013001",
+        "label": "1002013001 - Vereinigte Argen bei Flunau"
+      },
+      {
+        "wert": "1002013002",
+        "label": "1002013002 - Vereinigte Argen bei Laimnau"
+      },
+      {
+        "wert": "1002013003",
+        "label": "1002013003 - Vereinigte Argen bei Oberdorf"
+      },
+      {
+        "wert": "1002266001",
+        "label": "1002266001 - Nonnenbach bei Arensweiler"
+      },
+      {
+        "wert": "1002266002",
+        "label": "1002266002 - Nonnenbach bei Kressbronn"
+      },
+      {
+        "wert": "1101000001",
+        "label": "1101000001 - Bampfen unterhalb Sulpach"
+      },
+      {
+        "wert": "1101000002",
+        "label": "1101000002 - Zollenreuter Ach bei Burgwiesen"
+      },
+      {
+        "wert": "1101000003",
+        "label": "1101000003 - Urbach bei Unterurbach"
+      },
+      {
+        "wert": "1101000004",
+        "label": "1101000004 - Urbach bei Oberurbach"
+      },
+      {
+        "wert": "1101000005",
+        "label": "1101000005 - Bampfen bei Schachen"
+      },
+      {
+        "wert": "1101133001",
+        "label": "1101133001 - Schussen bei Durlesbach"
+      },
+      {
+        "wert": "1101133002",
+        "label": "1101133002 - Schussen bei Staig"
+      },
+      {
+        "wert": "1101192001",
+        "label": "1101192001 - Booser Ach bei Blönried"
+      },
+      {
+        "wert": "1102134001",
+        "label": "1102134001 - Wolfegger Ach zwischen Schönenberg und Mooswiesen"
+      },
+      {
+        "wert": "1102134002",
+        "label": "1102134002 - Wolfegger Ach bei Wolfegg"
+      },
+      {
+        "wert": "1102134003",
+        "label": "1102134003 - Wolfegger Ach oberhalb Schwarzenbachmündung"
+      },
+      {
+        "wert": "1103011001",
+        "label": "1103011001 - Schussen bei Mariatal"
+      },
+      {
+        "wert": "1103011002",
+        "label": "1103011002 - Schussen bei Brugg"
+      },
+      {
+        "wert": "1103011003",
+        "label": "1103011003 - Schussen bei Mariabrunn"
+      },
+      {
+        "wert": "1103193001",
+        "label": "1103193001 - Schwarzach beim Mühlenholz"
+      },
+      {
+        "wert": "1103193002",
+        "label": "1103193002 - Schwarzach bei Untereschach"
+      },
+      {
+        "wert": "1201000001",
+        "label": "1201000001 - Lengenweiler See"
+      },
+      {
+        "wert": "1201000002",
+        "label": "1201000002 - Mühlbach bei Happenweiler"
+      },
+      {
+        "wert": "1201000003",
+        "label": "1201000003 - Gattenmühlebach"
+      },
+      {
+        "wert": "1201012001",
+        "label": "1201012001 - Rotach bei Jonistobel"
+      },
+      {
+        "wert": "1201012002",
+        "label": "1201012002 - Rotach bei Rampe Oberteuringen"
+      },
+      {
+        "wert": "1201012003",
+        "label": "1201012003 - Rotach oberhalb Stauwurzel Zeller Wehr"
+      },
+      {
+        "wert": "1201264001",
+        "label": "1201264001 - Lipbach bei Kluftern"
+      },
+      {
+        "wert": "1201265001",
+        "label": "1201265001 - Brunnisach bei Hofen"
+      },
+      {
+        "wert": "1202000001",
+        "label": "1202000001 - Seefelder Aach bei Buggensegel"
+      },
+      {
+        "wert": "1202083001",
+        "label": "1202083001 - Seefelder Aach bei Bruckfelden"
+      },
+      {
+        "wert": "1202083002",
+        "label": "1202083002 - Seefelder Aach bei Mimmenhausen, Schloß Salem"
+      },
+      {
+        "wert": "1202083003",
+        "label": "1202083003 - Seefelder Ach bei Grasbeuren"
+      },
+      {
+        "wert": "1202194001",
+        "label": "1202194001 - Deggenhauser Aach bei Schapbuch"
+      },
+      {
+        "wert": "1203000001",
+        "label": "1203000001 - Mühlbach östlich von Kaltbrunn"
+      },
+      {
+        "wert": "1203000002",
+        "label": "1203000002 - Adelheidbach bei Hegne"
+      },
+      {
+        "wert": "1203149001",
+        "label": "1203149001 - Stockacher Aach bei Schallberg"
+      },
+      {
+        "wert": "1203149002",
+        "label": "1203149002 - Stochacher Aach bei Wahlwies"
+      },
+      {
+        "wert": "1203150001",
+        "label": "1203150001 - Krebsbach bei Orsingen"
+      },
+      {
+        "wert": "1203151001",
+        "label": "1203151001 - Mahlspürer Aach bei Jettweiler"
+      },
+      {
+        "wert": "1204014001",
+        "label": "1204014001 - Radolfzeller Ach bei Beuren"
+      },
+      {
+        "wert": "1204014002",
+        "label": "1204014002 - Radolfzeller Ach bei Singen"
+      },
+      {
+        "wert": "1204014003",
+        "label": "1204014003 - Radolfzeller Ach bei Bohlingen"
+      },
+      {
+        "wert": "1204195001",
+        "label": "1204195001 - Saubach bei Schlatt unter Krähen"
+      },
+      {
+        "wert": "2001152001",
+        "label": "2001152001 - Biber bei Büßlingen"
+      },
+      {
+        "wert": "2001152002",
+        "label": "2001152002 - Biber bei Randegg"
+      },
+      {
+        "wert": "2002153001",
+        "label": "2002153001 - Wutach bei Bartelshof"
+      },
+      {
+        "wert": "2002153002",
+        "label": "2002153002 - Wutach bei Scheuerhof"
+      },
+      {
+        "wert": "2002153003",
+        "label": "2002153003 - Wutach bei Zipfelsäge"
+      },
+      {
+        "wert": "2002196001",
+        "label": "2002196001 - Haslach bei Lenzkirch"
+      },
+      {
+        "wert": "2003154001",
+        "label": "2003154001 - Wutach bei Dietfurt"
+      },
+      {
+        "wert": "2003154002",
+        "label": "2003154002 - Wutach bei Wutachmühle"
+      },
+      {
+        "wert": "2003154003",
+        "label": "2003154003 - Wutach unterhalb Achdorf"
+      },
+      {
+        "wert": "2003154004",
+        "label": "2003154004 - Wutach bei Kuhhalde"
+      },
+      {
+        "wert": "2003197001",
+        "label": "2003197001 - Gauchach bei Posthaus"
+      },
+      {
+        "wert": "2004155001",
+        "label": "2004155001 - Schwarza bei Eichholz"
+      },
+      {
+        "wert": "2004156001",
+        "label": "2004156001 - Mettma bei Buggenrieder Mühle"
+      },
+      {
+        "wert": "2004157001",
+        "label": "2004157001 - Schlücht oberhalb der Schwarzwiesenbachmündung"
+      },
+      {
+        "wert": "2004157002",
+        "label": "2004157002 - Schlücht bei Gutenburg (ab 2019)"
+      },
+      {
+        "wert": "2005027001",
+        "label": "2005027001 - Wutach bei Eberfingen"
+      },
+      {
+        "wert": "2005027002",
+        "label": "2005027002 - Wutach bei Ofteringen"
+      },
+      {
+        "wert": "2005027003",
+        "label": "2005027003 - Wutach bei Horheim"
+      },
+      {
+        "wert": "2005198001",
+        "label": "2005198001 - Steina bei Unter Witzhalden"
+      },
+      {
+        "wert": "2005198002",
+        "label": "2005198002 - Steina bei Detzeln"
+      },
+      {
+        "wert": "2005199001",
+        "label": "2005199001 - Schlücht bei Gutenburg (bis 2018)"
+      },
+      {
+        "wert": "2009270001",
+        "label": "2009270001 - Klingengraben bei Ober-Lauchringen"
+      },
+      {
+        "wert": "2051026001",
+        "label": "2051026001 - Rhein bei Hohentengen"
+      },
+      {
+        "wert": "2051026002",
+        "label": "2051026002 - Rhein bei Kadelburg"
+      },
+      {
+        "wert": "2101000001",
+        "label": "2101000001 - Schürlebach"
+      },
+      {
+        "wert": "2101000002",
+        "label": "2101000002 - Liederbach"
+      },
+      {
+        "wert": "2101054001",
+        "label": "2101054001 - Hauensteiner Alb bei Unterkutterau"
+      },
+      {
+        "wert": "2101054002",
+        "label": "2101054002 - Hauensteiner Alb bei Schachen"
+      },
+      {
+        "wert": "2101054003",
+        "label": "2101054003 - Hauensteiner Alb bei Albbruck"
+      },
+      {
+        "wert": "2101200001",
+        "label": "2101200001 - Hauensteiner Murg bei Hottingen"
+      },
+      {
+        "wert": "2102000001",
+        "label": "2102000001 - Finsterbach bis Kohlbachmündung"
+      },
+      {
+        "wert": "2102158001",
+        "label": "2102158001 - Wehra bei Parkplatz Schwarze Waag"
+      },
+      {
+        "wert": "2102158002",
+        "label": "2102158002 - Wehra bei Wehr"
+      },
+      {
+        "wert": "2102158003",
+        "label": "2102158003 - Wehra oberhalb Brücke B518"
+      },
+      {
+        "wert": "2102158004",
+        "label": "2102158004 - Wehra bei Öflingen (ab 2019)"
+      },
+      {
+        "wert": "2103000001",
+        "label": "2103000001 - Löhlegraben bei Degerfelden"
+      },
+      {
+        "wert": "2103000002",
+        "label": "2103000002 - Waidbach zwischen A 98 und Degerfelden"
+      },
+      {
+        "wert": "2103000003",
+        "label": "2103000003 - Zieggraben zwischen B518 und Abzweig Mühlebach"
+      },
+      {
+        "wert": "2103000004",
+        "label": "2103000004 - Warmbach oberhalb Hagenbach"
+      },
+      {
+        "wert": "2103159001",
+        "label": "2103159001 - Wehra bei Kreuzmatt"
+      },
+      {
+        "wert": "2103159002",
+        "label": "2103159002 - Wehra bei Öflingen (bis 2018)"
+      },
+      {
+        "wert": "2104000001",
+        "label": "2104000001 - Steinenbach oberhalb Schlächtenhaus"
+      },
+      {
+        "wert": "2104000002",
+        "label": "2104000002 - Aubächle oberhalb Schlächtenhaus"
+      },
+      {
+        "wert": "2104160001",
+        "label": "2104160001 - Wiese bei Wembach"
+      },
+      {
+        "wert": "2104160002",
+        "label": "2104160002 - Wiese bei Mambach"
+      },
+      {
+        "wert": "2104160003",
+        "label": "2104160003 - Wiese bei Atzenbach"
+      },
+      {
+        "wert": "2104201001",
+        "label": "2104201001 - Kleine Wiese bei Niedertegernau"
+      },
+      {
+        "wert": "2105000001",
+        "label": "2105000001 - Schlierbach bei Kürnberg"
+      },
+      {
+        "wert": "2105000002",
+        "label": "2105000002 - Löhrgraben oberhalb von Brombach"
+      },
+      {
+        "wert": "2105030001",
+        "label": "2105030001 - Wiese bei Höllstein"
+      },
+      {
+        "wert": "2105030002",
+        "label": "2105030002 - Wiese bei Haagen"
+      },
+      {
+        "wert": "2105030003",
+        "label": "2105030003 - Wiese bei Lörrach"
+      },
+      {
+        "wert": "2108271001",
+        "label": "2108271001 - Großbach unterhalb von Degerfelden"
+      },
+      {
+        "wert": "2108271002",
+        "label": "2108271002 - Großbach in Warmbach neben Schule"
+      },
+      {
+        "wert": "2151065001",
+        "label": "2151065001 - Rhein oberhalb Rheinfelden"
+      },
+      {
+        "wert": "2151065002",
+        "label": "2151065002 - Rhein unterhalb Rheinfelden"
+      },
+      {
+        "wert": "2151065003",
+        "label": "2151065003 - Rhein oberhalb Bad Säckingen"
+      },
+      {
+        "wert": "3001000001",
+        "label": "3001000001 - Lippisbach unterhalb Käsacker"
+      },
+      {
+        "wert": "3001000002",
+        "label": "3001000002 - Hohlebach bei Schallsingen"
+      },
+      {
+        "wert": "3001000003",
+        "label": "3001000003 - Aubächle bei Obereggenen"
+      },
+      {
+        "wert": "3001000004",
+        "label": "3001000004 - Riggenbach oberhalb Mündung in Kander"
+      },
+      {
+        "wert": "3001161001",
+        "label": "3001161001 - Klemmbach oberhalb Oberweiler"
+      },
+      {
+        "wert": "3001162001",
+        "label": "3001162001 - Kander bei Lütschenbach"
+      },
+      {
+        "wert": "3001163001",
+        "label": "3001163001 - Sulzbach bei Hagkammen"
+      },
+      {
+        "wert": "3002000001",
+        "label": "3002000001 - Moosgraben"
+      },
+      {
+        "wert": "3002000002",
+        "label": "3002000002 - Bach bei Nebenau"
+      },
+      {
+        "wert": "3002000003",
+        "label": "3002000003 - Wollbach"
+      },
+      {
+        "wert": "3002164001",
+        "label": "3002164001 - Kander bei Hammerstein"
+      },
+      {
+        "wert": "3002164002",
+        "label": "3002164002 - Kander bei Eimeldingen"
+      },
+      {
+        "wert": "3002165001",
+        "label": "3002165001 - Sulzbach bei Dottingen"
+      },
+      {
+        "wert": "3002165002",
+        "label": "3002165002 - Sulzbach bei Heitersheim"
+      },
+      {
+        "wert": "3002202001",
+        "label": "3002202001 - Klemmbach bei Müllheim"
+      },
+      {
+        "wert": "3003037001",
+        "label": "3003037001 - Neumagen bei Untermünstertal"
+      },
+      {
+        "wert": "3003092001",
+        "label": "3003092001 - Möhlin bei Ehrenstetten"
+      },
+      {
+        "wert": "3004021001",
+        "label": "3004021001 - Möhlin bei Bad Krozingen"
+      },
+      {
+        "wert": "3004021002",
+        "label": "3004021002 - Möhlin westlich des Baggersees BR344-1"
+      },
+      {
+        "wert": "3004042001",
+        "label": "3004042001 - Neumagen bei Stauffen"
+      },
+      {
+        "wert": "3006268001",
+        "label": "3006268001 - Hodbach (Feuerbach) bei Efingen-Kirchen (bis 2018)"
+      },
+      {
+        "wert": "3006271001",
+        "label": "3006271001 - Hodbach (Feuerbach) bei Efingen-Kirchen (ab 2019)"
+      },
+      {
+        "wert": "3051000001",
+        "label": "3051000001 - Fischpassanlage Kembs"
+      },
+      {
+        "wert": "3051029001",
+        "label": "3051029001 - Rhein bei Steinenstadt"
+      },
+      {
+        "wert": "3051029002",
+        "label": "3051029002 - Rhein bei Grißheim"
+      },
+      {
+        "wert": "3101000001",
+        "label": "3101000001 - Spitzenbach bei Unterspitzenbach"
+      },
+      {
+        "wert": "3101000002",
+        "label": "3101000002 - Erzenbach"
+      },
+      {
+        "wert": "3101000003",
+        "label": "3101000003 - Breienbach"
+      },
+      {
+        "wert": "3101000004",
+        "label": "3101000004 - Erzenbach oberhalb Erzenbach"
+      },
+      {
+        "wert": "3101166001",
+        "label": "3101166001 - Elz oberhalb Oberwinden"
+      },
+      {
+        "wert": "3101166002",
+        "label": "3101166002 - Elz bei Vorderschwangen"
+      },
+      {
+        "wert": "3101166003",
+        "label": "3101166003 - Elz unterhalb Waldkirch"
+      },
+      {
+        "wert": "3101166004",
+        "label": "3101166004 - Elz bei Läufershof"
+      },
+      {
+        "wert": "3101203001",
+        "label": "3101203001 - Wilde Gutach bei Obertal"
+      },
+      {
+        "wert": "3101203002",
+        "label": "3101203002 - Wilde Gutach bei Bleibach"
+      },
+      {
+        "wert": "3102000001",
+        "label": "3102000001 - Ibenbach bei Wickenhof"
+      },
+      {
+        "wert": "3102000002",
+        "label": "3102000002 - Ibenbach zwischen Mathislishof und Leitmacher Hof"
+      },
+      {
+        "wert": "3102000003",
+        "label": "3102000003 - Wagensteigbach zwischen Ibenbachmündung und Mündung in die Dreisam"
+      },
+      {
+        "wert": "3102000004",
+        "label": "3102000004 - Wagensteigbach zwischen Buchenbach-Oberdorf und Vorderbauernhof"
+      },
+      {
+        "wert": "3102000005",
+        "label": "3102000005 - Bach bei Oberried"
+      },
+      {
+        "wert": "3102000006",
+        "label": "3102000006 - Steuren"
+      },
+      {
+        "wert": "3102000007",
+        "label": "3102000007 - Attentaler Bach bei Wittental"
+      },
+      {
+        "wert": "3102167001",
+        "label": "3102167001 - Dreisam bei Posthalde"
+      },
+      {
+        "wert": "3102167002",
+        "label": "3102167002 - Dreisam bei Zarten"
+      },
+      {
+        "wert": "3102167003",
+        "label": "3102167003 - Dreisam bei Dreisam-Stadion Freiburg"
+      },
+      {
+        "wert": "3102204001",
+        "label": "3102204001 - Brugga bei Kernenmühle"
+      },
+      {
+        "wert": "3102204002",
+        "label": "3102204002 - Brugga bei Schütterlesmühle"
+      },
+      {
+        "wert": "3102205001",
+        "label": "3102205001 - Eschbach bei Stegen"
+      },
+      {
+        "wert": "3102205002",
+        "label": "3102205002 - Eschbach oberhalb Ebnet"
+      },
+      {
+        "wert": "3103000001",
+        "label": "3103000001 - Kuhlagerbach bis Arlesheimer See"
+      },
+      {
+        "wert": "3103000002",
+        "label": "3103000002 - Landwasserbach oberhalb Opfingen"
+      },
+      {
+        "wert": "3103058001",
+        "label": "3103058001 - Dreisam bei Brauerei Ganther"
+      },
+      {
+        "wert": "3103058002",
+        "label": "3103058002 - Dreisam bei March-Neuershausen"
+      },
+      {
+        "wert": "3103090001",
+        "label": "3103090001 - Alte Dreisam bei Oberschaffhausen"
+      },
+      {
+        "wert": "3103090002",
+        "label": "3103090002 - Alte Dreisam bei Bahlingen"
+      },
+      {
+        "wert": "3104034001",
+        "label": "3104034001 - Elz bei Wasser"
+      },
+      {
+        "wert": "3104034002",
+        "label": "3104034002 - Elz bei Teningen"
+      },
+      {
+        "wert": "3104206001",
+        "label": "3104206001 - Glotterbach bei Denzlingen"
+      },
+      {
+        "wert": "3104206002",
+        "label": "3104206002 - Glotter bei Nimburg"
+      },
+      {
+        "wert": "3105000001",
+        "label": "3105000001 - Tennenbächle"
+      },
+      {
+        "wert": "3105000002",
+        "label": "3105000002 - Eberbächle"
+      },
+      {
+        "wert": "3105000003",
+        "label": "3105000003 - Kirnbach zwischen Kirnhalden und Auhof"
+      },
+      {
+        "wert": "3105000004",
+        "label": "3105000004 - Kirnbach unterhalb Michelsbachmündung"
+      },
+      {
+        "wert": "3105000005",
+        "label": "3105000005 - Reichenbach und Nebenbach"
+      },
+      {
+        "wert": "3105000006",
+        "label": "3105000006 - Schweizerlochbach oberhalb Sägplatz"
+      },
+      {
+        "wert": "3105000007",
+        "label": "3105000007 - Bleichbach oberhalb Muckental"
+      },
+      {
+        "wert": "3105000008",
+        "label": "3105000008 - Brettenbach oberhalb Reichenbach"
+      },
+      {
+        "wert": "3105168001",
+        "label": "3105168001 - Brettenbach bei hinterer Zeismatte"
+      },
+      {
+        "wert": "3105168002",
+        "label": "3105168002 - Brettenbach bei Ruine Hochburg"
+      },
+      {
+        "wert": "3105169001",
+        "label": "3105169001 - Bleichbach oberhalb Mattenmühle"
+      },
+      {
+        "wert": "3105207001",
+        "label": "3105207001 - Ettenbach bei Ettenheimmünster"
+      },
+      {
+        "wert": "3106093001",
+        "label": "3106093001 - Elz bei Kenzingen"
+      },
+      {
+        "wert": "3106093002",
+        "label": "3106093002 - Elz bei Kappel"
+      },
+      {
+        "wert": "3106208001",
+        "label": "3106208001 - Bleichbach bei Wagenstadt"
+      },
+      {
+        "wert": "3106208002",
+        "label": "3106208002 - Bleichbach oberhalb Wagenstadt"
+      },
+      {
+        "wert": "3106209001",
+        "label": "3106209001 - Ettenbach bei Grafenhausen"
+      },
+      {
+        "wert": "3107000001",
+        "label": "3107000001 - Elz im NSG Salmengrund"
+      },
+      {
+        "wert": "3107066001",
+        "label": "3107066001 - Durchgehender Altrheinzug bei Sponeck"
+      },
+      {
+        "wert": "3107066002",
+        "label": "3107066002 - Durchgehender Altrheinzug bei Sasbach"
+      },
+      {
+        "wert": "3107066003",
+        "label": "3107066003 - Durchgehender Altrheinzug bei Soldatenkopf"
+      },
+      {
+        "wert": "3107095001",
+        "label": "3107095001 - Ottenheimer Mühlbach bei Nonnenweier"
+      },
+      {
+        "wert": "3107095002",
+        "label": "3107095002 - Elz (Mühlbach) bei Altenheimer Mühle"
+      },
+      {
+        "wert": "3151048001",
+        "label": "3151048001 - Rhein bei Jechtingen"
+      },
+      {
+        "wert": "3151048002",
+        "label": "3151048002 - Rhein unterhalb Leopoldskanal"
+      },
+      {
+        "wert": "3151048003",
+        "label": "3151048003 - Rhein bei Ottenheim"
+      },
+      {
+        "wert": "3201170001",
+        "label": "3201170001 - Kinzig oberhalb Schenkenzell"
+      },
+      {
+        "wert": "3201170002",
+        "label": "3201170002 - Kinzig bei Lindenhof (bis 2018)"
+      },
+      {
+        "wert": "3201171001",
+        "label": "3201171001 - Schiltach bei Schiltach"
+      },
+      {
+        "wert": "3201210001",
+        "label": "3201210001 - Kleine Kinzig zwischen Brestental und Vortal"
+      },
+      {
+        "wert": "3202000001",
+        "label": "3202000001 - Gelbach"
+      },
+      {
+        "wert": "3202172001",
+        "label": "3202172001 - Gutach bei Steingrün"
+      },
+      {
+        "wert": "3202172002",
+        "label": "3202172002 - Gutach bei Mattenhof"
+      },
+      {
+        "wert": "3202173001",
+        "label": "3202173001 - Kinzig bei Wolfach"
+      },
+      {
+        "wert": "3202173002",
+        "label": "3202173002 - Kinzig bei Lindenhof (ab 2019)"
+      },
+      {
+        "wert": "3202174001",
+        "label": "3202174001 - Wolfach bei Obertal"
+      },
+      {
+        "wert": "3202174002",
+        "label": "3202174002 - Wolfach bei Mitteltal"
+      },
+      {
+        "wert": "3203000001",
+        "label": "3203000001 - Pfaffenbach"
+      },
+      {
+        "wert": "3203028001",
+        "label": "3203028001 - Kinzig bei Haslach"
+      },
+      {
+        "wert": "3203028002",
+        "label": "3203028002 - Kinzig bei Ortenberg"
+      },
+      {
+        "wert": "3203211001",
+        "label": "3203211001 - Erlenbach (Harmersbach) bei Unterharmersbach"
+      },
+      {
+        "wert": "3204175001",
+        "label": "3204175001 - Schutter bei Schweighausen"
+      },
+      {
+        "wert": "3204175002",
+        "label": "3204175002 - Schutter bei Wittelbach"
+      },
+      {
+        "wert": "3204175003",
+        "label": "3204175003 - Schutter bei Lahr"
+      },
+      {
+        "wert": "3205084001",
+        "label": "3205084001 - Unditz bei Allmannsweier"
+      },
+      {
+        "wert": "3205084002",
+        "label": "3205084002 - Unditz bei Schutterzell"
+      },
+      {
+        "wert": "3205097001",
+        "label": "3205097001 - Kinzig bei Offenburg"
+      },
+      {
+        "wert": "3205097002",
+        "label": "3205097002 - Kinzig bei Willstätt"
+      },
+      {
+        "wert": "3205212001",
+        "label": "3205212001 - Schutter bei Eckartsweier"
+      },
+      {
+        "wert": "3301176001",
+        "label": "3301176001 - Rench bei Ibach"
+      },
+      {
+        "wert": "3301176002",
+        "label": "3301176002 - Rench bei Birkhof"
+      },
+      {
+        "wert": "3302000001",
+        "label": "3302000001 - Galgenbach bei Rheinau"
+      },
+      {
+        "wert": "3302000002",
+        "label": "3302000002 - Flußgraben bei Linx"
+      },
+      {
+        "wert": "3302022001",
+        "label": "3302022001 - Rench bei Stadelhofen"
+      },
+      {
+        "wert": "3302022002",
+        "label": "3302022002 - Rench bei Wagshurst"
+      },
+      {
+        "wert": "3302022003",
+        "label": "3302022003 - Rench bei Memprechtshofen"
+      },
+      {
+        "wert": "3302022004",
+        "label": "3302022004 - Rench bei Helmlingen"
+      },
+      {
+        "wert": "3302022005",
+        "label": "3302022005 - Rench oberhalb Helmlingen"
+      },
+      {
+        "wert": "3302213001",
+        "label": "3302213001 - Durbach bei Windschläg"
+      },
+      {
+        "wert": "3302213002",
+        "label": "3302213002 - Rench-Flutkanal südlich L 87"
+      },
+      {
+        "wert": "3302213003",
+        "label": "3302213003 - Rench-Flutkanal bei Maiwald"
+      },
+      {
+        "wert": "3302263001",
+        "label": "3302263001 - Mühlbach bei Freistett"
+      },
+      {
+        "wert": "3303177001",
+        "label": "3303177001 - Acher bei Furschenbach"
+      },
+      {
+        "wert": "3303177002",
+        "label": "3303177002 - Acher bei Kappelrodeck"
+      },
+      {
+        "wert": "3303177003",
+        "label": "3303177003 - Acher unterhalb Mattenmühle"
+      },
+      {
+        "wert": "3304103001",
+        "label": "3304103001 - Bühlot bei Schafhof"
+      },
+      {
+        "wert": "3304103002",
+        "label": "3304103002 - Sandbach bei Hungerberg"
+      },
+      {
+        "wert": "3305104001",
+        "label": "3305104001 - Sandbach bei Vimbuch"
+      },
+      {
+        "wert": "3305104002",
+        "label": "3305104002 - Sandbach bei Müllhofen"
+      },
+      {
+        "wert": "3305104003",
+        "label": "3305104003 - Sandbach bei Hügelsheim"
+      },
+      {
+        "wert": "3306094001",
+        "label": "3306094001 - Rheinniederungskanal bei Greffern"
+      },
+      {
+        "wert": "3306094002",
+        "label": "3306094002 - Rheinniederungskanal bei Söllingen"
+      },
+      {
+        "wert": "3306094003",
+        "label": "3306094003 - Rheinniederungskanal bei Wintersdorf"
+      },
+      {
+        "wert": "3306214001",
+        "label": "3306214001 - Acher (Feldbach) bei Lichtenau"
+      },
+      {
+        "wert": "3306214002",
+        "label": "3306214002 - Acher (Rheinseitengraben) bei Kriegersee"
+      },
+      {
+        "wert": "3306214003",
+        "label": "3306214003 - Acher bei Achern"
+      },
+      {
+        "wert": "3351064001",
+        "label": "3351064001 - Rhein oberhalb Gambsheim"
+      },
+      {
+        "wert": "3351064002",
+        "label": "3351064002 - Rhein bei Greffern"
+      },
+      {
+        "wert": "3401080001",
+        "label": "3401080001 - Murg bei Klosterreichenbach"
+      },
+      {
+        "wert": "3401080002",
+        "label": "3401080002 - Murg bei Sportplatz Röt"
+      },
+      {
+        "wert": "3401080003",
+        "label": "3401080003 - Murg bei Schönmünzach"
+      },
+      {
+        "wert": "3401080004",
+        "label": "3401080004 - Murg bei Heselbach"
+      },
+      {
+        "wert": "3401215001",
+        "label": "3401215001 - Forbach bei Friedrichstal"
+      },
+      {
+        "wert": "3401215002",
+        "label": "3401215002 - Forbach bei Friedrichstal-Hüttenwerk"
+      },
+      {
+        "wert": "3402000001",
+        "label": "3402000001 - Litzelbach"
+      },
+      {
+        "wert": "3402079001",
+        "label": "3402079001 - Murg oberhalb Mündung Zugbächle"
+      },
+      {
+        "wert": "3402079002",
+        "label": "3402079002 - Murg bei Wolfsheck"
+      },
+      {
+        "wert": "3402079003",
+        "label": "3402079003 - Murg bei Au im Murgtal"
+      },
+      {
+        "wert": "3402079004",
+        "label": "3402079004 - Murg bei Obertsrot"
+      },
+      {
+        "wert": "3402216001",
+        "label": "3402216001 - Oosbach bei Ooswinkel-Siedlung"
+      },
+      {
+        "wert": "3403000002",
+        "label": "3403000002 - Altmurg bei Steinmauern"
+      },
+      {
+        "wert": "3403020001",
+        "label": "3403020001 - Murg bei Bad Rotenfels"
+      },
+      {
+        "wert": "3403020002",
+        "label": "3403020002 - Murg Ausleitungsstrecke Kuppenheim"
+      },
+      {
+        "wert": "3403020003",
+        "label": "3403020003 - Murg bei Rastatt"
+      },
+      {
+        "wert": "3403217001",
+        "label": "3403217001 - Oosbach bei Niederbühl"
+      },
+      {
+        "wert": "3404096001",
+        "label": "3404096001 - Alb unterhalb Mündung Bernbach"
+      },
+      {
+        "wert": "3404096002",
+        "label": "3404096002 - Alb unterhalb von Marxzell"
+      },
+      {
+        "wert": "3404096003",
+        "label": "3404096003 - Alb unterhalb Mündung Moosalb"
+      },
+      {
+        "wert": "3405000001",
+        "label": "3405000001 - Allmendgraben"
+      },
+      {
+        "wert": "3405000003",
+        "label": "3405000003 - Abzugsgraben bei Rheinstetten"
+      },
+      {
+        "wert": "3405000004",
+        "label": "3405000004 - Alter Federbach bei Bietigheim"
+      },
+      {
+        "wert": "3405000005",
+        "label": "3405000005 - Breingraben bei Au am Rhein"
+      },
+      {
+        "wert": "3405041001",
+        "label": "3405041001 - Federbach bei Ötigheim"
+      },
+      {
+        "wert": "3405041002",
+        "label": "3405041002 - Federbach bei Sportplatz Durmersheim"
+      },
+      {
+        "wert": "3405041003",
+        "label": "3405041003 - Federbach bei Bruchgrund"
+      },
+      {
+        "wert": "3406056001",
+        "label": "3406056001 - Alb bei Autobahnbrücke A 5"
+      },
+      {
+        "wert": "3406056002",
+        "label": "3406056002 - Alb bei Salmenwiesen"
+      },
+      {
+        "wert": "3406056003",
+        "label": "3406056003 - Alb bei Bulacher Loch"
+      },
+      {
+        "wert": "3406056004",
+        "label": "3406056004 - Alb bei Günther-Klotz-Anlagen Karlsruhe"
+      },
+      {
+        "wert": "3406056005",
+        "label": "3406056005 - Alb in Ettlingen"
+      },
+      {
+        "wert": "3406218001",
+        "label": "3406218001 - Malscher Landgraben bei Bruchwiesen"
+      },
+      {
+        "wert": "3451053001",
+        "label": "3451053001 - Rhein oberhalb Murgmündung"
+      },
+      {
+        "wert": "3501105001",
+        "label": "3501105001 - Pfinz bei Keltern"
+      },
+      {
+        "wert": "3501105002",
+        "label": "3501105002 - Pfinz oberhalb Kleinsteinbach"
+      },
+      {
+        "wert": "3501105003",
+        "label": "3501105003 - Pfinz bei Berghausen"
+      },
+      {
+        "wert": "3502000001",
+        "label": "3502000001 - Nackfeld"
+      },
+      {
+        "wert": "3502000002",
+        "label": "3502000002 - Oberer Eggensteiner Altrhein"
+      },
+      {
+        "wert": "3502000003",
+        "label": "3502000003 - Albkanal bei Salzkopf"
+      },
+      {
+        "wert": "3502000004",
+        "label": "3502000004 - Pfinzentlastungskanal bei Schwabenlach"
+      },
+      {
+        "wert": "3502000006",
+        "label": "3502000006 - Herrenteiler bei Rußheim"
+      },
+      {
+        "wert": "3502000008",
+        "label": "3502000008 - Schluttenloch bei Linkenheim"
+      },
+      {
+        "wert": "3502000014",
+        "label": "3502000014 - Königssee bei Liedolsheim"
+      },
+      {
+        "wert": "3502000017",
+        "label": "3502000017 - Alte Bach bei Rintheim"
+      },
+      {
+        "wert": "3502000018",
+        "label": "3502000018 - Alte Bach bei Büchig"
+      },
+      {
+        "wert": "3502000022",
+        "label": "3502000022 - Gießgraben bei Rheinsheim"
+      },
+      {
+        "wert": "3502000023",
+        "label": "3502000023 - Alte Bach bei Stutensee"
+      },
+      {
+        "wert": "3502019001",
+        "label": "3502019001 - Pfinz bei Hagsfeld"
+      },
+      {
+        "wert": "3502019002",
+        "label": "3502019002 - Pfinz bei Schafbrücke"
+      },
+      {
+        "wert": "3502019003",
+        "label": "3502019003 - Pfinz bei Graben-Neudorf"
+      },
+      {
+        "wert": "3502219001",
+        "label": "3502219001 - Saalbach bei Karlsdorf-Neuthard"
+      },
+      {
+        "wert": "3502219002",
+        "label": "3502219002 - Saalbach bei Philippsburg"
+      },
+      {
+        "wert": "3503106001",
+        "label": "3503106001 - Saalbach zwischen Helms- und Gondelsheim"
+      },
+      {
+        "wert": "3503106002",
+        "label": "3503106002 - Saalbach bei Heidelsheim"
+      },
+      {
+        "wert": "3504000001",
+        "label": "3504000001 - Wagbach bei Wiesental"
+      },
+      {
+        "wert": "3504000002",
+        "label": "3504000002 - Wagbach bei Waghäusel"
+      },
+      {
+        "wert": "3504000003",
+        "label": "3504000003 - Mähbruchgraben bei Rheinhausen"
+      },
+      {
+        "wert": "3504101001",
+        "label": "3504101001 - Kriegbach unterhalb A5"
+      },
+      {
+        "wert": "3504101002",
+        "label": "3504101002 - Kriegbach bei Neulußheim"
+      },
+      {
+        "wert": "3504190001",
+        "label": "3504190001 - Wagbach bei Wiesental"
+      },
+      {
+        "wert": "3504190002",
+        "label": "3504190002 - Wagbach bei Waghäusel"
+      },
+      {
+        "wert": "3505091001",
+        "label": "3505091001 - Kraichbach unterhalb von Münzesheim"
+      },
+      {
+        "wert": "3505091002",
+        "label": "3505091002 - Kraichbach bei Ubstadt-Weiher"
+      },
+      {
+        "wert": "3505091003",
+        "label": "3505091003 - Kraichbach bei Gochsheim"
+      },
+      {
+        "wert": "3505091004",
+        "label": "3505091004 - Kraichbach bei Flehingen"
+      },
+      {
+        "wert": "3506057001",
+        "label": "3506057001 - Kraichbach bei St. Leon"
+      },
+      {
+        "wert": "3506057002",
+        "label": "3506057002 - Kraichbach bei Landeplatz Hockenheim"
+      },
+      {
+        "wert": "3507107001",
+        "label": "3507107001 - Leimbach unterhalb Horrenberg"
+      },
+      {
+        "wert": "3507108001",
+        "label": "3507108001 - Waldangelbach unterhalb Rotenberg"
+      },
+      {
+        "wert": "3508109001",
+        "label": "3508109001 - Leimbach unterhalb Nußloch"
+      },
+      {
+        "wert": "3508109002",
+        "label": "3508109002 - Leimbach unterhalb Schwetzingen"
+      },
+      {
+        "wert": "3551045001",
+        "label": "3551045001 - Rhein bei Neuburgweier"
+      },
+      {
+        "wert": "3551045002",
+        "label": "3551045002 - Rhein bei Linkenheim"
+      },
+      {
+        "wert": "3551045003",
+        "label": "3551045003 - Rhein bei Ketsch"
+      },
+      {
+        "wert": "3601110001",
+        "label": "3601110001 - Altrhein bei Sandhofen"
+      },
+      {
+        "wert": "3602111001",
+        "label": "3602111001 - Weschnitz oberhalb Weinheim"
+      },
+      {
+        "wert": "3603102001",
+        "label": "3603102001 - Neue Weschnitz bei Hemsbach"
+      },
+      {
+        "wert": "3651001001",
+        "label": "3651001001 - Rhein bei Mannheim Sandhofen"
+      },
+      {
+        "wert": "4001178001",
+        "label": "4001178001 - Neckar bei Neckartalmühle"
+      },
+      {
+        "wert": "4001178002",
+        "label": "4001178002 - Neckar bei Deißlingen"
+      },
+      {
+        "wert": "4001178003",
+        "label": "4001178003 - Neckar bei Rottenmünster"
+      },
+      {
+        "wert": "4001179001",
+        "label": "4001179001 - Eschach bei Lackendorf"
+      },
+      {
+        "wert": "4001179002",
+        "label": "4001179002 - Eschach bei Unterrotenstein"
+      },
+      {
+        "wert": "4002180001",
+        "label": "4002180001 - Prim unterhalb Täfermühle"
+      },
+      {
+        "wert": "4002180002",
+        "label": "4002180002 - Prim bei Altstadt"
+      },
+      {
+        "wert": "4003181001",
+        "label": "4003181001 - Schlichem bei Dautmergen"
+      },
+      {
+        "wert": "4003181002",
+        "label": "4003181002 - Schlichem unterhalb Böhringer Mühle"
+      },
+      {
+        "wert": "4004055001",
+        "label": "4004055001 - Glatt bei Leinstetten"
+      },
+      {
+        "wert": "4004055002",
+        "label": "4004055002 - Glatt bei Reinau"
+      },
+      {
+        "wert": "4004055003",
+        "label": "4004055003 - Glatt bei Glatt"
+      },
+      {
+        "wert": "4004055004",
+        "label": "4004055004 - Glatt bei Neuneck"
+      },
+      {
+        "wert": "4004220001",
+        "label": "4004220001 - Heimbach bei Wälde"
+      },
+      {
+        "wert": "4004220002",
+        "label": "4004220002 - Heimbach unterhalb Wühlsbachmündung"
+      },
+      {
+        "wert": "4005135001",
+        "label": "4005135001 - Eyach oberhalb Frommern"
+      },
+      {
+        "wert": "4005135002",
+        "label": "4005135002 - Eyach unterhalb Böllatmühle"
+      },
+      {
+        "wert": "4005221001",
+        "label": "4005221001 - Starzel zwischen Stetten und Schlatt"
+      },
+      {
+        "wert": "4005221002",
+        "label": "4005221002 - Starzel bei Friedrichstraße"
+      },
+      {
+        "wert": "4005221003",
+        "label": "4005221003 - Starzel bei Rangendingen (ab 2019)"
+      },
+      {
+        "wert": "4005221004",
+        "label": "4005221004 - Starzel südlich Bieringen (ab 2019)"
+      },
+      {
+        "wert": "4006000001",
+        "label": "4006000001 - Rötenbach oberhalb Owingen"
+      },
+      {
+        "wert": "4006031001",
+        "label": "4006031001 - Eyach bei Owingen"
+      },
+      {
+        "wert": "4006031002",
+        "label": "4006031002 - Eyach bei Trillfingen"
+      },
+      {
+        "wert": "4006031003",
+        "label": "4006031003 - Eyach westlich Felldorf"
+      },
+      {
+        "wert": "4006222001",
+        "label": "4006222001 - Starzel bei Rangendingen (bis 2018)"
+      },
+      {
+        "wert": "4006222002",
+        "label": "4006222002 - Starzel südlich Bieringen (bis 2018)"
+      },
+      {
+        "wert": "4051067001",
+        "label": "4051067001 - Neckar bei Epfendorf"
+      },
+      {
+        "wert": "4051067002",
+        "label": "4051067002 - Neckar bei Sulz"
+      },
+      {
+        "wert": "4101136001",
+        "label": "4101136001 - Seltenbach unterhalb Ergenzingen"
+      },
+      {
+        "wert": "4101136002",
+        "label": "4101136002 - Seltenbach oberhalb Obernau"
+      },
+      {
+        "wert": "4102185001",
+        "label": "4102185001 - Steinlach oberhalb Obere Mühle"
+      },
+      {
+        "wert": "4102185002",
+        "label": "4102185002 - Steinlach unterhalb von Wiesazmündung"
+      },
+      {
+        "wert": "4102186001",
+        "label": "4102186001 - Katzenbach im Naturschutzgebiet Höhe Dettinger Kanzel"
+      },
+      {
+        "wert": "4102186002",
+        "label": "4102186002 - Katzenbach bei Katzenbacher Ziegelhütte"
+      },
+      {
+        "wert": "4102187001",
+        "label": "4102187001 - Bühlertalbach oberhalb Bühl"
+      },
+      {
+        "wert": "4103137001",
+        "label": "4103137001 - Ammer bei dritter Ammermühle"
+      },
+      {
+        "wert": "4103137002",
+        "label": "4103137002 - Ammer bei Poltringen"
+      },
+      {
+        "wert": "4103137003",
+        "label": "4103137003 - Ammer unterhalb Unterjesingen"
+      },
+      {
+        "wert": "4104000001",
+        "label": "4104000001 - Goldersbach"
+      },
+      {
+        "wert": "4104000002",
+        "label": "4104000002 - Arenbach"
+      },
+      {
+        "wert": "4104138001",
+        "label": "4104138001 - Goldersbach oberhalb Teufelsbrücke"
+      },
+      {
+        "wert": "4104138002",
+        "label": "4104138002 - Goldersbach oberhalb Tübingen-Klosterhof"
+      },
+      {
+        "wert": "4105139001",
+        "label": "4105139001 - Echaz unterhalb Unterhausen"
+      },
+      {
+        "wert": "4105139002",
+        "label": "4105139002 - Echaz bei Wannweil"
+      },
+      {
+        "wert": "4106132001",
+        "label": "4106132001 - Erms unterhalb Georgenau"
+      },
+      {
+        "wert": "4106132002",
+        "label": "4106132002 - Erms oberhalb Kläranlage Riederich"
+      },
+      {
+        "wert": "4106132003",
+        "label": "4106132003 - Erms bei Neckartenzlingen"
+      },
+      {
+        "wert": "4107051001",
+        "label": "4107051001 - Aich oberhalb Kläranlage Schönaich"
+      },
+      {
+        "wert": "4107051002",
+        "label": "4107051002 - Aich bei Waldenbuch"
+      },
+      {
+        "wert": "4107051003",
+        "label": "4107051003 - Aich bei Grötzingen"
+      },
+      {
+        "wert": "4107223001",
+        "label": "4107223001 - Schaich oberhalb der Neubrunnenklinge"
+      },
+      {
+        "wert": "4107223002",
+        "label": "4107223002 - Schaich oberhalb Neuenhaus"
+      },
+      {
+        "wert": "4108123001",
+        "label": "4108123001 - Lauter oberhalb Lenningen"
+      },
+      {
+        "wert": "4108123002",
+        "label": "4108123002 - Lauter bei Ötlingen-Teck"
+      },
+      {
+        "wert": "4108123003",
+        "label": "4108123003 - Lauter bei Wendlingen"
+      },
+      {
+        "wert": "4108123004",
+        "label": "4108123004 - Lauter oberhalb Dettingen u. T."
+      },
+      {
+        "wert": "4108224001",
+        "label": "4108224001 - Lindach bei Sportplatz Kirchheim u. T."
+      },
+      {
+        "wert": "4109124001",
+        "label": "4109124001 - Fils oberhalb Pulvermühle"
+      },
+      {
+        "wert": "4109124002",
+        "label": "4109124002 - Fils bei Kuchen"
+      },
+      {
+        "wert": "4109124003",
+        "label": "4109124003 - Fils oberhalb Süssen"
+      },
+      {
+        "wert": "4110040001",
+        "label": "4110040001 - Fils bei Uhingen"
+      },
+      {
+        "wert": "4110040002",
+        "label": "4110040002 - Fils bei Ebersbach"
+      },
+      {
+        "wert": "4110040003",
+        "label": "4110040003 - Fils bei Reichenbach"
+      },
+      {
+        "wert": "4110040004",
+        "label": "4110040004 - Fils bei Eislingen"
+      },
+      {
+        "wert": "4151032001",
+        "label": "4151032001 - Neckar bei Obernau"
+      },
+      {
+        "wert": "4151032002",
+        "label": "4151032002 - Neckar bei Rottenburg (mit Altarm)"
+      },
+      {
+        "wert": "4151032003",
+        "label": "4151032003 - Neckar bei Nürtingen"
+      },
+      {
+        "wert": "4151032004",
+        "label": "4151032004 - Neckar zwischen Bieringen und Obernau"
+      },
+      {
+        "wert": "4201122001",
+        "label": "4201122001 - Körsch oberhalb Plieningen"
+      },
+      {
+        "wert": "4201122002",
+        "label": "4201122002 - Körsch bei Scharnhausen"
+      },
+      {
+        "wert": "4201122003",
+        "label": "4201122003 - Körsch bei Wörnizhäuser Mühle"
+      },
+      {
+        "wert": "4202046001",
+        "label": "4202046001 - Rems bei Mögglingen"
+      },
+      {
+        "wert": "4202046002",
+        "label": "4202046002 - Rems bei Iggingen"
+      },
+      {
+        "wert": "4202046003",
+        "label": "4202046003 - Rems bei Hussenhofen"
+      },
+      {
+        "wert": "4202046004",
+        "label": "4202046004 - Rems bei Reichenhof"
+      },
+      {
+        "wert": "4203059001",
+        "label": "4203059001 - Rems bei Schorndorf"
+      },
+      {
+        "wert": "4203059002",
+        "label": "4203059002 - Rems bei Waiblingen"
+      },
+      {
+        "wert": "4203059003",
+        "label": "4203059003 - Rems bei Hohenacker"
+      },
+      {
+        "wert": "4203059004",
+        "label": "4203059004 - Rems bei Urbach/Wasenmühle"
+      },
+      {
+        "wert": "4203225001",
+        "label": "4203225001 - Wieslauf bei Burghöfle"
+      },
+      {
+        "wert": "4203225002",
+        "label": "4203225002 - Wieslauf bei Haubersbronn"
+      },
+      {
+        "wert": "4203225003",
+        "label": "4203225003 - Wieslauf bei Schlechtbach"
+      },
+      {
+        "wert": "4204052001",
+        "label": "4204052001 - Murr bei Hausen"
+      },
+      {
+        "wert": "4204052002",
+        "label": "4204052002 - Murr bei Sulzbach an der Murr"
+      },
+      {
+        "wert": "4204052003",
+        "label": "4204052003 - Murr bei Burgstall"
+      },
+      {
+        "wert": "4205000001",
+        "label": "4205000001 - Bottwar"
+      },
+      {
+        "wert": "4205131001",
+        "label": "4205131001 - Murr bei Steinheim"
+      },
+      {
+        "wert": "4205131002",
+        "label": "4205131002 - Murr bei Murr"
+      },
+      {
+        "wert": "4205131003",
+        "label": "4205131003 - Murr östlich Erdmannhausen"
+      },
+      {
+        "wert": "4205226001",
+        "label": "4205226001 - Bottwar bei Großbottwar"
+      },
+      {
+        "wert": "4205227001",
+        "label": "4205227001 - Zipfelbach bei Hochdorf"
+      },
+      {
+        "wert": "4251000001",
+        "label": "4251000001 - Elsenbach bei Kaltental"
+      },
+      {
+        "wert": "4251068001",
+        "label": "4251068001 - Neckar von Pleidelsheim bis Hessigheim"
+      },
+      {
+        "wert": "4251068002",
+        "label": "4251068002 - Neckar bei Esslingen/Zell"
+      },
+      {
+        "wert": "4251068011",
+        "label": "4251068011 - Neckar bei Mundelsheim"
+      },
+      {
+        "wert": "4251068012",
+        "label": "4251068012 - Neckaraltarm bei Pleidelsheim"
+      },
+      {
+        "wert": "4251068013",
+        "label": "4251068013 - Neckaraltarm bei Freiberg-Geisingen"
+      },
+      {
+        "wert": "4251068014",
+        "label": "4251068014 - Neckaraltarm bei Freiberg"
+      },
+      {
+        "wert": "4301112001",
+        "label": "4301112001 - Enz oberhalb Bad Wildbad"
+      },
+      {
+        "wert": "4301112002",
+        "label": "4301112002 - Enz unterhalb Höfen"
+      },
+      {
+        "wert": "4301112003",
+        "label": "4301112003 - Enz bei Brötzingen"
+      },
+      {
+        "wert": "4301228001",
+        "label": "4301228001 - Kleine Enz östlich Bad Wildbad"
+      },
+      {
+        "wert": "4401113001",
+        "label": "4401113001 - Nagold zwischen Neu- und Völmlesmühle"
+      },
+      {
+        "wert": "4401113002",
+        "label": "4401113002 - Nagold oberhalb Ebhausen"
+      },
+      {
+        "wert": "4401113003",
+        "label": "4401113003 - Nagold unterhalb Nagold"
+      },
+      {
+        "wert": "4401229001",
+        "label": "4401229001 - Waldach bei Iselshausen"
+      },
+      {
+        "wert": "4402000001",
+        "label": "4402000001 - Nagold bei Unterreichenbach"
+      },
+      {
+        "wert": "4402023001",
+        "label": "4402023001 - Nagold oberhalb Wildberg"
+      },
+      {
+        "wert": "4402023002",
+        "label": "4402023002 - Nagold bei Hirsau"
+      },
+      {
+        "wert": "4402023003",
+        "label": "4402023003 - Nagold bei Unterreichenbach"
+      },
+      {
+        "wert": "4403060001",
+        "label": "4403060001 - Würm bei Ehningen"
+      },
+      {
+        "wert": "4403060002",
+        "label": "4403060002 - Würm bei Weil Der Stadt Planmühle"
+      },
+      {
+        "wert": "4403060003",
+        "label": "4403060003 - Würm bei Hausen"
+      },
+      {
+        "wert": "4403060004",
+        "label": "4403060004 - Würm bei Würm"
+      },
+      {
+        "wert": "4501000001",
+        "label": "4501000001 - Kanal Papierfabrik Niefern"
+      },
+      {
+        "wert": "4501000002",
+        "label": "4501000002 - Erlenbach bei Ötisheim"
+      },
+      {
+        "wert": "4501024001",
+        "label": "4501024001 - Enz bei Niefern-Öschelbronn"
+      },
+      {
+        "wert": "4501024002",
+        "label": "4501024002 - Enz bei Mühlhausen"
+      },
+      {
+        "wert": "4501024003",
+        "label": "4501024003 - Enz bei Oberriexingen"
+      },
+      {
+        "wert": "4501230001",
+        "label": "4501230001 - Kreuzbach bei Aurich"
+      },
+      {
+        "wert": "4501231001",
+        "label": "4501231001 - Strudelbach bei Riet"
+      },
+      {
+        "wert": "4502000001",
+        "label": "4502000001 - Lachengraben bei Bergheim"
+      },
+      {
+        "wert": "4502125001",
+        "label": "4502125001 - Glems bei Höfingen"
+      },
+      {
+        "wert": "4502125002",
+        "label": "4502125002 - Glems unterhalb Ditzingen"
+      },
+      {
+        "wert": "4502125003",
+        "label": "4502125003 - Glems unterhalb Kläranlage Markgröningen"
+      },
+      {
+        "wert": "4503025001",
+        "label": "4503025001 - Metter bei Sersheim"
+      },
+      {
+        "wert": "4503025002",
+        "label": "4503025002 - Metter bei Bietigheim"
+      },
+      {
+        "wert": "4503232001",
+        "label": "4503232001 - Kirbach bei Rechentshofen"
+      },
+      {
+        "wert": "4601000001",
+        "label": "4601000001 - Zaber"
+      },
+      {
+        "wert": "4601000002",
+        "label": "4601000002 - Reutbach"
+      },
+      {
+        "wert": "4601047001",
+        "label": "4601047001 - Zaber bei Frauenzimmern"
+      },
+      {
+        "wert": "4601047002",
+        "label": "4601047002 - Zaber bei Lauffen"
+      },
+      {
+        "wert": "4601085001",
+        "label": "4601085001 - Schozach bei Schozach"
+      },
+      {
+        "wert": "4602061001",
+        "label": "4602061001 - Sulm bei Ellhofen"
+      },
+      {
+        "wert": "4602061002",
+        "label": "4602061002 - Sulm bei Neckarsulm"
+      },
+      {
+        "wert": "4602087001",
+        "label": "4602087001 - Lein bei Leingarten"
+      },
+      {
+        "wert": "4602087002",
+        "label": "4602087002 - Lein bei Brüchlehöfe"
+      },
+      {
+        "wert": "4602087003",
+        "label": "4602087003 - Lein bei Schluchtern"
+      },
+      {
+        "wert": "4651044001",
+        "label": "4651044001 - Neckar bei Lauffen"
+      },
+      {
+        "wert": "4651044002",
+        "label": "4651044002 - Neckar bei Heilbronn"
+      },
+      {
+        "wert": "4651044003",
+        "label": "4651044003 - Neckarsulmer Altarm"
+      },
+      {
+        "wert": "4701069001",
+        "label": "4701069001 - Kocher bei Oberkochen"
+      },
+      {
+        "wert": "4701069002",
+        "label": "4701069002 - Kocher bei Wasseralfingen"
+      },
+      {
+        "wert": "4701069003",
+        "label": "4701069003 - Kocher bei Abtsgmünd"
+      },
+      {
+        "wert": "4702000001",
+        "label": "4702000001 - Laubbach bei Fachsenfeld"
+      },
+      {
+        "wert": "4702000002",
+        "label": "4702000002 - Tiefenbach oberhalb Heuchlingen"
+      },
+      {
+        "wert": "4702000003",
+        "label": "4702000003 - Spatzenbach und Nebengewässer"
+      },
+      {
+        "wert": "4702128001",
+        "label": "4702128001 - Lein bei Welzheim"
+      },
+      {
+        "wert": "4702128002",
+        "label": "4702128002 - Lein bei Leinmühle"
+      },
+      {
+        "wert": "4702128003",
+        "label": "4702128003 - Lein bei Leinzell"
+      },
+      {
+        "wert": "4702128004",
+        "label": "4702128004 - Lein bei Heuchlingen"
+      },
+      {
+        "wert": "4702233001",
+        "label": "4702233001 - Rot bei Bittelhof"
+      },
+      {
+        "wert": "4703070001",
+        "label": "4703070001 - Kocher bei Wöllstein"
+      },
+      {
+        "wert": "4703070002",
+        "label": "4703070002 - Kocher bei Untergröningen"
+      },
+      {
+        "wert": "4703070003",
+        "label": "4703070003 - Kocher bei Sulzbach-Laufen"
+      },
+      {
+        "wert": "4703234001",
+        "label": "4703234001 - Blinde Rot bei Ottenhof"
+      },
+      {
+        "wert": "4703234002",
+        "label": "4703234002 - Blinde Rot bei Öl- und Sägmühle"
+      },
+      {
+        "wert": "4704007001",
+        "label": "4704007001 - Fichtenberger Rot bei Wielandsweiler"
+      },
+      {
+        "wert": "4704007002",
+        "label": "4704007002 - Fichtenberger Rot bei Fichtenberg"
+      },
+      {
+        "wert": "4704007003",
+        "label": "4704007003 - Fichtenberger Rot bei Unterrot"
+      },
+      {
+        "wert": "4705071001",
+        "label": "4705071001 - Kocher bei Gaildorf"
+      },
+      {
+        "wert": "4705071002",
+        "label": "4705071002 - Kocher bei Großaltdorf Kocherhalde"
+      },
+      {
+        "wert": "4705235001",
+        "label": "4705235001 - Bibers unterhalb Messersmühle"
+      },
+      {
+        "wert": "4705235002",
+        "label": "4705235002 - Bibers bei Kastenhof"
+      },
+      {
+        "wert": "4706008001",
+        "label": "4706008001 - Bühler bei Bühlerzell"
+      },
+      {
+        "wert": "4706008002",
+        "label": "4706008002 - Bühler bei Bühlertann"
+      },
+      {
+        "wert": "4706008003",
+        "label": "4706008003 - Bühler bei Vellberg Eschenau"
+      },
+      {
+        "wert": "4706008004",
+        "label": "4706008004 - Bühler bei Unterscheffach"
+      },
+      {
+        "wert": "4707072001",
+        "label": "4707072001 - Kocher bei Gelbingen"
+      },
+      {
+        "wert": "4707072002",
+        "label": "4707072002 - Kocher bei Geislingen"
+      },
+      {
+        "wert": "4707072003",
+        "label": "4707072003 - Kocher bei Braunsbach"
+      },
+      {
+        "wert": "4708006001",
+        "label": "4708006001 - Kocher bei Kocherstetten"
+      },
+      {
+        "wert": "4708006002",
+        "label": "4708006002 - Kocher bei Ingelfingen"
+      },
+      {
+        "wert": "4708006003",
+        "label": "4708006003 - Kocher bei Weißbach"
+      },
+      {
+        "wert": "4709073001",
+        "label": "4709073001 - Kocher bei Ernsbach"
+      },
+      {
+        "wert": "4709073002",
+        "label": "4709073002 - Kocher bei Sindringen"
+      },
+      {
+        "wert": "4709073003",
+        "label": "4709073003 - Kocher bei Ohrnberg"
+      },
+      {
+        "wert": "4709236001",
+        "label": "4709236001 - Kupfer bei Kupferzell"
+      },
+      {
+        "wert": "4709236002",
+        "label": "4709236002 - Kupfer oberhalb Forchtenberg"
+      },
+      {
+        "wert": "4709237001",
+        "label": "4709237001 - Sall bei Zweiflingen"
+      },
+      {
+        "wert": "4710000001",
+        "label": "4710000001 - Lohklingenbach"
+      },
+      {
+        "wert": "4710000002",
+        "label": "4710000002 - Ohrn oberhalb Schuppach"
+      },
+      {
+        "wert": "4710120001",
+        "label": "4710120001 - Ohrn zwischen Unter- und Oberhöfen"
+      },
+      {
+        "wert": "4710120002",
+        "label": "4710120002 - Ohrn bei Hornberg"
+      },
+      {
+        "wert": "4710120003",
+        "label": "4710120003 - Ohrn bei Stackenhofen"
+      },
+      {
+        "wert": "4711000001",
+        "label": "4711000001 - Kocher bei Gochsen"
+      },
+      {
+        "wert": "4711000002",
+        "label": "4711000002 - Brettach zwischen Lauken- und Mittelmühle"
+      },
+      {
+        "wert": "4711000003",
+        "label": "4711000003 - Heimbach"
+      },
+      {
+        "wert": "4711074001",
+        "label": "4711074001 - Kocher bei Gochsen"
+      },
+      {
+        "wert": "4711074002",
+        "label": "4711074002 - Kocher bei Degmarn"
+      },
+      {
+        "wert": "4711074003",
+        "label": "4711074003 - Kocher bei Oedheim"
+      },
+      {
+        "wert": "4711238001",
+        "label": "4711238001 - Brettach bei Geddelsbach"
+      },
+      {
+        "wert": "4711238002",
+        "label": "4711238002 - Brettach bei Bretzfeld"
+      },
+      {
+        "wert": "4711238003",
+        "label": "4711238003 - Brettach bei Langenbrettach/Seligenau"
+      },
+      {
+        "wert": "4801075001",
+        "label": "4801075001 - Jagst bei Schwabsberg"
+      },
+      {
+        "wert": "4801075002",
+        "label": "4801075002 - Jagst bei Jagstzell"
+      },
+      {
+        "wert": "4801075003",
+        "label": "4801075003 - Jagst bei Steinbach"
+      },
+      {
+        "wert": "4802000001",
+        "label": "4802000001 - Brettach bei Ruine Werdeck"
+      },
+      {
+        "wert": "4802005001",
+        "label": "4802005001 - Jagst bei Kirchberg"
+      },
+      {
+        "wert": "4802005002",
+        "label": "4802005002 - Jagst bei Kleinforst"
+      },
+      {
+        "wert": "4802005003",
+        "label": "4802005003 - Jagst bei Mulfingen"
+      },
+      {
+        "wert": "4802239001",
+        "label": "4802239001 - Brettach bei Rohrturm"
+      },
+      {
+        "wert": "4802239002",
+        "label": "4802239002 - Brettach bei Bügenstegen"
+      },
+      {
+        "wert": "4802239003",
+        "label": "4802239003 - Brettach bei Bügenstegen 2"
+      },
+      {
+        "wert": "4803010001",
+        "label": "4803010001 - Jagst bei Schöntal"
+      },
+      {
+        "wert": "4803010002",
+        "label": "4803010002 - Jagst bei Jagsthausen"
+      },
+      {
+        "wert": "4803010003",
+        "label": "4803010003 - Jagst bei Widdern"
+      },
+      {
+        "wert": "4803010004",
+        "label": "4803010004 - Jagst bei Krautheim"
+      },
+      {
+        "wert": "4803240001",
+        "label": "4803240001 - Erlenbach bei Oberndorf"
+      },
+      {
+        "wert": "4803240002",
+        "label": "4803240002 - Erlenbach bei Ziegelhütte"
+      },
+      {
+        "wert": "4803241001",
+        "label": "4803241001 - Kessach bei Ravenstein/Untere Mühle"
+      },
+      {
+        "wert": "4803241002",
+        "label": "4803241002 - Kessach oberhalb Widdern"
+      },
+      {
+        "wert": "4804000001",
+        "label": "4804000001 - Seckach"
+      },
+      {
+        "wert": "4804076001",
+        "label": "4804076001 - Jagst bei Züttlingen"
+      },
+      {
+        "wert": "4804076002",
+        "label": "4804076002 - Jagst bei Neudenau"
+      },
+      {
+        "wert": "4804076003",
+        "label": "4804076003 - Jagst bei Duttenberg"
+      },
+      {
+        "wert": "4804242001",
+        "label": "4804242001 - Kirnau bei Osterburken"
+      },
+      {
+        "wert": "4804243001",
+        "label": "4804243001 - Seckach bei Adelsheim"
+      },
+      {
+        "wert": "4804243002",
+        "label": "4804243002 - Seckach bei Roigheim"
+      },
+      {
+        "wert": "4804244001",
+        "label": "4804244001 - Schefflenz bei Billigheim"
+      },
+      {
+        "wert": "4804244002",
+        "label": "4804244002 - Schefflenz östlich Höchstberg"
+      },
+      {
+        "wert": "4901000001",
+        "label": "4901000001 - Nüstenbach bei Nüstenbach"
+      },
+      {
+        "wert": "4901009001",
+        "label": "4901009001 - Elz bei Elztal"
+      },
+      {
+        "wert": "4901009002",
+        "label": "4901009002 - Elz bei Johannesanstalten"
+      },
+      {
+        "wert": "4901009003",
+        "label": "4901009003 - Elz bei Mosbach"
+      },
+      {
+        "wert": "4901245001",
+        "label": "4901245001 - Trienzbach bei Sattelbach"
+      },
+      {
+        "wert": "4901245002",
+        "label": "4901245002 - Trienzbach oberhalb Mariental"
+      },
+      {
+        "wert": "4902000001",
+        "label": "4902000001 - Gammelsbach"
+      },
+      {
+        "wert": "4902114001",
+        "label": "4902114001 - Steinach bei Altneudorf"
+      },
+      {
+        "wert": "4902114002",
+        "label": "4902114002 - Steinach oberhalb Schönau"
+      },
+      {
+        "wert": "4902115001",
+        "label": "4902115001 - Itter bei Steige"
+      },
+      {
+        "wert": "4903116001",
+        "label": "4903116001 - Elsenz oberhalb Eppingen"
+      },
+      {
+        "wert": "4903116002",
+        "label": "4903116002 - Elsenz bei Steinsfurt"
+      },
+      {
+        "wert": "4903116003",
+        "label": "4903116003 - Elsenz unterhalb Hoffenheim"
+      },
+      {
+        "wert": "4904000001",
+        "label": "4904000001 - Biddersbach"
+      },
+      {
+        "wert": "4904002001",
+        "label": "4904002001 - Elsenz bei Meckesheim"
+      },
+      {
+        "wert": "4904002002",
+        "label": "4904002002 - Elsenz bei Wiesenbach"
+      },
+      {
+        "wert": "4904246001",
+        "label": "4904246001 - Schwarzbach bei Bernau"
+      },
+      {
+        "wert": "4904246002",
+        "label": "4904246002 - Schwarzbach bei Eschelbronn"
+      },
+      {
+        "wert": "4905100001",
+        "label": "4905100001 - Kanzelbach unterhalb Geißenbachmündung"
+      },
+      {
+        "wert": "4905100002",
+        "label": "4905100002 - Losgraben bei Rosenhof"
+      },
+      {
+        "wert": "4951043001",
+        "label": "4951043001 - Neckar bei Neckargemünd"
+      },
+      {
+        "wert": "4951043002",
+        "label": "4951043002 - Neckar Stauraum Heidelberg bei Ziegelhausen"
+      },
+      {
+        "wert": "4951043003",
+        "label": "4951043003 - Neckar bei Ilvesheim"
+      },
+      {
+        "wert": "4951043004",
+        "label": "4951043004 - Neckar bei KKW Obrigheim"
+      },
+      {
+        "wert": "5001117001",
+        "label": "5001117001 - Tauber bei Archshofen"
+      },
+      {
+        "wert": "5001117002",
+        "label": "5001117002 - Tauber bei Creglingen"
+      },
+      {
+        "wert": "5001117003",
+        "label": "5001117003 - Tauber bei Schäftersheim"
+      },
+      {
+        "wert": "5001118001",
+        "label": "5001118001 - Vorbach oberhalb Weikersheim"
+      },
+      {
+        "wert": "5001118002",
+        "label": "5001118002 - Vorbach bei Niederstetten"
+      },
+      {
+        "wert": "5002003001",
+        "label": "5002003001 - Wachbach bei Wachbach"
+      },
+      {
+        "wert": "5002003002",
+        "label": "5002003002 - Wachbach bei Bad Mergentheim"
+      },
+      {
+        "wert": "5002119001",
+        "label": "5002119001 - Tauber unterhalb Vorbachmündung"
+      },
+      {
+        "wert": "5002119002",
+        "label": "5002119002 - Tauber bei Bad Mergentheim"
+      },
+      {
+        "wert": "5002119003",
+        "label": "5002119003 - Tauber bei Unterbalbach"
+      },
+      {
+        "wert": "5002247001",
+        "label": "5002247001 - Umpfer bei Sachsenflur"
+      },
+      {
+        "wert": "5003004001",
+        "label": "5003004001 - Tauber bei Brücke Distelhausen"
+      },
+      {
+        "wert": "5003004002",
+        "label": "5003004002 - Tauber bei Tauber-Bischofsheim"
+      },
+      {
+        "wert": "5003004003",
+        "label": "5003004003 - Tauber bei Brücke Impfingen"
+      },
+      {
+        "wert": "5003248001",
+        "label": "5003248001 - Brehmbach bei Königheim"
+      },
+      {
+        "wert": "5003248002",
+        "label": "5003248002 - Brehmbach bei Tauberbischofsheim"
+      },
+      {
+        "wert": "5003249001",
+        "label": "5003249001 - Wittigbach bei Kläranlage Unterwittighausen"
+      },
+      {
+        "wert": "5003249002",
+        "label": "5003249002 - Grünbach beim Heundelstal (ab 2019)"
+      },
+      {
+        "wert": "5003250002",
+        "label": "5003250002 - Grünbach beim Heundelstal (bis 2018)"
+      },
+      {
+        "wert": "5004086001",
+        "label": "5004086001 - Tauber bei Gamburg/Niklashausen"
+      },
+      {
+        "wert": "5004086002",
+        "label": "5004086002 - Tauber bei Eulschirben"
+      },
+      {
+        "wert": "5004086003",
+        "label": "5004086003 - Tauber bei Wertheim"
+      },
+      {
+        "wert": "5004267001",
+        "label": "5004267001 - Aalbach bei Bettingen"
+      },
+      {
+        "wert": "5101099001",
+        "label": "5101099001 - Erfa bei Dornberg"
+      },
+      {
+        "wert": "5101099002",
+        "label": "5101099002 - Erfa bei Breitenau"
+      },
+      {
+        "wert": "5101121001",
+        "label": "5101121001 - Main bei Mondfeld"
+      },
+      {
+        "wert": "5101121002",
+        "label": "5101121002 - Main bei Fechenbach"
+      },
+      {
+        "wert": "5102098001",
+        "label": "5102098001 - Morre unterhalb Steinbächlemündung"
+      },
+      {
+        "wert": "5102098002",
+        "label": "5102098002 - Morre unterhalb Hettigenbeuren"
+      },
+      {
+        "wert": "5102251001",
+        "label": "5102251001 - Marsbach bei Rippberg/Untermühle"
+      },
+      {
+        "wert": "6001050001",
+        "label": "6001050001 - Breg bei Vorderzindelstein"
+      },
+      {
+        "wert": "6001050002",
+        "label": "6001050002 - Breg bei Bräunlingen"
+      },
+      {
+        "wert": "6001050003",
+        "label": "6001050003 - Breg bei Hüfingen"
+      },
+      {
+        "wert": "6001050004",
+        "label": "6001050004 - Breg bei Untertal"
+      },
+      {
+        "wert": "6002049001",
+        "label": "6002049001 - Brigach bei Schoren"
+      },
+      {
+        "wert": "6002049002",
+        "label": "6002049002 - Brigach bei Marbach"
+      },
+      {
+        "wert": "6002049003",
+        "label": "6002049003 - Brigach bei Aufen"
+      },
+      {
+        "wert": "6003182001",
+        "label": "6003182001 - Aitrach bei Furtwiesen"
+      },
+      {
+        "wert": "6003182002",
+        "label": "6003182002 - Aitrach bei Aulfingen"
+      },
+      {
+        "wert": "6003252001",
+        "label": "6003252001 - Kötach bei Espenhöfe"
+      },
+      {
+        "wert": "6003253001",
+        "label": "6003253001 - Stille Musel bei Donaueschingen/Ziegelhof"
+      },
+      {
+        "wert": "6004183001",
+        "label": "6004183001 - Krähenbach unterhalb Talheim"
+      },
+      {
+        "wert": "6004183002",
+        "label": "6004183002 - Krähenbach oberhalb Möhringen"
+      },
+      {
+        "wert": "6004254001",
+        "label": "6004254001 - Elta bei Wurmlingen"
+      },
+      {
+        "wert": "6005184001",
+        "label": "6005184001 - Bära bei Bärental (Hammer)"
+      },
+      {
+        "wert": "6005184002",
+        "label": "6005184002 - Bära oberhalb Bärenthal"
+      },
+      {
+        "wert": "6005184003",
+        "label": "6005184003 - Bära bei Hammerschmiede"
+      },
+      {
+        "wert": "6051077001",
+        "label": "6051077001 - Donau bei Geisingen"
+      },
+      {
+        "wert": "6051077002",
+        "label": "6051077002 - Donau bei Mühlheim"
+      },
+      {
+        "wert": "6051077003",
+        "label": "6051077003 - Donau bei Fridingen"
+      },
+      {
+        "wert": "6101140001",
+        "label": "6101140001 - Schmeie bei Eselmühle"
+      },
+      {
+        "wert": "6101140002",
+        "label": "6101140002 - Schmeie bei Ruine Heidenschloß"
+      },
+      {
+        "wert": "6102039001",
+        "label": "6102039001 - Lauchert bei Aspenwiesen"
+      },
+      {
+        "wert": "6102039002",
+        "label": "6102039002 - Totholzprojekt Lauchert unterhalb Jungnau"
+      },
+      {
+        "wert": "6102039003",
+        "label": "6102039003 - Lauchert bei Laucherthal"
+      },
+      {
+        "wert": "6102039004",
+        "label": "6102039004 - Lauchert bei Mariaberg"
+      },
+      {
+        "wert": "6102039005",
+        "label": "6102039005 - Lauchert bei Hitzkofen"
+      },
+      {
+        "wert": "6151018001",
+        "label": "6151018001 - Donau bei Beuron St. Maurus"
+      },
+      {
+        "wert": "6151018002",
+        "label": "6151018002 - Donau bei Sigmaringen"
+      },
+      {
+        "wert": "6201000001",
+        "label": "6201000001 - Gunzenbach bei Bietingen"
+      },
+      {
+        "wert": "6201062001",
+        "label": "6201062001 - Ablach bei Sauldorf FFH-Gebiet"
+      },
+      {
+        "wert": "6201062002",
+        "label": "6201062002 - Ablach bei Igelwies - Leitishofen"
+      },
+      {
+        "wert": "6202088001",
+        "label": "6202088001 - Andelsbach bei Ettisweiler"
+      },
+      {
+        "wert": "6202088002",
+        "label": "6202088002 - Andelsbach bei Andelsbach"
+      },
+      {
+        "wert": "6202089001",
+        "label": "6202089001 - Ablach bei Göggingen"
+      },
+      {
+        "wert": "6202089002",
+        "label": "6202089002 - Ablach bei Ablach"
+      },
+      {
+        "wert": "6202089003",
+        "label": "6202089003 - Ablach im Bereich Zielfinger Baggerseen"
+      },
+      {
+        "wert": "6203033001",
+        "label": "6203033001 - Ostrach bei Mündung Laubbach"
+      },
+      {
+        "wert": "6203033002",
+        "label": "6203033002 - Ostrach unterhalb Ostrach"
+      },
+      {
+        "wert": "6203033003",
+        "label": "6203033003 - Ostrach bei Beizkofen oberhalb Brücke L 283"
+      },
+      {
+        "wert": "6203255001",
+        "label": "6203255001 - Biberbach beim NSG Storchenwiesen"
+      },
+      {
+        "wert": "6204000001",
+        "label": "6204000001 - Mühlbach und Kanzach"
+      },
+      {
+        "wert": "6204000002",
+        "label": "6204000002 - Graben bei Oggelshausen"
+      },
+      {
+        "wert": "6204000003",
+        "label": "6204000003 - Flossgraben bei Oggelshausen"
+      },
+      {
+        "wert": "6204141001",
+        "label": "6204141001 - Schwarzach bei Lindenmühle"
+      },
+      {
+        "wert": "6204141002",
+        "label": "6204141002 - Schwarzach südöstlich von Riedlingen"
+      },
+      {
+        "wert": "6204188001",
+        "label": "6204188001 - Kanzach bei Fasanenhof"
+      },
+      {
+        "wert": "6204188002",
+        "label": "6204188002 - Kanzach oberhalb Fischersmühle"
+      },
+      {
+        "wert": "6204188003",
+        "label": "6204188003 - Kanzach bei Dürmentingen"
+      },
+      {
+        "wert": "6251016001",
+        "label": "6251016001 - Donau bei Blochingen Sandwinkel"
+      },
+      {
+        "wert": "6251016002",
+        "label": "6251016002 - Donau bei Riedlingen"
+      },
+      {
+        "wert": "6301189001",
+        "label": "6301189001 - Zwiefalter Ach unterhalb Gossenzugen"
+      },
+      {
+        "wert": "6301189002",
+        "label": "6301189002 - Zwiefalter Ach bei Baach"
+      },
+      {
+        "wert": "6302035001",
+        "label": "6302035001 - Große Lauter bei Anhausen"
+      },
+      {
+        "wert": "6302035002",
+        "label": "6302035002 - Große Lauter bei Gemsfels"
+      },
+      {
+        "wert": "6302035003",
+        "label": "6302035003 - Große Lauter oberhalb Reichenstein"
+      },
+      {
+        "wert": "6302035004",
+        "label": "6302035004 - Große Lauter bei Buttenhausen"
+      },
+      {
+        "wert": "6302035005",
+        "label": "6302035005 - Große Lauter bei Lindehof"
+      },
+      {
+        "wert": "6303143001",
+        "label": "6303143001 - Stehbach oberhalb Mundeldingen"
+      },
+      {
+        "wert": "6303143002",
+        "label": "6303143002 - Stehbach unterhalb Bettighofen"
+      },
+      {
+        "wert": "6303256001",
+        "label": "6303256001 - Tobelbach zwischen Unter- und Oberwachingen"
+      },
+      {
+        "wert": "6303257001",
+        "label": "6303257001 - Reutibach bei Grundsheim"
+      },
+      {
+        "wert": "6304144001",
+        "label": "6304144001 - Schmiech unterhalb von Teuringshofen"
+      },
+      {
+        "wert": "6304144002",
+        "label": "6304144002 - Schmiech unterhalb Klein-Allmendingen"
+      },
+      {
+        "wert": "6351000001",
+        "label": "6351000001 - Donau unterhalb Lautermündung"
+      },
+      {
+        "wert": "6351000002",
+        "label": "6351000002 - Donau oberhalb Lautermündung"
+      },
+      {
+        "wert": "6351078001",
+        "label": "6351078001 - Donau bei Rottenacker oberhalb Kläranlage"
+      },
+      {
+        "wert": "6351078002",
+        "label": "6351078002 - Donau bei Nasgenstadt"
+      },
+      {
+        "wert": "6401063001",
+        "label": "6401063001 - Riß bei Winterstettenstadt"
+      },
+      {
+        "wert": "6401063002",
+        "label": "6401063002 - Riß bei Schemmerhofen"
+      },
+      {
+        "wert": "6401063003",
+        "label": "6401063003 - Riss bei Untersulmetingen"
+      },
+      {
+        "wert": "6401258001",
+        "label": "6401258001 - Umlach bei Fischbach"
+      },
+      {
+        "wert": "6402145001",
+        "label": "6402145001 - Rottum bei Goppertshofen"
+      },
+      {
+        "wert": "6402145002",
+        "label": "6402145002 - Rottum unterhalb Mietingen"
+      },
+      {
+        "wert": "6402145003",
+        "label": "6402145003 - Westernach bei Achstetten"
+      },
+      {
+        "wert": "6402259001",
+        "label": "6402259001 - Dürnach zwischen Baltringen und Sulmingen"
+      },
+      {
+        "wert": "6403000001",
+        "label": "6403000001 - Altwasser (an Rot angebunden) bei Dellmensingen"
+      },
+      {
+        "wert": "6403015001",
+        "label": "6403015001 - Rot bei Eichenberg"
+      },
+      {
+        "wert": "6403015002",
+        "label": "6403015002 - Rot bei Gutenzell-Hürbel"
+      },
+      {
+        "wert": "6403015003",
+        "label": "6403015003 - Rot bei Bußmannshausen"
+      },
+      {
+        "wert": "6403015004",
+        "label": "6403015004 - Rot bei Stetten"
+      },
+      {
+        "wert": "6403260001",
+        "label": "6403260001 - Weihung bei Staig"
+      },
+      {
+        "wert": "6403260002",
+        "label": "6403260002 - Weihung oberhalb Schießanlage Wiblingen"
+      },
+      {
+        "wert": "6403260003",
+        "label": "6403260003 - Weihung bei Schießanlage Wiblingen"
+      },
+      {
+        "wert": "6404000001",
+        "label": "6404000001 - Rot bei Stegrot"
+      },
+      {
+        "wert": "6404146001",
+        "label": "6404146001 - Wurzacher Ach unterhalb Diepoldshofen"
+      },
+      {
+        "wert": "6404146002",
+        "label": "6404146002 - Aitrach bei Altmannshofen"
+      },
+      {
+        "wert": "6404147001",
+        "label": "6404147001 - Eschach bei Badhaus"
+      },
+      {
+        "wert": "6405000001",
+        "label": "6405000001 - Iller bei Dietenheim"
+      },
+      {
+        "wert": "6405261001",
+        "label": "6405261001 - Gießen bei Balzheim"
+      },
+      {
+        "wert": "6406269001",
+        "label": "6406269001 - Lautracher Ach nördlich Hofs "
+      },
+      {
+        "wert": "6451000001",
+        "label": "6451000001 - Donau oberhalb Rotmündung"
+      },
+      {
+        "wert": "6451000003",
+        "label": "6451000003 - Donau bei Ersingen"
+      },
+      {
+        "wert": "6451017001",
+        "label": "6451017001 - Donau bei Donaustetten"
+      },
+      {
+        "wert": "6451017002",
+        "label": "6451017002 - Donau oberhalb Illermündung"
+      },
+      {
+        "wert": "6501038001",
+        "label": "6501038001 - Blau bei Altental"
+      },
+      {
+        "wert": "6501038002",
+        "label": "6501038002 - Blau bei Arnegg"
+      },
+      {
+        "wert": "6501038003",
+        "label": "6501038003 - Blau bei Ulm"
+      },
+      {
+        "wert": "6502148001",
+        "label": "6502148001 - Nau unterhalb Sixenmühle"
+      },
+      {
+        "wert": "6503036001",
+        "label": "6503036001 - Brenz bei Heidenheim"
+      },
+      {
+        "wert": "6503036002",
+        "label": "6503036002 - Brenz bei Herbrechtingen"
+      },
+      {
+        "wert": "6503036003",
+        "label": "6503036003 - Brenz bei Hermaringen"
+      },
+      {
+        "wert": "6503036004",
+        "label": "6503036004 - Brenz südlich Bolheim"
+      },
+      {
+        "wert": "6503036005",
+        "label": "6503036005 - Brenz bei Aufhausen"
+      },
+      {
+        "wert": "6504126001",
+        "label": "6504126001 - Brenz bei Bergenweiler"
+      },
+      {
+        "wert": "6504127001",
+        "label": "6504127001 - Lone bei Ruine Kaltenburg"
+      },
+      {
+        "wert": "6505130001",
+        "label": "6505130001 - Egau bei Neresheim"
+      },
+      {
+        "wert": "6505130002",
+        "label": "6505130002 - Egau bei ehemaliger Guldesmühle"
+      },
+      {
+        "wert": "6505130003",
+        "label": "6505130003 - Egau oberhalb Sägmühle"
+      },
+      {
+        "wert": "6506000001",
+        "label": "6506000001 - Goldbach"
+      },
+      {
+        "wert": "6506129001",
+        "label": "6506129001 - Eger bei Flochberg"
+      },
+      {
+        "wert": "6506129002",
+        "label": "6506129002 - Eger unterhalb Trochtelfingen"
+      },
+      {
+        "wert": "6506262001",
+        "label": "6506262001 - Schneidheimer Sechta östlich Edelmühle"
+      },
+      {
+        "wert": "6506268001",
+        "label": "6506268001 - Rotach westlich Regelsweiler"
+      },
+      {
+        "wert": "6551000001",
+        "label": "6551000001 - Donau unterhalb Illermündung"
+      }
+    ],
+    "z.quelle": [
+      {
+        "wert": "Biodiv",
+        "label": "Biodiv - Projekt Biodiversität"
+      },
+      {
+        "wert": "E-Kurs",
+        "label": "E-Kurs - Fischereien im Zuge der E-Kurse"
+      },
+      {
+        "wert": "FB",
+        "label": "FB - Fangblätter RP Tübingen"
+      },
+      {
+        "wert": "FBF",
+        "label": "FBF - Fangblätter RP Freiburg"
+      },
+      {
+        "wert": "FBK",
+        "label": "FBK - Fangblätter RP Karlsruhe"
+      },
+      {
+        "wert": "FBS",
+        "label": "FBS - Fangblätter RP Stuttgart"
+      },
+      {
+        "wert": "Hüsgen",
+        "label": "Hüsgen - Angaben von S. Hüsgen"
+      },
+      {
+        "wert": "Kor",
+        "label": "Kor - Kormoranprojekt"
+      },
+      {
+        "wert": "Mon",
+        "label": "Mon - WRRL- oder FFH-Monitoring"
+      },
+      {
+        "wert": "Pepl",
+        "label": "Pepl - Pepl/Maps-Fischereien"
+      },
+      {
+        "wert": "PKD",
+        "label": "PKD - PKD-Projekt"
+      },
+      {
+        "wert": "See-Mon",
+        "label": "See-Mon - WRRL Seen Monitoring"
+      },
+      {
+        "wert": "Sonst.",
+        "label": "Sonst. - Meldungen aus sonstige Quellen"
+      }
+    ],
+    "z.rp": [
+      {
+        "wert": "1",
+        "label": "Regierungspräsidium Karlsruhe"
+      },
+      {
+        "wert": "2",
+        "label": "Regierungspräsidium Stuttgart"
+      },
+      {
+        "wert": "3",
+        "label": "Regierungspräsidium Freiburg"
+      },
+      {
+        "wert": "4",
+        "label": "Regierungspräsidium Tübingen"
+      }
+    ]
+  }
+}

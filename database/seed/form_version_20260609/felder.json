@@ -1,0 +1,2580 @@
+{
+  "version": "20260609",
+  "quelle": "Formular_Protokoll_E-Befischung_V20260609.pdf",
+  "anzahl": 540,
+  "felder": [
+    {
+      "name": "anlass",
+      "typ": "Ch",
+      "optionsliste": "anlass"
+    },
+    {
+      "name": "version",
+      "typ": "Tx"
+    },
+    {
+      "name": "button_server",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "datum",
+      "typ": "Tx"
+    },
+    {
+      "name": "check_ok_sohlverbau",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_sohlverbau",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_substrat",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_ok_substrat",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_uferverbau",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_ok_uferverbau",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_bewuchs",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_ok_bewuchs",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_neigung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_ok_neigung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_n_umland",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_ok_umland",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "check_summen",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "bearbeiter.name",
+      "typ": "Tx"
+    },
+    {
+      "name": "bearbeiter.strasse",
+      "typ": "Tx"
+    },
+    {
+      "name": "bearbeiter.firma",
+      "typ": "Tx"
+    },
+    {
+      "name": "bearbeiter.plz",
+      "typ": "Tx"
+    },
+    {
+      "name": "bearbeiter.telefon",
+      "typ": "Tx"
+    },
+    {
+      "name": "bearbeiter.email",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.gewaessername",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.vorfluter1",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.vorfluter2",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.vorfluter3",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.vorfluter4",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaesser.vorfluter5",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.ortsangabe",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.untere",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.utm_rw_unten",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.utm_hw_unten",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.obere",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.utm_rw_oben",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.utm_hw_oben",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.gewaessertyp",
+      "typ": "Btn",
+      "werte": [
+        "14",
+        "12",
+        "13",
+        "11",
+        "26",
+        "29",
+        "28",
+        "21"
+      ],
+      "optionsliste": "gewaessertyp"
+    },
+    {
+      "name": "probestrecke.laenge",
+      "typ": "Tx"
+    },
+    {
+      "name": "probestrecke.monitoringnummer",
+      "typ": "Ch",
+      "optionsliste": "probestrecke.monitoringnummer"
+    },
+    {
+      "name": "messdaten.uhrzeit",
+      "typ": "Tx"
+    },
+    {
+      "name": "messdaten.temperatur",
+      "typ": "Tx"
+    },
+    {
+      "name": "messdaten.leitfaehigkeit",
+      "typ": "Tx"
+    },
+    {
+      "name": "messdaten.sichttiefe",
+      "typ": "Tx"
+    },
+    {
+      "name": "messdaten.regenfaelle",
+      "typ": "Btn",
+      "werte": [
+        "3",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "name": "messdaten.truebung",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "messdaten.schaumbildung",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "hydrologie_box",
+      "typ": "Tx"
+    },
+    {
+      "name": "hydrologie.breite",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.breite_schaetzwert",
+      "typ": "Tx"
+    },
+    {
+      "name": "hydrologie.tiefe",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.tiefe_schaetzwert",
+      "typ": "Tx"
+    },
+    {
+      "name": "hydrologie.tiefenvarianz",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.mit_flachstellen",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "hydrologie.mit_gumpen",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "hydrologie.linienfuehrung",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "4",
+        "3",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.furkationen",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "hydrologie.stroemung",
+      "typ": "Btn",
+      "werte": [
+        "5",
+        "4",
+        "3",
+        "2",
+        "1",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.rueckstroemung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "hydrologie.fliessgeschwindigkeit",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "6",
+        "4",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.wasserfuehrung",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.stillwasserbereich",
+      "typ": "Btn",
+      "werte": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "0"
+      ]
+    },
+    {
+      "name": "hydrologie.gesamtprofil",
+      "typ": "Btn",
+      "werte": [
+        "3",
+        "1",
+        "4",
+        "5",
+        "0"
+      ]
+    },
+    {
+      "name": "umland.nadelwald",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.mischwald",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.laubwald",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.auwald",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.wiese",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.kulturland_acker",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.feuchtgebiet_moor",
+      "typ": "Tx"
+    },
+    {
+      "name": "umland.siedlungsgebiet",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.randstreifen",
+      "typ": "Btn",
+      "werte": [
+        "3",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "name": "ufer.flachufer",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.schraegufer",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.abbruch",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.unterspuelung",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.streckenanteil_geschuetteter_damm",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.neigung",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.buhnenbereich",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "ufer.wurzeln",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.ohne_bewuchs",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.graeser",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.schilf_rohr",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.krautige_blattpflanzen",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.straeucher",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.weiden",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.erlen",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.andere_baeume",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.sonstiger_bewuchs",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.sonstiger_bewuchs_text",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.uferverbau_keiner",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.mauer_unverfugt",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.faschinen",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.drahtnetze",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.ueberwachsen",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.mauer_verfugt",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.steinwurf",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.sonstiger_uferverbau",
+      "typ": "Tx"
+    },
+    {
+      "name": "ufer.sonstiger_uferverbau_text",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.schlamm",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.lehm",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.sonstiges_erdreich",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.sand",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.kies",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.grobkies",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.steine",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.felsen",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.keine_sohlverbauung",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.rasensteine",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.drahtnetze_sohlverbauung",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.steinschuettung",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.pflasterung",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.betonschale",
+      "typ": "Tx"
+    },
+    {
+      "name": "gewaessersohle.kolmatierte_sohle",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "gewaessersohle.eisenocker",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "gewaessersohle.treibsand",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "gewaessersohle.faulschlamm",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "strukturen.totholz",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.wurzeln_strukturen",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.aeste",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.schilf",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.submerse_makrophyten",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.schwimmblattpflanzen",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.emerse_makrophyten",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.sonstige_strukturen",
+      "typ": "Tx"
+    },
+    {
+      "name": "strukturen.sonstige_strukturen_text",
+      "typ": "Tx"
+    },
+    {
+      "name": "einfluesse.keine_einfluesse",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.unbekannt_einfluesse",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.wasserkraft",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.stauhaltung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.schwallbetrieb",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.schifffahrt",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.bewaesserung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.entwaesserung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.hochwasserrueckhaltung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.hochwasserablauf",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.badebetrieb",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.viehtraenke",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.holzberieselung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.trinkwasserversorgung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.sonstige_Nutzung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "einfluesse.sonstige_nutzung_text",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.angelfischerei",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "bewirschaftung.berufsfischerei",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "bewirschaftung.teichspeisung",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "bewirschaftung.teichablauf",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "bewirschaftung.fischereiausübungsberechtigter",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz_fischart1",
+      "typ": "Ch",
+      "optionsliste": "besatz_fischart"
+    },
+    {
+      "name": "bewirschaftung.besatz1_groessenklassen",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz1_jahr",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz_fischart2",
+      "typ": "Ch",
+      "optionsliste": "besatz_fischart"
+    },
+    {
+      "name": "bewirschaftung.besatz2_groessenklassen",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz2_jahr",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz_fischart3",
+      "typ": "Ch",
+      "optionsliste": "besatz_fischart"
+    },
+    {
+      "name": "bewirschaftung.besatz3_groessenklassen",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz3_jahr",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz_fischart4",
+      "typ": "Ch",
+      "optionsliste": "besatz_fischart"
+    },
+    {
+      "name": "bewirschaftung.besatz4_groessenklassen",
+      "typ": "Tx"
+    },
+    {
+      "name": "bewirschaftung.besatz4_jahr",
+      "typ": "Tx"
+    },
+    {
+      "name": "bemerkungen.sonstige_bemerkungen",
+      "typ": "Tx"
+    },
+    {
+      "name": "bemerkungen.bemerkung_fische",
+      "typ": "Tx"
+    },
+    {
+      "name": "bemerkungen.default",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "ausruestung.egeraet",
+      "typ": "Ch",
+      "optionsliste": "ausruestung.egeraet"
+    },
+    {
+      "name": "ausruestung.spannung",
+      "typ": "Tx"
+    },
+    {
+      "name": "ausruestung.leistung",
+      "typ": "Tx"
+    },
+    {
+      "name": "ausruestung.bauweise",
+      "typ": "Btn",
+      "werte": [
+        "alte",
+        "neue"
+      ]
+    },
+    {
+      "name": "ausruestung.ringanoden",
+      "typ": "Tx"
+    },
+    {
+      "name": "ausruestung.ringanoden_durchmesser",
+      "typ": "Tx"
+    },
+    {
+      "name": "ausruestung.kathode",
+      "typ": "Ch",
+      "optionsliste": "ausruestung.kathode"
+    },
+    {
+      "name": "ausruestung.streifenanoden",
+      "typ": "Tx"
+    },
+    {
+      "name": "ausruestung.kiemennetz",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "ausruestung.stoppnetz",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_laenge",
+      "typ": "Tx"
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_breite",
+      "typ": "Tx"
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_stromauf",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_stromab",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_vom_boot",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_watend",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ges_gew_vom_ufer",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ufer_laenge",
+      "typ": "Tx"
+    },
+    {
+      "name": "befischte_bereiche.ufer_breite",
+      "typ": "Tx"
+    },
+    {
+      "name": "befischte_bereiche.ufer_stromauf",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ufer_stromab",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ufer_vom_boot",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ufer_watend",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "befischte_bereiche.ufer_vom_ufer",
+      "typ": "Btn",
+      "werte": [
+        "Ja"
+      ]
+    },
+    {
+      "name": "arten.art1.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art1.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art2.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art2.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art3.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art3.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art4.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art4.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.gesamtsumme",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art5.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art6.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art6.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art7.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art7.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art8.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art8.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art9.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art9.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art10.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art10.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art11.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art11.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art12.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art12.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art13.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art13.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art14.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art14.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art15.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art15.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art16.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art16.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art17.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art17.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art18.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art18.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art19.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art19.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art20.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art20.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art21.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art21.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art22.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art22.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art23.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art23.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art24.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art24.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art25.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art25.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "arten.art26.klasse_1",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_2",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_3",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_4",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_5",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_6",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_7",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_8",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_9",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.klasse_10",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.summe",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.0plus",
+      "typ": "Tx"
+    },
+    {
+      "name": "arten.art26.name",
+      "typ": "Ch",
+      "optionsliste": "arten"
+    },
+    {
+      "name": "fotos.kartenausschnitt_image",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "fotos.bild1",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "fotos.bild2",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "fotos.bild3",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "fotos.bild4",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "drucken",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "Button2",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "button_versenden",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "export",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "saveas",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "hilfe",
+      "typ": "Btn",
+      "werte": [
+        "BBox",
+        "Filter",
+        "FormType",
+        "Matrix",
+        "Resources",
+        "Subtype",
+        "Type"
+      ]
+    },
+    {
+      "name": "anodenfuehrer.vorname",
+      "typ": "Tx"
+    },
+    {
+      "name": "anodenfuehrer.nachname",
+      "typ": "Tx"
+    },
+    {
+      "name": "z.quelle",
+      "typ": "Ch",
+      "optionsliste": "z.quelle"
+    },
+    {
+      "name": "z.ps_nummer",
+      "typ": "Tx"
+    },
+    {
+      "name": "z.rp",
+      "typ": "Ch",
+      "optionsliste": "z.rp"
+    }
+  ]
+}

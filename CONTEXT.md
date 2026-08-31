@@ -48,9 +48,12 @@ by name alone.
 _Avoid_: water, river, stream
 
 **Gewässertyp**:
-The classification of a Gewässer as ditch, canal, stream, river, lake, pond, connected oxbow, or
-cut-off oxbow. Standing types suppress the hydrology section entirely.
-_Avoid_: water type, category
+The classification of a Gewässer, stored as the numeric code the legacy form exports: `11` Graben,
+`12` Kanal, `13` Bach, `14` Fluss, `21` See, `26` Teich, `28` angebundenes Altwasser, `29`
+abgeschnittenes Altwasser. Codes below 20 plus `28` require the hydrology section; `21`, `26` and
+`29` suppress it entirely.
+_Avoid_: water type, category, and the codes `31` and `32`, which the legacy form's JavaScript
+tests for but the field never exports (see [defect 9](docs/ffs-defect-list.md))
 
 **Vorfluter**:
 The Gewässer that a Gewässer flows into. Recorded as a chain that must terminate at the Rhein or the
