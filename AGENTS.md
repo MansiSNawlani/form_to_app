@@ -111,27 +111,53 @@ checks do not make the Blueprint unusable.
 ## Commands
 
 A monorepo with two runtimes. There is no root `package.json`; run commands from
-the relevant directory. The containerised stack arrives with build item 1.
+the relevant directory. Every command below was run on 2026-08-31 during feature
+1c; do not add one here that has not been executed.
+
+**The stack** (from the repository root, needs Docker Desktop running)
+
+- Copy `.env.example` to `.env` once. It is git-ignored.
+- Start: `docker compose up -d --build`
+- Status: `docker compose ps`
+- Stop, keeping data: `docker compose down`
+- Stop and **delete the database**: `docker compose down -v`
+- Backend: http://localhost:8000, API docs http://localhost:8000/api/v1/docs
+- Postgres is published on `localhost:5432`, so the backend can also be run
+  directly on the host against the same database.
 
 **Frontend** (from `frontend/`)
 
-- Dev server: `npm run dev` (http://localhost:5173)
+- Dev server: `npm run dev` (http://localhost:5173, proxies `/api` to the backend)
 - Build: `npm run build`
 - Preview the build: `npm run preview`
 - Lint: `npm run lint`
 
-**Backend** (from `backend/`, needs Python 3.12 or newer and an activated venv)
+**Backend** (from `backend/`)
+
+The virtual environment is not committed. Create it once:
+
+- `py -m venv .venv` on Windows, `python3 -m venv .venv` elsewhere
+- `.venv\Scripts\python -m pip install -e ".[dev]"` (Windows) or
+  `.venv/bin/python -m pip install -e ".[dev]"`
+
+Then, with `.venv` on PATH or via `.venv\Scripts\python -m`:
 
 - Dev server: `uvicorn app.main:app --reload` (http://localhost:8000)
-- API docs: http://localhost:8000/api/v1/docs
+- Tests: `pytest`
 - Lint: `ruff check .`
 - Types: `mypy .`
 
-Testing is opt-in and **not yet switched on**. A `pytest` configuration and one
-example test exist in `backend/`, and the frontend has no runner at all. Neither is
-declared here on purpose: declaring a `test` command turns it into a gate for every
-logic-bearing step, and a gate that cannot run is worse than no gate. Run `/tests`
-to install the frontend runner and add the real test commands to this section.
+**Test command: `pytest`, from `backend/`.** Switched on in feature 1c, because
+that feature added the first backend logic where a wrong answer is possible: the
+readiness check. The gate applies to logic-bearing backend steps.
+
+**The frontend still has no test runner**, so no frontend test command is declared.
+Run `/tests` to add one. It is worth doing before feature 4, which brings the
+coordinate bounds check and the Vorfluter chain rule.
+
+Note the Python version gap: `pyproject.toml`, ruff and mypy all target 3.12 and
+the container image is pinned to `python:3.12-slim`, but development on the
+current machine runs 3.14. Accepted knowingly on 2026-08-31.
 
 There is no `Verify` command yet. Run `/ci` to define one and add matching GitHub
 checks; that is a separate setup step from the feature loop.
