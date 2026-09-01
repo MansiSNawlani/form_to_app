@@ -29,14 +29,17 @@ export const VORFLUTER_PFADE = VORFLUTER_FELDER.map(
 
 const ENDPUNKTE = ['rhein', 'donau']
 
-/* Loose on the way in, faithful on the way out. The match ignores case and
-   spacing and accepts a name that merely contains the word, so "Alte Donau" and
-   "Oberrhein" both end a chain. Nothing here rewrites the answer: defect 2 in
-   docs/ffs-defect-list.md is the legacy form lowercasing every water body name,
-   which is one of the three defects that put wrong data into FiaKa. */
+/* Ends with, not contains. The last part of a German compound is what the thing
+   actually is, so "Oberrhein" and "Hochrhein" are the Rhein and "Alte Donau" is
+   the Donau, while "Donaubach" is a Bach and does not end a chain.
+
+   Case and surrounding spaces are ignored for the comparison only. Nothing here
+   rewrites the answer: defect 2 in docs/ffs-defect-list.md is the legacy form
+   lowercasing every water body name, one of the three defects that put wrong
+   data into FiaKa. Compare loosely, store faithfully. */
 function istEndpunkt(name: string | undefined): boolean {
   const normalisiert = (name ?? '').trim().toLowerCase()
-  return ENDPUNKTE.some((endpunkt) => normalisiert.includes(endpunkt))
+  return ENDPUNKTE.some((endpunkt) => normalisiert.endsWith(endpunkt))
 }
 
 function verstoss(index: number, schluessel: Regelverstoss['schluessel']) {

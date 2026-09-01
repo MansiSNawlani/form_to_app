@@ -48,11 +48,22 @@ describe('pruefeVorfluterkette', () => {
     expect(pruefeVorfluterkette(kette('argen', 'rhein'))).toEqual([])
   })
 
-  it('accepts a name that contains the Rhein or the Donau', () => {
+  /* The last part of a German compound is what the thing is: an Oberrhein is a
+     Rhein, a Donaubach is a Bach. */
+  it('accepts a name ending in the Rhein or the Donau', () => {
     expect(pruefeVorfluterkette(kette('Alte Donau'))).toEqual([])
     expect(pruefeVorfluterkette(kette('Brettach', 'Oberrhein'))).toEqual([])
     expect(pruefeVorfluterkette(kette('Hochrhein'))).toEqual([])
   })
+
+  it.each(['Donaubach', 'Donaut', 'Rheinbach', 'Rheinau', 'Donaukanal'])(
+    'does not let %s end a chain',
+    (name) => {
+      expect(schluessel(kette('Argen', name))).toEqual([
+        'protokoll.regeln.vorfluterKeinEndpunkt',
+      ])
+    },
+  )
 
   it('demands an end at the Rhein or the Donau, on the last filled box', () => {
     expect(pfade(kette('Argen', 'Schussen'))).toEqual([

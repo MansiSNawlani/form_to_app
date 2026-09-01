@@ -39,6 +39,18 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   })
   const saveState = useAutoSave(entwurf, form)
 
+  /* An answer that was wrong when the draft was put down is still wrong when it
+     is picked up again, so the saved answers are checked once on opening.
+     Without this, a reopened protocol looks clean until somebody happens to
+     visit the field, and a wrong coordinate reaches the review queue unseen.
+
+     This does not contradict staying quiet on a fresh draft. Every rule passes
+     over an answer nobody has given, so a new protocol produces nothing to
+     show: what appears here was caused by something actually in the document. */
+  useEffect(() => {
+    void form.trigger()
+  }, [form])
+
   /* Focus follows the section change.
    *
    * Without this, activating a step link leaves focus on the step bar: a screen

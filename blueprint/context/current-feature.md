@@ -78,9 +78,12 @@ Probestrecke. Three things make it wrong:
 | The chain does not reach the Rhein or the Donau | Argen, Schussen, and nothing more | the last filled field |
 | Something continues past the terminator | Argen, Schussen, Rhein, Bodensee | the first field after the terminator |
 
-Comparison against "Rhein" and "Donau" ignores case and surrounding spaces, and accepts a name that
-merely contains the word, so "Alte Donau", "Hochrhein" and "Oberrhein" all terminate a chain. What
-is stored is exactly what the user typed. This matters: defect 2 in `docs/ffs-defect-list.md` says
+Comparison against "Rhein" and "Donau" ignores case and surrounding spaces, and asks that the name
+**end** with one of them. The last part of a German compound is what the thing is, so "Alte Donau",
+"Hochrhein" and "Oberrhein" all terminate a chain, while "Donaubach" is a Bach and does not.
+Corrected on 2026-09-01 after manual review: the first version accepted any name merely containing
+the word, which also let "Donaut" and "Rheinau" end a chain. What is stored is exactly what the user
+typed. This matters: defect 2 in `docs/ffs-defect-list.md` says
 the legacy form lowercases every water body name, which is one of the three defects that corrupted
 data already in FiaKa. Compare loosely, store faithfully.
 
@@ -248,6 +251,13 @@ rule, a schema or a component.
 every change after that. An untouched field never shows an error, which is what keeps a fresh draft
 quiet.
 
+**Plus one check when the protocol opens.** Found in manual review on 2026-09-01: with `onTouched`
+alone, reopening a draft showed no messages at all, because nothing had been touched yet, so a
+protocol saved in a wrong state looked clean until somebody happened to revisit the field. The form
+therefore runs `trigger()` once on mount. This does not make a fresh draft noisy, since every rule
+passes over an answer nobody has given: whatever appears was caused by something already in the
+document.
+
 Two known sharp edges to expect while building step 2, both with a known fix:
 
 1. A rule spanning two fields does not re-run on the other field's change by itself. When the Anlass
@@ -309,9 +319,10 @@ No backend change, so `pytest` is untouched, though it should be green before `/
 - **Two things to raise with FFS**, neither blocking:
   1. The coordinate bounds are derived here, not given. Confirm the rectangle is acceptable, or
      supply the real extent.
-  2. A chain terminating at a name merely containing "Rhein" or "Donau" accepts "Alte Donau" and
-     "Oberrhein" on purpose, and would also accept an unrelated tributary named something like
-     "Donaubach". Confirm that a loose match is better than a fixed list of accepted names.
+  2. A chain terminates at any name ending in "Rhein" or "Donau", which accepts "Alte Donau",
+     "Oberrhein" and "Hochrhein" on purpose. Confirm that this is better than a fixed list of
+     accepted names, and that no real Vorfluter that should end a chain is named in a way this
+     misses.
 - The three questions raised by 4b are still open and unchanged: `bearbeiter.ort` is missing from
   the legacy form, `z.quelle` and `z.ps_nummer` may not be the surveyor's to fill in, and the time
   picker rounds to five minute steps.
