@@ -64,7 +64,7 @@ These are not features and are not tracked here. They happen first.
       chain and coordinate entry with the Baden-Württemberg bounds check
   - [x] 4a. Protocol shell and browser draft store: routing, the six-section navigation, the
         answers document shape, and drafts that survive a reload
-  - [ ] 4b. Part 1 fields: the Anlass, Bearbeiter and Probestrecke blocks, built from the
+  - [x] 4b. Part 1 fields: the Anlass, Bearbeiter and Probestrecke blocks, built from the
         extracted option lists
   - [ ] 4c. Part 1 rules: the Vorfluter chain ending at Rhein or Donau, the Baden-Württemberg
         coordinate bounds, and the monitoring number required for WRRL and FFH
