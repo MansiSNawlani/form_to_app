@@ -15,6 +15,10 @@
       "hilfe": "Hilfe",
       "kontakt": "Kontakt",
       "formVersion": "Formularversion {{version}}"
+    },
+    "nichtGefunden": {
+      "titel": "Seite nicht gefunden",
+      "text": "Diese Adresse gibt es nicht. Möglicherweise ist der Link veraltet."
     }
   },
   "common": {
@@ -27,6 +31,50 @@
       "title": "Meine Protokolle",
       "empty": "Hier erscheinen die Protokolle, die Sie angelegt haben.",
       "new": "Neues Protokoll"
+    }
+  },
+  "protokoll": {
+    "kopf": {
+      "alleProtokolle": "Alle Protokolle",
+      "entwurf": "Entwurf",
+      "angelegtAm": "angelegt am {{datum}}",
+      "titel": "Protokoll"
+    },
+    "abschnitte": {
+      "navLabel": "Abschnitte des Protokolls",
+      "anlass": "Anlass und Probestrecke",
+      "messdaten": "Messdaten und Hydrologie",
+      "umland": "Umland, Ufer und Sohle",
+      "struktur": "Struktur und Bewirtschaftung",
+      "ausruestung": "Ausrüstung und Bereiche",
+      "faenge": "Fänge"
+    },
+    "nichtGefunden": {
+      "titel": "Protokoll nicht gefunden",
+      "text": "Dieser Entwurf liegt nicht in diesem Browser. Entwürfe werden bis auf Weiteres nur auf dem Gerät gespeichert, auf dem sie angelegt wurden."
+    },
+    "navigation": {
+      "zurueck": "Zurück",
+      "weiter": "Weiter: {{abschnitt}}"
+    },
+    "platzhalter": {
+      "text": "Dieser Abschnitt wird mit Feature {{feature}} gebaut."
+    },
+    "abschnitt1": {
+      "anlass": {
+        "legend": "Anlass der Befischung",
+        "hinweis": "Der Anlass bestimmt, welche weiteren Angaben Pflicht werden.",
+        "label": "Anlass"
+      }
+    },
+    "felder": {
+      "bitteWaehlen": "Bitte wählen"
+    },
+    "speichern": {
+      "unveraendert": "Alle Änderungen gespeichert",
+      "speichert": "Wird gespeichert",
+      "gespeichertUm": "Automatisch gespeichert um {{zeit}}",
+      "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
     }
   }
 }
