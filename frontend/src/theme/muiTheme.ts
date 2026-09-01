@@ -135,6 +135,30 @@ export const muiTheme = createTheme({
         },
       },
     },
+    MuiFormLabel: {
+      styleOverrides: {
+        // The approved mockups put a small bold label above the field rather
+        // than floating it into the border notch, so FormLabel carries the label
+        // and InputLabel is not used. Material's own focus recolouring is
+        // switched off: the field's border already shows focus, and a label that
+        // changes colour as well reads as an error state.
+        root: {
+          fontSize: 'var(--step--1)',
+          fontWeight: 600,
+          color: 'var(--text)',
+          marginBottom: '0.3rem',
+          '&.Mui-focused': { color: 'var(--text)' },
+        },
+        asterisk: { color: 'var(--danger)' },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        // Elevation is off everywhere by design, so a dropdown needs a border of
+        // its own to separate it from the page it floats over.
+        paper: { border: '1px solid var(--border)' },
+      },
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: { backgroundColor: 'var(--surface)', minHeight: 'var(--field-h)' },

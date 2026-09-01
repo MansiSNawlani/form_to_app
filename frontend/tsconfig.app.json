@@ -5,6 +5,10 @@
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
     "types": ["vite/client"],
+    "resolveJsonModule": true,
+    "paths": {
+      "@formular/*": ["../database/seed/form_version_20260609/*"]
+    },
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 
