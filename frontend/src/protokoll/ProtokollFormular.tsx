@@ -48,7 +48,9 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const titel = t(abschnitt.titelKey)
 
   return (
-    <>
+    /* The provider wraps the head as well as the card, because the heading is
+       the draft's own name and reads it out of the answers. */
+    <FormProvider {...form}>
       <ProtokollKopf entwurf={entwurf} saveState={saveState} />
       <AbschnittNav entwurfId={entwurf.id} aktuelleNr={abschnitt.nr} />
 
@@ -56,11 +58,9 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
         {/* No onSubmit: there is nothing to submit until feature 11, and saving
             is automatic. The form element is here for the semantics and so that
             the fields sit inside one. */}
-        <FormProvider {...form}>
-          <form>
-            <AbschnittInhalt abschnitt={abschnitt} titel={titel} />
-          </form>
-        </FormProvider>
+        <form>
+          <AbschnittInhalt abschnitt={abschnitt} titel={titel} />
+        </form>
 
         <AbschnittWechsel
           entwurfId={entwurf.id}
@@ -68,7 +68,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
           saveState={saveState}
         />
       </section>
-    </>
+    </FormProvider>
   )
 }
 

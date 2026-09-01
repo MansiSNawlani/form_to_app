@@ -96,6 +96,65 @@ function ProbestreckeBlock() {
           spalten={4}
         />
       </div>
+
+      <div className="grid">
+        <div className="col-12">
+          <p className="callout">
+            <strong>
+              {t('protokoll.abschnitt1.probestrecke.koordinatenCallout.titel')}
+            </strong>{' '}
+            {t('protokoll.abschnitt1.probestrecke.koordinatenCallout.text')}
+          </p>
+        </div>
+
+        {/* Each boundary is described in words above the numbers that fix it.
+            untere and obere are real fields in the PDF that the mockup left out;
+            a landmark is what somebody uses to find the same spot next year. */}
+        <FeldText
+          name="probestrecke.untere"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.untere"
+          hinweisKey="protokoll.abschnitt1.probestrecke.feld.untereHinweis"
+          spalten={6}
+        />
+        <FeldText
+          name="probestrecke.utm_rw_unten"
+          typ="number"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.utmRwUnten"
+          spalten={3}
+          pflicht
+        />
+        <FeldText
+          name="probestrecke.utm_hw_unten"
+          typ="number"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.utmHwUnten"
+          spalten={3}
+          pflicht
+        />
+
+        <FeldText
+          name="probestrecke.obere"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.obere"
+          spalten={6}
+        />
+        <FeldText
+          name="probestrecke.utm_rw_oben"
+          typ="number"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.utmRwOben"
+          spalten={3}
+          pflicht
+        />
+        <FeldText
+          name="probestrecke.utm_hw_oben"
+          typ="number"
+          labelKey="protokoll.abschnitt1.probestrecke.feld.utmHwOben"
+          spalten={3}
+          pflicht
+        />
+
+        <p className="col-12 form-section__hint">
+          {t('protokoll.abschnitt1.probestrecke.kartenHinweis')}
+        </p>
+      </div>
     </fieldset>
   )
 }

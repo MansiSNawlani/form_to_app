@@ -38,7 +38,7 @@
       "alleProtokolle": "Alle Protokolle",
       "entwurf": "Entwurf",
       "angelegtAm": "angelegt am {{datum}}",
-      "titel": "Protokoll"
+      "titelPlatzhalter": "Protokoll"
     },
     "abschnitte": {
       "navLabel": "Abschnitte des Protokolls",
@@ -106,8 +106,20 @@
           "vorfluter2": "Vorfluter 2",
           "vorfluter3": "Vorfluter 3",
           "vorfluter4": "Vorfluter 4",
-          "vorfluter5": "Vorfluter 5"
-        }
+          "vorfluter5": "Vorfluter 5",
+          "untere": "Untere Grenze",
+          "untereHinweis": "Woran die Grenze im Gelände zu erkennen ist, zum Beispiel eine Brücke.",
+          "utmRwUnten": "Untere Grenze, Rechtswert",
+          "utmHwUnten": "Untere Grenze, Hochwert",
+          "obere": "Obere Grenze",
+          "utmRwOben": "Obere Grenze, Rechtswert",
+          "utmHwOben": "Obere Grenze, Hochwert"
+        },
+        "koordinatenCallout": {
+          "titel": "Koordinaten in EPSG:25832",
+          "text": "(ETRS89 / UTM Zone 32N), wie im bisherigen Formular. Werte außerhalb Baden-Württembergs werden abgewiesen."
+        },
+        "kartenHinweis": "Die Kartenauswahl folgt später. Bis dahin werden die Koordinaten eingetippt."
       }
     },
     "felder": {

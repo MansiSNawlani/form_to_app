@@ -1,7 +1,7 @@
 # Feature: 4b - Part 1 fields
 
 **From build-plan:** feature 4b, the second of three sub-features of item 4 (Form part 1)
-**Status:** spec written, not started
+**Status:** built, awaiting review
 
 ## Goal
 
@@ -169,7 +169,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       shows the eight extracted codes with their labels, and the hint under it says section 2
       disappears for See, Teich and abgeschnittenes Altwasser without that yet being true.
 
-- [ ] **Step 5 - The Probestrecke block: the boundaries, and the page head** - the coordinate
+- [x] **Step 5 - The Probestrecke block: the boundaries, and the page head** - the coordinate
       callout, the two boundary description fields and the four coordinate fields, then the page
       head title driven by the answers. A pure `protokollTitel(antworten)` helper returns the
       Gewaessername and the Ortsangabe joined, or just whichever is filled, or a placeholder when
