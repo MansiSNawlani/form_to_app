@@ -171,6 +171,12 @@
 .col-11 { grid-column: span 11; }
 .col-12 { grid-column: span 12; }
 
+/* A section split into more than one grid, so a callout can sit between two
+   groups of fields without breaking the twelve column run. */
+.grid + .grid {
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 800px) {
   .grid > * {
     grid-column: span 12;
@@ -213,4 +219,30 @@
 
 .save-state--failed .save-state__dot {
   background: var(--danger);
+}
+
+/* A control with a unit beside it, such as the m after a stretch length. The
+   unit sits outside the input so it is never mistaken for part of the value. */
+.unit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unit-row__unit {
+  color: var(--muted);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}
+
+/* An explanatory note inside a form section, for a rule a surveyor has to know
+   before typing rather than after being rejected. */
+.callout {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--info);
+  background: var(--info-soft);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: var(--step--1);
+  color: var(--text);
 }

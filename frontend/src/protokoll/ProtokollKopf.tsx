@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import ProtokollTitel from './ProtokollTitel'
 import SpeicherAnzeige from './SpeicherAnzeige'
 import type { SaveState } from './entwurf/useAutoSave'
 import type { Entwurf } from './entwurf/typen'
@@ -21,9 +21,7 @@ function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
   return (
     <div className="page__head">
       <div>
-        {/* Feature 4b replaces this with the Gewässername and the Ortsangabe, as
-            in the mockup. Neither field exists yet. */}
-        <Typography variant="h1">{t('protokoll.kopf.titel')}</Typography>
+        <ProtokollTitel />
         <p className="page__sub">
           {t('protokoll.kopf.entwurf')}
           {' · '}

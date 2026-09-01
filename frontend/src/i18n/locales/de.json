@@ -38,7 +38,7 @@
       "alleProtokolle": "Alle Protokolle",
       "entwurf": "Entwurf",
       "angelegtAm": "angelegt am {{datum}}",
-      "titel": "Protokoll"
+      "titelPlatzhalter": "Protokoll"
     },
     "abschnitte": {
       "navLabel": "Abschnitte des Protokolls",
@@ -64,11 +64,69 @@
       "anlass": {
         "legend": "Anlass der Befischung",
         "hinweis": "Der Anlass bestimmt, welche weiteren Angaben Pflicht werden.",
-        "label": "Anlass"
+        "feld": {
+          "anlass": "Anlass",
+          "monitoringnummer": "Monitoringstrecken-Nr.",
+          "monitoringnummerHinweis": "Nur bei Fischmonitoring gemäß WRRL oder FFH.",
+          "rp": "Regierungspräsidium",
+          "datum": "Datum",
+          "uhrzeit": "Uhrzeit",
+          "quelle": "Quelle",
+          "quelleHinweis": "Aus welchem Projekt oder Meldeweg die Befischung stammt.",
+          "psNummer": "PS-Nummer"
+        }
+      },
+      "bearbeiter": {
+        "legend": "Bearbeiter",
+        "hinweis": "Die Person, die die Befischung durchgeführt hat. Das ist nicht zwingend das Konto, das das Protokoll einreicht.",
+        "feld": {
+          "name": "Name",
+          "firma": "Firma oder Verein",
+          "strasse": "Straße und Hausnummer",
+          "plz": "PLZ",
+          "ort": "Ort",
+          "telefon": "Telefon",
+          "email": "E-Mail"
+        }
+      },
+      "probestrecke": {
+        "legend": "Probestrecke",
+        "hinweis": "Der befischte Abschnitt. Dieselbe Strecke kann in mehreren Jahren befischt werden und behält dabei ihre Angaben.",
+        "vorfluterCallout": {
+          "titel": "Vorfluterkette.",
+          "text": "Von der Probestrecke abwärts eintragen. Die Kette muss beim Rhein oder bei der Donau enden, damit die Strecke im Gewässernetz eingeordnet werden kann."
+        },
+        "feld": {
+          "gewaessername": "Gewässer",
+          "gewaessertyp": "Gewässertyp",
+          "gewaessertypHinweis": "Bei See, Teich und abgeschnittenem Altwasser entfällt Abschnitt 2 (Hydrologie).",
+          "laenge": "Länge der Strecke",
+          "ortsangabe": "Ortsangabe",
+          "vorfluter1": "Vorfluter 1",
+          "vorfluter2": "Vorfluter 2",
+          "vorfluter3": "Vorfluter 3",
+          "vorfluter4": "Vorfluter 4",
+          "vorfluter5": "Vorfluter 5",
+          "untere": "Untere Grenze",
+          "untereHinweis": "Woran die Grenze im Gelände zu erkennen ist, zum Beispiel eine Brücke.",
+          "utmRwUnten": "Untere Grenze, Rechtswert",
+          "utmHwUnten": "Untere Grenze, Hochwert",
+          "obere": "Obere Grenze",
+          "utmRwOben": "Obere Grenze, Rechtswert",
+          "utmHwOben": "Obere Grenze, Hochwert"
+        },
+        "koordinatenCallout": {
+          "titel": "Koordinaten in EPSG:25832",
+          "text": "(ETRS89 / UTM Zone 32N), wie im bisherigen Formular. Werte außerhalb Baden-Württembergs werden abgewiesen."
+        },
+        "kartenHinweis": "Die Kartenauswahl folgt später. Bis dahin werden die Koordinaten eingetippt."
       }
     },
     "felder": {
-      "bitteWaehlen": "Bitte wählen"
+      "bitteWaehlen": "Bitte wählen",
+      "einheit": {
+        "meter": "m"
+      }
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

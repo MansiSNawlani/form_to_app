@@ -1,5 +1,7 @@
 import { createTheme, type Shadows } from '@mui/material/styles'
 import { deDE } from '@mui/material/locale'
+// Lets createTheme accept the date pickers' own component keys below.
+import type {} from '@mui/x-date-pickers/themeAugmentation'
 import {
   darkTokens,
   fontSans,
@@ -152,6 +154,26 @@ export const muiTheme = createTheme({
         asterisk: { color: 'var(--danger)' },
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        // The hint under a field (prototypes/mockup.css .field__hint). MUI
+        // indents it to line up with a floating label, which we do not use, so
+        // it is pulled back flush with the control above it.
+        root: {
+          fontSize: 'var(--step--1)',
+          color: 'var(--muted)',
+          marginInline: 0,
+          marginTop: '0.3rem',
+        },
+      },
+    },
+    MuiPickerPopper: {
+      styleOverrides: {
+        // Same reason as MuiMenu below: elevation is off everywhere by design,
+        // so the calendar needs a border to separate it from the page.
+        paper: { border: '1px solid var(--border)' },
+      },
+    },
     MuiMenu: {
       styleOverrides: {
         // Elevation is off everywhere by design, so a dropdown needs a border of
@@ -162,6 +184,14 @@ export const muiTheme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: { backgroundColor: 'var(--surface)', minHeight: 'var(--field-h)' },
+        // Coordinates, postcodes and telephone numbers are read by comparing
+        // digit against digit, which proportional figures make harder
+        // (prototypes/mockup.css .tabular).
+        input: {
+          '&[type="number"], &[type="tel"]': {
+            fontVariantNumeric: 'tabular-nums',
+          },
+        },
       },
     },
     MuiCssBaseline: {
