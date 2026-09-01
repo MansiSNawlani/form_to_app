@@ -190,6 +190,14 @@
   min-width: 0;
 }
 
+/* The message under a field that is wrong. Its colour comes from MUI, which
+   already reads --danger through the theme's error palette; the weight is the
+   mockup's, and is what keeps it from reading as a second hint
+   (prototypes/mockup.css .field__error). */
+.field__error {
+  font-weight: 600;
+}
+
 /* ---------- save indicator ---------- */
 
 .save-state {

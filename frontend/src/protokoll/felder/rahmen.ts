@@ -21,9 +21,33 @@ export function hinweisId(id: string, hatHinweis: boolean) {
   return hatHinweis ? `${id}-hinweis` : undefined
 }
 
+/** The error message's id, alongside the hint's rather than instead of it. */
+export function fehlerId(id: string, hatFehler: boolean) {
+  return hatFehler ? `${id}-fehler` : undefined
+}
+
 /** The label's own id, for a control that can only be named by reference. */
 export function labelId(id: string) {
   return `${id}-label`
+}
+
+/* Everything a control is described by, in reading order.
+ *
+ * The hint and the error are both wanted: the hint under the
+ * Monitoringstrecken-Nr. says when a number is needed at all, which is exactly
+ * the context somebody needs while being told the number is missing. Replacing
+ * one with the other would take that away from a screen reader user only. */
+export function beschriebenVon(
+  id: string,
+  hinweisKey: ParseKeys | undefined,
+  fehlerKey: ParseKeys | undefined,
+) {
+  const ids = [
+    hinweisId(id, Boolean(hinweisKey)),
+    fehlerId(id, Boolean(fehlerKey)),
+  ].filter(Boolean)
+
+  return ids.length > 0 ? ids.join(' ') : undefined
 }
 
 /* The aria attributes a real input needs. Not used by FeldAuswahl: MUI's Select
@@ -34,9 +58,13 @@ export function feldAria(
   name: string,
   pflicht: boolean | undefined,
   hinweisKey: ParseKeys | undefined,
+  fehlerKey?: ParseKeys,
 ) {
   return {
     'aria-required': pflicht,
-    'aria-describedby': hinweisId(name, Boolean(hinweisKey)),
+    // The red border is not a signal on its own, and aria-invalid is what says
+    // "this one" to somebody who is not looking at the colour.
+    'aria-invalid': fehlerKey ? true : undefined,
+    'aria-describedby': beschriebenVon(name, hinweisKey, fehlerKey),
   }
 }

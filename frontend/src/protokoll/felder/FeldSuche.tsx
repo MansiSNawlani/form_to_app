@@ -2,6 +2,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { Controller, useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
+import { useFeldFehler } from './fehler'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import { optionen, type ListenName } from '../optionen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
@@ -28,6 +29,7 @@ function FeldSuche({
 }: FeldSucheProps) {
   const { control } = useFormContext<Antworten>()
   const alle = optionen(liste)
+  const fehlerKey = useFeldFehler(name)
 
   return (
     <FeldRahmen
@@ -37,6 +39,7 @@ function FeldSuche({
       spalten={spalten}
       pflicht={pflicht}
       hinweisKey={hinweisKey}
+      fehlerKey={fehlerKey}
     >
       <Controller
         name={name}
@@ -66,7 +69,7 @@ function FeldSuche({
                 {...slotProps.input}
                 inputProps={{
                   ...slotProps.htmlInput,
-                  ...feldAria(name, pflicht, hinweisKey),
+                  ...feldAria(name, pflicht, hinweisKey, fehlerKey),
                 }}
                 fullWidth
               />

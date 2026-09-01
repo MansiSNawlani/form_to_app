@@ -1,6 +1,7 @@
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
+import { useFeldFehler } from './fehler'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -38,6 +39,7 @@ function FeldText({
 }: FeldTextProps) {
   const { register } = useFormContext<Antworten>()
   const { ref, ...feld } = register(name)
+  const fehlerKey = useFeldFehler(name)
 
   const eingabe = (
     <OutlinedInput
@@ -46,7 +48,7 @@ function FeldText({
       id={name}
       type={typ}
       fullWidth
-      inputProps={feldAria(name, pflicht, hinweisKey)}
+      inputProps={feldAria(name, pflicht, hinweisKey, fehlerKey)}
     />
   )
 
@@ -58,6 +60,7 @@ function FeldText({
       spalten={spalten}
       pflicht={pflicht}
       hinweisKey={hinweisKey}
+      fehlerKey={fehlerKey}
     >
       {einheit ? (
         <div className="unit-row">

@@ -1,15 +1,38 @@
+import { useEffect, useRef } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldDatum from '../../felder/FeldDatum'
 import FeldSuche from '../../felder/FeldSuche'
 import FeldText from '../../felder/FeldText'
+import type { Antworten } from '../../entwurf/typen'
+import { istMonitoringAnlass } from '../../regeln/monitoring'
 
-/* Why the Befischung happened, who is responsible for the record, and when.
-
-   Required markers follow the mockup. Nothing is enforced yet: the rule that
-   makes the Monitoringstrecken-Nr. mandatory for WRRL and FFH is feature 4c. */
+/* Why the Befischung happened, who is responsible for the record, and when. */
 function AnlassBlock() {
   const { t } = useTranslation()
+  const { trigger } = useFormContext<Antworten>()
+  const [anlass, monitoringnummer] = useWatch<
+    Antworten,
+    ['anlass', 'probestrecke.monitoringnummer']
+  >({ name: ['anlass', 'probestrecke.monitoringnummer'] })
+
+  /* The Monitoringstrecken-Nr. is a rule about two answers, and React Hook Form
+     only rechecks the field being edited, so choosing an Anlass has to ask for
+     the other field to be looked at again.
+
+     It deliberately raises a message on a field nobody has been in, because the
+     user has just made that field required and needs telling. Not on the first
+     render though: opening a half-finished draft should not greet somebody with
+     an error before they have touched anything. */
+  const ersteRunde = useRef(true)
+  useEffect(() => {
+    if (ersteRunde.current) {
+      ersteRunde.current = false
+      return
+    }
+    void trigger('probestrecke.monitoringnummer')
+  }, [anlass, monitoringnummer, trigger])
 
   return (
     <fieldset className="form-section">
@@ -26,16 +49,17 @@ function AnlassBlock() {
           spalten={5}
           pflicht
         />
-        {/* 722 monitoring numbers, so a search rather than a dropdown. Not
-            marked required, unlike the mockup: it is required only for WRRL and
-            FFH, so an unconditional aria-required would contradict its own
-            hint. Feature 4c makes the marker follow the Anlass. */}
+        {/* 722 monitoring numbers, so a search rather than a dropdown. The
+            marker follows the Anlass rather than standing there always, because
+            only a monitoring programme assigns a number at all, which is what
+            the hint underneath says. */}
         <FeldSuche
           name="probestrecke.monitoringnummer"
           liste="probestrecke.monitoringnummer"
           labelKey="protokoll.abschnitt1.anlass.feld.monitoringnummer"
           hinweisKey="protokoll.abschnitt1.anlass.feld.monitoringnummerHinweis"
           spalten={4}
+          pflicht={istMonitoringAnlass(anlass)}
         />
         <FeldAuswahl
           name="z.rp"

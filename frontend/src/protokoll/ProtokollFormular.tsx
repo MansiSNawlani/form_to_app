@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +9,7 @@ import AbschnittInhalt from './abschnitte/AbschnittInhalt'
 import type { Abschnitt } from './abschnitte'
 import { useAutoSave } from './entwurf/useAutoSave'
 import type { Antworten, Entwurf } from './entwurf/typen'
+import { antwortenSchema } from './regeln/schema'
 
 interface ProtokollFormularProps {
   entwurf: Entwurf
@@ -24,7 +26,19 @@ interface ProtokollFormularProps {
 function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const { t } = useTranslation()
 
-  const form = useForm<Antworten>({ defaultValues: entwurf.antworten })
+  /* onTouched, so a field is checked when the user leaves it and on every
+     change after that. A fresh draft therefore says nothing until somebody has
+     actually been in a field: the asterisks mark what is needed to submit,
+     which is feature 11's gate, and 4c only speaks up about an answer that is
+     wrong or inconsistent.
+
+     Validity never reaches useAutoSave. A half-finished protocol is the normal
+     state of this form and is saved exactly as typed, valid or not. */
+  const form = useForm<Antworten>({
+    defaultValues: entwurf.antworten,
+    mode: 'onTouched',
+    resolver: zodResolver(antwortenSchema),
+  })
   const saveState = useAutoSave(entwurf, form)
 
   /* Focus follows the section change.

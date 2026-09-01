@@ -1,9 +1,10 @@
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
+import type { ParseKeys } from 'i18next'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { hinweisId, labelId, type FeldRahmenProps } from './rahmen'
+import { fehlerId, hinweisId, labelId, type FeldRahmenProps } from './rahmen'
 
 /* What every field on the protocol has in common: a grid column, a label above
    the control, and an optional hint below it.
@@ -19,8 +20,13 @@ function FeldRahmen({
   spalten,
   pflicht,
   hinweisKey,
+  fehlerKey,
   children,
 }: FeldRahmenProps & {
+  /* What is wrong with this answer, as a key out of de.json. Recomputed from
+     the answers on every change, never stored: an invalid draft is saved like
+     any other, and the rules run again when it is opened. */
+  fehlerKey?: ParseKeys
   /* The id of a control that <label for> can actually reach, which means a
      real input. Left out for a control that is a div underneath, such as MUI's
      Select, where the only way to give a name is aria-labelledby pointing back
@@ -31,7 +37,12 @@ function FeldRahmen({
   const { t } = useTranslation()
 
   return (
-    <FormControl className={`field col-${spalten}`} required={pflicht} fullWidth>
+    <FormControl
+      className={`field col-${spalten}${fehlerKey ? ' field--error' : ''}`}
+      required={pflicht}
+      error={Boolean(fehlerKey)}
+      fullWidth
+    >
       {/* FormLabel, not InputLabel: the mockups put a small bold label above the
           field rather than floating it into the border notch. FormLabel renders
           the required asterisk itself, already aria-hidden, so the requirement
@@ -41,8 +52,20 @@ function FeldRahmen({
         {t(labelKey)}
       </FormLabel>
       {children}
+      {/* error={false} against the FormControl's own state: a hint explains the
+          field and stays muted whether or not the answer is wrong. Only the
+          message below is red. */}
       {hinweisKey && (
-        <FormHelperText id={hinweisId(id, true)}>{t(hinweisKey)}</FormHelperText>
+        <FormHelperText id={hinweisId(id, true)} error={false}>
+          {t(hinweisKey)}
+        </FormHelperText>
+      )}
+      {/* Under the hint rather than in place of it, so the reason a field is
+          needed and the reason it is wrong are both readable. */}
+      {fehlerKey && (
+        <FormHelperText className="field__error" id={fehlerId(id, true)}>
+          {t(fehlerKey)}
+        </FormHelperText>
       )}
     </FormControl>
   )
