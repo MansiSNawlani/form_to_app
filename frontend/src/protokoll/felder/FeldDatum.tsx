@@ -59,6 +59,13 @@ function FeldDatum({
               field.onChange(wert?.isValid() ? wert.format(format) : '')
             }
             format={format === FORMAT.datum ? 'DD.MM.YYYY' : 'HH:mm'}
+            /* Five minute steps, kept by decision on 2026-09-01. It happens to
+               be MUI's default, but it is pinned here so a later version of the
+               library cannot change it underneath us. The clock therefore
+               offers twelve of the sixty minutes; the legacy PDF held the time
+               as free text, so anyone needing an exact minute types it into the
+               field instead. On the list to confirm with FFS. */
+            timeSteps={{ minutes: 5 }}
             slotProps={{
               textField: {
                 id: name,

@@ -305,5 +305,11 @@ No backend change, so `pytest` is untouched, though it should be green before `/
   split the import per list rather than copying values into code.
 - If the 722-option Autocomplete feels slow when you try it, cap the rendered results with MUI's
   `filterOptions` limit. Do not reach for virtualization before seeing a problem.
-- **Two things to raise with FFS**, both recorded above and neither blocking: `bearbeiter.ort` is
-  missing from the form, and `z.quelle` with `z.ps_nummer` may not be the surveyor's to fill in.
+- **Three things to raise with FFS**, all recorded above and none blocking:
+  1. `bearbeiter.ort` is missing from the legacy form, though both the mockup and the `Person`
+     model have a town.
+  2. `z.quelle` and `z.ps_nummer` may not be the surveyor's to fill in.
+  3. The time picker's clock offers five minute steps, so twelve of the sixty minutes. Decided on
+     2026-09-01 and pinned in `FeldDatum.tsx`. The legacy PDF held the time as free text, so this
+     narrows what the paper form allowed, and an exact minute now has to be typed rather than
+     picked. Confirm that rounding to five minutes is acceptable.
