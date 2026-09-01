@@ -190,11 +190,11 @@
   min-width: 0;
 }
 
-/* The message under a field that is wrong. Its colour comes from MUI, which
-   already reads --danger through the theme's error palette; the weight is the
-   mockup's, and is what keeps it from reading as a second hint
-   (prototypes/mockup.css .field__error). */
+/* prototypes/mockup.css .field__error. The colour comes from MUI, which reads
+   --danger through the theme's error palette; the size and weight are what keep
+   the message from reading as a second hint. */
 .field__error {
+  font-size: var(--step--1);
   font-weight: 600;
 }
 

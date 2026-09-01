@@ -1,5 +1,5 @@
 import { istLeer, type Regel, type Regelverstoss } from './regel'
-import type { AntwortPfad } from '../entwurf/typen'
+import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* The receiving-water chain, read downstream from the Probestrecke: this
    Gewaesser flows into that one, which flows into the next. It has to arrive at
@@ -10,13 +10,22 @@ import type { AntwortPfad } from '../entwurf/typen'
    form checks the chain while the user types, then checks only the first box at
    submit, so a chain filled in and then cleared passes today. */
 
-export const VORFLUTER_PFADE = [
-  'probestrecke.gewaesser.vorfluter1',
-  'probestrecke.gewaesser.vorfluter2',
-  'probestrecke.gewaesser.vorfluter3',
-  'probestrecke.gewaesser.vorfluter4',
-  'probestrecke.gewaesser.vorfluter5',
-] as const satisfies readonly AntwortPfad[]
+type Gewaesser = NonNullable<NonNullable<Antworten['probestrecke']>['gewaesser']>
+
+/* The five boxes, named once. Both the paths the form addresses them by and the
+   values read out of the document come from this list, so the chain cannot grow
+   a sixth link in one place and not the other. */
+const VORFLUTER_FELDER = [
+  'vorfluter1',
+  'vorfluter2',
+  'vorfluter3',
+  'vorfluter4',
+  'vorfluter5',
+] as const satisfies readonly (keyof Gewaesser)[]
+
+export const VORFLUTER_PFADE = VORFLUTER_FELDER.map(
+  (feld) => `probestrecke.gewaesser.${feld}` as const,
+) satisfies readonly AntwortPfad[]
 
 const ENDPUNKTE = ['rhein', 'donau']
 
@@ -36,13 +45,7 @@ function verstoss(index: number, schluessel: Regelverstoss['schluessel']) {
 
 export const pruefeVorfluterkette: Regel = (antworten) => {
   const gewaesser = antworten.probestrecke?.gewaesser
-  const kette = [
-    gewaesser?.vorfluter1,
-    gewaesser?.vorfluter2,
-    gewaesser?.vorfluter3,
-    gewaesser?.vorfluter4,
-    gewaesser?.vorfluter5,
-  ]
+  const kette = VORFLUTER_FELDER.map((feld) => gewaesser?.[feld])
 
   const gefuellt = kette.map((name) => !istLeer(name))
   // An untouched chain is not a wrong chain. A draft is half-finished by
@@ -70,10 +73,11 @@ export const pruefeVorfluterkette: Regel = (antworten) => {
     return verstoesse
   }
 
-  for (let index = ende + 1; index < kette.length; index += 1) {
-    if (gefuellt[index]) {
-      verstoesse.push(verstoss(index, 'protokoll.regeln.vorfluterNachEndpunkt'))
-    }
+  // Only the first entry past the end. Everything after it is the same mistake
+  // said again, and four red boxes for one wrong idea is noise.
+  const zuWeit = gefuellt.indexOf(true, ende + 1)
+  if (zuWeit !== -1) {
+    verstoesse.push(verstoss(zuWeit, 'protokoll.regeln.vorfluterNachEndpunkt'))
   }
 
   return verstoesse

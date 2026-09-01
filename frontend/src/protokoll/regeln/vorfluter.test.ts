@@ -107,4 +107,9 @@ describe('pruefeVorfluterkette', () => {
     const zuWeit = kette('Rhein', '', 'Bodensee')
     expect(pfade(zuWeit)).toEqual(['probestrecke.gewaesser.vorfluter3'])
   })
+
+  it('flags only the first box after the end, however many follow', () => {
+    const zuWeit = kette('Rhein', 'Bodensee', 'Aare', 'Reuss')
+    expect(pfade(zuWeit)).toEqual(['probestrecke.gewaesser.vorfluter2'])
+  })
 })

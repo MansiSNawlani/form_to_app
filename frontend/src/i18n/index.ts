@@ -2,6 +2,7 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import de from './locales/de.json'
 import en from './locales/en.json'
+import { BW_GRENZEN } from '../protokoll/regeln/koordinaten'
 
 /* The single place the active locale is decided.
  *
@@ -70,6 +71,16 @@ void i18n.use(initReactI18next).init({
     // React escapes for us, and double-escaping mangles umlauts in interpolated
     // values.
     escapeValue: false,
+    /* The Baden-Wuerttemberg coordinate bounds are a rule, not a wording. The
+       two messages that name a range read them from here, so changing a bound
+       stays one edit in regeln/koordinaten.ts and the locale file cannot drift
+       away from what is actually enforced. */
+    defaultVariables: {
+      rechtswertMin: BW_GRENZEN.rechtswert.min,
+      rechtswertMax: BW_GRENZEN.rechtswert.max,
+      hochwertMin: BW_GRENZEN.hochwert.min,
+      hochwertMax: BW_GRENZEN.hochwert.max,
+    },
   },
 })
 

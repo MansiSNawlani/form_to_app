@@ -186,10 +186,14 @@ export const muiTheme = createTheme({
         root: {
           backgroundColor: 'var(--surface)',
           minHeight: 'var(--field-h)',
-          // The mockup fills a wrong field as well as outlining it
-          // (prototypes/mockup.css .field--error input), so the error reads at a
-          // glance down a column of twenty fields rather than only up close.
-          '&.Mui-error': { backgroundColor: 'var(--danger-soft)' },
+          /* The mockup fills a wrong field as well as outlining it, and
+             thickens the outline to 2px (prototypes/mockup.css .field--error
+             input), so the error reads down a column of twenty fields rather
+             than only up close. */
+          '&.Mui-error': {
+            backgroundColor: 'var(--danger-soft)',
+            '& .MuiOutlinedInput-notchedOutline': { borderWidth: 2 },
+          },
         },
         // Coordinates, postcodes and telephone numbers are read by comparing
         // digit against digit, which proportional figures make harder

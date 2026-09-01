@@ -1,38 +1,30 @@
-import { useEffect, useRef } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldDatum from '../../felder/FeldDatum'
 import FeldSuche from '../../felder/FeldSuche'
 import FeldText from '../../felder/FeldText'
-import type { Antworten } from '../../entwurf/typen'
+import type { Antworten, AntwortPfad } from '../../entwurf/typen'
 import { istMonitoringAnlass } from '../../regeln/monitoring'
+import { useNachpruefung } from '../../regeln/useNachpruefung'
+
+const MONITORINGNUMMER: readonly AntwortPfad[] = [
+  'probestrecke.monitoringnummer',
+]
+
+/* Choosing an Anlass can make the number required, and choosing a number can
+   satisfy it, so either change asks for the number to be looked at again. It
+   deliberately raises a message on a field nobody has been in: the user has
+   just made that field required and needs telling. */
+const LOESEN_AUS: readonly AntwortPfad[] = ['anlass', ...MONITORINGNUMMER]
+const nummerPruefen = () => MONITORINGNUMMER
 
 /* Why the Befischung happened, who is responsible for the record, and when. */
 function AnlassBlock() {
   const { t } = useTranslation()
-  const { trigger } = useFormContext<Antworten>()
-  const [anlass, monitoringnummer] = useWatch<
-    Antworten,
-    ['anlass', 'probestrecke.monitoringnummer']
-  >({ name: ['anlass', 'probestrecke.monitoringnummer'] })
+  const anlass = useWatch<Antworten, 'anlass'>({ name: 'anlass' })
 
-  /* The Monitoringstrecken-Nr. is a rule about two answers, and React Hook Form
-     only rechecks the field being edited, so choosing an Anlass has to ask for
-     the other field to be looked at again.
-
-     It deliberately raises a message on a field nobody has been in, because the
-     user has just made that field required and needs telling. Not on the first
-     render though: opening a half-finished draft should not greet somebody with
-     an error before they have touched anything. */
-  const ersteRunde = useRef(true)
-  useEffect(() => {
-    if (ersteRunde.current) {
-      ersteRunde.current = false
-      return
-    }
-    void trigger('probestrecke.monitoringnummer')
-  }, [anlass, monitoringnummer, trigger])
+  useNachpruefung(LOESEN_AUS, nummerPruefen)
 
   return (
     <fieldset className="form-section">

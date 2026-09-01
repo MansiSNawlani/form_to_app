@@ -1,10 +1,18 @@
-import { useEffect } from 'react'
-import { useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
-import type { Antworten } from '../../entwurf/typen'
+import { useNachpruefung } from '../../regeln/useNachpruefung'
 import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
+
+/* The five Vorfluter boxes are one rule, so a change in any of them can raise
+   or clear a message on the others: typing "Rhein" into the second box ends the
+   chain and settles the first.
+
+   The box being typed in is deliberately left out. It is checked on blur like
+   every other field, and including it would mean announcing that the chain does
+   not reach the Rhein while somebody is still typing the word. */
+const ketteOhne = (geaendert: string) =>
+  VORFLUTER_PFADE.filter((pfad) => pfad !== geaendert)
 
 /* The stretch of water that was fished: which Gewaesser, what kind, how long,
    where, and where its water eventually goes.
@@ -14,25 +22,8 @@ import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
    a visit. */
 function ProbestreckeBlock() {
   const { t } = useTranslation()
-  const { trigger, watch } = useFormContext<Antworten>()
 
-  /* The five Vorfluter boxes are one rule, so a change in any of them can raise
-     or clear a message on the others: typing "Rhein" into the second box ends
-     the chain and settles the first.
-
-     Subscribed rather than watched into the render, so a keystroke here
-     re-renders the field and not this block of twenty.
-
-     The box being typed in is deliberately left out. It is checked on blur like
-     every other field, and including it would mean announcing that the chain
-     does not reach the Rhein while somebody is still typing the word. */
-  useEffect(() => {
-    const subscription = watch((_, { name }) => {
-      if (!name || !(VORFLUTER_PFADE as readonly string[]).includes(name)) return
-      void trigger(VORFLUTER_PFADE.filter((pfad) => pfad !== name))
-    })
-    return () => subscription.unsubscribe()
-  }, [watch, trigger])
+  useNachpruefung(VORFLUTER_PFADE, ketteOhne)
 
   return (
     <fieldset className="form-section">

@@ -26,14 +26,12 @@ interface ProtokollFormularProps {
 function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const { t } = useTranslation()
 
-  /* onTouched, so a field is checked when the user leaves it and on every
-     change after that. A fresh draft therefore says nothing until somebody has
-     actually been in a field: the asterisks mark what is needed to submit,
-     which is feature 11's gate, and 4c only speaks up about an answer that is
-     wrong or inconsistent.
+  /* onTouched, so a fresh draft says nothing until somebody has actually been
+     in a field. The asterisks mark what is needed to submit, which is feature
+     11's gate; the rules only speak up about an answer that is wrong.
 
      Validity never reaches useAutoSave. A half-finished protocol is the normal
-     state of this form and is saved exactly as typed, valid or not. */
+     state of this form and is saved exactly as typed. */
   const form = useForm<Antworten>({
     defaultValues: entwurf.antworten,
     mode: 'onTouched',

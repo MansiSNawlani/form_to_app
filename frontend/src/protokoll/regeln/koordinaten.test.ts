@@ -9,7 +9,7 @@ const GUELTIG = {
   utm_hw_oben: '5385300',
 }
 
-function mit(aenderung: Partial<typeof GUELTIG>): Antworten {
+function mitKoordinaten(aenderung: Partial<typeof GUELTIG>): Antworten {
   return { probestrecke: { ...GUELTIG, ...aenderung } }
 }
 
@@ -23,14 +23,14 @@ function schluessel(antworten: Antworten) {
 
 describe('pruefeKoordinaten', () => {
   it('accepts a stretch inside Baden-Wuerttemberg', () => {
-    expect(pruefeKoordinaten(mit({}))).toEqual([])
+    expect(pruefeKoordinaten(mitKoordinaten({}))).toEqual([])
   })
 
   it('says nothing about coordinates nobody has typed', () => {
     expect(pruefeKoordinaten({})).toEqual([])
     expect(pruefeKoordinaten({ probestrecke: {} })).toEqual([])
-    expect(pruefeKoordinaten(mit({ utm_rw_unten: '' }))).toEqual([])
-    expect(pruefeKoordinaten(mit({ utm_rw_unten: '  ' }))).toEqual([])
+    expect(pruefeKoordinaten(mitKoordinaten({ utm_rw_unten: '' }))).toEqual([])
+    expect(pruefeKoordinaten(mitKoordinaten({ utm_rw_unten: '  ' }))).toEqual([])
   })
 
   it('accepts a value on either bound', () => {
@@ -47,14 +47,14 @@ describe('pruefeKoordinaten', () => {
 
   it('rejects a value below the minimum', () => {
     const zuWeitWestlich = String(BW_GRENZEN.rechtswert.min - 1)
-    expect(schluessel(mit({ utm_rw_unten: zuWeitWestlich }))).toEqual([
+    expect(schluessel(mitKoordinaten({ utm_rw_unten: zuWeitWestlich }))).toEqual([
       'protokoll.regeln.koordinateRechtswertAusserhalb',
     ])
   })
 
   it('rejects a value above the maximum', () => {
     const zuWeitNoerdlich = String(BW_GRENZEN.hochwert.max + 1)
-    expect(schluessel(mit({ utm_hw_oben: zuWeitNoerdlich }))).toEqual([
+    expect(schluessel(mitKoordinaten({ utm_hw_oben: zuWeitNoerdlich }))).toEqual([
       'protokoll.regeln.koordinateHochwertAusserhalb',
     ])
   })
@@ -62,7 +62,7 @@ describe('pruefeKoordinaten', () => {
   /* The mistake the check exists for: a Hochwert typed into the Rechtswert box
      is an order of magnitude too large and lands far outside the state. */
   it('catches a swapped Rechtswert and Hochwert', () => {
-    const vertauscht = mit({
+    const vertauscht = mitKoordinaten({
       utm_rw_unten: GUELTIG.utm_hw_unten,
       utm_hw_unten: GUELTIG.utm_rw_unten,
     })
@@ -73,7 +73,7 @@ describe('pruefeKoordinaten', () => {
   })
 
   it('catches a dropped digit', () => {
-    expect(pfade(mit({ utm_rw_oben: '51240' }))).toEqual([
+    expect(pfade(mitKoordinaten({ utm_rw_oben: '51240' }))).toEqual([
       'probestrecke.utm_rw_oben',
     ])
   })
@@ -81,27 +81,35 @@ describe('pruefeKoordinaten', () => {
   /* Degrees rather than metres, or a Gauss-Krueger value from an older map.
      Both are far outside the box rather than subtly wrong. */
   it('catches degrees and Gauss-Krueger values', () => {
-    expect(pfade(mit({ utm_rw_unten: '9' }))).toHaveLength(1)
-    expect(pfade(mit({ utm_rw_unten: '3512000' }))).toHaveLength(1)
+    expect(pfade(mitKoordinaten({ utm_rw_unten: '9' }))).toHaveLength(1)
+    expect(pfade(mitKoordinaten({ utm_rw_unten: '3512000' }))).toHaveLength(1)
   })
 
-  it.each(['abc', '512000,5', '512.000', '5,12e5', '-512000'])(
+  it.each(['abc', '512000,5', '512.000', '5,12e5'])(
     'rejects %s as not a whole number of metres',
     (wert) => {
-      expect(schluessel(mit({ utm_rw_unten: wert }))).toEqual([
+      expect(schluessel(mitKoordinaten({ utm_rw_unten: wert }))).toEqual([
         'protokoll.regeln.koordinateKeineGanzeZahl',
       ])
     },
   )
 
+  /* A negative is a whole number, so telling somebody to type a whole number
+     would be no help. It is a coordinate in the wrong place. */
+  it('treats a negative value as outside the state, not as unreadable', () => {
+    expect(schluessel(mitKoordinaten({ utm_rw_unten: '-512000' }))).toEqual([
+      'protokoll.regeln.koordinateRechtswertAusserhalb',
+    ])
+  })
+
   it('rejects a decimal even when it is inside the bounds', () => {
-    expect(schluessel(mit({ utm_hw_unten: '5385000.4' }))).toEqual([
+    expect(schluessel(mitKoordinaten({ utm_hw_unten: '5385000.4' }))).toEqual([
       'protokoll.regeln.koordinateKeineGanzeZahl',
     ])
   })
 
   it('checks all four boxes', () => {
-    const alleFalsch = mit({
+    const alleFalsch = mitKoordinaten({
       utm_rw_unten: '1',
       utm_hw_unten: '1',
       utm_rw_oben: '1',

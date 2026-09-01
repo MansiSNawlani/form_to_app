@@ -42,10 +42,16 @@ field the mockup draws in its error state:
 ```
 
 That is the exact target: a red border with a soft red fill on the control, and a short bold red
-message underneath naming the reason. The `.field__error` and `.field--error` rules in
-`prototypes/mockup.css` are not ported yet and step 2 ports them. Colours come from the existing
-`--danger` and `--danger-soft` tokens in `frontend/src/styles/theme.css`, which are already defined
-in both themes. Do not add a colour.
+message underneath naming the reason. Colours come from the existing `--danger` and `--danger-soft`
+tokens in `frontend/src/styles/theme.css`, which are already defined in both themes. Do not add a
+colour.
+
+**How it was built, since it splits across two files.** Only `.field__error`, the message's size and
+weight, went into `protokoll.css`. The mockup's `.field--error input` rules, the soft fill and the
+2px outline, went into `muiTheme.ts` instead, because the control is a MUI `OutlinedInput` whose
+border is a nested `fieldset` rather than the input the mockup styles. That is the route the notes
+below sanction: theme MUI once rather than patch a call site. MUI's own `Mui-error` state carries
+it, so no `.field--error` class is emitted.
 
 ## The three rules
 

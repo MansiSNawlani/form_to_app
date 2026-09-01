@@ -1,17 +1,14 @@
 import type { ParseKeys } from 'i18next'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
-/* What every rule on the protocol looks like.
+/* A rule is a plain function from the answers document to what is wrong with
+ * it, holding no React, no Zod and no German. That keeps it testable without a
+ * browser, and it lets the backend read the same rule straight across into
+ * Pydantic once features 2 and 3 land, because both halves see the same
+ * document.
  *
- * A rule is a plain function from the answers document to what is wrong with
- * it, with no React, no Zod and no German in it. coding-standards.md asks for
- * that so a rule is testable without a browser; here it also means the rule can
- * be read straight across into Pydantic once features 2 and 3 give the backend
- * its half of the validation, because both halves see the same document.
- *
- * The message is a translation key rather than a sentence. A sentence built
- * inside a rule could not be translated for feature 17, and could not be shown
- * by a component that is not allowed to hold German text.
+ * A key rather than a sentence, because a sentence built in here could not be
+ * translated for feature 17.
  */
 export interface Regelverstoss {
   pfad: AntwortPfad
@@ -20,7 +17,7 @@ export interface Regelverstoss {
 
 export type Regel = (antworten: Antworten) => Regelverstoss[]
 
-/** An answer nobody has given yet. Blank is untouched, not wrong. */
+/** Blank is untouched, and untouched is never wrong in a draft. */
 export function istLeer(wert: string | undefined): boolean {
   return (wert ?? '').trim() === ''
 }

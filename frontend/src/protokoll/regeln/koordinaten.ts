@@ -16,9 +16,9 @@ import type { Antworten } from '../entwurf/typen'
    typed instead of metres. Testing against the real border needs the official
    water body dataset and belongs to feature 18.
 
-   The numbers are repeated in the two "ausserhalb" messages in de.json, because
-   somebody told a value is wrong needs to be told what was expected. Change
-   both together. Both are still to be confirmed with FFS. */
+   Still to be confirmed with FFS, so they live here alone: the two messages
+   that name a range interpolate these numbers through i18n/index.ts rather
+   than repeating them, and changing a bound is one edit in one file. */
 export const BW_GRENZEN = {
   rechtswert: { min: 380000, max: 620000 },
   hochwert: { min: 5255000, max: 5525000 },
@@ -43,10 +43,12 @@ const FELDER: Koordinatenfeld[] = [
   { feld: 'utm_hw_oben', art: 'hochwert', ausserhalb: HOCHWERT_AUSSERHALB },
 ]
 
-/* Metres, so no decimal point, no thousands separator and no minus sign. The
-   control is an input of type number, which still lets "512000.5" and "5,12e5"
-   reach the document. */
-const GANZE_ZAHL = /^\d+$/
+/* Metres, so no decimal point and no thousands separator. The control is an
+   input of type number, which still lets "512000.5" and "5,12e5" reach the
+   document. A minus sign passes this test and fails the bounds test instead,
+   which is the more useful complaint: a negative metre value is not a number
+   somebody typed wrongly, it is a coordinate in the wrong place. */
+const GANZE_ZAHL = /^-?\d+$/
 
 export const pruefeKoordinaten: Regel = (antworten) => {
   const verstoesse: Regelverstoss[] = []

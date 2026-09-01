@@ -38,8 +38,11 @@ function FeldRahmen({
 
   return (
     <FormControl
-      className={`field col-${spalten}${fehlerKey ? ' field--error' : ''}`}
+      className={`field col-${spalten}`}
       required={pflicht}
+      /* Carries the error state down to the label, the control and the message
+         through MUI's own FormControl context, which is why none of them needs
+         telling separately. */
       error={Boolean(fehlerKey)}
       fullWidth
     >
