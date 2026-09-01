@@ -88,10 +88,33 @@
           "telefon": "Telefon",
           "email": "E-Mail"
         }
+      },
+      "probestrecke": {
+        "legend": "Probestrecke",
+        "hinweis": "Der befischte Abschnitt. Dieselbe Strecke kann in mehreren Jahren befischt werden und behält dabei ihre Angaben.",
+        "vorfluterCallout": {
+          "titel": "Vorfluterkette.",
+          "text": "Von der Probestrecke abwärts eintragen. Die Kette muss beim Rhein oder bei der Donau enden, damit die Strecke im Gewässernetz eingeordnet werden kann."
+        },
+        "feld": {
+          "gewaessername": "Gewässer",
+          "gewaessertyp": "Gewässertyp",
+          "gewaessertypHinweis": "Bei See, Teich und abgeschnittenem Altwasser entfällt Abschnitt 2 (Hydrologie).",
+          "laenge": "Länge der Strecke",
+          "ortsangabe": "Ortsangabe",
+          "vorfluter1": "Vorfluter 1",
+          "vorfluter2": "Vorfluter 2",
+          "vorfluter3": "Vorfluter 3",
+          "vorfluter4": "Vorfluter 4",
+          "vorfluter5": "Vorfluter 5"
+        }
       }
     },
     "felder": {
-      "bitteWaehlen": "Bitte wählen"
+      "bitteWaehlen": "Bitte wählen",
+      "einheit": {
+        "meter": "m"
+      }
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

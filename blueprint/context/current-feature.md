@@ -163,7 +163,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       *Done when:* all seven accept input and survive a reload, each has a real label association,
       and tabbing runs through them in the visual order.
 
-- [ ] **Step 4 - The Probestrecke block: the water and the chain** - Gewaessername, Gewaessertyp,
+- [x] **Step 4 - The Probestrecke block: the water and the chain** - Gewaessername, Gewaessertyp,
       Laenge with its metre suffix, the full-width Ortsangabe, the Vorfluter callout and the five
       Vorfluter fields. *Done when:* all nine fields survive a reload, the Gewaessertyp dropdown
       shows the eight extracted codes with their labels, and the hint under it says section 2

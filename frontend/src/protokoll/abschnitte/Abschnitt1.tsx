@@ -1,5 +1,6 @@
 import AnlassBlock from './teil1/AnlassBlock'
 import BearbeiterBlock from './teil1/BearbeiterBlock'
+import ProbestreckeBlock from './teil1/ProbestreckeBlock'
 
 /* Section 1: Anlass, Bearbeiter and Probestrecke.
 
@@ -14,6 +15,7 @@ function Abschnitt1() {
     <>
       <AnlassBlock />
       <BearbeiterBlock />
+      <ProbestreckeBlock />
     </>
   )
 }
