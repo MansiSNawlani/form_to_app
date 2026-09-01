@@ -42,9 +42,6 @@ function BearbeiterBlock() {
           labelKey="protokoll.abschnitt1.bearbeiter.feld.plz"
           spalten={2}
         />
-        {/* Not a field in the legacy PDF, which has a street and a postcode but
-            no town. Both the mockup and the Person model have one, so it is
-            added here; it is on the list to raise with FFS. */}
         <FeldText
           name="bearbeiter.ort"
           labelKey="protokoll.abschnitt1.bearbeiter.feld.ort"

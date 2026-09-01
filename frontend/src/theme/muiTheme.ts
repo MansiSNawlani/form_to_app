@@ -175,6 +175,14 @@ export const muiTheme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: { backgroundColor: 'var(--surface)', minHeight: 'var(--field-h)' },
+        // Coordinates, postcodes and telephone numbers are read by comparing
+        // digit against digit, which proportional figures make harder
+        // (prototypes/mockup.css .tabular).
+        input: {
+          '&[type="number"], &[type="tel"]': {
+            fontVariantNumeric: 'tabular-nums',
+          },
+        },
       },
     },
     MuiCssBaseline: {

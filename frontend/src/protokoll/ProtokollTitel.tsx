@@ -1,7 +1,7 @@
 import Typography from '@mui/material/Typography'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { protokollTitel } from './entwurf/titel'
+import { titelAusTeilen } from './entwurf/titel'
 import type { Antworten } from './entwurf/typen'
 
 /* The page heading, which is the draft's own name once it has one.
@@ -20,9 +20,7 @@ function ProtokollTitel() {
   })
   const ortsangabe = useWatch({ control, name: 'probestrecke.ortsangabe' })
 
-  const titel = protokollTitel({
-    probestrecke: { gewaesser: { gewaessername }, ortsangabe },
-  })
+  const titel = titelAusTeilen(gewaessername, ortsangabe)
 
   return (
     <Typography variant="h1">

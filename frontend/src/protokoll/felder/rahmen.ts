@@ -16,7 +16,27 @@ export interface FeldRahmenProps {
   hinweisKey?: ParseKeys
 }
 
-/** The hint's id, so the control can point aria-describedby at it. */
-export function hinweisId(id: string, hinweisKey?: ParseKeys) {
-  return hinweisKey ? `${id}-hinweis` : undefined
+/** The hint's id, so a control can point aria-describedby at it. */
+export function hinweisId(id: string, hatHinweis: boolean) {
+  return hatHinweis ? `${id}-hinweis` : undefined
+}
+
+/** The label's own id, for a control that can only be named by reference. */
+export function labelId(id: string) {
+  return `${id}-label`
+}
+
+/* The aria attributes a real input needs. Not used by FeldAuswahl: MUI's Select
+   reads aria-describedby as a prop of its own and turns the required flag into
+   aria-required itself, and anything else handed to it lands on the hidden
+   native input rather than on the combobox the user actually reaches. */
+export function feldAria(
+  name: string,
+  pflicht: boolean | undefined,
+  hinweisKey: ParseKeys | undefined,
+) {
+  return {
+    'aria-required': pflicht,
+    'aria-describedby': hinweisId(name, Boolean(hinweisKey)),
+  }
 }

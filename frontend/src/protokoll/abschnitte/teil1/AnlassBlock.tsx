@@ -25,14 +25,16 @@ function AnlassBlock() {
           spalten={5}
           pflicht
         />
-        {/* 722 monitoring numbers, so a search rather than a dropdown. */}
+        {/* 722 monitoring numbers, so a search rather than a dropdown. Not
+            marked required, unlike the mockup: it is required only for WRRL and
+            FFH, so an unconditional aria-required would contradict its own
+            hint. Feature 4c makes the marker follow the Anlass. */}
         <FeldSuche
           name="probestrecke.monitoringnummer"
           liste="probestrecke.monitoringnummer"
           labelKey="protokoll.abschnitt1.anlass.feld.monitoringnummer"
           hinweisKey="protokoll.abschnitt1.anlass.feld.monitoringnummerHinweis"
           spalten={4}
-          pflicht
         />
         <FeldAuswahl
           name="z.rp"
@@ -49,9 +51,6 @@ function AnlassBlock() {
           spalten={3}
           pflicht
         />
-        {/* The PDF files the time under messdaten, which is part 2, while the
-            mockup and the Submission model both put it in part 1. The path is
-            the PDF's, the placement is ours. */}
         <FeldText
           name="messdaten.uhrzeit"
           typ="time"
@@ -59,9 +58,6 @@ function AnlassBlock() {
           spalten={3}
           pflicht
         />
-        {/* The z. group is not in the data model and looks like FiaKa
-            bookkeeping. Included by decision on 2026-09-01, pending FFS
-            confirming that surveyors are the ones who fill it in. */}
         <FeldAuswahl
           name="z.quelle"
           liste="z.quelle"

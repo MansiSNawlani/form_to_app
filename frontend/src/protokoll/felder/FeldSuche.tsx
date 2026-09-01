@@ -2,7 +2,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { Controller, useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
-import { hinweisId, type FeldRahmenProps } from './rahmen'
+import { feldAria, type FeldRahmenProps } from './rahmen'
 import { optionen, type ListenName } from '../optionen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -32,6 +32,7 @@ function FeldSuche({
   return (
     <FeldRahmen
       id={name}
+      labelFuer={name}
       labelKey={labelKey}
       spalten={spalten}
       pflicht={pflicht}
@@ -65,8 +66,7 @@ function FeldSuche({
                 {...slotProps.input}
                 inputProps={{
                   ...slotProps.htmlInput,
-                  'aria-required': pflicht,
-                  'aria-describedby': hinweisId(name, hinweisKey),
+                  ...feldAria(name, pflicht, hinweisKey),
                 }}
                 fullWidth
               />

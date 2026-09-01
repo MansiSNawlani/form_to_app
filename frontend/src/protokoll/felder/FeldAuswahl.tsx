@@ -3,7 +3,7 @@ import Select from '@mui/material/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
-import { hinweisId, type FeldRahmenProps } from './rahmen'
+import { hinweisId, labelId, type FeldRahmenProps } from './rahmen'
 import { optionen, type ListenName } from '../optionen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -57,12 +57,17 @@ function FeldAuswahl({
             // input from uncontrolled to controlled mid-life is a React error,
             // so the empty option stands in for "not answered".
             value={field.value ?? ''}
-            id={name}
             displayEmpty
-            inputProps={{
-              'aria-required': pflicht,
-              'aria-describedby': hinweisId(name, hinweisKey),
-            }}
+            /* The control the user reaches is a div with role="combobox", not
+               an input, so <label for> cannot name it and these three props are
+               the only wiring that does. An id passed the ordinary way would
+               land on MUI's hidden aria-hidden input instead, leaving the real
+               control nameless, so the visible element is given the field path
+               through SelectDisplayProps. */
+            labelId={labelId(name)}
+            SelectDisplayProps={{ id: name }}
+            required={pflicht}
+            aria-describedby={hinweisId(name, Boolean(hinweisKey))}
           >
             <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
             {optionen(liste).map((option) => (

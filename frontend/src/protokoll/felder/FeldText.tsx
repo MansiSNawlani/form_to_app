@@ -1,7 +1,7 @@
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
-import { hinweisId, type FeldRahmenProps } from './rahmen'
+import { feldAria, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* Every typed-in answer on the protocol: text, numbers, a date, a time, an
@@ -46,16 +46,14 @@ function FeldText({
       id={name}
       type={typ}
       fullWidth
-      inputProps={{
-        'aria-required': pflicht,
-        'aria-describedby': hinweisId(name, hinweisKey),
-      }}
+      inputProps={feldAria(name, pflicht, hinweisKey)}
     />
   )
 
   return (
     <FeldRahmen
       id={name}
+      labelFuer={name}
       labelKey={labelKey}
       spalten={spalten}
       pflicht={pflicht}
