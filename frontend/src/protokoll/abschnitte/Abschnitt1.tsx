@@ -1,4 +1,8 @@
-import { useFormContext } from 'react-hook-form'
+import FormControl from '@mui/material/FormControl'
+import FormLabel from '@mui/material/FormLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import type { Antworten } from '../entwurf/typen'
 import { optionen } from '../optionen'
@@ -7,15 +11,20 @@ import { optionen } from '../optionen'
 
    Feature 4b adds the Bearbeiter and Probestrecke blocks and the rest of the
    Anlass block (Monitoringstrecken-Nr., Regierungspräsidium, Datum, Uhrzeit).
-   Only the Anlass dropdown is here, as the one field that proves a value typed
-   into the form reaches storage and comes back.
+   Only the Anlass dropdown is here, as the one field that proves a value chosen
+   in the form reaches storage and comes back.
 
    The field is registered under its legacy PDF path, "anlass". Every field from
    4b on does the same, which is what keeps the stored document a direct match
-   for what FiaKa already receives. */
+   for what FiaKa already receives.
+
+   Controller rather than register, because MUI's Select is a controlled
+   component and does not expose a native input for React Hook Form to attach
+   to. Its list of options comes from the extracted form definition, never from
+   values retyped here. */
 function Abschnitt1() {
   const { t } = useTranslation()
-  const { register } = useFormContext<Antworten>()
+  const { control } = useFormContext<Antworten>()
 
   return (
     <fieldset className="form-section">
@@ -25,27 +34,34 @@ function Abschnitt1() {
       </p>
 
       <div className="grid">
-        <div className="field col-5">
-          <label htmlFor="anlass">
+        <FormControl className="field col-5" required fullWidth>
+          <FormLabel htmlFor="anlass">
             {t('protokoll.abschnitt1.anlass.label')}
-            <span className="field__req" aria-hidden="true">
-              *
-            </span>
-          </label>
-          {/* The asterisk beside the label is decorative, so the requirement
-              itself is announced from here. Enforcing it is feature 4c's job;
-              saying so is this one's. */}
-          <select id="anlass" aria-required="true" {...register('anlass')}>
-            {/* Empty rather than preselected: a draft that has not been answered
-                must not look as though it has been. */}
-            <option value="">{t('protokoll.felder.bitteWaehlen')}</option>
-            {optionen('anlass').map((option) => (
-              <option key={option.wert} value={option.wert}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+          </FormLabel>
+          <Controller
+            name="anlass"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                // A draft's answer is undefined until it is given, and switching
+                // an input from uncontrolled to controlled mid-life is a React
+                // error, so the empty option stands in for "not answered".
+                value={field.value ?? ''}
+                id="anlass"
+                displayEmpty
+                inputProps={{ 'aria-required': true }}
+              >
+                <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
+                {optionen('anlass').map((option) => (
+                  <MenuItem key={option.wert} value={option.wert}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+          />
+        </FormControl>
       </div>
     </fieldset>
   )

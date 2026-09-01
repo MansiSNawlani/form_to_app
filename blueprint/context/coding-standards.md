@@ -62,6 +62,13 @@ next to each other in the code and change them together.
 
 - **MUI** for components, themed against our own design tokens
   ([ADR 0006](../../docs/adr/0006-mui-supersedes-kern.md), superseding ADR 0005, which chose KERN)
+- **Form controls come from MUI wherever MUI has one**, decided on 2026-09-01 during feature 4a.
+  Reach for `Select`, `TextField`, `Checkbox`, `RadioGroup` and `Autocomplete` before writing a
+  native control. Where MUI's default composition fights the approved mockups, theme MUI to match
+  the mockup in `muiTheme.ts` rather than dropping to a hand-styled native element. The label sits
+  above the field, so use `FormLabel` inside a `FormControl`, not `InputLabel` and its border notch.
+  A native element is right only where MUI genuinely has no equivalent. This matters because the
+  form has roughly 338 fields: whatever the first one does, the rest copy
 - **The tokens in `frontend/src/styles/theme.css` outrank MUI's defaults.** Configure MUI's theme
   from them in one place. Do not scatter per-component `sx` colour overrides, and never hard-code a
   colour to work around the theme

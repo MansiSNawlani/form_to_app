@@ -184,46 +184,6 @@
   min-width: 0;
 }
 
-.field > label {
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--text);
-}
-
-.field__req {
-  color: var(--danger);
-  margin-left: 0.15rem;
-}
-
-.field__hint {
-  font-size: var(--step--1);
-  color: var(--muted);
-}
-
-/* The form controls are the browser's own, styled from the tokens, exactly as
-   the approved mockups draw them. MUI is kept for what it is actually better at
-   and what ADR 0006 chose it for: the species picker and the catch table in
-   features 8 and 9, plus buttons. A native control is smaller, faster with 338
-   fields on a page, and already accessible. */
-input[type='text'],
-input[type='number'],
-input[type='date'],
-input[type='time'],
-input[type='email'],
-input[type='tel'],
-select,
-textarea {
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  padding: 0 0.7rem;
-  height: var(--field-h);
-  width: 100%;
-  min-width: 0;
-}
-
 /* ---------- save indicator ---------- */
 
 .save-state {
