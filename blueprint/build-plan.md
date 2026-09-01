@@ -28,6 +28,21 @@ These are not features and are not tracked here. They happen first.
 
 ## MVP
 
+> **Build order changed on 2026-09-01.** The form screens come before login. Item 2 (accounts and
+> login) and item 3 (draft lifecycle) are deferred until the form parts, items 4 to 9, are working.
+> The build order is now 4, 5, 6, 7, 8, 9, then 2, 3, then 10 onward. Numbering stays as it is, so
+> the archived specs under `blueprint/history/` and the references in `project-overview.md` still
+> line up.
+>
+> While login is deferred, the form keeps its answers in the browser's own storage only. There are
+> no submission endpoints, so nothing is written to the database and nothing is exposed
+> unauthenticated. Feature 3 later replaces that storage layer with real server saving, without
+> changing the form components themselves.
+>
+> The cost, accepted knowingly: every validation rule in features 4 to 9 is written browser-side
+> first and gains its backend half later, so the "written twice" rule in `coding-standards.md` is
+> temporarily half-met. Features 2 and 3 close that gap.
+
 - [x] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
@@ -41,11 +56,18 @@ These are not features and are not tracked here. They happen first.
   The Verify command is deliberately not a sub-item. `AGENTS.md` makes CI a separate explicit
   setup, so it belongs to `/ci` after 1c, not to the feature loop.
 - [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
-      activate and deactivate
+      activate and deactivate. **Deferred on 2026-09-01**, built after the form parts.
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
-      submissions" list
+      submissions" list. **Deferred on 2026-09-01**, built after the form parts, and where the
+      browser-only draft storage is swapped for real server saving.
 - [ ] 4. Form part 1: occasion, recorder details, and the Probestrecke, including the Vorfluter
       chain and coordinate entry with the Baden-Württemberg bounds check
+  - [ ] 4a. Protocol shell and browser draft store: routing, the six-section navigation, the
+        answers document shape, and drafts that survive a reload
+  - [ ] 4b. Part 1 fields: the Anlass, Bearbeiter and Probestrecke blocks, built from the
+        extracted option lists
+  - [ ] 4c. Part 1 rules: the Vorfluter chain ending at Rhein or Donau, the Baden-Württemberg
+        coordinate bounds, and the monitoring number required for WRRL and FFH
 - [ ] 5. Form part 2: measurements and hydrology, including hydrology disappearing entirely for
       standing waters
 - [ ] 6. Form part 3: the six percentage blocks, with running totals and the sum-to-100 rule

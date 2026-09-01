@@ -131,6 +131,7 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
 - Build: `npm run build`
 - Preview the build: `npm run preview`
 - Lint: `npm run lint`
+- Tests: `npm test` (vitest, added in feature 4a)
 
 **Backend** (from `backend/`)
 
@@ -151,9 +152,13 @@ Then, with `.venv` on PATH or via `.venv\Scripts\python -m`:
 that feature added the first backend logic where a wrong answer is possible: the
 readiness check. The gate applies to logic-bearing backend steps.
 
-**The frontend still has no test runner**, so no frontend test command is declared.
-Run `/tests` to add one. It is worth doing before feature 4, which brings the
-coordinate bounds check and the Vorfluter chain rule.
+**Frontend test command: `npm test`, from `frontend/`.** Vitest, added in feature 4a
+for the draft store, which decides whether a half-finished protocol survives a
+reload. It runs in a node environment: the store takes its storage as an
+argument, so it needs no DOM. Components and integration surfaces are still
+verified with browser evidence and the build, not with unit tests, exactly as
+`coding-standards.md` says. An empty run exits non-zero, so "no tests ran" can
+never read as "passed".
 
 Note the Python version gap: `pyproject.toml`, ruff and mypy all target 3.12 and
 the container image is pinned to `python:3.12-slim`, but development on the
