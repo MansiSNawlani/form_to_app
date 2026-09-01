@@ -152,6 +152,19 @@ export const muiTheme = createTheme({
         asterisk: { color: 'var(--danger)' },
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        // The hint under a field (prototypes/mockup.css .field__hint). MUI
+        // indents it to line up with a floating label, which we do not use, so
+        // it is pulled back flush with the control above it.
+        root: {
+          fontSize: 'var(--step--1)',
+          color: 'var(--muted)',
+          marginInline: 0,
+          marginTop: '0.3rem',
+        },
+      },
+    },
     MuiMenu: {
       styleOverrides: {
         // Elevation is off everywhere by design, so a dropdown needs a border of

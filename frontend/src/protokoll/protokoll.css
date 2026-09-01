@@ -214,3 +214,17 @@
 .save-state--failed .save-state__dot {
   background: var(--danger);
 }
+
+/* A control with a unit beside it, such as the m after a stretch length. The
+   unit sits outside the input so it is never mistaken for part of the value. */
+.unit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unit-row__unit {
+  color: var(--muted);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}

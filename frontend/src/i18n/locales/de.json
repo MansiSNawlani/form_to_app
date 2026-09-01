@@ -64,7 +64,9 @@
       "anlass": {
         "legend": "Anlass der Befischung",
         "hinweis": "Der Anlass bestimmt, welche weiteren Angaben Pflicht werden.",
-        "label": "Anlass"
+        "feld": {
+          "anlass": "Anlass"
+        }
       }
     },
     "felder": {

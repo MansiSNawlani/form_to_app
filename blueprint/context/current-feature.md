@@ -1,79 +1,132 @@
-# Feature: 4a - Protocol shell and browser draft store
+# Feature: 4b - Part 1 fields
 
-**From build-plan:** feature 4a, the first of three sub-features of item 4 (Form part 1)
-**Status:** built, awaiting review
+**From build-plan:** feature 4b, the second of three sub-features of item 4 (Form part 1)
+**Status:** spec written, not started
 
 ## Goal
 
-Build the frame the whole protocol lives in: a protocol screen at a German route, the six-section
-navigation from the mockup, and a draft that survives a page reload. Sections 2 to 6 are empty
-placeholders that features 5 to 9 fill in.
+Fill section 1 of the protocol with its real fields: the Anlass block, the Bearbeiter block and the
+Probestrecke block, all built from the option lists already extracted from the legacy PDF.
 
-This is the first feature built under the build-order change of 2026-09-01. Login (item 2) and
-server-side drafts (item 3) come later, so the draft lives in the browser's own storage and no
-backend endpoint is added. The point of doing the shell first is that features 4b through 9 then
-have somewhere to put their fields, and each one can be tried in a real browser rather than only
-read.
+Feature 4a built the frame and wired a single field, `anlass`, to prove that a value chosen in the
+form reaches storage and comes back. This feature makes section 1 a form somebody could actually
+fill in.
+
+It also settles something larger than part 1. There are roughly 338 fields in this protocol and
+this is the first feature that renders a lot of them at once. Whatever pattern the twenty-eight
+fields here use, features 5 to 9 will copy. Step 1 therefore builds the small set of field
+components the rest of the form is made from, before any block is laid out.
+
+Rules are explicitly not here. The Anlass does not yet make the Monitoringstrecken-Nr. mandatory,
+the Vorfluter chain is not checked for ending at the Rhein or the Donau, and coordinates outside
+Baden-Wuerttemberg are accepted. That is feature 4c, which follows immediately.
 
 ## Design reference
 
-`prototypes/protokoll-teil-1.html` is the target, specifically:
+`prototypes/protokoll-teil-1.html` is the target, specifically the three `form-section` fieldsets:
+Anlass der Befischung, Bearbeiter, and Probestrecke. Build against the existing tokens in
+`frontend/src/styles/theme.css` and `frontend/src/theme/muiTheme.ts`. Do not add colours.
 
-- the `steps` navigation, its numbers, labels, and the current-step marking
-- the page head: protocol title, draft state, form version, save indicator
-- the form action row at the foot: back, forward, save state, close draft
+The classes the mockup uses for fields are only partly ported. `protokoll.css` already has `.grid`,
+`.col-*`, `.field` and `.form-section`. Step 1 ports the missing ones from `prototypes/mockup.css`:
+`.field__req`, `.field__hint`, `.field__error`, `.tabular`, `.unit-row`, `.unit-row__unit` and
+`.callout`.
 
-`prototypes/theme.css` was already ported into `frontend/src/styles/theme.css` in feature 1a, so
-unlike a first UI feature this one does not begin with a token port. Build against the existing
-tokens and `frontend/src/theme/muiTheme.ts`; do not add colours.
+### Deliberate departures from the mockup
 
-Two deliberate departures from the mockup, both because the features they belong to do not exist
-yet:
+Six, each with its reason. The extracted form definition in
+`database/seed/form_version_20260609/` wins wherever it and the mockup disagree, because the mockup
+was drawn before the PDF was read properly.
 
-1. The header shows a signed-in user and a logout link. Leave the shell header exactly as feature
-   1a built it. Login is item 2.
-2. The head links to "Alle Protokolle". Point it at `/`, which is still the placeholder list.
+| # | The mockup shows | We build | Why |
+|---|---|---|---|
+| 1 | Anlass options invented for the drawing ("Besatzkontrolle") | The six extracted values | The mockup predates the extraction |
+| 2 | Regierungspraesidium as "1 - Stuttgart" | The extracted list, where 1 is Karlsruhe | Recorded as discrepancy 4 in the 4a spec |
+| 3 | Three Vorfluter fields | Five | The PDF has `vorfluter1` to `vorfluter5`, and `project-overview.md` says max 5 |
+| 4 | A red error under Monitoringstrecken-Nr. | No error state yet | Rules are feature 4c. Build the markup so 4c only adds the message |
+| 5 | An Anodenfuehrer field in the Bearbeiter block | Not here | `project-overview.md` puts it in `ausruestung`, which is feature 8 |
+| 6 | Coordinates only, under each boundary | A description field above each coordinate pair | `probestrecke.untere` and `probestrecke.obere` are real PDF fields the mockup omits. Confirmed in review on 2026-09-01 |
 
 ## In scope
 
-- React Router, with the German route paths already fixed in `project-overview.md`.
-- `/protokolle/neu` creates a draft and sends the browser to it.
-- `/protokolle/:id/abschnitt/:nr` renders one section, so any section is deep-linkable and the
-  browser back button behaves.
-- The six-section navigation, with any section reachable in any order. Locking the order is
-  explicitly rejected in `project-overview.md`.
-- The draft store: a typed module over the browser's own storage that creates, reads, writes and
-  lists drafts.
-- The `antworten` document shape, keyed by the legacy PDF field paths. **Load-bearing:** features
-  4b through 9 all write into this, and feature 3 later sends it to the server unchanged.
-- The save indicator, driven by the store rather than faked.
-- One real field wired end to end (`anlass`), proving the loop: choose a value, leave the page,
-  come back, it is still there.
-- German strings for all of the above in `frontend/src/i18n/locales/de.json`.
+Twenty-eight new fields, plus the one that already exists. Every one is registered under its legacy
+PDF path.
+
+### The field components (step 1)
+
+A small set of wrappers over MUI, in `frontend/src/protokoll/felder/`, so that a field is one line
+in a block rather than fifteen. This is the load-bearing part of the feature.
+
+### Block 1 - Anlass der Befischung
+
+| Legacy path | Control | Option list |
+|---|---|---|
+| `anlass` | Select, 6 options | already built in 4a, moved onto the new components |
+| `probestrecke.monitoringnummer` | Autocomplete, 722 options | `probestrecke.monitoringnummer` |
+| `z.rp` | Select, 4 options | `z.rp` |
+| `datum` | date | |
+| `messdaten.uhrzeit` | time | |
+| `z.quelle` | Select, 13 options | `z.quelle` |
+| `z.ps_nummer` | text | |
+
+`z.quelle` and `z.ps_nummer` are included by a decision taken in review on 2026-09-01. They appear
+nowhere in the data model in `project-overview.md` and look like FiaKa bookkeeping rather than
+survey data, so **this is worth confirming with FFS**: if surveyors are not the ones who fill them
+in, they come out again in 4c or later.
+
+`messdaten.uhrzeit` keeps its part 2 path but renders here, which is discrepancy 1 from the 4a
+spec: the PDF files the time under part 2, the mockup and the `Submission` model put it in part 1.
+
+### Block 2 - Bearbeiter
+
+`bearbeiter.name`, `bearbeiter.firma`, `bearbeiter.strasse`, `bearbeiter.plz`, `bearbeiter.ort`,
+`bearbeiter.telefon`, `bearbeiter.email`. All plain text.
+
+`bearbeiter.ort` **does not exist in the PDF.** The form has a street and a postcode but no town,
+while both the mockup and the `Person` model have one. Discrepancy 2 from the 4a spec, which says
+4b adds it. Since it is not in the extracted definition, the field carries a comment saying so, and
+it is on the list to raise with FFS.
+
+### Block 3 - Probestrecke
+
+| Legacy path | Control |
+|---|---|
+| `probestrecke.gewaesser.gewaessername` | text |
+| `probestrecke.gewaessertyp` | Select, 8 options |
+| `probestrecke.laenge` | number, with a metre suffix |
+| `probestrecke.ortsangabe` | text, full width |
+| `probestrecke.gewaesser.vorfluter1` to `vorfluter5` | text |
+| `probestrecke.untere` | text |
+| `probestrecke.utm_rw_unten`, `probestrecke.utm_hw_unten` | number |
+| `probestrecke.obere` | text |
+| `probestrecke.utm_rw_oben`, `probestrecke.utm_hw_oben` | number |
+
+Plus the two explanatory callouts from the mockup, one over the Vorfluter chain and one over the
+coordinates. They carry the reasoning a surveyor needs and are not decoration.
+
+### Also in scope
+
+- The page head title, which the 4a code leaves as the literal word "Protokoll". It becomes the
+  Gewaessername and the Ortsangabe, as in the mockup, falling back to a placeholder while both are
+  empty.
+- German strings for everything above in `frontend/src/i18n/locales/de.json`.
 
 ## Out of scope
 
-- **The rest of the part 1 fields.** Feature 4b. Only `anlass` is wired here, as the proof that the
-  store works.
-- **Validation rules.** Feature 4c. `anlass` gets no rule beyond being a select.
-- **Anything on the backend.** No endpoint, no table, no migration, no Alembic. Feature 3 adds
-  server saving and swaps the store's storage layer underneath the same interface.
-- **Login and ownership.** Item 2. A draft in this build belongs to whoever is sitting at the
-  browser.
-- **The real submissions list.** `/` keeps the feature 1a placeholder. Feature 3 owns that screen.
-- **Deleting drafts, and the "Entwurf schliessen" action.** The button appears in the mockup but
-  needs a destination that does not exist yet.
-- **Section 2 to 6 content.** They render a named placeholder saying which feature fills them.
-
-## Before you start
-
-**Run `/tests` first.** The frontend has no test runner, and this feature adds the draft store,
-which is exactly the kind of logic `coding-standards.md` says must be tested: it serialises,
-deserialises, and has to survive corrupt data and a full or blocked storage quota. `AGENTS.md`
-already says the frontend runner is worth adding before feature 4. Add vitest, then implement.
-
-If you decide not to, say so explicitly and the store ships on browser evidence alone. Do not
-quietly skip it.
+- **Every validation rule.** Feature 4c owns the Monitoringstrecken-Nr. becoming mandatory for
+  WRRL and FFH, the Vorfluter chain ending at the Rhein or the Donau, and the Baden-Wuerttemberg
+  coordinate bounds. Required fields are marked visually here, but nothing is enforced and nothing
+  blocks.
+- **Zod schemas.** Zod is installed but stays unused until 4c. Do not add a schema that only
+  restates the types.
+- **Hydrology suppression.** Choosing See, Teich or abgeschnittenes Altwasser does not yet change
+  section 2. Feature 5.
+- **Anything on the backend.** No endpoint, table or migration. Feature 3 swaps the draft store's
+  storage layer under the same interface.
+- **The Anodenfuehrer field.** Feature 8.
+- **Sections 2 to 6.** They keep their placeholders.
+- **The map picker.** Coordinates are typed. Feature 18.
+- **Login and ownership.** Item 2.
 
 ## Build loop
 
@@ -89,134 +142,168 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [x] **Step 1 - The answers document type and the draft store** - a pure module: the `Entwurf`
-      envelope, the `Antworten` document typed by legacy field path, and create, read, write and
-      list over the browser's own storage. No React. *Done when:* the store's unit tests pass,
-      covering a round trip, a missing draft, a corrupt stored value, and a storage write that
-      throws; nothing renders yet.
+- [x] **Step 1 - The field components and the answers document** - `Antworten` grows every part 1
+      path listed above. The missing mockup classes are ported into `protokoll.css`. Three
+      components appear under `frontend/src/protokoll/felder/`: `FeldText` (text, number, date,
+      time, email and tel, with an optional unit suffix), `FeldAuswahl` (a Select over a named
+      option list) and `FeldSuche` (an Autocomplete over a named option list). Each takes a legacy
+      path, a label key, a column width, and whether it is required; each renders label above
+      control in a `FormControl` with `FormLabel`, per `coding-standards.md`. `Abschnitt1` moves
+      its `anlass` field onto `FeldAuswahl`. *Done when:* the Anlass dropdown looks and behaves
+      exactly as it did before, choosing a value still survives a reload, `npm run build` and
+      `npm test` pass, and no component holds a colour or a literal German string.
 
-- [x] **Step 2 - Routing and draft creation** - install React Router, move the current placeholder
-      page onto `/`, add `/protokolle/neu` and `/protokolle/:id/abschnitt/:nr`. `/protokolle/neu`
-      creates a draft through the store and redirects to section 1. An unknown draft id shows a
-      plain "not found" page rather than a blank screen. *Done when:* visiting `/protokolle/neu`
-      lands on `/protokolle/<a real id>/abschnitt/1`, reloading that URL still works, and the
-      browser back button returns to `/`.
+- [ ] **Step 2 - The Anlass block** - the remaining six fields of block 1, laid out on the mockup's
+      grid. The Monitoringstrecken-Nr. uses `FeldSuche`, since 722 options is past what a dropdown
+      can serve. *Done when:* all seven fields accept input, every one survives a reload, the
+      Monitoringstrecken-Nr. filters as you type and is reachable and selectable by keyboard alone,
+      and the block matches the mockup's column widths in light and dark.
 
-- [x] **Step 3 - The protocol page and section navigation** - the page head, the six-section nav
-      built against the mockup, and section switching by URL. Sections 2 to 6 render a placeholder
-      naming the feature that fills them. *Done when:* all six sections are reachable by mouse and
-      by keyboard, the current one is marked with `aria-current="step"`, focus lands on the section
-      heading after a switch, and it reads correctly in both light and dark.
+- [ ] **Step 3 - The Bearbeiter block** - the seven contact fields, on the mockup's grid.
+      *Done when:* all seven accept input and survive a reload, each has a real label association,
+      and tabbing runs through them in the visual order.
 
-- [x] **Step 4 - One field wired end to end, and the save indicator** - React Hook Form and Zod
-      installed, the form provider around the section, the `anlass` select fed from the extracted
-      option list, written through to the store on change with a short debounce, and the save
-      indicator showing the real state. *Done when:* choosing an Anlass, navigating to section 4
-      and back, then reloading the browser, all leave the choice in place, and the indicator moves
-      from saving to saved.
+- [ ] **Step 4 - The Probestrecke block: the water and the chain** - Gewaessername, Gewaessertyp,
+      Laenge with its metre suffix, the full-width Ortsangabe, the Vorfluter callout and the five
+      Vorfluter fields. *Done when:* all nine fields survive a reload, the Gewaessertyp dropdown
+      shows the eight extracted codes with their labels, and the hint under it says section 2
+      disappears for See, Teich and abgeschnittenes Altwasser without that yet being true.
+
+- [ ] **Step 5 - The Probestrecke block: the boundaries, and the page head** - the coordinate
+      callout, the two boundary description fields and the four coordinate fields, then the page
+      head title driven by the answers. A pure `protokollTitel(antworten)` helper returns the
+      Gewaessername and the Ortsangabe joined, or just whichever is filled, or a placeholder when
+      neither is. *Done when:* the six fields survive a reload, `protokollTitel`'s unit tests pass
+      over all four of those cases, typing a Gewaessername changes the heading at the top of the
+      page, and the whole of section 1 reads correctly in light and dark at both desktop and narrow
+      widths.
 
 ## Files / areas
 
 | Path | Why |
 |---|---|
-| `frontend/package.json` | adds react-router, react-hook-form, zod |
-| `frontend/src/protokoll/entwurf/typen.ts` | the `Entwurf` envelope and the `Antworten` document |
-| `frontend/src/protokoll/entwurf/store.ts` | create, read, write and list over browser storage |
-| `frontend/src/protokoll/entwurf/store.test.ts` | the store's tests |
-| `frontend/src/protokoll/ProtokollSeite.tsx` | the protocol page: head, nav, current section |
-| `frontend/src/protokoll/AbschnittNav.tsx` | the six-section navigation |
-| `frontend/src/protokoll/SpeicherAnzeige.tsx` | the save indicator |
-| `frontend/src/protokoll/abschnitte/Abschnitt1.tsx` | section 1, holding only `anlass` for now |
-| `frontend/src/protokoll/optionen.ts` | reads the extracted option lists |
-| `frontend/src/routes.tsx`, `frontend/src/main.tsx` | the router |
+| `frontend/src/protokoll/entwurf/typen.ts` | `Antworten` grows the part 1 paths |
+| `frontend/src/protokoll/entwurf/titel.ts` | `protokollTitel`, the head title helper |
+| `frontend/src/protokoll/entwurf/titel.test.ts` | its tests |
+| `frontend/src/protokoll/felder/FeldText.tsx` | text, number, date, time, email, tel |
+| `frontend/src/protokoll/felder/FeldAuswahl.tsx` | a Select over a named option list |
+| `frontend/src/protokoll/felder/FeldSuche.tsx` | an Autocomplete over a named option list |
+| `frontend/src/protokoll/abschnitte/Abschnitt1.tsx` | the three blocks |
+| `frontend/src/protokoll/ProtokollKopf.tsx` | the title stops being a constant |
+| `frontend/src/protokoll/protokoll.css` | the missing mockup field classes |
 | `frontend/src/i18n/locales/de.json` | every new string |
+
+If `Abschnitt1.tsx` grows past a comfortable read, split the three blocks into
+`abschnitte/teil1/AnlassBlock.tsx`, `BearbeiterBlock.tsx` and `ProbestreckeBlock.tsx` rather than
+letting one file carry twenty-nine fields. Decide that at step 3, when the size is visible.
 
 ## Data / contracts
 
-**Both shapes below are load-bearing. Features 4b through 9 and feature 3 all depend on them, so
-they are locked here rather than improvised later.**
+**Load-bearing. Features 5 to 9 add to the same document and feature 3 sends it to the server
+unchanged, so these choices are locked here rather than improvised later.**
 
-The draft envelope, deliberately close to the `Submission` columns in `project-overview.md` so
-feature 3 is a plumbing change and not a reshape:
+### Every answer is a string
+
+`Antworten` values are `string | undefined`, including the coordinates and the length. Three
+reasons:
+
+1. A draft is half-finished by definition. A number input holds `"54"` mid-typing and `""` when
+   cleared, and neither is a number.
+2. The legacy PDF stores every field as text, and the export values in `optionslisten.json` are
+   strings. Storing what the user typed keeps the FiaKa transfer a direct match.
+3. Conversion to an integer is a validation concern, and validation belongs at the boundary:
+   feature 4c's Zod schema and, later, Pydantic on the server. Doing it in the field component
+   would put a rule in the rendering layer.
+
+`undefined` means never touched, `""` means touched and cleared. Nothing in 4b distinguishes them;
+4c may.
+
+### The paths
+
+Nested so each spells out its legacy PDF path exactly, as 4a established:
 
 ```
-Entwurf {
-  id            string, from crypto.randomUUID()
-  formVersion   "20260609", never migrated (ADR 0004)
-  angelegtAm    ISO timestamp
-  geaendertAm   ISO timestamp
-  antworten     Antworten
-}
+antworten.anlass
+antworten.datum
+antworten.messdaten.uhrzeit
+antworten.z.rp
+antworten.z.quelle
+antworten.z.ps_nummer
+antworten.bearbeiter.{name,firma,strasse,plz,ort,telefon,email}
+antworten.probestrecke.gewaesser.gewaessername
+antworten.probestrecke.gewaesser.vorfluter1 .. vorfluter5
+antworten.probestrecke.{ortsangabe,gewaessertyp,laenge,monitoringnummer}
+antworten.probestrecke.{untere,utm_rw_unten,utm_hw_unten}
+antworten.probestrecke.{obere,utm_rw_oben,utm_hw_oben}
 ```
 
-The answers document uses **nested objects whose paths spell out the legacy PDF field path
-exactly**, as `coding-standards.md` requires:
+`bearbeiter.ort` is the only path here with no field behind it in the PDF.
 
-```
-antworten.anlass                                 -> legacy "anlass"
-antworten.probestrecke.gewaesser.vorfluter1      -> legacy "probestrecke.gewaesser.vorfluter1"
-antworten.messdaten.uhrzeit                      -> legacy "messdaten.uhrzeit"
-```
+### The field component signature
 
-This is not decoration. React Hook Form addresses fields by dotted name, so a field registered as
-`probestrecke.gewaesser.vorfluter1` writes to exactly the right place with no mapping layer, and
-the eventual FiaKa transfer stays a direct match.
+Locked, because roughly 300 more fields use it. Each component takes the legacy path as its `name`,
+a translation key, a column span, and an optional required flag. Nothing else. Anything a specific
+field needs beyond that (the metre suffix, the numeric input mode) is a named prop, never an
+escape hatch that lets a caller pass arbitrary styling.
 
-**Storage.** `localStorage`, one key per draft plus an index key, all prefixed `ffs-entwurf`. It is
-synchronous and simple, a protocol is a few kilobytes, and every read and write must be wrapped so
-that private browsing, blocked site data and a full quota degrade rather than crash. The same
-pattern is already used for the locale in `frontend/src/i18n/index.ts`.
+`FeldAuswahl` and `FeldSuche` take a `ListenName` from `optionen.ts`, so a wrong list name is a
+build error rather than an empty dropdown. Neither ever receives an inline array of options.
 
-**Option lists.** The single source is `database/seed/form_version_20260609/optionslisten.json`,
-regenerated from the PDF. The frontend must not hold a retyped second copy. Import it through a
-Vite path alias so there is one file. `optionen.ts` narrows it to the list a component asks for.
-If bundling all nine lists proves heavy (`arten` has 123 entries, `probestrecke.monitoringnummer`
-has 722), split the import per list; do not solve it by copying values into the code.
+### Labels
+
+The label shown is the one in the extracted list. Where the numeric code itself carries meaning to
+the reader, the code is prefixed: `Gewaessertyp` renders "14 - Fluss", because the hint beneath it
+and `CONTEXT.md` both talk in those codes. `probestrecke.monitoringnummer` already carries its
+number in the extracted label and needs no prefix.
+
+### Controls
+
+MUI everywhere, per `coding-standards.md` and the decision of 2026-09-01. Dates and times use
+MUI's `TextField` with `type="date"` and `type="time"`, **not** `@mui/x-date-pickers`. That package
+is a separate dependency needing a date-library adapter, and a native date input is well understood
+by keyboard and screen reader users. Revisit only if FFS asks for a calendar.
+
+`probestrecke.gewaessertyp` is a radio group in the PDF but renders as a Select, following the
+mockup. Eight options with long labels do not fit the mockup's four-column row as radios.
 
 ## Testing
 
-Assuming `/tests` has added vitest:
+The frontend runner is vitest, added in 4a. `npm test` from `frontend/`.
 
 | What | How |
 |---|---|
-| The draft store | Unit tests. Round trip, missing draft, corrupt JSON, a write that throws, and the index staying correct across two drafts. This is the in-scope logic for the gate. |
-| Routing and creation | Browser. `/protokolle/neu` redirects to a real id, reload survives, an unknown id shows the not-found page. |
-| Section navigation | Browser and keyboard. Tab to the nav, activate each section with Enter, confirm `aria-current` and where focus lands. |
-| Persistence end to end | Browser. Choose an Anlass, navigate away, reload, confirm it is still selected. |
-| Both themes | Screenshot the protocol page in light and dark. |
+| `protokollTitel` | Unit test. Both fields, Gewaessername only, Ortsangabe only, neither. This is the one piece of in-scope logic where a wrong answer is possible, so it carries the gate at step 5. |
+| The draft store | Untouched. Its existing tests must stay green after `Antworten` grows. |
+| Every field persisting | Browser. Fill the block, navigate to section 4, come back, reload. The value is still there. |
+| The Autocomplete | Browser and keyboard. Tab to it, type three digits, arrow to a result, press Enter, confirm the stored value is the number and not the label. |
+| Label association | Browser. Click each label, confirm focus lands in its control. |
+| Both themes | Screenshot section 1 in light and dark at desktop width, and once below 800px where the grid collapses. |
 | Build | `npm run build` from `frontend/` at the end of every step. |
 
-No backend change, so `pytest` is untouched, though it should still be green before `/complete`.
+The field components themselves get no unit tests. They render; `coding-standards.md` puts
+components on browser evidence and the build, not on vitest.
+
+No backend change, so `pytest` is untouched, though it should be green before `/complete`.
 
 ## Notes for the AI
 
-- **Route paths are German** (`/protokolle/neu`, `/protokolle/:id/abschnitt/:nr`), decided on
-  2026-08-24. Component and variable names stay English; domain terms inside them stay German.
-- **Every user-visible string comes from `de.json`.** No literal German in a component, exactly as
-  feature 1b established.
-- **Accessibility is an acceptance criterion, not a later pass.** MUI does not give it for free.
-  The section nav is a real `nav` with an ordered list, the current step carries
-  `aria-current="step"`, focus is moved deliberately on section change, and focus is visible
-  against our tokens in both themes.
-- **No colour outside the tokens.** No `sx` colour overrides, no hard-coded hex.
+- **Every user-visible string comes from `de.json`.** No literal German in a component. That
+  includes the callout text and the hints.
+- **No colour outside the tokens.** No `sx` colour overrides, no hard-coded hex. Where MUI's
+  default composition fights the mockup, change `muiTheme.ts` once rather than patching a call
+  site.
 - **The app must not read as a Material app.** Flat surfaces, 4px radius, no elevation shadows.
-- Do not add a second component library, and do not add Playwright.
-
-### Four discrepancies found while writing this spec
-
-Recorded here so 4b does not have to rediscover them. None of them block 4a.
-
-1. **`uhrzeit` sits in part 2 in the PDF**, as `messdaten.uhrzeit`, but the mockup and the
-   `Submission` model both put the time in part 1. Keep the legacy path, render it in part 1.
-2. **There is no `bearbeiter.ort` field in the PDF.** It has `strasse` and `plz` but no town, while
-   both the mockup and the `Person` model have one. 4b should add `bearbeiter.ort`, and this is
-   worth raising with FFS, since it looks like a gap in the original form.
-3. **`anodenfuehrer` appears in the mockup's Bearbeiter block**, but `project-overview.md` puts it
-   in `ausruestung`, which is feature 8. Leave it out of part 1.
-4. **The mockup's Regierungspraesidium numbering is wrong.** It shows "1 - Stuttgart"; the list
-   extracted from the PDF has 1 as Karlsruhe and 2 as Stuttgart. The extracted list wins wherever
-   the two disagree, including here.
-
-Also unresolved for 4b: `z.quelle` and `z.ps_nummer` exist in the form but appear nowhere in the
-data model in `project-overview.md`. They look like FiaKa transfer metadata rather than survey
-data. Decide in 4b whether part 1 shows them.
+- **Accessibility is an acceptance criterion, not a later pass.** Label above control via
+  `FormLabel` inside a `FormControl`, never `InputLabel` and its notch. Every control has a real
+  label association. The required marker is `aria-hidden`, with the requirement carried by
+  `aria-required`. Focus stays visible against our tokens in both themes.
+- **Do not add a dependency.** Not `@mui/x-date-pickers`, not a masking library, not Playwright,
+  not a second component library.
+- **Do not retype an option list.** Everything comes through `optionen.ts` from the aliased
+  `optionslisten.json`. The file is 97 KB and the whole of it is currently imported, which also
+  pulls in the 123 species for feature 9. Leave that alone unless the build warns; if it does,
+  split the import per list rather than copying values into code.
+- If the 722-option Autocomplete feels slow when you try it, cap the rendered results with MUI's
+  `filterOptions` limit. Do not reach for virtualization before seeing a problem.
+- **Two things to raise with FFS**, both recorded above and neither blocking: `bearbeiter.ort` is
+  missing from the form, and `z.quelle` with `z.ps_nummer` may not be the surveyor's to fill in.
