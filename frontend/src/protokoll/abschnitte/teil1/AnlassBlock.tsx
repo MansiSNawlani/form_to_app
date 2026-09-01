@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
+import FeldDatum from '../../felder/FeldDatum'
 import FeldSuche from '../../felder/FeldSuche'
 import FeldText from '../../felder/FeldText'
 
@@ -44,16 +45,16 @@ function AnlassBlock() {
           pflicht
         />
 
-        <FeldText
+        <FeldDatum
           name="datum"
-          typ="date"
+          art="datum"
           labelKey="protokoll.abschnitt1.anlass.feld.datum"
           spalten={3}
           pflicht
         />
-        <FeldText
+        <FeldDatum
           name="messdaten.uhrzeit"
-          typ="time"
+          art="uhrzeit"
           labelKey="protokoll.abschnitt1.anlass.feld.uhrzeit"
           spalten={3}
           pflicht

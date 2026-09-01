@@ -4,8 +4,8 @@ import FeldRahmen from './FeldRahmen'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
-/* Every typed-in answer on the protocol: text, numbers, a date, a time, an
-   e-mail address, a telephone number.
+/* Every typed-in answer on the protocol: text, numbers, an e-mail address, a
+   telephone number. Dates and times have their own component, FeldDatum.
 
    Registered rather than controlled. register hands the input straight to React
    Hook Form's own ref, so a keystroke re-renders nothing at all. At 338 fields
@@ -17,7 +17,7 @@ import type { Antworten, AntwortPfad } from '../entwurf/typen'
    association and the required flag. This is the same MUI input either way,
    without the wrapper we already have. */
 
-type Eingabetyp = 'text' | 'number' | 'date' | 'time' | 'email' | 'tel'
+type Eingabetyp = 'text' | 'number' | 'email' | 'tel'
 
 interface FeldTextProps extends Omit<FeldRahmenProps, 'id'> {
   /** The legacy PDF field path, which is also the control's id. */

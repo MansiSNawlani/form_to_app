@@ -1,5 +1,7 @@
 import { createTheme, type Shadows } from '@mui/material/styles'
 import { deDE } from '@mui/material/locale'
+// Lets createTheme accept the date pickers' own component keys below.
+import type {} from '@mui/x-date-pickers/themeAugmentation'
 import {
   darkTokens,
   fontSans,
@@ -163,6 +165,13 @@ export const muiTheme = createTheme({
           marginInline: 0,
           marginTop: '0.3rem',
         },
+      },
+    },
+    MuiPickerPopper: {
+      styleOverrides: {
+        // Same reason as MuiMenu below: elevation is off everywhere by design,
+        // so the calendar needs a border to separate it from the page.
+        paper: { border: '1px solid var(--border)' },
       },
     },
     MuiMenu: {
