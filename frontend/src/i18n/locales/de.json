@@ -75,6 +75,19 @@
           "quelleHinweis": "Aus welchem Projekt oder Meldeweg die Befischung stammt.",
           "psNummer": "PS-Nummer"
         }
+      },
+      "bearbeiter": {
+        "legend": "Bearbeiter",
+        "hinweis": "Die Person, die die Befischung durchgeführt hat. Das ist nicht zwingend das Konto, das das Protokoll einreicht.",
+        "feld": {
+          "name": "Name",
+          "firma": "Firma oder Verein",
+          "strasse": "Straße und Hausnummer",
+          "plz": "PLZ",
+          "ort": "Ort",
+          "telefon": "Telefon",
+          "email": "E-Mail"
+        }
       }
     },
     "felder": {

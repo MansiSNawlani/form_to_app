@@ -159,7 +159,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       Monitoringstrecken-Nr. filters as you type and is reachable and selectable by keyboard alone,
       and the block matches the mockup's column widths in light and dark.
 
-- [ ] **Step 3 - The Bearbeiter block** - the seven contact fields, on the mockup's grid.
+- [x] **Step 3 - The Bearbeiter block** - the seven contact fields, on the mockup's grid.
       *Done when:* all seven accept input and survive a reload, each has a real label association,
       and tabbing runs through them in the visual order.
 
