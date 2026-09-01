@@ -60,13 +60,13 @@ These are not features and are not tracked here. They happen first.
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
       submissions" list. **Deferred on 2026-09-01**, built after the form parts, and where the
       browser-only draft storage is swapped for real server saving.
-- [ ] 4. Form part 1: occasion, recorder details, and the Probestrecke, including the Vorfluter
+- [x] 4. Form part 1: occasion, recorder details, and the Probestrecke, including the Vorfluter
       chain and coordinate entry with the Baden-Württemberg bounds check
   - [x] 4a. Protocol shell and browser draft store: routing, the six-section navigation, the
         answers document shape, and drafts that survive a reload
   - [x] 4b. Part 1 fields: the Anlass, Bearbeiter and Probestrecke blocks, built from the
         extracted option lists
-  - [ ] 4c. Part 1 rules: the Vorfluter chain ending at Rhein or Donau, the Baden-Württemberg
+  - [x] 4c. Part 1 rules: the Vorfluter chain ending at Rhein or Donau, the Baden-Württemberg
         coordinate bounds, and the monitoring number required for WRRL and FFH
 - [ ] 5. Form part 2: measurements and hydrology, including hydrology disappearing entirely for
       standing waters
