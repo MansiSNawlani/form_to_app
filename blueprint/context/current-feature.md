@@ -153,7 +153,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       exactly as it did before, choosing a value still survives a reload, `npm run build` and
       `npm test` pass, and no component holds a colour or a literal German string.
 
-- [ ] **Step 2 - The Anlass block** - the remaining six fields of block 1, laid out on the mockup's
+- [x] **Step 2 - The Anlass block** - the remaining six fields of block 1, laid out on the mockup's
       grid. The Monitoringstrecken-Nr. uses `FeldSuche`, since 722 options is past what a dropdown
       can serve. *Done when:* all seven fields accept input, every one survives a reload, the
       Monitoringstrecken-Nr. filters as you type and is reachable and selectable by keyboard alone,

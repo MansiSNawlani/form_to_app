@@ -65,7 +65,15 @@
         "legend": "Anlass der Befischung",
         "hinweis": "Der Anlass bestimmt, welche weiteren Angaben Pflicht werden.",
         "feld": {
-          "anlass": "Anlass"
+          "anlass": "Anlass",
+          "monitoringnummer": "Monitoringstrecken-Nr.",
+          "monitoringnummerHinweis": "Nur bei Fischmonitoring gemäß WRRL oder FFH.",
+          "rp": "Regierungspräsidium",
+          "datum": "Datum",
+          "uhrzeit": "Uhrzeit",
+          "quelle": "Quelle",
+          "quelleHinweis": "Aus welchem Projekt oder Meldeweg die Befischung stammt.",
+          "psNummer": "PS-Nummer"
         }
       }
     },
