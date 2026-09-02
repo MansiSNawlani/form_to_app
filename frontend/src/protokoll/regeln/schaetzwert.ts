@@ -1,5 +1,6 @@
 import { HYDROLOGIE_NICHT_ZUTREFFEND } from './hydrologie'
 import { istLeer, type Regel, type Regelverstoss } from './regel'
+import type { AntwortPfad } from '../entwurf/typen'
 
 /* The estimate under each of the two width and depth band pickers, which has to
    fall inside the band chosen above it.
@@ -25,6 +26,20 @@ interface Band {
 const BANDFELDER = ['breite', 'tiefe'] as const
 
 type Bandfeld = (typeof BANDFELDER)[number]
+
+const bandPfad = (feld: Bandfeld) => `hydrologie.${feld}` as const
+const schaetzwertPfad = (feld: Bandfeld) => `hydrologie.${feld}_schaetzwert` as const
+
+/* The paths, for the block that has to ask for an estimate to be looked at
+   again when its band moves. Derived here rather than retyped there, the same
+   way VORFLUTER_PFADE is, so a third band field cannot be added in one place
+   and forgotten in the other. */
+export const BAND_PFADE = BANDFELDER.map(bandPfad) satisfies readonly AntwortPfad[]
+
+export function schaetzwertPfadeZu(band: AntwortPfad): readonly AntwortPfad[] {
+  const feld = BANDFELDER.find((kandidat) => bandPfad(kandidat) === band)
+  return feld ? [schaetzwertPfad(feld)] : []
+}
 
 /* Metres, keyed by the export value of the band. Only the seven real bands: the
    eighth button, exporting 0, means the section does not apply and is never
@@ -71,15 +86,27 @@ export const pruefeSchaetzwerte: Regel = (antworten) => {
   const verstoesse: Regelverstoss[] = []
 
   for (const feld of BANDFELDER) {
-    const pfad = `hydrologie.${feld}_schaetzwert` as const
+    const pfad = schaetzwertPfad(feld)
     const eingabe = (hydrologie?.[`${feld}_schaetzwert`] ?? '').trim()
     // Untouched is not wrong. An estimate only ever refines a band.
     if (istLeer(eingabe)) continue
 
     const gewaehlt = (hydrologie?.[feld] ?? '').trim()
-    /* On a standing water the bands and the estimates are both marked as not
-       applying by regeln/hydrologie.ts, so there is no band to fall inside. */
-    if (gewaehlt === HYDROLOGIE_NICHT_ZUTREFFEND) continue
+
+    /* On a standing water the band and the estimate are both marked as not
+       applying by regeln/hydrologie.ts, so the only estimate that belongs under
+       this band is the same marking. Nothing in the interface can produce
+       anything else, since the block is off screen; this is what keeps a
+       hand-edited draft from carrying a river's width on a pond. */
+    if (gewaehlt === HYDROLOGIE_NICHT_ZUTREFFEND) {
+      if (eingabe !== HYDROLOGIE_NICHT_ZUTREFFEND) {
+        verstoesse.push({
+          pfad,
+          schluessel: 'protokoll.regeln.schaetzwertAusserhalbBand',
+        })
+      }
+      continue
+    }
 
     if (istLeer(gewaehlt)) {
       verstoesse.push({

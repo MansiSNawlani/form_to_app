@@ -29,6 +29,10 @@ No new screen. The Hydrologie block was built in 5a against
 when it is on screen. The one new piece of visible text is a callout, and `.callout` is
 already in `protokoll.css` and already used twice in part 1.
 
+The callout keeps the section's own `fieldset` and `Hydrologie` legend around it. A section
+that vanished without trace would read as a form that had lost something, where what
+actually happened is that the questions do not apply to a lake.
+
 ## The two rules, exactly
 
 ### Which Gewässertyp means which
@@ -106,14 +110,21 @@ scripts in the PDF, verified on 2026-09-02. Metres, keyed by the band's export v
 | `5` | `< 50` | 15 to 50 | `< 2` | 1 to 2 |
 | `6` | `< 100` | 50 to 100 | `< 4` | 2 to 4 |
 | `7` | `≥ 100` | 100 upward | `≥ 4` | 4 upward |
-| `0` | not applicable | exactly 0 | not applicable | exactly 0 |
+| `0` | not applicable, no band | | not applicable, no band | |
 
-**Lower bound inclusive, upper bound exclusive**, except `7`, which has no upper bound,
-and `0`, which is only ever `0`. That is what the printed labels say: `< 2` is the band
-below 2, and 2 itself belongs to `< 5`. The legacy code treats both ends as inclusive, so
-2 is accepted in two neighbouring bands; reading the labels literally leaves no gap and no
-overlap. This is a second departure from the legacy code beyond the AND/OR fix, so it is
-called out here rather than buried.
+**Lower bound inclusive, upper bound exclusive**, except `7`, which has no upper bound.
+That is what the printed labels say: `< 2` is the band below 2, and 2 itself belongs to
+`< 5`. The legacy code treats both ends as inclusive, so 2 is accepted in two neighbouring
+bands; reading the labels literally leaves no gap and no overlap. This is a second
+departure from the legacy code beyond the AND/OR fix, so it is called out here rather than
+buried.
+
+**`0` is not a band and is not in the table.** The band table is keyed to the option lists,
+and `0` is never offered as an option, so putting it in the table would break the guard
+test below. It is checked separately instead: when the band carries the not-applicable
+marking, the estimate has to carry it too. Nothing in the interface can produce anything
+else, because the block is off screen in that state, so this only ever catches a draft
+edited by hand.
 
 Three things can be wrong with an estimate:
 
@@ -196,7 +207,8 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       and the build is clean.
 
 - [x] **Step 3 - the Schätzwert band rule** - `regeln/schaetzwert.ts` with the two band
-      tables, a guard test tying every band key to the option list's export values,
+      tables, a guard test tying every band key to the option list's export values, the
+      separate check that a not-applicable band carries a not-applicable estimate,
       registration in `regeln/schema.ts`, the three German messages, and the
       `useNachpruefung` wiring so choosing a band rechecks the estimate under it.
       *Done when:* `npm test` proves every band boundary in both tables, both ends,

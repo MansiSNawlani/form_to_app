@@ -2,20 +2,8 @@ import { useTranslation } from 'react-i18next'
 import FeldHaken from '../../felder/FeldHaken'
 import FeldRadio from '../../felder/FeldRadio'
 import FeldText from '../../felder/FeldText'
-import type { AntwortPfad } from '../../entwurf/typen'
+import { BAND_PFADE, schaetzwertPfadeZu } from '../../regeln/schaetzwert'
 import { useNachpruefung } from '../../regeln/useNachpruefung'
-
-/* Each band picker and the estimate it governs. Choosing a band decides what
-   its estimate is allowed to be, so moving the band has to look at the estimate
-   again: it can raise a message on an estimate nobody has been back to, and it
-   can clear one that no longer applies. */
-const SCHAETZWERT_ZU: Partial<Record<AntwortPfad, readonly AntwortPfad[]>> = {
-  'hydrologie.breite': ['hydrologie.breite_schaetzwert'],
-  'hydrologie.tiefe': ['hydrologie.tiefe_schaetzwert'],
-}
-
-const BANDFELDER = Object.keys(SCHAETZWERT_ZU) as AntwortPfad[]
-const schaetzwertZu = (geaendert: AntwortPfad) => SCHAETZWERT_ZU[geaendert] ?? []
 
 /* How the water behaves along the stretch: nine judgements, in the order the
    legacy form prints them.
@@ -30,7 +18,11 @@ const schaetzwertZu = (geaendert: AntwortPfad) => SCHAETZWERT_ZU[geaendert] ?? [
 function HydrologieBlock() {
   const { t } = useTranslation()
 
-  useNachpruefung(BANDFELDER, schaetzwertZu)
+  /* Choosing a band decides what its estimate is allowed to be, so moving the
+     band has to look at the estimate again: it can raise a message on an
+     estimate nobody has been back to, and it can clear one that no longer
+     applies. */
+  useNachpruefung(BAND_PFADE, schaetzwertPfadeZu)
 
   return (
     <fieldset className="form-section">

@@ -94,10 +94,8 @@ describe('pruefeSchaetzwerte', () => {
     })
   })
 
-  /* Lower bound inclusive, upper bound exclusive, which is what the printed
-     labels say: "< 2" is the band below 2, and 2 itself belongs to "< 5". The
-     legacy code treats both ends as inclusive, so 2 is valid in two
-     neighbouring bands. */
+  /* Every boundary of every band, from both sides. schaetzwert.ts says why they
+     are read the way they are. */
   describe('the Breite bands, in metres', () => {
     it.each([
       ['1', '0', true],
@@ -150,10 +148,18 @@ describe('pruefeSchaetzwerte', () => {
   })
 
   /* On a standing water the whole section is marked as not applying, bands and
-     estimates alike, by regeln/hydrologie.ts. There is no band to fall inside,
-     so there is nothing to complain about. */
-  it('says nothing once the section has been marked as not applying', () => {
-    expect(pruefeSchaetzwerte(breite('0', '0'))).toEqual([])
-    expect(pruefeSchaetzwerte(tiefe('0', '0'))).toEqual([])
+     estimates alike, by regeln/hydrologie.ts. The two have to agree: the block
+     is off screen in that state, so this only ever catches a draft that was
+     edited by hand or written by an older version. */
+  describe('once the section has been marked as not applying', () => {
+    it('accepts the estimate carrying the same marking', () => {
+      expect(pruefeSchaetzwerte(breite('0', '0'))).toEqual([])
+      expect(pruefeSchaetzwerte(tiefe('0', '0'))).toEqual([])
+    })
+
+    it('rejects a real estimate left behind under it', () => {
+      expect(schluessel(breite('0', '95'))).toEqual([AUSSERHALB])
+      expect(schluessel(tiefe('0', '1,5'))).toEqual([AUSSERHALB])
+    })
   })
 })

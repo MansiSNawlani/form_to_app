@@ -2,7 +2,7 @@ import { istLeer } from './regel'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* Whether the Hydrologie block applies at all, and what the answers have to say
-   when it does not.
+ * when it does not.
  *
  * A standing water has no current, no line and no flow velocity, so the legacy
  * form takes the whole section away for one. It marks the section as not
