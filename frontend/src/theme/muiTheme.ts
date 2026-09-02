@@ -170,12 +170,22 @@ export const muiTheme = createTheme({
         asterisk: { color: 'var(--danger)' },
       },
     },
+    // Material's radio and checkbox are accent-coloured once ticked and grey
+    // otherwise, which at nine groups on one screen leaves the unanswered ones
+    // looking disabled. --border-strong is the same edge every other control in
+    // the mockups draws itself with. Both get it: they sit in the same row, so a
+    // checkbox left on Material's grey beside a themed radio reads as broken.
     MuiRadio: {
       styleOverrides: {
-        // Material's radio is accent-coloured only once checked and grey
-        // otherwise, which at nine groups on one screen leaves the unanswered
-        // ones looking disabled. --border-strong is the same edge every other
-        // control in the mockups draws itself with.
+        root: {
+          color: 'var(--border-strong)',
+          padding: '0.35rem',
+          '&.Mui-checked': { color: 'var(--accent)' },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
         root: {
           color: 'var(--border-strong)',
           padding: '0.35rem',

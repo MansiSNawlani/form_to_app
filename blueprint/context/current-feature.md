@@ -55,7 +55,13 @@ override at a call site.
   the existing extraction script, covering the three Messdaten radio groups and the nine Hydrologie
   radio groups.
 - `FeldRadio`, a radio group over a named option list, and `FeldHaken`, a single checkbox, both
-  built on MUI and both wearing the existing field frame.
+  built on MUI.
+
+  **Amended during the build.** The draft said both wear the existing field frame. `FeldHaken` does
+  not, and should not: a checkbox is labelled beside the box rather than above it, and all four that
+  exist sit inside a `FeldRadio`'s row, which already carries the frame, the hint and the error
+  message for the group they qualify. Giving each its own frame would have put a label above an
+  unlabelled box and broken the row. Recorded here rather than left as a silent divergence.
 - The Messdaten block: `temperatur`, `leitfaehigkeit`, `sichttiefe`, `regenfaelle`, `truebung`,
   `schaumbildung`.
 - The Hydrologie block: nine radio groups, the four "Ja" checkboxes that hang off three of them,
@@ -160,6 +166,8 @@ real field.
 | `backend/scripts/extract_form_definition.py` | the twelve label maps and the pairing guard |
 | `backend/scripts/extract_form_definition_test.py` | new, covers the guard |
 | `backend/pyproject.toml` | `testpaths` gains `scripts`, or the new test is never collected |
+| `docs/ffs-defect-list.md` | not planned. Defect 7 withdrawn, see below |
+| `docs/decisions.md` | not planned. Its open question rested on defect 7 |
 | `database/seed/form_version_20260609/optionslisten.json` | regenerated, twelve lists added |
 | `database/seed/form_version_20260609/felder.json` | regenerated, `optionsliste` keys added |
 | `database/seed/form_version_20260609/README.md` | the list table gains the new rows |
@@ -291,6 +299,39 @@ The frontend runner is vitest (`npm test` from `frontend/`), the backend runner 
 | Both themes, both widths | Screenshot section 2 in light and dark, at desktop width and below 800px. |
 | Existing suites | `npm test` and `pytest` stay green; neither the draft store nor the part 1 rules are touched. |
 | Build | `npm run build` from `frontend/` at the end of every step. |
+
+## What the build found, and what it still owes
+
+### Two documents were corrected, outside the planned scope
+
+Reading the PDF for the labels turned up that **defect 7 in our own list was wrong**, so it is
+withdrawn. It claimed a flowing water type hides the `>= 100 m` width band. The form hides fields
+named `hydrologie.breite.7`, and those numbers are positions in the button list, not export values.
+Every group's last position is its unlabelled `0`, and hiding "not applicable" for a flowing water
+is correct. The band sits at position 6, untouched. Verified across all nine groups.
+
+`docs/decisions.md` carried an open question resting on that claim, replaced with the real one.
+
+The list had not been sent to FFS yet, so nothing has to be retracted with them.
+
+### Still unproven, and why
+
+Every automated check passes: `pytest` 24, `npm test` 63, `tsc`, `oxlint`, `ruff`, `mypy`, the
+build, and the seed regenerating byte-identical. Two further checks were run by script: every option
+list name and translation key the new components reference resolves, and each generated list was
+read back against the printed page.
+
+Playwright is not installed and `coding-standards.md` says not to add it mid-feature, so these
+"done when" clauses in steps 2 to 4 have **not** been demonstrated and need a human pass:
+
+- answers surviving a reload, in both blocks
+- arrow keys moving within a group, Tab leaving it, and no keyboard trap across the nine groups
+- each group announced with its own label, and each checkbox as belonging to the group above it
+- nine stacked groups readable at desktop width and below 800px, without a horizontal scrollbar
+- light and dark
+
+`/try` gives the walkthrough. The build steps are ticked because the code is written, not because
+these were seen working.
 
 ## Notes for the AI
 
