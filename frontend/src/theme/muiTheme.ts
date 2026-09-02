@@ -222,6 +222,19 @@ export const muiTheme = createTheme({
         paper: { border: '1px solid var(--border)' },
       },
     },
+    MuiSelect: {
+      defaultProps: {
+        /* No open or close animation. The menu floats over a page that
+           re-renders while it is animating, because the save indicator's state
+           sits at the top of the protocol screen and every change touches it. A
+           menu caught mid-transition flickers and can take the click on the
+           option the pointer happens to be over. Found on the Gewaessertyp and
+           on the Quelle on 2026-09-02.
+           An instant dropdown is also the better answer on a form of 338
+           fields, where the animation is paid for on every one of them. */
+        MenuProps: { transitionDuration: 0 },
+      },
+    },
     MuiMenu: {
       styleOverrides: {
         // Elevation is off everywhere by design, so a dropdown needs a border of
