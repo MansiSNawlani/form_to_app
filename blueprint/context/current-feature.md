@@ -356,14 +356,18 @@ these were seen working.
 - **Do not add a dependency.** MUI already ships everything this needs.
 - **Regenerate, never hand-edit, the seed files.** They carry a "generated file" note for a reason,
   and the backend will seed `FormVersion` from the same JSON.
-- **Three things to raise with FFS**, none of them blocking:
-  1. The unlabelled `0` in each hydrology group is read here as "hydrology does not apply", because
-     the legacy form writes it to every group when the Gewaessertyp is standing. Confirm that
-     reading, since 5b will write the same value.
-  2. `gesamtprofil` exports `1`, `3`, `4` and `5` with no `2`, and prints them in the order 1, 4, 5,
-     3. Confirm that no option was dropped from the printed form at some point.
-  3. The middle Regenfaelle button is printed as "vor der Untersuchnung". Taken as a typo and shown
-     as "vor der Untersuchung". Confirm.
+- **Three questions were raised during the build. Two are settled, one is still open.**
+  1. **Settled 2026-09-02.** The unlabelled `0` in each hydrology group means "hydrology does not
+     apply". 5b writes it when the Gewaessertyp is a standing water, matching what the legacy form
+     does today.
+  2. **Still open, for FFS.** `gesamtprofil` exports `1`, `3`, `4` and `5` with no `2`, and prints
+     them in the order 1, 4, 5, 3. Whether an option was dropped from the printed form at some point
+     is unanswerable from the file alone. Not blocking: the four options that exist are transcribed
+     as printed, and a fifth would be an addition rather than a correction.
+  3. **Settled 2026-09-02.** "vor der Untersuchnung" on the middle Regenfaelle button is a typo in
+     the source and stays corrected to "vor der Untersuchung". The rule this sets, for the roughly
+     hundred more labels in parts 3 to 6: a display label's obvious typo is fixed on the way in, and
+     a stored export value is never touched.
 - The questions still open from 4b and 4c are unchanged: `bearbeiter.ort` is missing from the legacy
   form, `z.quelle` and `z.ps_nummer` may not be the surveyor's to fill in, the time picker rounds to
   five minute steps, the coordinate bounds are derived rather than given, and a Vorfluter chain ends

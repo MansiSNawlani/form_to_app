@@ -67,8 +67,10 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
         "28": "angebundenes Altwasser",
         "21": "See",
     },
-    # The form prints "vor der Untersuchnung" on the middle button. That is a
-    # typo in the source and is not reproduced.
+    # The form prints "vor der Untersuchnung" on the middle button. Confirmed on
+    # 2026-09-02 as a typo in the source, so it is corrected here. Do not
+    # "restore" it to match the PDF: the label is display text. An export value
+    # would be a different matter and is never touched.
     "messdaten.regenfaelle": {
         "1": "keine",
         "2": "vor der Untersuchung",
