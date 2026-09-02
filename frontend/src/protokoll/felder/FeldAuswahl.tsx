@@ -3,7 +3,8 @@ import Select from '@mui/material/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
-import { hinweisId, labelId, type FeldRahmenProps } from './rahmen'
+import { useFeldFehler } from './fehler'
+import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
 import { optionen, type ListenName } from '../optionen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -38,6 +39,7 @@ function FeldAuswahl({
 }: FeldAuswahlProps) {
   const { t } = useTranslation()
   const { control } = useFormContext<Antworten>()
+  const fehlerKey = useFeldFehler(name)
 
   return (
     <FeldRahmen
@@ -46,6 +48,7 @@ function FeldAuswahl({
       spalten={spalten}
       pflicht={pflicht}
       hinweisKey={hinweisKey}
+      fehlerKey={fehlerKey}
     >
       <Controller
         name={name}
@@ -67,7 +70,8 @@ function FeldAuswahl({
             labelId={labelId(name)}
             SelectDisplayProps={{ id: name }}
             required={pflicht}
-            aria-describedby={hinweisId(name, Boolean(hinweisKey))}
+            aria-invalid={fehlerKey ? true : undefined}
+            aria-describedby={beschriebenVon(name, hinweisKey, fehlerKey)}
           >
             <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
             {optionen(liste).map((option) => (

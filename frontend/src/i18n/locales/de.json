@@ -128,6 +128,15 @@
         "meter": "m"
       }
     },
+    "regeln": {
+      "monitoringnummerPflicht": "Beim Fischmonitoring gemäß WRRL oder FFH ist die Monitoringstrecken-Nr. erforderlich.",
+      "vorfluterLuecke": "Die Kette darf keine Lücke haben. Bitte diesen Vorfluter eintragen.",
+      "vorfluterKeinEndpunkt": "Die Kette muss beim Rhein oder bei der Donau enden.",
+      "vorfluterNachEndpunkt": "Beim Rhein oder bei der Donau endet die Kette. Dieser Eintrag gehört nicht mehr dazu.",
+      "koordinateKeineGanzeZahl": "Bitte eine ganze Zahl in Metern eintragen, ohne Trennzeichen.",
+      "koordinateRechtswertAusserhalb": "Der Rechtswert liegt außerhalb Baden-Württembergs. Erwartet werden {{rechtswertMin}} bis {{rechtswertMax}}.",
+      "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}."
+    },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",
       "speichert": "Wird gespeichert",

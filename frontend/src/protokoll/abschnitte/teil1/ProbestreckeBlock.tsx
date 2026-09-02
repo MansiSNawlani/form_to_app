@@ -1,6 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
+import { useNachpruefung } from '../../regeln/useNachpruefung'
+import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
+
+/* The five Vorfluter boxes are one rule, so a change in any of them can raise
+   or clear a message on the others: typing "Rhein" into the second box ends the
+   chain and settles the first.
+
+   The box being typed in is deliberately left out. It is checked on blur like
+   every other field, and including it would mean announcing that the chain does
+   not reach the Rhein while somebody is still typing the word. */
+const ketteOhne = (geaendert: string) =>
+  VORFLUTER_PFADE.filter((pfad) => pfad !== geaendert)
 
 /* The stretch of water that was fished: which Gewaesser, what kind, how long,
    where, and where its water eventually goes.
@@ -10,6 +22,8 @@ import FeldText from '../../felder/FeldText'
    a visit. */
 function ProbestreckeBlock() {
   const { t } = useTranslation()
+
+  useNachpruefung(VORFLUTER_PFADE, ketteOhne)
 
   return (
     <fieldset className="form-section">
@@ -67,8 +81,8 @@ function ProbestreckeBlock() {
 
         {/* Five, not the mockup's three: the PDF has vorfluter1 to vorfluter5
             and project-overview.md caps the chain at five. Only the first is
-            marked required; the chain ending at the Rhein or the Donau is a rule
-            for feature 4c. */}
+            marked required; how far the chain has to run depends on where the
+            Rhein or the Donau turns up, which regeln/vorfluter.ts decides. */}
         <FeldText
           name="probestrecke.gewaesser.vorfluter1"
           labelKey="protokoll.abschnitt1.probestrecke.feld.vorfluter1"

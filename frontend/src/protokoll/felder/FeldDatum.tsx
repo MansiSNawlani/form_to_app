@@ -3,7 +3,8 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs from 'dayjs'
 import { Controller, useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
-import { hinweisId, labelId, type FeldRahmenProps } from './rahmen'
+import { useFeldFehler } from './fehler'
+import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* The date and the time of the Befischung.
@@ -35,6 +36,7 @@ function FeldDatum({
   const { control } = useFormContext<Antworten>()
   const format = FORMAT[art]
   const Picker = art === 'datum' ? DatePicker : TimePicker
+  const fehlerKey = useFeldFehler(name)
 
   return (
     <FeldRahmen
@@ -43,6 +45,7 @@ function FeldDatum({
       spalten={spalten}
       pflicht={pflicht}
       hinweisKey={hinweisKey}
+      fehlerKey={fehlerKey}
     >
       <Controller
         name={name}
@@ -77,11 +80,17 @@ function FeldDatum({
                    to be named by reference. MUI points it at the label of its
                    own floating InputLabel, which we do not render, and these
                    props are spread after that default, so they win. */
+                error: Boolean(fehlerKey),
                 slotProps: {
                   input: {
                     'aria-labelledby': labelId(name),
-                    'aria-describedby': hinweisId(name, Boolean(hinweisKey)),
+                    'aria-describedby': beschriebenVon(
+                      name,
+                      hinweisKey,
+                      fehlerKey,
+                    ),
                     'aria-required': pflicht,
+                    'aria-invalid': fehlerKey ? true : undefined,
                   },
                 },
               },

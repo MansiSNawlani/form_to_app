@@ -190,6 +190,14 @@
   min-width: 0;
 }
 
+/* prototypes/mockup.css .field__error. The colour comes from MUI, which reads
+   --danger through the theme's error palette; the size and weight are what keep
+   the message from reading as a second hint. */
+.field__error {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
 /* ---------- save indicator ---------- */
 
 .save-state {

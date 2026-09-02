@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +9,7 @@ import AbschnittInhalt from './abschnitte/AbschnittInhalt'
 import type { Abschnitt } from './abschnitte'
 import { useAutoSave } from './entwurf/useAutoSave'
 import type { Antworten, Entwurf } from './entwurf/typen'
+import { antwortenSchema } from './regeln/schema'
 
 interface ProtokollFormularProps {
   entwurf: Entwurf
@@ -24,8 +26,30 @@ interface ProtokollFormularProps {
 function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const { t } = useTranslation()
 
-  const form = useForm<Antworten>({ defaultValues: entwurf.antworten })
+  /* onTouched, so a fresh draft says nothing until somebody has actually been
+     in a field. The asterisks mark what is needed to submit, which is feature
+     11's gate; the rules only speak up about an answer that is wrong.
+
+     Validity never reaches useAutoSave. A half-finished protocol is the normal
+     state of this form and is saved exactly as typed. */
+  const form = useForm<Antworten>({
+    defaultValues: entwurf.antworten,
+    mode: 'onTouched',
+    resolver: zodResolver(antwortenSchema),
+  })
   const saveState = useAutoSave(entwurf, form)
+
+  /* An answer that was wrong when the draft was put down is still wrong when it
+     is picked up again, so the saved answers are checked once on opening.
+     Without this, a reopened protocol looks clean until somebody happens to
+     visit the field, and a wrong coordinate reaches the review queue unseen.
+
+     This does not contradict staying quiet on a fresh draft. Every rule passes
+     over an answer nobody has given, so a new protocol produces nothing to
+     show: what appears here was caused by something actually in the document. */
+  useEffect(() => {
+    void form.trigger()
+  }, [form])
 
   /* Focus follows the section change.
    *
