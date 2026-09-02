@@ -70,7 +70,7 @@ These are not features and are not tracked here. They happen first.
         coordinate bounds, and the monitoring number required for WRRL and FFH
 - [ ] 5. Form part 2: measurements and hydrology, including hydrology disappearing entirely for
       standing waters
-  - [ ] 5a. Part 2 fields: the radio option labels read out of the printed PDF into the seed
+  - [x] 5a. Part 2 fields: the radio option labels read out of the printed PDF into the seed
         lists, a radio and a checkbox field component, and the Messdaten and Hydrologie blocks
   - [ ] 5b. Part 2 rules: hydrology appearing and disappearing with the Gewaessertyp, and each
         Schaetzwert falling inside its chosen band
