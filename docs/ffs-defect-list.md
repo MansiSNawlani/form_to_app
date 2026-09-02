@@ -91,18 +91,28 @@ role and a data protection question in its own right.
 The two export actions list different fields to export. The first includes `datum`. The second
 omits it. A protocol exported through the second path arrives without its survey date.
 
-## 7. Large rivers cannot be recorded as 100 m or wider
+## 7. Withdrawn. Not a defect
 
-**Severity: medium. Possible data loss.**
+**Withdrawn on 2026-09-02, before this list was sent.** No action needed, and nothing to confirm.
 
-When any flowing water type is selected (`Graben`, `Kanal`, `Bach`, `Fluss`, `angebundenes
-Altwasser`), the code hides the last option in several hydrology groups. That includes
-`>= 100 m` for mean width and `>= 4 m` for mean depth.
+This item previously claimed that selecting a flowing water type hides the widest band in several
+hydrology groups, making `>= 100 m` unselectable on the Rhein. That was a misreading, found while
+building the hydrology section.
 
-This is reasonable for a ditch or a stream. For the Rhein or the Donau it makes the correct
-answer unselectable, and the surveyor has to pick a band they know is wrong.
+The handlers hide fields named `hydrologie.breite.7`, `hydrologie.tiefenvarianz.3` and so on.
+Those are **positions in the button list, not export values**. Every hydrology group ends with one
+extra button, exporting `0`, parked in the right margin outside the printed table with no label
+beside it. In each case the hidden position is that last button, not the widest band:
+`hydrologie.breite` has eight buttons, positions 0 to 7 holding values 1 to 7 and then 0, so
+position 7 is the `0` button and the `>= 100 m` band sits at position 6, untouched.
 
-Please confirm whether hiding these options for `Fluss` is intended.
+The `0` button is how the form marks hydrology as not applicable. The standing water handlers set
+every hydrology group to `0` and show the message "Angaben zur Hydrologie sind bei stehenden
+Gewässern nicht relevant". The flowing water handlers hide that button, because for a flowing
+water the section does apply. The behaviour is correct.
+
+The item is left in place rather than deleted so the numbering of items 8 and 9, which are quoted
+elsewhere, still lines up.
 
 ## 8. The Vorfluter chain is not verified at submit
 

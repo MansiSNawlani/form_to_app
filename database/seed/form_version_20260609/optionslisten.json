@@ -1042,6 +1042,246 @@
         "label": "See"
       }
     ],
+    "hydrologie.breite": [
+      {
+        "wert": "1",
+        "label": "< 1"
+      },
+      {
+        "wert": "2",
+        "label": "< 2"
+      },
+      {
+        "wert": "3",
+        "label": "< 5"
+      },
+      {
+        "wert": "4",
+        "label": "< 15"
+      },
+      {
+        "wert": "5",
+        "label": "< 50"
+      },
+      {
+        "wert": "6",
+        "label": "< 100"
+      },
+      {
+        "wert": "7",
+        "label": "≥ 100"
+      }
+    ],
+    "hydrologie.fliessgeschwindigkeit": [
+      {
+        "wert": "1",
+        "label": "< 0,1"
+      },
+      {
+        "wert": "2",
+        "label": "0,1 - 0,25"
+      },
+      {
+        "wert": "3",
+        "label": "0,25 - 0,5"
+      },
+      {
+        "wert": "4",
+        "label": "0,5 - 0,75"
+      },
+      {
+        "wert": "5",
+        "label": "0,75 - 1"
+      },
+      {
+        "wert": "6",
+        "label": "> 1"
+      }
+    ],
+    "hydrologie.gesamtprofil": [
+      {
+        "wert": "1",
+        "label": "naturnah"
+      },
+      {
+        "wert": "4",
+        "label": "leicht beeinträchtigt"
+      },
+      {
+        "wert": "5",
+        "label": "deutlich beeinträchtigt"
+      },
+      {
+        "wert": "3",
+        "label": "naturfern"
+      }
+    ],
+    "hydrologie.linienfuehrung": [
+      {
+        "wert": "1",
+        "label": "geradlinig"
+      },
+      {
+        "wert": "2",
+        "label": "mit Biegungen"
+      },
+      {
+        "wert": "4",
+        "label": "gewunden"
+      },
+      {
+        "wert": "3",
+        "label": "mäandrierend"
+      }
+    ],
+    "hydrologie.stillwasserbereich": [
+      {
+        "wert": "1",
+        "label": "< 10"
+      },
+      {
+        "wert": "2",
+        "label": "10 - 25"
+      },
+      {
+        "wert": "3",
+        "label": "25 - 50"
+      },
+      {
+        "wert": "4",
+        "label": "50 - 75"
+      },
+      {
+        "wert": "5",
+        "label": "> 75"
+      }
+    ],
+    "hydrologie.stroemung": [
+      {
+        "wert": "5",
+        "label": "reißend"
+      },
+      {
+        "wert": "4",
+        "label": "turbulent fließend"
+      },
+      {
+        "wert": "3",
+        "label": "fließend mit vereinzelten Turbulenzen"
+      },
+      {
+        "wert": "2",
+        "label": "gleichmäßig fließend"
+      },
+      {
+        "wert": "1",
+        "label": "träge fließend"
+      }
+    ],
+    "hydrologie.tiefe": [
+      {
+        "wert": "1",
+        "label": "< 0,1"
+      },
+      {
+        "wert": "2",
+        "label": "< 0,3"
+      },
+      {
+        "wert": "3",
+        "label": "< 0,5"
+      },
+      {
+        "wert": "4",
+        "label": "< 1"
+      },
+      {
+        "wert": "5",
+        "label": "< 2"
+      },
+      {
+        "wert": "6",
+        "label": "< 4"
+      },
+      {
+        "wert": "7",
+        "label": "≥ 4"
+      }
+    ],
+    "hydrologie.tiefenvarianz": [
+      {
+        "wert": "1",
+        "label": "gleichmäßig tief"
+      },
+      {
+        "wert": "2",
+        "label": "gleichmäßig flach"
+      },
+      {
+        "wert": "3",
+        "label": "stark wechselnd"
+      }
+    ],
+    "hydrologie.wasserfuehrung": [
+      {
+        "wert": "1",
+        "label": "gering"
+      },
+      {
+        "wert": "2",
+        "label": "normal"
+      },
+      {
+        "wert": "3",
+        "label": "stark"
+      },
+      {
+        "wert": "4",
+        "label": "trocken gefallen"
+      }
+    ],
+    "messdaten.regenfaelle": [
+      {
+        "wert": "1",
+        "label": "keine"
+      },
+      {
+        "wert": "2",
+        "label": "vor der Untersuchung"
+      },
+      {
+        "wert": "3",
+        "label": "während der Untersuchung"
+      }
+    ],
+    "messdaten.schaumbildung": [
+      {
+        "wert": "1",
+        "label": "keine"
+      },
+      {
+        "wert": "2",
+        "label": "schwach"
+      },
+      {
+        "wert": "3",
+        "label": "deutlich"
+      }
+    ],
+    "messdaten.truebung": [
+      {
+        "wert": "1",
+        "label": "keine"
+      },
+      {
+        "wert": "2",
+        "label": "schwach"
+      },
+      {
+        "wert": "3",
+        "label": "deutlich"
+      }
+    ],
     "probestrecke.monitoringnummer": [
       {
         "wert": "1001000001",

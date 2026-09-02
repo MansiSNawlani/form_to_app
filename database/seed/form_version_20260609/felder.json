@@ -243,7 +243,8 @@
         "3",
         "2",
         "1"
-      ]
+      ],
+      "optionsliste": "messdaten.regenfaelle"
     },
     {
       "name": "messdaten.truebung",
@@ -252,7 +253,8 @@
         "1",
         "2",
         "3"
-      ]
+      ],
+      "optionsliste": "messdaten.truebung"
     },
     {
       "name": "messdaten.schaumbildung",
@@ -261,7 +263,8 @@
         "1",
         "2",
         "3"
-      ]
+      ],
+      "optionsliste": "messdaten.schaumbildung"
     },
     {
       "name": "hydrologie_box",
@@ -279,7 +282,8 @@
         "6",
         "7",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.breite"
     },
     {
       "name": "hydrologie.breite_schaetzwert",
@@ -297,7 +301,8 @@
         "6",
         "7",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.tiefe"
     },
     {
       "name": "hydrologie.tiefe_schaetzwert",
@@ -311,7 +316,8 @@
         "2",
         "3",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.tiefenvarianz"
     },
     {
       "name": "hydrologie.mit_flachstellen",
@@ -336,7 +342,8 @@
         "4",
         "3",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.linienfuehrung"
     },
     {
       "name": "hydrologie.furkationen",
@@ -355,7 +362,8 @@
         "2",
         "1",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.stroemung"
     },
     {
       "name": "hydrologie.rueckstroemung",
@@ -375,7 +383,8 @@
         "6",
         "4",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.fliessgeschwindigkeit"
     },
     {
       "name": "hydrologie.wasserfuehrung",
@@ -386,7 +395,8 @@
         "3",
         "4",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.wasserfuehrung"
     },
     {
       "name": "hydrologie.stillwasserbereich",
@@ -398,7 +408,8 @@
         "4",
         "5",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.stillwasserbereich"
     },
     {
       "name": "hydrologie.gesamtprofil",
@@ -409,7 +420,8 @@
         "4",
         "5",
         "0"
-      ]
+      ],
+      "optionsliste": "hydrologie.gesamtprofil"
     },
     {
       "name": "umland.nadelwald",

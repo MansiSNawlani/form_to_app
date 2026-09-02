@@ -43,7 +43,7 @@ python_version = "3.12"
 strict = true
 
 [tool.pytest.ini_options]
-testpaths = ["app"]
+testpaths = ["app", "scripts"]
 python_files = ["*_test.py", "test_*.py"]
 # An empty suite must fail rather than pass, so "no tests ran" never looks like "passed".
 addopts = "--strict-markers"
