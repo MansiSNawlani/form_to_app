@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { pruefeKoordinaten } from './koordinaten'
 import { pruefeMonitoringnummer } from './monitoring'
+import { pruefeSchaetzwerte } from './schaetzwert'
 import { pruefeVorfluterkette } from './vorfluter'
 import type { Regel } from './regel'
 import type { Antworten } from '../entwurf/typen'
@@ -18,6 +19,7 @@ const REGELN: Regel[] = [
   pruefeMonitoringnummer,
   pruefeVorfluterkette,
   pruefeKoordinaten,
+  pruefeSchaetzwerte,
 ]
 
 export const antwortenSchema = z

@@ -139,6 +139,7 @@
       "hydrologie": {
         "legend": "Hydrologie",
         "hinweis": "Wie das Gewässer entlang der Probestrecke aussieht und sich verhält. Alle Angaben sind Schätzungen in Bandbreiten, keine Messungen.",
+        "nichtRelevant": "Angaben zur Hydrologie sind bei stehenden Gewässern nicht relevant. Für den gewählten Gewässertyp entfallen die Felder dieses Abschnitts.",
         "feld": {
           "breite": "mittlere Breite",
           "breiteSchaetzwert": "Schätzwert der Breite",
@@ -178,7 +179,10 @@
       "vorfluterNachEndpunkt": "Beim Rhein oder bei der Donau endet die Kette. Dieser Eintrag gehört nicht mehr dazu.",
       "koordinateKeineGanzeZahl": "Bitte eine ganze Zahl in Metern eintragen, ohne Trennzeichen.",
       "koordinateRechtswertAusserhalb": "Der Rechtswert liegt außerhalb Baden-Württembergs. Erwartet werden {{rechtswertMin}} bis {{rechtswertMax}}.",
-      "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}."
+      "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}.",
+      "schaetzwertOhneBand": "Bitte zuerst oben die Bandbreite auswählen.",
+      "schaetzwertKeineZahl": "Bitte eine Zahl in Metern eintragen, zum Beispiel 1,5.",
+      "schaetzwertAusserhalbBand": "Der Schätzwert liegt außerhalb der oben gewählten Bandbreite."
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",
