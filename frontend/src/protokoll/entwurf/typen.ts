@@ -37,11 +37,23 @@ export interface Antworten {
   anlass?: string
   datum?: string
 
-  /* The time sits under messdaten in the PDF, which files it with part 2, while
-     the mockup and the Submission model both put it in part 1. The path is the
-     PDF's; where it renders is ours. */
+  /* The readings taken at the water, part 2's first block.
+
+     The time sits here in the PDF, which files it with part 2, while the mockup
+     and the Submission model both put it in part 1. The path is the PDF's; where
+     it renders is ours, so uhrzeit is the one key in this group that section 1
+     shows.
+
+     project-overview.md calls the temperature wassertemperatur. The legacy path
+     is temperatur, and coding-standards.md makes the legacy path the name. */
   messdaten?: {
     uhrzeit?: string
+    temperatur?: string
+    leitfaehigkeit?: string
+    sichttiefe?: string
+    regenfaelle?: string
+    truebung?: string
+    schaumbildung?: string
   }
 
   /* The z. group looks like FiaKa bookkeeping rather than survey data: none of
@@ -64,6 +76,35 @@ export interface Antworten {
     ort?: string
     telefon?: string
     email?: string
+  }
+
+  /* How the water itself behaves along the stretch, part 2's second block.
+
+     Nine judgements plus two estimates, all of them bands rather than
+     measurements, which is why each is a code and not a number. The four "Ja"
+     keys are checkboxes hanging off the group above them: they are extra
+     observations, not further options, so somebody can record a stretch that is
+     evenly deep and also has pools.
+
+     Every group in the legacy form carries a further value, 0, meaning hydrology
+     does not apply to this water. It is never offered as an option. Feature 5b
+     writes it when the Gewaessertyp is a standing water. */
+  hydrologie?: {
+    breite?: string
+    breite_schaetzwert?: string
+    tiefe?: string
+    tiefe_schaetzwert?: string
+    tiefenvarianz?: string
+    mit_flachstellen?: string
+    mit_gumpen?: string
+    linienfuehrung?: string
+    furkationen?: string
+    stroemung?: string
+    rueckstroemung?: string
+    fliessgeschwindigkeit?: string
+    wasserfuehrung?: string
+    stillwasserbereich?: string
+    gesamtprofil?: string
   }
 
   probestrecke?: {

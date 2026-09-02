@@ -154,6 +154,28 @@ export const muiTheme = createTheme({
         asterisk: { color: 'var(--danger)' },
       },
     },
+    MuiRadio: {
+      styleOverrides: {
+        // Material's radio is accent-coloured only once checked and grey
+        // otherwise, which at nine groups on one screen leaves the unanswered
+        // ones looking disabled. --border-strong is the same edge every other
+        // control in the mockups draws itself with.
+        root: {
+          color: 'var(--border-strong)',
+          padding: '0.35rem',
+          '&.Mui-checked': { color: 'var(--accent)' },
+        },
+      },
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        // MUI hangs a label off a control with a negative left margin meant for
+        // a full-width list row. These sit in a wrapping row inside a field, so
+        // the offset is removed and the gap between options is set here instead.
+        root: { marginLeft: 0, marginRight: '1.25rem' },
+        label: { fontSize: 'var(--step-0)' },
+      },
+    },
     MuiFormHelperText: {
       styleOverrides: {
         // The hint under a field (prototypes/mockup.css .field__hint). MUI

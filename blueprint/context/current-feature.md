@@ -1,7 +1,7 @@
 # Feature: 5a - Part 2 fields
 
 **From build-plan:** feature 5a, the first of two sub-features of item 5 (Form part 2)
-**Status:** not started
+**Status:** built, awaiting the manual browser pass
 
 ## Goal
 
@@ -120,7 +120,7 @@ real field.
       Report per group what `0` pairs with. Where nothing is printed, leave it out of the list
       rather than inventing a word for it, and add it to the FFS questions.
 
-- [ ] **Step 2 - The radio group, and the Messdaten block** - `FeldRadio` renders a named option
+- [x] **Step 2 - The radio group, and the Messdaten block** - `FeldRadio` renders a named option
       list as a row of MUI radios that wraps, inside the existing `FeldRahmen` so the label, the
       required marker, the hint and the error surface built in 4c all work unchanged. It names its
       list the way `FeldAuswahl` does, so a wrong list name is a build error, and it carries the
@@ -134,7 +134,7 @@ real field.
       announced with its own label rather than anonymously; answers survive a reload; and the
       section reads correctly in light and dark, at desktop width and below 800px.
 
-- [ ] **Step 3 - The nine hydrology groups** - `Antworten` grows the `hydrologie` group.
+- [x] **Step 3 - The nine hydrology groups** - `Antworten` grows the `hydrologie` group.
       `abschnitte/teil2/HydrologieBlock.tsx` lays out mittlere Breite, mittlere Tiefe,
       Tiefenvarianz, Linienfuehrung, Stroemung, Fliessgeschwindigkeit, Wasserfuehrung,
       Stillwasserbereiche and Gesamtprofil in the printed form's order. Radios only in this step:
@@ -143,7 +143,7 @@ real field.
       a horizontal scrollbar; keyboard order runs group by group and never traps; both themes are
       checked.
 
-- [ ] **Step 4 - The checkboxes and the estimates** - `FeldHaken` renders a single checkbox with
+- [x] **Step 4 - The checkboxes and the estimates** - `FeldHaken` renders a single checkbox with
       its own label, in the same frame as everything else. The four "Ja" checkboxes join the three
       groups they belong to, `mit_flachstellen` and `mit_gumpen` after Tiefenvarianz, `furkationen`
       after Linienfuehrung and `rueckstroemung` after Stroemung, and the two Schaetzwert text

@@ -17,8 +17,13 @@ export interface Option {
   label: string
 }
 
-/* The nine lists in the file. Named here so a typo is a build error rather than
- * an empty dropdown. */
+/* The lists in the file. Named here so a typo is a build error rather than an
+ * empty dropdown or an empty radio group.
+ *
+ * Each is named for the field it belongs to, except gewaessertyp, which keeps
+ * the short name it was first published under. A radio group and a dropdown read
+ * the same list in the same shape, so nothing here says which control a list
+ * ends up in. */
 export type ListenName =
   | 'anlass'
   | 'probestrecke.monitoringnummer'
@@ -29,6 +34,18 @@ export type ListenName =
   | 'besatz_fischart'
   | 'ausruestung.egeraet'
   | 'ausruestung.kathode'
+  | 'messdaten.regenfaelle'
+  | 'messdaten.truebung'
+  | 'messdaten.schaumbildung'
+  | 'hydrologie.breite'
+  | 'hydrologie.tiefe'
+  | 'hydrologie.tiefenvarianz'
+  | 'hydrologie.linienfuehrung'
+  | 'hydrologie.stroemung'
+  | 'hydrologie.fliessgeschwindigkeit'
+  | 'hydrologie.wasserfuehrung'
+  | 'hydrologie.stillwasserbereich'
+  | 'hydrologie.gesamtprofil'
 
 const listen = optionslisten.listen as Record<string, Option[]>
 
