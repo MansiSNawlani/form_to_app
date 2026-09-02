@@ -370,7 +370,7 @@ files is simple work. Deferring all three at once was the risk.
 | How long is data kept, and what happens on a deletion request | FFS, with data protection advice |
 | May this application use the state logo and wordmark | FFS |
 | Which set of regional authority email addresses is correct | FFS (see defect 5) |
-| Is hiding "100 m or wider" for rivers intentional | FFS (see defect 7) |
+| Whether `Gesamtprofil` is missing a value: it exports `1`, `3`, `4`, `5` with no `2` | FFS |
 | The official water body dataset: format, and when | The GIS data owner |
 | The species list, and the other dropdown option lists | Recoverable from the PDF with better tooling, then confirmed by FFS |
 

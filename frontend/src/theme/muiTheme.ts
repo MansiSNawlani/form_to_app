@@ -128,6 +128,22 @@ export const muiTheme = createTheme({
             backgroundColor: 'var(--accent-soft)',
           },
         },
+        /* A quiet inline action inside a field, such as clearing a radio group,
+           rather than one of the page's own buttons. It sits in a row of
+           controls and must not read as a thirteenth option, so it drops the
+           control height that root sets and is toned down to hint weight. */
+        text: {
+          minHeight: 'auto',
+          padding: '0.1rem 0.4rem',
+          color: 'var(--muted)',
+          fontSize: 'var(--step--1)',
+          fontWeight: 400,
+          textDecoration: 'underline',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'transparent',
+          },
+        },
         // Matches .btn--sm in the mockups, which is shorter than a form control
         // because it sits in the header bar rather than in a field row.
         sizeSmall: {
@@ -152,6 +168,38 @@ export const muiTheme = createTheme({
           '&.Mui-focused': { color: 'var(--text)' },
         },
         asterisk: { color: 'var(--danger)' },
+      },
+    },
+    // Material's radio and checkbox are accent-coloured once ticked and grey
+    // otherwise, which at nine groups on one screen leaves the unanswered ones
+    // looking disabled. --border-strong is the same edge every other control in
+    // the mockups draws itself with. Both get it: they sit in the same row, so a
+    // checkbox left on Material's grey beside a themed radio reads as broken.
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          color: 'var(--border-strong)',
+          padding: '0.35rem',
+          '&.Mui-checked': { color: 'var(--accent)' },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: 'var(--border-strong)',
+          padding: '0.35rem',
+          '&.Mui-checked': { color: 'var(--accent)' },
+        },
+      },
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        // MUI hangs a label off a control with a negative left margin meant for
+        // a full-width list row. These sit in a wrapping row inside a field, so
+        // the offset is removed and the gap between options is set here instead.
+        root: { marginLeft: 0, marginRight: '1.25rem' },
+        label: { fontSize: 'var(--step-0)' },
       },
     },
     MuiFormHelperText: {

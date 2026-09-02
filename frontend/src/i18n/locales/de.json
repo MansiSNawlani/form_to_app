@@ -122,11 +122,54 @@
         "kartenHinweis": "Die Kartenauswahl folgt später. Bis dahin werden die Koordinaten eingetippt."
       }
     },
+    "abschnitt2": {
+      "messdaten": {
+        "legend": "Messdaten",
+        "hinweis": "Die Werte, die bei der Befischung am Gewässer gemessen oder geschätzt wurden.",
+        "feld": {
+          "temperatur": "Wassertemperatur",
+          "leitfaehigkeit": "Leitfähigkeit",
+          "sichttiefe": "Sichttiefe, geschätzt",
+          "sichttiefeHinweis": "Bei Sicht auf den Grund in der gesamten Probestrecke bitte deren Maximaltiefe angeben.",
+          "regenfaelle": "Regenfälle",
+          "truebung": "Trübung",
+          "schaumbildung": "Schaumbildung"
+        }
+      },
+      "hydrologie": {
+        "legend": "Hydrologie",
+        "hinweis": "Wie das Gewässer entlang der Probestrecke aussieht und sich verhält. Alle Angaben sind Schätzungen in Bandbreiten, keine Messungen.",
+        "feld": {
+          "breite": "mittlere Breite",
+          "breiteSchaetzwert": "Schätzwert der Breite",
+          "schaetzwertHinweis": "Genauer Schätzwert innerhalb der oben gewählten Bandbreite.",
+          "tiefe": "mittlere Tiefe",
+          "tiefeSchaetzwert": "Schätzwert der Tiefe",
+          "tiefenvarianz": "Tiefenvarianz",
+          "mitFlachstellen": "mit Flachstellen",
+          "mitGumpen": "mit Gumpen",
+          "linienfuehrung": "Linienführung",
+          "furkationen": "mit Furkationen",
+          "stroemung": "Strömung",
+          "rueckstroemung": "Rückströmungen / Kehrwasserbereiche",
+          "fliessgeschwindigkeit": "Fließgeschwindigkeit",
+          "wasserfuehrung": "Wasserführung",
+          "stillwasserbereich": "Stillwasserbereiche",
+          "gesamtprofil": "Gesamtprofil"
+        }
+      }
+    },
     "felder": {
       "bitteWaehlen": "Bitte wählen",
       "einheit": {
-        "meter": "m"
-      }
+        "meter": "m",
+        "grad": "° C",
+        "mikrosiemens": "µS/cm",
+        "zentimeter": "cm",
+        "meterProSekunde": "m/s",
+        "prozent": "%"
+      },
+      "auswahlAufheben": "Auswahl aufheben"
     },
     "regeln": {
       "monitoringnummerPflicht": "Beim Fischmonitoring gemäß WRRL oder FFH ist die Monitoringstrecken-Nr. erforderlich.",

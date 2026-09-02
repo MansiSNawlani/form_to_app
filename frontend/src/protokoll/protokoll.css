@@ -243,6 +243,25 @@
   white-space: nowrap;
 }
 
+/* A row of radio buttons, with the unit and the clear action sitting after the
+   last option. It wraps, because "fließend mit vereinzelten Turbulenzen" and its
+   four neighbours do not fit one line on a narrow window. */
+.options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  /* Pulls the row back level with the label above it: MUI's radio carries its
+     own padding so the buttons have a target big enough to hit. */
+  margin-left: -0.35rem;
+}
+
+.options__unit {
+  color: var(--muted);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}
+
 /* An explanatory note inside a form section, for a rule a surveyor has to know
    before typing rather than after being rejected. */
 .callout {
