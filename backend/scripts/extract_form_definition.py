@@ -154,7 +154,7 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
 
 # gewaessertyp keeps the short list name it was first published under, since the
 # frontend and the seed README already refer to it that way.
-RADIO_LISTENNAMEN: dict[str, str] = {"probestrecke.gewaessertyp": "gewaessertyp"}
+RADIO_LIST_NAMES: dict[str, str] = {"probestrecke.gewaessertyp": "gewaessertyp"}
 
 
 def decode(value: Any) -> str:
@@ -250,17 +250,15 @@ def radio_options(field_name: str, exports: list[str]) -> list[dict[str, str]]:
     So a value the transcription does not cover, or a transcribed value the form
     does not export, stops the extraction rather than producing a plausible file.
     """
-    beschriftung = RADIO_LABELS[field_name]
-    ohne_label = [wert for wert in exports if wert not in beschriftung]
-    ohne_wert = [wert for wert in beschriftung if wert not in exports]
-    if ohne_label or ohne_wert:
+    labels = RADIO_LABELS[field_name]
+    unlabelled = [wert for wert in exports if wert not in labels]
+    not_exported = [wert for wert in labels if wert not in exports]
+    if unlabelled or not_exported:
         raise ValueError(
             f"{field_name}: the form exports {exports} but RADIO_LABELS describes "
-            f"{list(beschriftung)}. Not labelled: {ohne_label}. Not exported: {ohne_wert}."
+            f"{list(labels)}. Not labelled: {unlabelled}. Not exported: {not_exported}."
         )
-    return [
-        {"wert": wert, "label": label} for wert, label in beschriftung.items() if label is not None
-    ]
+    return [{"wert": wert, "label": label} for wert, label in labels.items() if label is not None]
 
 
 def extract(pdf_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -287,17 +285,15 @@ def extract(pdf_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             if exports:
                 eintrag["werte"] = exports
             if name in RADIO_LABELS:
-                list_name = RADIO_LISTENNAMEN.get(name, name)
+                list_name = RADIO_LIST_NAMES.get(name, name)
                 optionslisten[list_name] = radio_options(name, exports)
                 eintrag["optionsliste"] = list_name
         felder.append(eintrag)
 
-    beschrieben = set(RADIO_LABELS)
-    gefunden = {f["name"] for f in felder}
-    if beschrieben - gefunden:
-        raise ValueError(
-            f"RADIO_LABELS describes fields this form has not: {beschrieben - gefunden}"
-        )
+    described = set(RADIO_LABELS)
+    found = {f["name"] for f in felder}
+    if described - found:
+        raise ValueError(f"RADIO_LABELS describes fields this form has not: {described - found}")
 
     version = pdf_path.stem.rsplit("_V", 1)[-1]
     meta = {"version": version, "quelle": pdf_path.name}

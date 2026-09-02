@@ -10,9 +10,6 @@ import FeldText from '../../felder/FeldText'
    form: a surveyor standing in a river estimates, and a band that is honestly
    estimated beats a number that is invented.
 
-   Three of the groups end in a checkbox. Those are separate observations rather
-   than further options, so a stretch can be evenly deep and also have pools.
-
    No condition anywhere in this component. Whether the block is shown at all
    depends on the Gewaessertyp, which is feature 5b's rule, and it belongs around
    this block rather than threaded through fifteen fields. */

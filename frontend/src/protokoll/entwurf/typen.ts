@@ -82,9 +82,7 @@ export interface Antworten {
 
      Nine judgements plus two estimates, all of them bands rather than
      measurements, which is why each is a code and not a number. The four "Ja"
-     keys are checkboxes hanging off the group above them: they are extra
-     observations, not further options, so somebody can record a stretch that is
-     evenly deep and also has pools.
+     keys are checkboxes qualifying the group above them.
 
      Every group in the legacy form carries a further value, 0, meaning hydrology
      does not apply to this water. It is never offered as an option. Feature 5b

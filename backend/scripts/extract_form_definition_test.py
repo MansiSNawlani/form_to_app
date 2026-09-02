@@ -30,7 +30,7 @@ PDF = (
 
 
 @pytest.fixture(scope="module")
-def exportwerte() -> dict[str, list[str]]:
+def button_values() -> dict[str, list[str]]:
     """Every button group in the real form, as name to export values."""
     reader = PdfReader(str(PDF))
     catalog: Any = reader.trailer["/Root"].get_object()
@@ -68,23 +68,23 @@ def test_a_label_the_form_does_not_export_raises() -> None:
         radio_options("messdaten.truebung", ["1", "2"])
 
 
-@pytest.mark.parametrize("feldname", sorted(RADIO_LABELS))
+@pytest.mark.parametrize("field_name", sorted(RADIO_LABELS))
 def test_every_transcribed_group_matches_the_real_form(
-    feldname: str, exportwerte: dict[str, list[str]]
+    field_name: str, button_values: dict[str, list[str]]
 ) -> None:
     """The guard that matters: the transcription describes this form, not a memory of it."""
-    assert feldname in exportwerte, f"{feldname} is not a button group in the form"
+    assert field_name in button_values, f"{field_name} is not a button group in the form"
 
-    radio_options(feldname, exportwerte[feldname])
+    radio_options(field_name, button_values[field_name])
 
 
 def test_the_hydrology_groups_all_carry_the_not_applicable_value(
-    exportwerte: dict[str, list[str]],
+    button_values: dict[str, list[str]],
 ) -> None:
     """If a future form version drops it, feature 5b's suppression has nothing to write."""
     hydrologie = [name for name in RADIO_LABELS if name.startswith("hydrologie.")]
 
     assert len(hydrologie) == 9
     for name in hydrologie:
-        assert "0" in exportwerte[name]
+        assert "0" in button_values[name]
         assert RADIO_LABELS[name]["0"] is None

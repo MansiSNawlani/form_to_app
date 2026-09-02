@@ -128,6 +128,22 @@ export const muiTheme = createTheme({
             backgroundColor: 'var(--accent-soft)',
           },
         },
+        /* A quiet inline action inside a field, such as clearing a radio group,
+           rather than one of the page's own buttons. It sits in a row of
+           controls and must not read as a thirteenth option, so it drops the
+           control height that root sets and is toned down to hint weight. */
+        text: {
+          minHeight: 'auto',
+          padding: '0.1rem 0.4rem',
+          color: 'var(--muted)',
+          fontSize: 'var(--step--1)',
+          fontWeight: 400,
+          textDecoration: 'underline',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'transparent',
+          },
+        },
         // Matches .btn--sm in the mockups, which is shorter than a form control
         // because it sits in the header bar rather than in a field row.
         sizeSmall: {

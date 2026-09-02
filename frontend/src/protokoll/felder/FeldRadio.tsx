@@ -53,6 +53,7 @@ function FeldRadio({
   const { t } = useTranslation()
   const { control } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
+  const aufhebenId = `${name}-aufheben`
 
   return (
     <FeldRahmen
@@ -105,9 +106,14 @@ function FeldRadio({
                 it. */}
             {field.value ? (
               <Button
-                className="options__clear"
                 variant="text"
                 size="small"
+                /* Section 2 shows twelve of these. Named by its own text plus
+                   the group's label, so a screen reader reads "Auswahl aufheben
+                   mittlere Breite" rather than the same three words twelve times
+                   with nothing to say which band they clear. */
+                id={aufhebenId}
+                aria-labelledby={`${aufhebenId} ${labelId(name)}`}
                 onClick={() => field.onChange('')}
               >
                 {t('protokoll.felder.auswahlAufheben')}

@@ -262,15 +262,6 @@
   white-space: nowrap;
 }
 
-/* Quieter than the options themselves. It is an escape hatch for a mis-click,
-   not one of the answers. */
-.options__clear {
-  color: var(--muted);
-  font-size: var(--step--1);
-  font-weight: 400;
-  text-decoration: underline;
-}
-
 /* An explanatory note inside a form section, for a rule a surveyor has to know
    before typing rather than after being rejected. */
 .callout {
