@@ -284,6 +284,12 @@ Manual browser pass, at the end:
   forever. That is why step 1's last done-when exists.
 - **`setValue` needs `shouldDirty`** so the automatic save picks the change up, and it must
   not mark the fields touched, or nine groups go red the moment somebody picks See.
+- **Subscribe, do not watch.** The hook sits in the component that renders the whole page,
+  so a `useWatch` re-renders the header, the step bar and every field in the open section
+  on each Gewässertyp change. Found in the browser on 2026-09-02: that happens while MUI's
+  dropdown is animating shut, and the menu flickers and can land a click on the wrong
+  option. `useNachpruefung` already uses a subscription for the same reason. Parts 3 to 6
+  will add more hooks of this kind, so they copy this.
 - **Revalidate after writing.** An estimate showing an out-of-band message keeps showing it
   until something triggers the resolver again, so the hook triggers the hydrology paths
   once it has written. Writing and then leaving a stale red message on a field nobody can

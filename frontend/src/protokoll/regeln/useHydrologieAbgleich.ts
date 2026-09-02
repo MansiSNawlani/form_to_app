@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useWatch, type UseFormReturn } from 'react-hook-form'
+import type { UseFormReturn } from 'react-hook-form'
 import { HYDROLOGIE_PFADE, hydrologieAngleichen } from './hydrologie'
 import type { Antworten } from '../entwurf/typen'
 
@@ -15,30 +15,45 @@ import type { Antworten } from '../entwurf/typen'
  * useAutoSave is: this runs in the component that provides the context, where
  * there is no context to read yet.
  *
- * Watching the type alone, and reading the rest with getValues, means this runs
- * when the type changes and once on opening a draft, rather than on every
- * keystroke anywhere in the document.
+ * Subscribed rather than watched, for the same reason useNachpruefung is, and
+ * it matters more here than anywhere else: this hook sits in the component that
+ * renders the whole page, so a useWatch would re-render the header, the step bar
+ * and every field in the open section each time the Gewaessertyp changed. That
+ * happens while MUI's dropdown is still animating shut, and a menu whose anchor
+ * re-renders underneath it flickers and can land a click on the wrong option.
+ * A subscription sees the same changes and re-renders nothing.
  */
+
+const GEWAESSERTYP = 'probestrecke.gewaessertyp'
+
 export function useHydrologieAbgleich(form: UseFormReturn<Antworten>) {
-  const { control, getValues, setValue, trigger } = form
-  const gewaessertyp = useWatch<Antworten, 'probestrecke.gewaessertyp'>({
-    control,
-    name: 'probestrecke.gewaessertyp',
-  })
-
   useEffect(() => {
-    const angleichungen = hydrologieAngleichen(getValues())
-    if (angleichungen.length === 0) return
+    function angleichen() {
+      const angleichungen = hydrologieAngleichen(form.getValues())
+      if (angleichungen.length === 0) return
 
-    for (const { pfad, wert } of angleichungen) {
-      /* Dirty so the automatic save takes it, untouched so nine groups do not
-         turn red the moment somebody picks See. */
-      setValue(pfad, wert, { shouldDirty: true, shouldTouch: false })
+      for (const { pfad, wert } of angleichungen) {
+        /* Dirty so the automatic save takes it, untouched so nine groups do not
+           turn red the moment somebody picks See. */
+        form.setValue(pfad, wert, { shouldDirty: true, shouldTouch: false })
+      }
+
+      /* An answer that was wrong is not wrong any more once the section stops
+         applying, and nothing else would recheck it. Without this a red message
+         stays behind on a field nobody can see. */
+      void form.trigger(HYDROLOGIE_PFADE)
     }
 
-    /* An answer that was wrong is not wrong any more once the section stops
-       applying, and nothing else would recheck it. Without this a red message
-       stays behind on a field nobody can see. */
-    void trigger(HYDROLOGIE_PFADE)
-  }, [gewaessertyp, getValues, setValue, trigger])
+    /* Unlike useNachpruefung, this does fire on mount: a draft put down as a
+       standing water has to be picked up as one, and a draft saved before this
+       rule existed carries whatever the old form left in it. */
+    angleichen()
+
+    const subscription = form.watch((_, { name }) => {
+      // Only the type. The writes below are all under hydrologie, so this
+      // cannot answer its own change.
+      if (name === GEWAESSERTYP) angleichen()
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 }
