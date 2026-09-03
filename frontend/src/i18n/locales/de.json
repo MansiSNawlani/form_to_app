@@ -164,6 +164,9 @@
       "umland": {
         "legend": "Umland",
         "hinweis": "Die Nutzung des Geländes entlang der Probestrecke, aufgeteilt in Anteile.",
+        "anteile": {
+          "legend": "Nutzung des Umlands"
+        },
         "feld": {
           "nadelwald": "Nadelwald",
           "mischwald": "Mischwald",
@@ -208,11 +211,11 @@
           "sonstigerBewuchs": "sonstiger Bewuchs",
           "sonstigerBewuchsText": "sonstiger Bewuchs, welcher",
           "uferverbauKeiner": "keine (erkennbar)",
-          "mauerUnverfugt": "Mauer / Pflaster, unverfugt",
+          "mauerUnverfugt": "Mauer/Pflaster, unverfugt",
           "faschinen": "Faschinen",
           "drahtnetze": "Drahtnetze",
           "ueberwachsen": "überwachsen",
-          "mauerVerfugt": "Mauer / Pflaster, verfugt",
+          "mauerVerfugt": "Mauer/Pflaster, verfugt",
           "steinwurf": "Steinwurf",
           "sonstigerUferverbau": "sonstiger Uferverbau",
           "sonstigerUferverbauText": "sonstiger Uferverbau, welcher"

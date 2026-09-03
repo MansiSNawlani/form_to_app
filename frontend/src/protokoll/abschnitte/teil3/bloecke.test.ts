@@ -1,7 +1,7 @@
 import felder from '@formular/felder.json'
 import { describe, expect, it } from 'vitest'
 import {
-  NEIGUNG,
+  UFERNEIGUNG,
   PROZENTBLOECKE,
   SOHLVERBAUUNG,
   SUBSTRAT,
@@ -28,7 +28,7 @@ const NAMEN = new Set(felder.felder.map((feld) => feld.name))
 describe('die Prozentbloecke von Teil 3', () => {
   it.each([
     ['Umland', UMLAND],
-    ['Neigung', NEIGUNG],
+    ['Neigung', UFERNEIGUNG],
     ['Uferbewuchs', UFERBEWUCHS],
     ['Uferverbauung', UFERVERBAUUNG],
     ['Substrat', SUBSTRAT],
@@ -45,7 +45,7 @@ describe('die Prozentbloecke von Teil 3', () => {
      enforcing the wrong total. */
   it('haelt die Anzahl der Anteile je Block', () => {
     expect(UMLAND).toHaveLength(8)
-    expect(NEIGUNG).toHaveLength(4)
+    expect(UFERNEIGUNG).toHaveLength(4)
     expect(UFERBEWUCHS).toHaveLength(9)
     expect(UFERVERBAUUNG).toHaveLength(8)
     expect(SUBSTRAT).toHaveLength(8)

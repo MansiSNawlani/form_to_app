@@ -54,7 +54,7 @@ export const UMLAND: readonly Prozentfeld[] = [
 
 /* How steep the bank is, as four shares of its length. The degree ranges are
    part of the question, not decoration, so they stay in the labels. */
-export const NEIGUNG: readonly Prozentfeld[] = [
+export const UFERNEIGUNG: readonly Prozentfeld[] = [
   { pfad: 'ufer.flachufer', labelKey: 'protokoll.abschnitt3.ufer.feld.flachufer' },
   { pfad: 'ufer.schraegufer', labelKey: 'protokoll.abschnitt3.ufer.feld.schraegufer' },
   { pfad: 'ufer.abbruch', labelKey: 'protokoll.abschnitt3.ufer.feld.abbruch' },
@@ -169,7 +169,7 @@ export const SOHLVERBAUUNG: readonly Prozentfeld[] = [
  * and gewaessersohle carry more than one. */
 export const PROZENTBLOECKE = [
   UMLAND,
-  NEIGUNG,
+  UFERNEIGUNG,
   UFERBEWUCHS,
   UFERVERBAUUNG,
   SUBSTRAT,

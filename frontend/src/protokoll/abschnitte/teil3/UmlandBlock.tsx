@@ -1,14 +1,11 @@
 import { useTranslation } from 'react-i18next'
+import ProzentBlock from './ProzentBlock'
 import { UMLAND } from './bloecke'
-import FeldProzent from '../../felder/FeldProzent'
 
 /* What surrounds the stretch, as eight shares of the land along the bank.
 
-   Four to a row at desktop width, which is how the printed form groups them and
-   what keeps two lines of four readable rather than one column of eight.
-
-   No total anywhere in here. The eight have to add up to 100 and feature 6b is
-   what says so. */
+   The one section block that is nothing but a single run of shares, so the
+   fieldset holding it carries the run's own legend and there is no nesting. */
 function UmlandBlock() {
   const { t } = useTranslation()
 
@@ -19,11 +16,10 @@ function UmlandBlock() {
         {t('protokoll.abschnitt3.umland.hinweis')}
       </p>
 
-      <div className="grid">
-        {UMLAND.map(({ pfad, labelKey }) => (
-          <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-        ))}
-      </div>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.umland.anteile.legend"
+        felder={UMLAND}
+      />
     </fieldset>
   )
 }

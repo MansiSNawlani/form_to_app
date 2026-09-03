@@ -288,6 +288,17 @@
   margin-left: -0.35rem;
 }
 
+/* Checkboxes standing on their own rather than qualifying a radio group, such
+   as the four Besonderheiten of the bed. Same wrapping row as .options, without
+   the negative margin, which exists there to pull radios level with a label
+   this row does not have. */
+.haken-reihe {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
 .options__unit {
   color: var(--muted);
   font-size: var(--step--1);

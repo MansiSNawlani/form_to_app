@@ -6,7 +6,7 @@
 ## Goal
 
 Build section 3 of the protocol, "Umland, Ufer und Sohle": how the land around the stretch is
-used, what the bank looks like, and what the bed is made of. Fifty-five fields, of which
+used, what the bank looks like, and what the bed is made of. Fifty-four fields, of which
 forty-three are percentages that belong to one of six blocks.
 
 Section 3 is a placeholder today. The fields themselves are mostly a repeat of what parts 1 and 2
@@ -22,7 +22,7 @@ Item 6 reads as one line in the build plan but is the same shape as item 5, whic
 the same reason: a screenful of fields, and then a rule that turns those fields into something
 that behaves.
 
-- **6a, here.** The 55 fields on screen, saving and surviving a reload.
+- **6a, here.** The 54 fields on screen, saving and surviving a reload.
 - **6b, next.** The running total under each of the six blocks, and the rule that the total must
   be exactly 100.
 
@@ -404,6 +404,41 @@ traps focus.
   6b's rule follows it: a block where every box is blank raises nothing.
 - **Do not add up anything.** If a running total starts to feel natural while laying out a block,
   that is 6b arriving early. Leave it.
+
+## Amended during the build
+
+Recorded here rather than left as silent divergences from the draft, following the precedent 5a
+set. All five came out of the two review passes on 2026-09-03.
+
+1. **`ProzentBlock` was extracted.** The draft had each block component write out its own
+   `fieldset`, `legend`, `grid` and `.map`, which came to the same five-line shape five times over.
+   Since 6b adds a running total and a required marker to every one of those, the repetition would
+   have made that five edits across two files. The five runs now share one component, so 6b changes
+   one file. It still adds nothing up.
+2. **`NEIGUNG` was renamed `UFERNEIGUNG`.** It holds the four bank-steepness shares, while
+   `ufer.neigung` is the Damm's angle in degrees. The collision was costing three separate
+   explanatory comments; the name now carries what the comments were saying, and it matches its
+   siblings `UFERBEWUCHS` and `UFERVERBAUUNG`.
+3. **`FeldHaken` gained an optional `spalten`.** The Buhnenbereich checkbox shares a grid row with
+   two labelled fields, and the draft solved its alignment with a hand-built wrapper div at the
+   call site. Parts 4 to 6 have more checkboxes in more rows, so the placement lives in the control
+   instead, where it gets solved once.
+4. **The Randstreifen radio lost its required marker.** The draft marked it `pflicht` by analogy
+   with part 2's radio groups. Checked against `validation.js`: the legacy form requires the
+   Gewässertyp, the three Messdaten groups, the nine hydrology groups and five of the six
+   percentage blocks, and never the Randstreifen. An asterisk would have promised a gate feature 11
+   has no grounds to build.
+5. **Three labels are deliberately not verbatim**, and the reasoning is the spec's own
+   anti-ambiguity rule rather than an oversight:
+
+   | Printed on page 2 | Ours | Why |
+   |---|---|---|
+   | `ohne` | `ohne Bewuchs` | "ohne" above a box says nothing on its own |
+   | `Neigung ca.` | `Neigung des Damms, ca.` | otherwise a second field called Neigung, three rows under the first |
+   | `Gewässersohle, Substrate:` | `Gewässersohle` | the section holds Sohlverbauung and Besonderheiten too, so naming it for the substrates alone would be wrong |
+
+   Everything else is verbatim, including `Mauer/Pflaster, unverfugt`, which was briefly respaced
+   to `Mauer / Pflaster` during the build and put back.
 
 ## No mockup is needed, decided 2026-09-03
 

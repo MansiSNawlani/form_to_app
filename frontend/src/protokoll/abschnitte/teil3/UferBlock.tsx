@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { NEIGUNG, UFERBEWUCHS, UFERVERBAUUNG } from './bloecke'
+import ProzentBlock from './ProzentBlock'
+import { UFERBEWUCHS, UFERNEIGUNG, UFERVERBAUUNG } from './bloecke'
 import FeldHaken from '../../felder/FeldHaken'
 import FeldProzent from '../../felder/FeldProzent'
 import FeldRadio from '../../felder/FeldRadio'
@@ -9,11 +10,8 @@ import FeldText from '../../felder/FeldText'
    has been built up.
 
    The largest block in the protocol so far, and the first with a structure of
-   its own: three percentage runs, each totalling 100 separately, with answers
-   between them that belong to no run. Nested fieldsets rather than headings,
-   so a screen reader entering the nine Uferbewuchs shares is told that is what
-   they are shares of. Without that, "keine (erkennbar)" appears twice in this
-   section and again on the bed, with nothing to tell the three apart. */
+   its own: three runs of shares, each totalling 100 separately, with answers
+   between them that belong to no run and are never added up. */
 function UferBlock() {
   const { t } = useTranslation()
 
@@ -25,23 +23,22 @@ function UferBlock() {
       </p>
 
       <div className="grid">
+        {/* No required marker. The legacy form checks the Gewaessertyp, the
+            three Messdaten groups, the nine hydrology groups and five of the
+            six percentage blocks at submit, and never this. An asterisk here
+            would promise a gate feature 11 has no grounds to build. */}
         <FeldRadio
           name="ufer.randstreifen"
           liste="ufer.randstreifen"
           labelKey="protokoll.abschnitt3.ufer.feld.randstreifen"
           spalten={12}
-          pflicht
         />
       </div>
 
-      <fieldset className="form-block">
-        <legend>{t('protokoll.abschnitt3.ufer.neigung.legend')}</legend>
-        <div className="grid">
-          {NEIGUNG.map(({ pfad, labelKey }) => (
-            <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-          ))}
-        </div>
-      </fieldset>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.ufer.neigung.legend"
+        felder={UFERNEIGUNG}
+      />
 
       {/* The Damm's own slope, in degrees, and not one of the four shares
           above it despite both being printed as "Neigung". ufer.neigung is the
@@ -59,12 +56,11 @@ function UferBlock() {
           labelKey="protokoll.abschnitt3.ufer.feld.dammNeigung"
           spalten={4}
         />
-        <div className="field field--haken col-4">
-          <FeldHaken
-            name="ufer.buhnenbereich"
-            labelKey="protokoll.abschnitt3.ufer.feld.buhnenbereich"
-          />
-        </div>
+        <FeldHaken
+          name="ufer.buhnenbereich"
+          labelKey="protokoll.abschnitt3.ufer.feld.buhnenbereich"
+          spalten={4}
+        />
 
         <FeldProzent
           name="ufer.wurzeln"
@@ -73,36 +69,30 @@ function UferBlock() {
         />
       </div>
 
-      <fieldset className="form-block">
-        <legend>{t('protokoll.abschnitt3.ufer.bewuchs.legend')}</legend>
-        <div className="grid">
-          {UFERBEWUCHS.map(({ pfad, labelKey }) => (
-            <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-          ))}
-          {/* Named for the share it explains rather than "Sonstiges". Two
-              fields called that sit three rows apart in this section, and a
-              screen reader would read them identically. */}
-          <FeldText
-            name="ufer.sonstiger_bewuchs_text"
-            labelKey="protokoll.abschnitt3.ufer.feld.sonstigerBewuchsText"
-            spalten={9}
-          />
-        </div>
-      </fieldset>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.ufer.bewuchs.legend"
+        felder={UFERBEWUCHS}
+      >
+        {/* Named for the share it explains rather than "Sonstiges". Two fields
+            called that sit three rows apart in this section, and a screen
+            reader would read them identically. */}
+        <FeldText
+          name="ufer.sonstiger_bewuchs_text"
+          labelKey="protokoll.abschnitt3.ufer.feld.sonstigerBewuchsText"
+          spalten={9}
+        />
+      </ProzentBlock>
 
-      <fieldset className="form-block">
-        <legend>{t('protokoll.abschnitt3.ufer.uferverbauung.legend')}</legend>
-        <div className="grid">
-          {UFERVERBAUUNG.map(({ pfad, labelKey }) => (
-            <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-          ))}
-          <FeldText
-            name="ufer.sonstiger_uferverbau_text"
-            labelKey="protokoll.abschnitt3.ufer.feld.sonstigerUferverbauText"
-            spalten={9}
-          />
-        </div>
-      </fieldset>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.ufer.uferverbauung.legend"
+        felder={UFERVERBAUUNG}
+      >
+        <FeldText
+          name="ufer.sonstiger_uferverbau_text"
+          labelKey="protokoll.abschnitt3.ufer.feld.sonstigerUferverbauText"
+          spalten={9}
+        />
+      </ProzentBlock>
     </fieldset>
   )
 }

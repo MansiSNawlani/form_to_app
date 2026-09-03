@@ -21,10 +21,9 @@ interface FeldProzentProps {
   name: AntwortPfad
   labelKey: ParseKeys
   spalten: Spalten
-  hinweisKey?: ParseKeys
 }
 
-function FeldProzent({ name, labelKey, spalten, hinweisKey }: FeldProzentProps) {
+function FeldProzent({ name, labelKey, spalten }: FeldProzentProps) {
   const { t } = useTranslation()
 
   return (
@@ -35,7 +34,6 @@ function FeldProzent({ name, labelKey, spalten, hinweisKey }: FeldProzentProps) 
       einheit={t('protokoll.felder.einheit.prozent')}
       labelKey={labelKey}
       spalten={spalten}
-      hinweisKey={hinweisKey}
     />
   )
 }

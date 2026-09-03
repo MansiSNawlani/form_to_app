@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next'
+import ProzentBlock from './ProzentBlock'
 import { SOHLVERBAUUNG, SUBSTRAT } from './bloecke'
 import FeldHaken from '../../felder/FeldHaken'
-import FeldProzent from '../../felder/FeldProzent'
 
 /* The bed: what it is made of, how it has been built up, and what stands out
    about it.
 
-   Two percentage runs and then four observations that are ticked rather than
+   Two runs of shares and then four observations that are ticked rather than
    shared out. The Besonderheiten are not a run and never add up to anything,
-   which is why they sit outside both nested fieldsets. */
+   which is why they sit outside both ProzentBlocks. */
 function GewaessersohleBlock() {
   const { t } = useTranslation()
 
@@ -19,27 +19,19 @@ function GewaessersohleBlock() {
         {t('protokoll.abschnitt3.gewaessersohle.hinweis')}
       </p>
 
-      <fieldset className="form-block">
-        <legend>{t('protokoll.abschnitt3.gewaessersohle.substrat.legend')}</legend>
-        <div className="grid">
-          {SUBSTRAT.map(({ pfad, labelKey }) => (
-            <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-          ))}
-        </div>
-      </fieldset>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.gewaessersohle.substrat.legend"
+        felder={SUBSTRAT}
+      />
 
-      <fieldset className="form-block">
-        <legend>{t('protokoll.abschnitt3.gewaessersohle.sohlverbauung.legend')}</legend>
-        <div className="grid">
-          {SOHLVERBAUUNG.map(({ pfad, labelKey }) => (
-            <FeldProzent key={pfad} name={pfad} labelKey={labelKey} spalten={3} />
-          ))}
-        </div>
-      </fieldset>
+      <ProzentBlock
+        legendKey="protokoll.abschnitt3.gewaessersohle.sohlverbauung.legend"
+        felder={SOHLVERBAUUNG}
+      />
 
       <fieldset className="form-block">
         <legend>{t('protokoll.abschnitt3.gewaessersohle.besonderheiten.legend')}</legend>
-        <div className="options">
+        <div className="haken-reihe">
           <FeldHaken
             name="gewaessersohle.kolmatierte_sohle"
             labelKey="protokoll.abschnitt3.gewaessersohle.feld.kolmatierteSohle"
