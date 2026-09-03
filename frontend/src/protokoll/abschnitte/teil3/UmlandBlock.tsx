@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import ProzentBlock from './ProzentBlock'
-import { UMLAND } from './bloecke'
+import ProzentGruppe from './ProzentGruppe'
+import { UMLAND } from './gruppen'
 
 /* What surrounds the stretch, as eight shares of the land along the bank.
 
@@ -16,10 +16,7 @@ function UmlandBlock() {
         {t('protokoll.abschnitt3.umland.hinweis')}
       </p>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.umland.anteile.legend"
-        felder={UMLAND}
-      />
+      <ProzentGruppe gruppe={UMLAND} />
     </fieldset>
   )
 }

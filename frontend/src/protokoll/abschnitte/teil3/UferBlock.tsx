@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import ProzentBlock from './ProzentBlock'
-import { UFERBEWUCHS, UFERNEIGUNG, UFERVERBAUUNG } from './bloecke'
+import ProzentGruppe from './ProzentGruppe'
+import { UFERBEWUCHS, UFERNEIGUNG, UFERVERBAUUNG } from './gruppen'
 import FeldHaken from '../../felder/FeldHaken'
 import FeldProzent from '../../felder/FeldProzent'
 import FeldRadio from '../../felder/FeldRadio'
@@ -35,10 +35,7 @@ function UferBlock() {
         />
       </div>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.neigung.legend"
-        felder={UFERNEIGUNG}
-      />
+      <ProzentGruppe gruppe={UFERNEIGUNG} />
 
       {/* The Damm's own slope, in degrees, and not one of the four shares
           above it despite both being printed as "Neigung". ufer.neigung is the
@@ -69,10 +66,7 @@ function UferBlock() {
         />
       </div>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.bewuchs.legend"
-        felder={UFERBEWUCHS}
-      >
+      <ProzentGruppe gruppe={UFERBEWUCHS}>
         {/* Named for the share it explains rather than "Sonstiges". Two fields
             called that sit three rows apart in this section, and a screen
             reader would read them identically. */}
@@ -81,18 +75,15 @@ function UferBlock() {
           labelKey="protokoll.abschnitt3.ufer.feld.sonstigerBewuchsText"
           spalten={9}
         />
-      </ProzentBlock>
+      </ProzentGruppe>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.uferverbauung.legend"
-        felder={UFERVERBAUUNG}
-      >
+      <ProzentGruppe gruppe={UFERVERBAUUNG}>
         <FeldText
           name="ufer.sonstiger_uferverbau_text"
           labelKey="protokoll.abschnitt3.ufer.feld.sonstigerUferverbauText"
           spalten={9}
         />
-      </ProzentBlock>
+      </ProzentGruppe>
     </fieldset>
   )
 }
