@@ -1,7 +1,14 @@
 # Feature: 6a - Part 3 fields
 
 **From build-plan:** feature 6a, the first of two sub-features of item 6 (Form part 3)
-**Status:** built on 2026-09-03, awaiting review
+**Status:** built and verified on 2026-09-03, ready for `/complete`
+
+Automated gates: `npx tsc -b`, `npm run lint`, `npm test` (161), `npm run build`, `pytest` (25) and
+`ruff check` all green. Reviewed on both the standards and spec axes; the five findings acted on
+are recorded under "Amended during the build".
+
+The browser done-whens, which no automated gate can reach, were checked by hand and passed: light
+and dark, the layout below 800px, and the tab order through the section.
 
 ## Goal
 
