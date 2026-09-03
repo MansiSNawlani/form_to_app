@@ -46,6 +46,7 @@ export type ListenName =
   | 'hydrologie.wasserfuehrung'
   | 'hydrologie.stillwasserbereich'
   | 'hydrologie.gesamtprofil'
+  | 'ufer.randstreifen'
 
 const listen = optionslisten.listen as Record<string, Option[]>
 

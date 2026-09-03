@@ -26,12 +26,18 @@ interface FeldTextProps extends Omit<FeldRahmenProps, 'id'> {
   typ?: Eingabetyp
   /** A unit shown beside the control, such as the m after a stretch length. */
   einheit?: string
+  /* What a number input's spinner may reach, for a field with a natural range
+     such as a percentage. An affordance only: the browser will not stop a
+     pasted value, so anything that must be true of the answer is a rule in
+     regeln/ as well. */
+  bereich?: { min: number; max: number; step: number }
 }
 
 function FeldText({
   name,
   typ = 'text',
   einheit,
+  bereich,
   labelKey,
   spalten,
   pflicht,
@@ -48,7 +54,7 @@ function FeldText({
       id={name}
       type={typ}
       fullWidth
-      inputProps={feldAria(name, pflicht, hinweisKey, fehlerKey)}
+      inputProps={{ ...bereich, ...feldAria(name, pflicht, hinweisKey, fehlerKey) }}
     />
   )
 

@@ -4172,6 +4172,20 @@
         "label": "6551000001 - Donau unterhalb Illermündung"
       }
     ],
+    "ufer.randstreifen": [
+      {
+        "wert": "3",
+        "label": "beidseitig vollständig"
+      },
+      {
+        "wert": "2",
+        "label": "einseitig oder unvollständig"
+      },
+      {
+        "wert": "1",
+        "label": "nicht vorhanden"
+      }
+    ],
     "z.quelle": [
       {
         "wert": "Biodiv",

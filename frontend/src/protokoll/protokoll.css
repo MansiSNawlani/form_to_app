@@ -133,6 +133,30 @@
   max-width: 62ch;
 }
 
+/* A named run of fields inside a section, such as the three percentage blocks
+   that make up the Ufer section in part 3.
+
+   A real fieldset rather than a heading and a div: these are groups of groups,
+   and a screen reader announcing "Uferbewuchs" on entering the run is the
+   difference between nine anonymous percentages and nine shares of one thing.
+   Quieter than the section legend above it, since it is a level down. */
+.form-block {
+  border: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.form-block:first-of-type {
+  margin-top: 0;
+}
+
+.form-block > legend {
+  padding: 0;
+  margin-bottom: 0.75rem;
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
 .form-actions {
   display: flex;
   align-items: center;
@@ -188,6 +212,14 @@
   flex-direction: column;
   gap: 0.3rem;
   min-width: 0;
+}
+
+/* A checkbox sharing a row with labelled fields. Every other control in a grid
+   row carries a label above it, so a bare checkbox would otherwise sit level
+   with those labels rather than with the inputs it stands beside. */
+.field--haken {
+  justify-content: flex-end;
+  padding-bottom: 0.35rem;
 }
 
 /* prototypes/mockup.css .field__error. The colour comes from MUI, which reads

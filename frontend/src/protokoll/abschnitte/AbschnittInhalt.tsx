@@ -1,5 +1,6 @@
 import Abschnitt1 from './Abschnitt1'
 import Abschnitt2 from './Abschnitt2'
+import Abschnitt3 from './Abschnitt3'
 import AbschnittPlatzhalter from './AbschnittPlatzhalter'
 import type { Abschnitt } from '../abschnitte'
 
@@ -17,6 +18,8 @@ function AbschnittInhalt({ abschnitt, titel }: AbschnittInhaltProps) {
       return <Abschnitt1 />
     case 2:
       return <Abschnitt2 />
+    case 3:
+      return <Abschnitt3 />
     default:
       return <AbschnittPlatzhalter title={titel} feature={abschnitt.feature} />
   }

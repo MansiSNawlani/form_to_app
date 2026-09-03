@@ -152,6 +152,14 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
         "3": "naturfern",
         "0": None,
     },
+    # Part 3's only radio group, and the one place where the value counts down
+    # as the buttons run left to right. Paired by widget position on page 2,
+    # which puts 3 at x=141, 2 at x=299 and 1 at x=475.
+    "ufer.randstreifen": {
+        "3": "beidseitig vollständig",
+        "2": "einseitig oder unvollständig",
+        "1": "nicht vorhanden",
+    },
 }
 
 # gewaessertyp keeps the short list name it was first published under, since the

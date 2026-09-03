@@ -36,6 +36,7 @@ FiaKa receives today.
 | `hydrologie.wasserfuehrung` | 4 | Feature 5 |
 | `hydrologie.stillwasserbereich` | 5 | Feature 5 |
 | `hydrologie.gesamtprofil` | 4 | Feature 5 |
+| `ufer.randstreifen` | 3 | Feature 6 |
 
 Lists repeated across numbered fields are stored once. The 26 species pickers
 (`arten.art1.name` to `arten.art26.name`) share `arten`, and the four stocking rows share
