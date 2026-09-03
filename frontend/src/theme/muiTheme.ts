@@ -224,25 +224,9 @@ export const muiTheme = createTheme({
     },
     MuiMenu: {
       styleOverrides: {
-        paper: {
-          // Elevation is off everywhere by design, so a dropdown needs a border
-          // of its own to separate it from the page it floats over.
-          border: '1px solid var(--border)',
-          /* Short enough that a dropdown always fits below its control.
-             MUI's own cap is calc(100% - 96px), which on a maximised window is
-             most of the screen, so a long list stays tall, does not fit under
-             the field, and Popover slides it upward until it does. It then
-             covers the control, and the pointer that opened it.
-             That is a real defect and not only untidy, because Select opens the
-             menu on mousedown and selects on mouseup (SelectInput's
-             handleItemMouseUp calls click() on the item under the pointer, to
-             emulate a native select's press, drag and release). Releasing more
-             than 200ms after pressing therefore picks whichever option the menu
-             happened to be drawn under. Found on the Quelle, whose 13 options
-             make the tallest menu on the form, on 2026-09-02.
-             40vh as well as a fixed height, so a short window is covered too. */
-          maxHeight: 'min(18rem, 40vh)',
-        },
+        // Elevation is off everywhere by design, so a dropdown needs a border of
+        // its own to separate it from the page it floats over.
+        paper: { border: '1px solid var(--border)' },
       },
     },
     MuiOutlinedInput: {
