@@ -161,6 +161,7 @@
       }
     },
     "abschnitt3": {
+      "summe": "Summe: {{summe}} %",
       "umland": {
         "legend": "Umland",
         "hinweis": "Die Nutzung des Geländes entlang der Probestrecke, aufgeteilt in Anteile.",
@@ -278,7 +279,9 @@
       "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}.",
       "schaetzwertOhneBand": "Bitte zuerst oben die Bandbreite auswählen.",
       "schaetzwertKeineZahl": "Bitte eine Zahl in Metern eintragen, zum Beispiel 1,5.",
-      "schaetzwertAusserhalbBand": "Der Schätzwert liegt außerhalb der oben gewählten Bandbreite."
+      "schaetzwertAusserhalbBand": "Der Schätzwert liegt außerhalb der oben gewählten Bandbreite.",
+      "prozentKeineGanzeZahl": "Bitte einen ganzen Prozentwert von 0 bis 100 eintragen.",
+      "prozentsummeNichtHundert": "Die Anteile müssen zusammen genau 100 % ergeben."
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

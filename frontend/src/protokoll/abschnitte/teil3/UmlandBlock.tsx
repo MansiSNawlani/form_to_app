@@ -16,10 +16,7 @@ function UmlandBlock() {
         {t('protokoll.abschnitt3.umland.hinweis')}
       </p>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.umland.anteile.legend"
-        felder={UMLAND}
-      />
+      <ProzentBlock block={UMLAND} />
     </fieldset>
   )
 }

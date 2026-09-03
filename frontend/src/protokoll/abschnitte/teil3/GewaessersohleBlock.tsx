@@ -19,15 +19,9 @@ function GewaessersohleBlock() {
         {t('protokoll.abschnitt3.gewaessersohle.hinweis')}
       </p>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.gewaessersohle.substrat.legend"
-        felder={SUBSTRAT}
-      />
+      <ProzentBlock block={SUBSTRAT} />
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.gewaessersohle.sohlverbauung.legend"
-        felder={SOHLVERBAUUNG}
-      />
+      <ProzentBlock block={SOHLVERBAUUNG} />
 
       <fieldset className="form-block">
         <legend>{t('protokoll.abschnitt3.gewaessersohle.besonderheiten.legend')}</legend>

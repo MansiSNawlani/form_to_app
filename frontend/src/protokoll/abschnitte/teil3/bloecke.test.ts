@@ -34,30 +34,46 @@ describe('die Prozentbloecke von Teil 3', () => {
     ['Substrat', SUBSTRAT],
     ['Sohlverbauung', SOHLVERBAUUNG],
   ])('%s benennt nur Felder, die es im Formular gibt', (_name, block) => {
-    for (const { pfad } of block) {
+    for (const { pfad } of block.felder) {
       expect(NAMEN, pfad).toContain(pfad)
     }
   })
 
   /* The counts are the printed form's, read off page 2. They are here because a
      block that quietly loses an entry still renders and still adds up; it just
-     adds up to less than 100 forever, and feature 6b's rule would then be
+     adds up to less than 100 forever, and the sum rule would then be
      enforcing the wrong total. */
   it('haelt die Anzahl der Anteile je Block', () => {
-    expect(UMLAND).toHaveLength(8)
-    expect(UFERNEIGUNG).toHaveLength(4)
-    expect(UFERBEWUCHS).toHaveLength(9)
-    expect(UFERVERBAUUNG).toHaveLength(8)
-    expect(SUBSTRAT).toHaveLength(8)
-    expect(SOHLVERBAUUNG).toHaveLength(6)
+    expect(UMLAND.felder).toHaveLength(8)
+    expect(UFERNEIGUNG.felder).toHaveLength(4)
+    expect(UFERBEWUCHS.felder).toHaveLength(9)
+    expect(UFERVERBAUUNG.felder).toHaveLength(8)
+    expect(SUBSTRAT.felder).toHaveLength(8)
+    expect(SOHLVERBAUUNG.felder).toHaveLength(6)
   })
 
   it('nennt jedes Feld genau einmal', () => {
-    const pfade = PROZENTBLOECKE.flatMap((block) => block.map(({ pfad }) => pfad))
+    const pfade = PROZENTBLOECKE.flatMap((block) => block.felder.map(({ pfad }) => pfad))
     expect(new Set(pfade).size).toBe(pfade.length)
   })
 
   it('umfasst sechs Bloecke', () => {
     expect(PROZENTBLOECKE).toHaveLength(6)
+  })
+
+  it('gibt jedem Block eine eigene Kennung', () => {
+    const kennungen = PROZENTBLOECKE.map((block) => block.id)
+    expect(new Set(kennungen).size).toBe(kennungen.length)
+  })
+
+  /* The guard on the summe prefix. A block's id addresses its message, and
+     React Hook Form would happily hang that message on a real field if the two
+     ever named the same path. ufer.neigung is the near miss: it is the
+     geschuetteter Damm's slope in degrees, and the Neigung block sits directly
+     above it. */
+  it('benennt keinen Block wie ein Formularfeld', () => {
+    for (const { id } of PROZENTBLOECKE) {
+      expect(NAMEN, id).not.toContain(id)
+    }
   })
 })

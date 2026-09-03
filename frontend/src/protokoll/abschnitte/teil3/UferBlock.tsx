@@ -35,10 +35,7 @@ function UferBlock() {
         />
       </div>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.neigung.legend"
-        felder={UFERNEIGUNG}
-      />
+      <ProzentBlock block={UFERNEIGUNG} />
 
       {/* The Damm's own slope, in degrees, and not one of the four shares
           above it despite both being printed as "Neigung". ufer.neigung is the
@@ -69,10 +66,7 @@ function UferBlock() {
         />
       </div>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.bewuchs.legend"
-        felder={UFERBEWUCHS}
-      >
+      <ProzentBlock block={UFERBEWUCHS}>
         {/* Named for the share it explains rather than "Sonstiges". Two fields
             called that sit three rows apart in this section, and a screen
             reader would read them identically. */}
@@ -83,10 +77,7 @@ function UferBlock() {
         />
       </ProzentBlock>
 
-      <ProzentBlock
-        legendKey="protokoll.abschnitt3.ufer.uferverbauung.legend"
-        felder={UFERVERBAUUNG}
-      >
+      <ProzentBlock block={UFERVERBAUUNG}>
         <FeldText
           name="ufer.sonstiger_uferverbau_text"
           labelKey="protokoll.abschnitt3.ufer.feld.sonstigerUferverbauText"

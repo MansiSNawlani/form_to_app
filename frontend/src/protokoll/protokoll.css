@@ -230,6 +230,37 @@
   font-weight: 600;
 }
 
+/* The running total under each run of shares in part 3. Muted while the run is
+   still being filled in, because under 100 is what every run looks like on the
+   way to 100 and colouring that red would object to normal typing. */
+.blocksumme {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.blocksumme__wert {
+  font-weight: 600;
+}
+
+.blocksumme--voll {
+  color: var(--ok);
+}
+
+.blocksumme--zuviel {
+  color: var(--danger);
+}
+
+/* The message element is always in the document so its live region is already
+   there when the text arrives. Empty, it must not hold open a gap. */
+.blocksumme__meldung:empty {
+  display: none;
+}
+
 /* ---------- save indicator ---------- */
 
 .save-state {
