@@ -105,6 +105,96 @@ export interface Antworten {
     gesamtprofil?: string
   }
 
+  /* How the land around the stretch is used, part 3's first block.
+
+     Eight shares that must add up to 100, which is feature 6b's rule. A share
+     is a string like every other answer here: a number input holds "5"
+     mid-typing and "" when cleared, and neither is a number. */
+  umland?: {
+    nadelwald?: string
+    mischwald?: string
+    laubwald?: string
+    auwald?: string
+    wiese?: string
+    kulturland_acker?: string
+    feuchtgebiet_moor?: string
+    siedlungsgebiet?: string
+  }
+
+  /* The bank, part 3's second block.
+
+     Three percentage runs that each total 100 on their own: the four Neigung
+     shares, the nine Uferbewuchs shares and the eight Uferverbauung shares.
+     Around them sit answers that belong to no run and are never added up.
+
+     Two names are worth reading twice. neigung is not the four-way Neigung run
+     above it; it is the single slope of the geschütteter Damm, in degrees.
+     drahtnetze is the bank's, and has a counterpart on the bed under
+     gewaessersohle.drahtnetze_sohlverbauung. Both are the legacy paths. */
+  ufer?: {
+    randstreifen?: string
+
+    flachufer?: string
+    schraegufer?: string
+    abbruch?: string
+    unterspuelung?: string
+
+    streckenanteil_geschuetteter_damm?: string
+    /** Degrees, the slope of the geschütteter Damm. Not the run above. */
+    neigung?: string
+    buhnenbereich?: string
+    wurzeln?: string
+
+    ohne_bewuchs?: string
+    graeser?: string
+    schilf_rohr?: string
+    krautige_blattpflanzen?: string
+    straeucher?: string
+    weiden?: string
+    erlen?: string
+    andere_baeume?: string
+    sonstiger_bewuchs?: string
+    /** What that last share was. The printed form leaves a writing line. */
+    sonstiger_bewuchs_text?: string
+
+    uferverbau_keiner?: string
+    mauer_unverfugt?: string
+    faschinen?: string
+    drahtnetze?: string
+    ueberwachsen?: string
+    mauer_verfugt?: string
+    steinwurf?: string
+    sonstiger_uferverbau?: string
+    sonstiger_uferverbau_text?: string
+  }
+
+  /* The bed, part 3's third block.
+
+     Two percentage runs, the eight Substrat shares and the six Sohlverbauung
+     shares, then four Besonderheiten that are ticked rather than shared out. */
+  gewaessersohle?: {
+    schlamm?: string
+    lehm?: string
+    sonstiges_erdreich?: string
+    sand?: string
+    kies?: string
+    grobkies?: string
+    steine?: string
+    felsen?: string
+
+    keine_sohlverbauung?: string
+    rasensteine?: string
+    drahtnetze_sohlverbauung?: string
+    steinschuettung?: string
+    pflasterung?: string
+    betonschale?: string
+
+    kolmatierte_sohle?: string
+    eisenocker?: string
+    treibsand?: string
+    faulschlamm?: string
+  }
+
   probestrecke?: {
     gewaesser?: {
       gewaessername?: string

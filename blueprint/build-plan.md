@@ -75,6 +75,10 @@ These are not features and are not tracked here. They happen first.
   - [x] 5b. Part 2 rules: hydrology appearing and disappearing with the Gewaessertyp, and each
         Schaetzwert falling inside its chosen band
 - [ ] 6. Form part 3: the six percentage blocks, with running totals and the sum-to-100 rule
+  - [x] 6a. Part 3 fields: the Randstreifen option list read out of the printed PDF, a percentage
+        field component, and the Umland, Ufer and Gewaessersohle blocks
+  - [ ] 6b. Part 3 rules: the running total on each of the six blocks and the sum-to-100 rule,
+        including the substrate block the legacy form never checks
 - [ ] 7. Form part 4: in-water structures, usage influences, fishery management, stocking history
 - [ ] 8. Form part 5: equipment and fished areas
 - [ ] 9. Form part 6: the catch table, with the species picker, size classes, row totals, the

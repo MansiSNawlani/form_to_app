@@ -160,6 +160,101 @@
         }
       }
     },
+    "abschnitt3": {
+      "umland": {
+        "legend": "Umland",
+        "hinweis": "Die Nutzung des Geländes entlang der Probestrecke, aufgeteilt in Anteile.",
+        "anteile": {
+          "legend": "Nutzung des Umlands"
+        },
+        "feld": {
+          "nadelwald": "Nadelwald",
+          "mischwald": "Mischwald",
+          "laubwald": "Laubwald",
+          "auwald": "Auwald",
+          "wiese": "Wiese / Weide",
+          "kulturlandAcker": "Kulturland / Acker",
+          "feuchtgebietMoor": "Feuchtgebiet / Moor",
+          "siedlungsgebiet": "Siedlungsgebiet"
+        }
+      },
+      "ufer": {
+        "legend": "Ufer",
+        "hinweis": "Der Uferbereich der Probestrecke. Neigung, Bewuchs und Verbauung werden jeweils für sich in Anteile aufgeteilt.",
+        "neigung": {
+          "legend": "Neigung"
+        },
+        "bewuchs": {
+          "legend": "Uferbewuchs oberhalb der Wasserlinie"
+        },
+        "uferverbauung": {
+          "legend": "Uferverbauung"
+        },
+        "feld": {
+          "randstreifen": "Randstreifen",
+          "flachufer": "Flachufer, 0-20°",
+          "schraegufer": "Schrägufer, 20-60°",
+          "abbruch": "Abbruch, 60-90°",
+          "unterspuelung": "Unterspülung, >90°",
+          "geschuetteterDamm": "Streckenanteil mit geschüttetem Damm",
+          "dammNeigung": "Neigung des Damms, ca.",
+          "buhnenbereich": "Buhnenbereich",
+          "wurzeln": "Uferanteil mit ins Wasser ragenden Wurzeln von Bäumen",
+          "ohneBewuchs": "ohne Bewuchs",
+          "graeser": "Gräser",
+          "schilfRohr": "Schilf / Rohr",
+          "krautigeBlattpflanzen": "krautige Blattpflanzen",
+          "straeucher": "Sträucher",
+          "weiden": "Weiden",
+          "erlen": "Erlen",
+          "andereBaeume": "andere Bäume",
+          "sonstigerBewuchs": "sonstiger Bewuchs",
+          "sonstigerBewuchsText": "sonstiger Bewuchs, welcher",
+          "uferverbauKeiner": "keine (erkennbar)",
+          "mauerUnverfugt": "Mauer/Pflaster, unverfugt",
+          "faschinen": "Faschinen",
+          "drahtnetze": "Drahtnetze",
+          "ueberwachsen": "überwachsen",
+          "mauerVerfugt": "Mauer/Pflaster, verfugt",
+          "steinwurf": "Steinwurf",
+          "sonstigerUferverbau": "sonstiger Uferverbau",
+          "sonstigerUferverbauText": "sonstiger Uferverbau, welcher"
+        }
+      },
+      "gewaessersohle": {
+        "legend": "Gewässersohle",
+        "hinweis": "Der Grund der Probestrecke. Substrate und Sohlverbauung werden jeweils für sich in Anteile aufgeteilt.",
+        "substrat": {
+          "legend": "Substratverteilung"
+        },
+        "sohlverbauung": {
+          "legend": "Sohlverbauung"
+        },
+        "besonderheiten": {
+          "legend": "Besonderheiten"
+        },
+        "feld": {
+          "schlamm": "Schlamm",
+          "lehm": "Lehm / Ton",
+          "sonstigesErdreich": "sonstiges Erdreich",
+          "sand": "Sand (<2 mm)",
+          "kies": "Kies (>2 mm)",
+          "grobkies": "Grobkies (>20 mm)",
+          "steine": "Steine (>63 mm)",
+          "felsen": "Felsen (>50 cm)",
+          "keineSohlverbauung": "keine (erkennbar)",
+          "rasensteine": "Rasensteine",
+          "drahtnetzeSohlverbauung": "Drahtnetze",
+          "steinschuettung": "Steinschüttung",
+          "pflasterung": "Pflasterung",
+          "betonschale": "Betonschale",
+          "kolmatierteSohle": "kolmatierte Sohle",
+          "eisenocker": "Eisenocker",
+          "treibsand": "Treibsand",
+          "faulschlamm": "Faulschlamm"
+        }
+      }
+    },
     "felder": {
       "bitteWaehlen": "Bitte wählen",
       "einheit": {
@@ -168,7 +263,8 @@
         "mikrosiemens": "µS/cm",
         "zentimeter": "cm",
         "meterProSekunde": "m/s",
-        "prozent": "%"
+        "prozent": "%",
+        "winkelgrad": "°"
       },
       "auswahlAufheben": "Auswahl aufheben"
     },
