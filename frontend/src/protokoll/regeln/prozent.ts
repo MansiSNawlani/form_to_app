@@ -1,23 +1,28 @@
 import { istLeer, type Regel, type Regelverstoss } from './regel'
-import { PROZENTBLOECKE, type Prozentblock } from '../abschnitte/teil3/bloecke'
+import { PROZENTGRUPPEN, type Prozentgruppe } from '../abschnitte/teil3/gruppen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
-/* The six percentage runs of part 3, each of which has to come to exactly 100.
+/* The six Prozentgruppen of part 3, each of which has to come to exactly 100.
  *
- * Defect 1 in docs/ffs-defect-list.md is why this checks all six. The legacy
- * form keeps a check_ok_ indicator per run and reads five of them at submit,
- * leaving Substratverteilung out, so a substrate distribution totalling 43 is
- * sent and accepted. There is no per-run branch here: a block is a block.
+ * Defect 1 in docs/ffs-defect-list.md is why there is no per-group branch
+ * anywhere below. The legacy form keeps a check_ok_ indicator per group and
+ * reads five of the six at submit, leaving Substratverteilung out, so a
+ * substrate distribution totalling 43 is sent and accepted. One code path for
+ * all six is the fix, and prozent.test.ts holds it to that.
  *
- * The legacy form also refuses the keystroke that would push a run past 100,
- * by setting event.rc = false. We let the value land and say the run is over
- * instead. Refusing the character makes an ordinary correction impossible: at
- * 100 already, the first digit of a replacement cannot be typed until some
- * other share has been cleared. That divergence is also why defect 4, the
- * missing app.alert0 that throws instead of warning on Lehm / Ton, has no
- * equivalent here: there is one code path for all forty-three shares. */
+ * Unlike the legacy form, a share that would push a group past 100 is accepted
+ * and the group is marked over. Refusing the keystroke, as the PDF does, makes
+ * an ordinary correction impossible: at 100 already, the first digit of a
+ * replacement cannot be typed until some other share has been cleared.
+ *
+ * PROZENTGRUPPEN is imported from abschnitte/, which is the one place a rule
+ * reaches into a view folder. It is data rather than view: which fields make up
+ * a group is a fact about the legacy form, and gruppen.test.ts pins it to
+ * felder.json. Keeping a second copy of the six groups here so the import
+ * pointed the other way would be two lists to hold in step, which is the
+ * failure mode defect 1 already is. */
 
-export interface Blockbewertung {
+export interface Gruppenbewertung {
   /** What the run currently adds up to. A blank share counts as 0. */
   summe: number
   verstoesse: readonly Regelverstoss[]
@@ -28,10 +33,10 @@ export interface Blockbewertung {
    can only arrive by paste or by hand-editing a saved draft. */
 const GANZER_PROZENTWERT = /^\d{1,3}$/
 
-/* The blocks address their fields by path rather than by walking the document,
-   so the value has to be looked up from one. Written as a walk rather than two
-   indexes because part 1 nests three deep (probestrecke.gewaesser.vorfluter1)
-   and a later block may too. */
+/* The groups address their fields by path, so the value has to be looked up
+   from one. A walk rather than two fixed indexes, because AntwortPfad is any
+   depth the document has, and part 1 already nests three deep at
+   probestrecke.gewaesser.vorfluter1. */
 function wertAus(antworten: Antworten, pfad: AntwortPfad): string {
   const wert = pfad
     .split('.')
@@ -44,20 +49,20 @@ function wertAus(antworten: Antworten, pfad: AntwortPfad): string {
 
 /* The shares of one run, in the run's own order, judged on their own.
  *
- * Split from bewerteBlock so the running total on screen and the document's
- * validity are the same arithmetic. Blocksumme has the values already, out of a
+ * Split from bewerteGruppe so the running total on screen and the document's
+ * validity are the same arithmetic. Gruppensumme has the values already, out of a
  * useWatch scoped to its own run, and rebuilding an answers document from them
  * just to take it apart again would be the kind of second implementation that
  * drifts. */
 export function bewerteAnteile(
-  block: Prozentblock,
+  gruppe: Prozentgruppe,
   werte: readonly (string | undefined)[],
-): Blockbewertung {
+): Gruppenbewertung {
   const verstoesse: Regelverstoss[] = []
   let summe = 0
   let angefasst = false
 
-  for (const [index, { pfad }] of block.felder.entries()) {
+  for (const [index, { pfad }] of gruppe.felder.entries()) {
     const eingabe = (werte[index] ?? '').trim()
     // Blank is untouched, and it counts as 0 towards the total. A bank that is
     // entirely one thing is answered with one share of 100 and seven blanks.
@@ -82,7 +87,7 @@ export function bewerteAnteile(
 
   if (summe !== 100) {
     verstoesse.push({
-      pfad: block.id,
+      pfad: gruppe.id,
       schluessel: 'protokoll.regeln.prozentsummeNichtHundert',
     })
   }
@@ -91,12 +96,12 @@ export function bewerteAnteile(
 }
 
 /** The same judgement, reading the run's shares out of the answers document. */
-export function bewerteBlock(block: Prozentblock, antworten: Antworten): Blockbewertung {
+export function bewerteGruppe(gruppe: Prozentgruppe, antworten: Antworten): Gruppenbewertung {
   return bewerteAnteile(
-    block,
-    block.felder.map(({ pfad }) => wertAus(antworten, pfad)),
+    gruppe,
+    gruppe.felder.map(({ pfad }) => wertAus(antworten, pfad)),
   )
 }
 
-export const pruefeProzentbloecke: Regel = (antworten) =>
-  PROZENTBLOECKE.flatMap((block) => [...bewerteBlock(block, antworten).verstoesse])
+export const pruefeProzentgruppen: Regel = (antworten) =>
+  PROZENTGRUPPEN.flatMap((gruppe) => [...bewerteGruppe(gruppe, antworten).verstoesse])

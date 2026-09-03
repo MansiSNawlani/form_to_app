@@ -1,14 +1,14 @@
 import type { ParseKeys } from 'i18next'
 import type { AntwortPfad } from '../../entwurf/typen'
 
-/* The percentage blocks of part 3, declared once and rendered by mapping.
+/* The Prozentgruppen of part 3, declared once and rendered by mapping.
  *
  * Parts 1 and 2 write every field out by hand, and at six to fifteen unlike
  * fields that is the readable shape. Part 3 is not that: it is six runs of
  * between four and nine controls differing only in a path and a label.
  *
  * Declared as data for three reasons, in order of weight. The running total is
- * the sum over a block's paths, so writing them out in JSX would mean retyping
+ * the sum over a group's paths, so writing them out in JSX would mean retyping
  * all forty-three there and keeping two copies in step. Antworten is a
  * TypeScript interface and is gone at build time, so an array is the only thing
  * a test can check against felder.json, which is what proves these paths match
@@ -16,7 +16,7 @@ import type { AntwortPfad } from '../../entwurf/typen'
  * repetition coding-standards.md rules out.
  *
  * Typed as AntwortPfad, so a path that is not in the answers document is a
- * build error. bloecke.test.ts covers the other direction, a path that is in
+ * build error. gruppen.test.ts covers the other direction, a path that is in
  * the document but not in the legacy form.
  *
  * Only the percentage runs live here. The Randstreifen radio, the geschütteter
@@ -25,20 +25,20 @@ import type { AntwortPfad } from '../../entwurf/typen'
  * from one another, so a shared definition would buy nothing.
  */
 
-/* Where a block's own message lives.
+/* Where a group's own message lives.
  *
  * A wrong total is one problem and gets one message, so it needs somewhere to
  * sit that is not any single share. No path in the answers document names a
- * block: three of the six are under ufer and two under gewaessersohle. So a
- * block carries its own path, outside the document, and regeln/schema.ts raises
+ * group: three of the six are under ufer and two under gewaessersohle. So a
+ * group carries its own path, outside the document, and regeln/schema.ts raises
  * the violation there.
  *
  * The suffixes are the names of the legacy form's own indicator fields
  * (check_ok_umland and the rest), so the mapping back to the PDF stays legible.
  * The summe prefix is what keeps these clear of the answers: ufer.neigung is a
- * real field, the geschütteter Damm's slope in degrees, and naming this block
- * after itself would have put a block's message on an unrelated box. */
-export type Blockpfad =
+ * real field, the geschütteter Damm's slope in degrees, and naming this group
+ * after itself would have put a group's message on an unrelated box. */
+export type Gruppenpfad =
   | 'summe.umland'
   | 'summe.neigung'
   | 'summe.bewuchs'
@@ -51,20 +51,20 @@ export interface Prozentfeld {
   labelKey: ParseKeys
 }
 
-export interface Prozentblock {
-  id: Blockpfad
+export interface Prozentgruppe {
+  id: Gruppenpfad
   legendKey: ParseKeys
   felder: readonly Prozentfeld[]
 }
 
-/** A block path is not a valid id, so summe.umland becomes summe-umland. */
-export function summeId(block: Prozentblock): string {
-  return block.id.replace('.', '-')
+/** A group path is not a valid id, so summe.umland becomes summe-umland. */
+export function summeId(gruppe: Prozentgruppe): string {
+  return gruppe.id.replace('.', '-')
 }
 
 /* Land use around the stretch. Eight shares of the bank's surroundings, in the
    order page 2 prints them. */
-export const UMLAND: Prozentblock = {
+export const UMLAND: Prozentgruppe = {
   id: 'summe.umland',
   legendKey: 'protokoll.abschnitt3.umland.anteile.legend',
   felder: [
@@ -90,7 +90,7 @@ export const UMLAND: Prozentblock = {
 
 /* How steep the bank is, as four shares of its length. The degree ranges are
    part of the question, not decoration, so they stay in the labels. */
-export const UFERNEIGUNG: Prozentblock = {
+export const UFERNEIGUNG: Prozentgruppe = {
   id: 'summe.neigung',
   legendKey: 'protokoll.abschnitt3.ufer.neigung.legend',
   felder: [
@@ -106,7 +106,7 @@ export const UFERNEIGUNG: Prozentblock = {
 
 /* What grows on the bank above the waterline, as nine shares. The last is the
    open one, and ufer.sonstiger_bewuchs_text records what it was. */
-export const UFERBEWUCHS: Prozentblock = {
+export const UFERBEWUCHS: Prozentgruppe = {
   id: 'summe.bewuchs',
   legendKey: 'protokoll.abschnitt3.ufer.bewuchs.legend',
   felder: [
@@ -130,7 +130,7 @@ export const UFERBEWUCHS: Prozentblock = {
 
 /* How the bank has been built up, as eight shares. Drahtnetze here is the
    bank's; the bed has its own under SOHLVERBAUUNG. */
-export const UFERVERBAUUNG: Prozentblock = {
+export const UFERVERBAUUNG: Prozentgruppe = {
   id: 'summe.uferverbau',
   legendKey: 'protokoll.abschnitt3.ufer.uferverbauung.legend',
   felder: [
@@ -157,11 +157,8 @@ export const UFERVERBAUUNG: Prozentblock = {
 /* What the bed is made of, as eight shares. The grain sizes are the question:
    "Kies" without ">2 mm" is asking something else.
 
-   This is the block defect 1 in docs/ffs-defect-list.md is about. The legacy
-   form maintains its check_ok_substrat indicator as the user types but never
-   reads it at submit, so a substrate distribution totalling 43 is sent and
-   accepted. Here it is one block among six and is checked like the rest. */
-export const SUBSTRAT: Prozentblock = {
+   The group defect 1 is about. See regeln/prozent.ts. */
+export const SUBSTRAT: Prozentgruppe = {
   id: 'summe.substrat',
   legendKey: 'protokoll.abschnitt3.gewaessersohle.substrat.legend',
   felder: [
@@ -192,7 +189,7 @@ export const SUBSTRAT: Prozentblock = {
 }
 
 /* How the bed has been built up, as six shares. */
-export const SOHLVERBAUUNG: Prozentblock = {
+export const SOHLVERBAUUNG: Prozentgruppe = {
   id: 'summe.sohlverbau',
   legendKey: 'protokoll.abschnitt3.gewaessersohle.sohlverbauung.legend',
   felder: [
@@ -223,12 +220,12 @@ export const SOHLVERBAUUNG: Prozentblock = {
   ],
 }
 
-/* Every percentage block of part 3, in the order the section renders them.
+/* Every Prozentgruppe of part 3, in the order the section renders them.
  *
- * The list regeln/prozent.ts sums over, and what bloecke.test.ts counts. Six
- * blocks, which is what the build plan means by "the six percentage blocks":
- * both ufer and gewaessersohle carry more than one. */
-export const PROZENTBLOECKE: readonly Prozentblock[] = [
+ * The list regeln/prozent.ts sums over, and what gruppen.test.ts counts. Six of
+ * them, which is what the build plan means by "the six percentage blocks": both
+ * ufer and gewaessersohle carry more than one. */
+export const PROZENTGRUPPEN: readonly Prozentgruppe[] = [
   UMLAND,
   UFERNEIGUNG,
   UFERBEWUCHS,

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import ProzentBlock from './ProzentBlock'
-import { SOHLVERBAUUNG, SUBSTRAT } from './bloecke'
+import ProzentGruppe from './ProzentGruppe'
+import { SOHLVERBAUUNG, SUBSTRAT } from './gruppen'
 import FeldHaken from '../../felder/FeldHaken'
 
 /* The bed: what it is made of, how it has been built up, and what stands out
@@ -8,7 +8,7 @@ import FeldHaken from '../../felder/FeldHaken'
 
    Two runs of shares and then four observations that are ticked rather than
    shared out. The Besonderheiten are not a run and never add up to anything,
-   which is why they sit outside both ProzentBlocks. */
+   which is why they sit outside both ProzentGruppen. */
 function GewaessersohleBlock() {
   const { t } = useTranslation()
 
@@ -19,9 +19,9 @@ function GewaessersohleBlock() {
         {t('protokoll.abschnitt3.gewaessersohle.hinweis')}
       </p>
 
-      <ProzentBlock block={SUBSTRAT} />
+      <ProzentGruppe gruppe={SUBSTRAT} />
 
-      <ProzentBlock block={SOHLVERBAUUNG} />
+      <ProzentGruppe gruppe={SOHLVERBAUUNG} />
 
       <fieldset className="form-block">
         <legend>{t('protokoll.abschnitt3.gewaessersohle.besonderheiten.legend')}</legend>

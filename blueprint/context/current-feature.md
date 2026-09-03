@@ -335,17 +335,23 @@ keystroke, and the per-share message depends only on that share's own value, whi
 React Hook Form already revalidates on its own. The step was dropped rather than built
 empty.
 
-### Under 100 does not raise a message on screen
+### The sum message waits for a blur, rather than not appearing at all
 
-The rule marks any run that is not exactly 100, and the document carries that. The
-screen only shows the message once a run is **over** 100.
+First built so the message only appeared once a group went **over** 100, on the
+reasoning that under 100 is what every group looks like on the way to being filled in.
+The spec review caught that this quietly dropped a promised behaviour: Step 3's
+done-when and the walk-through both describe a reopened draft totalling 83 showing its
+message, and it would not have.
 
-Under 100 is what every run looks like on the way to being filled in, so a message
-there would be objecting to normal typing. The total is the signal instead, and it
-turns green at exactly 100. Over 100 cannot become right by typing more, so it is said
-at once. This matches where the legacy form puts its own hard stop: the star and tick
-change while typing, and "Angaben zum Umland sind nicht komplett!" only appears at
-submit, which for us is feature 11.
+Built instead on the `onTouched` cadence every other field on the protocol already
+follows. The message appears once any share in the group has been left, and clears the
+moment the total is right.
+
+A reopened draft needs its own trigger. `ProtokollFormular` revalidates a loaded draft
+on mount, but `trigger()` sets errors and leaves every field untouched, so touched
+state alone would have shown a protocol put down at 83 as clean. `Gruppensumme` also
+judges the draft's loaded values, and a group that arrived already wrong speaks up
+straight away.
 
 ### `bewerteBlock` split in two
 

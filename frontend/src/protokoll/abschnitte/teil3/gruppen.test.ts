@@ -2,15 +2,15 @@ import felder from '@formular/felder.json'
 import { describe, expect, it } from 'vitest'
 import {
   UFERNEIGUNG,
-  PROZENTBLOECKE,
+  PROZENTGRUPPEN,
   SOHLVERBAUUNG,
   SUBSTRAT,
   UFERBEWUCHS,
   UFERVERBAUUNG,
   UMLAND,
-} from './bloecke'
+} from './gruppen'
 
-/* Forty-three field paths are transcribed by hand into bloecke.ts, and every one
+/* Forty-three field paths are transcribed by hand into gruppen.ts, and every one
    has to match the legacy PDF exactly. coding-standards.md makes that match the
    thing that keeps the eventual FiaKa transfer a direct mapping rather than a
    lookup table somebody maintains.
@@ -25,7 +25,7 @@ import {
 
 const NAMEN = new Set(felder.felder.map((feld) => feld.name))
 
-describe('die Prozentbloecke von Teil 3', () => {
+describe('die Prozentgruppen von Teil 3', () => {
   it.each([
     ['Umland', UMLAND],
     ['Neigung', UFERNEIGUNG],
@@ -33,17 +33,17 @@ describe('die Prozentbloecke von Teil 3', () => {
     ['Uferverbauung', UFERVERBAUUNG],
     ['Substrat', SUBSTRAT],
     ['Sohlverbauung', SOHLVERBAUUNG],
-  ])('%s benennt nur Felder, die es im Formular gibt', (_name, block) => {
-    for (const { pfad } of block.felder) {
+  ])('%s benennt nur Felder, die es im Formular gibt', (_name, gruppe) => {
+    for (const { pfad } of gruppe.felder) {
       expect(NAMEN, pfad).toContain(pfad)
     }
   })
 
   /* The counts are the printed form's, read off page 2. They are here because a
-     block that quietly loses an entry still renders and still adds up; it just
+     gruppe that quietly loses an entry still renders and still adds up; it just
      adds up to less than 100 forever, and the sum rule would then be
      enforcing the wrong total. */
-  it('haelt die Anzahl der Anteile je Block', () => {
+  it('haelt die Anzahl der Anteile je Gruppe', () => {
     expect(UMLAND.felder).toHaveLength(8)
     expect(UFERNEIGUNG.felder).toHaveLength(4)
     expect(UFERBEWUCHS.felder).toHaveLength(9)
@@ -53,26 +53,26 @@ describe('die Prozentbloecke von Teil 3', () => {
   })
 
   it('nennt jedes Feld genau einmal', () => {
-    const pfade = PROZENTBLOECKE.flatMap((block) => block.felder.map(({ pfad }) => pfad))
+    const pfade = PROZENTGRUPPEN.flatMap((gruppe) => gruppe.felder.map(({ pfad }) => pfad))
     expect(new Set(pfade).size).toBe(pfade.length)
   })
 
-  it('umfasst sechs Bloecke', () => {
-    expect(PROZENTBLOECKE).toHaveLength(6)
+  it('umfasst sechs Gruppen', () => {
+    expect(PROZENTGRUPPEN).toHaveLength(6)
   })
 
-  it('gibt jedem Block eine eigene Kennung', () => {
-    const kennungen = PROZENTBLOECKE.map((block) => block.id)
+  it('gibt jeder Gruppe eine eigene Kennung', () => {
+    const kennungen = PROZENTGRUPPEN.map((gruppe) => gruppe.id)
     expect(new Set(kennungen).size).toBe(kennungen.length)
   })
 
-  /* The guard on the summe prefix. A block's id addresses its message, and
+  /* The guard on the summe prefix. A group's id addresses its message, and
      React Hook Form would happily hang that message on a real field if the two
      ever named the same path. ufer.neigung is the near miss: it is the
-     geschuetteter Damm's slope in degrees, and the Neigung block sits directly
+     geschuetteter Damm's slope in degrees, and the Neigung gruppe sits directly
      above it. */
-  it('benennt keinen Block wie ein Formularfeld', () => {
-    for (const { id } of PROZENTBLOECKE) {
+  it('benennt keine Gruppe wie ein Formularfeld', () => {
+    for (const { id } of PROZENTGRUPPEN) {
       expect(NAMEN, id).not.toContain(id)
     }
   })

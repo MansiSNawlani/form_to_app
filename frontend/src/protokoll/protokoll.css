@@ -230,10 +230,10 @@
   font-weight: 600;
 }
 
-/* The running total under each run of shares in part 3. Muted while the run is
-   still being filled in, because under 100 is what every run looks like on the
-   way to 100 and colouring that red would object to normal typing. */
-.blocksumme {
+/* The running total under each Prozentgruppe in part 3. Muted until a share has
+   been left, because a group is under 100 all the way up to the moment it is
+   finished, and colouring that red would object to normal typing. */
+.group-total {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -243,21 +243,21 @@
   color: var(--muted);
 }
 
-.blocksumme__wert {
+.group-total__value {
   font-weight: 600;
 }
 
-.blocksumme--voll {
+.group-total--complete {
   color: var(--ok);
 }
 
-.blocksumme--zuviel {
+.group-total--wrong {
   color: var(--danger);
 }
 
 /* The message element is always in the document so its live region is already
    there when the text arrives. Empty, it must not hold open a gap. */
-.blocksumme__meldung:empty {
+.group-total__message:empty {
   display: none;
 }
 

@@ -3,16 +3,10 @@ import { describe, expect, it } from 'vitest'
 import { antwortenSchema } from './schema'
 import type { Antworten } from '../entwurf/typen'
 
-/* The block message has to survive the trip from the rule to React Hook Form's
-   error tree, and that trip is the one thing about it that is not obvious.
- *
- * A block's path, summe.umland, names no field in the answers document. Zod
- * raises the issue at ['summe', 'umland'] and the resolver turns every issue
- * path into a nested error object, so the question is whether it does that
- * faithfully for a path with nothing behind it in the values. It does, and this
- * test is what keeps it that way: if the resolver ever started filtering issues
- * against the document, six messages would vanish silently and section 3 would
- * simply stop objecting to a wrong total. */
+/* summe.umland names no field in the answers document, so whether the resolver
+   carries an issue raised there into the error tree is not obvious. It does. If
+   it ever started filtering issues against the document instead, six messages
+   would vanish in silence. */
 
 const aufloesen = zodResolver(antwortenSchema)
 

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { pruefeKoordinaten } from './koordinaten'
 import { pruefeMonitoringnummer } from './monitoring'
-import { pruefeProzentbloecke } from './prozent'
+import { pruefeProzentgruppen } from './prozent'
 import { pruefeSchaetzwerte } from './schaetzwert'
 import { pruefeVorfluterkette } from './vorfluter'
 import type { Regel } from './regel'
@@ -21,7 +21,7 @@ const REGELN: Regel[] = [
   pruefeVorfluterkette,
   pruefeKoordinaten,
   pruefeSchaetzwerte,
-  pruefeProzentbloecke,
+  pruefeProzentgruppen,
 ]
 
 export const antwortenSchema = z
