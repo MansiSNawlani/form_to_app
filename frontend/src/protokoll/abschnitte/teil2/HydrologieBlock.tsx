@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next'
 import FeldHaken from '../../felder/FeldHaken'
 import FeldRadio from '../../felder/FeldRadio'
 import FeldText from '../../felder/FeldText'
+import { BAND_PFADE, schaetzwertPfadeZu } from '../../regeln/schaetzwert'
+import { useNachpruefung } from '../../regeln/useNachpruefung'
 
 /* How the water behaves along the stretch: nine judgements, in the order the
    legacy form prints them.
@@ -11,10 +13,16 @@ import FeldText from '../../felder/FeldText'
    estimated beats a number that is invented.
 
    No condition anywhere in this component. Whether the block is shown at all
-   depends on the Gewaessertyp, which is feature 5b's rule, and it belongs around
-   this block rather than threaded through fifteen fields. */
+   depends on the Gewaessertyp, and that decision belongs around this block, in
+   Abschnitt2, rather than threaded through fifteen fields. */
 function HydrologieBlock() {
   const { t } = useTranslation()
+
+  /* Choosing a band decides what its estimate is allowed to be, so moving the
+     band has to look at the estimate again: it can raise a message on an
+     estimate nobody has been back to, and it can clear one that no longer
+     applies. */
+  useNachpruefung(BAND_PFADE, schaetzwertPfadeZu)
 
   return (
     <fieldset className="form-section">

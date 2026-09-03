@@ -10,6 +10,7 @@ import type { Abschnitt } from './abschnitte'
 import { useAutoSave } from './entwurf/useAutoSave'
 import type { Antworten, Entwurf } from './entwurf/typen'
 import { antwortenSchema } from './regeln/schema'
+import { useHydrologieAbgleich } from './regeln/useHydrologieAbgleich'
 
 interface ProtokollFormularProps {
   entwurf: Entwurf
@@ -38,6 +39,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
     resolver: zodResolver(antwortenSchema),
   })
   const saveState = useAutoSave(entwurf, form)
+  useHydrologieAbgleich(form)
 
   /* An answer that was wrong when the draft was put down is still wrong when it
      is picked up again, so the saved answers are checked once on opening.
