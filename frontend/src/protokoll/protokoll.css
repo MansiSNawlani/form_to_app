@@ -157,6 +157,28 @@
   font-weight: 600;
 }
 
+/* One line inside a block, grouped so its fields can keep short labels.
+   A stocking row needs all four of its "Jahr" boxes to be distinguishable, and
+   the legend is what does that. Quieter than a block legend, because it names a
+   line rather than a section. */
+.form-row {
+  border: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.form-row:first-of-type {
+  margin-top: 0;
+}
+
+.form-row > legend {
+  padding: 0;
+  margin-bottom: 0.375rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .form-actions {
   display: flex;
   align-items: center;
@@ -258,6 +280,23 @@
 /* The message element is always in the document so its live region is already
    there when the text arrives. Empty, it must not hold open a gap. */
 .group-total__message:empty {
+  display: none;
+}
+
+/* A rule message belonging to a whole block rather than to one field, which is
+   where a contradiction between answers has to sit: no single box is the wrong
+   one. Same weight and colour as .field__error, since it says the same kind of
+   thing at a different scope. */
+.block-message {
+  margin: 0.75rem 0 0;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+/* Always in the document so its live region is already there when the text
+   arrives. Empty, it must not hold open a gap. */
+.block-message:empty {
   display: none;
 }
 

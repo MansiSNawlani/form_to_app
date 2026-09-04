@@ -31,6 +31,11 @@ interface FeldTextProps extends Omit<FeldRahmenProps, 'id'> {
      pasted value, so anything that must be true of the answer is a rule in
      regeln/ as well. */
   bereich?: { min: number; max: number; step: number }
+  /* How many lines tall the box starts, for the few answers the printed form
+     gives several writing lines to: the Fischereiausübungsberechtigter's contact
+     details and the two remarks boxes. Left out everywhere else, which is the
+     ordinary single-line input. It grows past this as the answer does. */
+  zeilen?: number
 }
 
 function FeldText({
@@ -38,6 +43,7 @@ function FeldText({
   typ = 'text',
   einheit,
   bereich,
+  zeilen,
   labelKey,
   spalten,
   pflicht,
@@ -52,7 +58,11 @@ function FeldText({
       {...feld}
       inputRef={ref}
       id={name}
-      type={typ}
+      /* A textarea has no type attribute, so passing one would put invalid
+         markup on the page for the sake of a default that means nothing there. */
+      type={zeilen ? undefined : typ}
+      multiline={zeilen ? true : undefined}
+      minRows={zeilen}
       fullWidth
       inputProps={{ ...bereich, ...feldAria(name, pflicht, hinweisKey, fehlerKey) }}
     />

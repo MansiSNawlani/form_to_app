@@ -4,9 +4,10 @@ Found while reading `Formular_Protokoll_E-Befischung_V20260609.pdf` and its embe
 (`all_js_Formular.js`, `validation.js`) in preparation for building the replacement web
 application.
 
-Three of these mean data already in FiaKa is wrong, so they need FFS attention regardless of what
-happens with the new application. The rest will be fixed in the new application, which means new
-records will differ from historical ones. That divergence is intentional and is flagged per item.
+Three of these mean data already in FiaKa is wrong, and a fourth means a whole block of the form
+has probably never reached it at all. Those four need FFS attention regardless of what happens with
+the new application. The rest will be fixed in the new application, which means new records will
+differ from historical ones. That divergence is intentional and is flagged per item.
 
 Send this to FFS for confirmation before building begins.
 
@@ -150,12 +151,53 @@ Please also confirm the intended codes. If FiaKa stores `31` and `32` for the tw
 then the form has been exporting the wrong numbers as well, and the affected records need
 remapping rather than only rechecking.
 
+## 10. The whole Fischereiliche Bewirtschaftung block is never exported
+
+**Severity: high. Historical data is very likely affected.**
+
+The form's fields are named `bewirschaftung`. Its export routine asks for `bewirtschaftung`.
+
+The block heading is printed "Fischereiliche Bewirtschaftung", but the field group behind it is
+spelled without the second `t`. Both export actions in `all_js_Formular.js`, at lines 1079 and
+1105, list `"bewirtschaftung"` among the fields to export:
+
+```
+this.exportAsXFDF({aFields: [... "strukturen", "einfluesse", "bewirtschaftung", ...]});
+```
+
+An entry in `aFields` names either a field or a parent whose whole subtree is exported. There is no
+field or parent named `bewirtschaftung` in this form, so the entry matches nothing and the block is
+left out of the exported file. Silently: nothing warns the user, and the block still prints
+normally on the paper form.
+
+Seventeen fields are affected, which is everything under the heading:
+
+- the four use checkboxes: Angelfischerei, Berufsfischerei, Teichspeisung, Teichablauf
+- the Fischereiausübungsberechtigter, that is the club or contact with telephone number and e-mail
+- all four Besatzmaßnahmen rows, so every fish species, size class and year of stocking
+
+Confirmed three ways on 2026-09-04: the form's field tree has one top-level node named
+`bewirschaftung` with 17 children and no node named `bewirtschaftung`; every one of the 17 field
+paths extracted from the PDF begins `bewirschaftung.`; and both export calls ask for the other
+spelling.
+
+**What we need FFS to confirm.** Is FiaKa fed from these XFDF exports? If it is, then no protocol
+filed through this form has ever delivered its fishery management data, and every stocking history
+in FiaKa that was expected to come from here is missing rather than merely incomplete. If the data
+reaches FiaKa some other way, such as by hand off the printed page, then the loss is limited to
+whatever depends on the export.
+
+This is worth checking before anything else on this list, because unlike the others it is not a
+matter of some records being wrong. If the answer is yes, the answer is that a whole category of
+data was never collected.
+
 ---
 
 ## What we intend to do
 
-Fix all nine in the new application. This means new records will be more correct than historical
-ones, and specifically:
+Nine of the ten items are live; item 7 was withdrawn before this list was sent. All nine are
+addressed in the new application. This means new records will be more correct than historical ones,
+and specifically:
 
 - Substrate percentages will be enforced to total exactly 100
 - Water body names will be stored exactly as entered
@@ -163,7 +205,16 @@ ones, and specifically:
 - The full Vorfluter chain will be verified
 - Hydrology will appear and be required for angebundenes Altwasser, and disappear for
   abgeschnittenes Altwasser, keyed to the codes the field actually exports
+- The fishery management block will be stored and submitted like every other section, since the new
+  application does not use the PDF's export routine and cannot inherit its misspelling
 
-Defects 1, 2 and 9 mean historical FiaKa data cannot be assumed clean. If any reporting depends on
-joining by water body name, on substrate percentages summing correctly, or on hydrology being
-present for oxbows, that reporting needs review.
+On that last point, one thing stays as it is on purpose. The new application keeps the misspelled
+field name `bewirschaftung` for its own stored fields, because every field name in the new system
+matches the legacy form exactly so that the eventual transfer into FiaKa is a direct match rather
+than a translation table somebody has to maintain. The name is wrong and stays wrong; what changes
+is that the data now actually arrives.
+
+Defects 1, 2 and 9 mean historical FiaKa data cannot be assumed clean, and defect 10 may mean part
+of it was never there. If any reporting depends on joining by water body name, on substrate
+percentages summing correctly, on hydrology being present for oxbows, or on stocking history, that
+reporting needs review.

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
-import { optionen, type ListenName } from '../optionen'
+import { optionen, type Optionsquelle } from '../optionen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* One choice out of a handful, shown as a row of buttons rather than folded into
@@ -20,9 +20,11 @@ import type { Antworten, AntwortPfad } from '../entwurf/typen'
    because eight long names do not fit a row. Part 2 is the first section built
    from buttons, and parts 3 to 6 are mostly more of them.
 
-   The list is named, never passed in as an array, exactly as FeldAuswahl does
-   it, so a wrong name is a build error rather than an empty group and no option
-   value is ever retyped into a component.
+   The list is normally named, exactly as FeldAuswahl does it, so a wrong name is
+   a build error rather than an empty group and no option value is ever retyped
+   into a component. It may instead be handed the options directly, for the one
+   case where the legacy form prints a set of choices without storing them as a
+   choice field. Optionsquelle in optionen.ts is where that is explained.
 
    Controller rather than register: a RadioGroup is controlled and has no single
    native input for React Hook Form to attach a ref to. */
@@ -30,7 +32,7 @@ import type { Antworten, AntwortPfad } from '../entwurf/typen'
 interface FeldRadioProps extends Omit<FeldRahmenProps, 'id'> {
   /** The legacy PDF field path, which is also the group's id. */
   name: AntwortPfad
-  liste: ListenName
+  liste: Optionsquelle
   /** A unit shown after the options, such as the m after the width bands. */
   einheit?: string
   /* Controls that sit in the same row as the options without being options.
