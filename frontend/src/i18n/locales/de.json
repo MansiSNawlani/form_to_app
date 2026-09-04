@@ -256,6 +256,72 @@
         }
       }
     },
+    "abschnitt4": {
+      "strukturen": {
+        "legend": "Natürliche Strukturen im Wasser",
+        "hinweis": "Wie stark jede Struktur in der Probestrecke vertreten ist, geschätzt auf einer Skala von 0 bis 3.",
+        "feld": {
+          "totholz": "Totholz",
+          "wurzeln": "Wurzeln",
+          "aeste": "ins Wasser hängende Äste",
+          "schilf": "Schilf / Röhricht",
+          "submerseMakrophyten": "submerse Makrophyten",
+          "schwimmblattpflanzen": "Schwimmblattpflanzen",
+          "emerseMakrophyten": "emerse Makrophyten",
+          "sonstigeStrukturen": "sonstige Strukturen",
+          "sonstigeStrukturenText": "sonstige Strukturen, welche?"
+        }
+      },
+      "einfluesse": {
+        "legend": "Nutzungsbedingte Einflüsse",
+        "hinweis": "Welche Nutzungen auf die Probestrecke einwirken. Mehrfachnennung möglich.",
+        "feld": {
+          "keine": "keine (erkennbar)",
+          "unbekannt": "unbekannt",
+          "wasserkraft": "Wasserkraft",
+          "stauhaltung": "Stauhaltung",
+          "schwallbetrieb": "Schwallbetrieb",
+          "schifffahrt": "Schifffahrt / Boote",
+          "bewaesserung": "Bewässerung",
+          "entwaesserung": "Entwässerung",
+          "hochwasserrueckhaltung": "Hochwasserrückhaltung",
+          "hochwasserablauf": "Hochwasserablauf",
+          "badebetrieb": "Badebetrieb",
+          "viehtraenke": "Viehtränke",
+          "holzberieselung": "Holzberieselung",
+          "trinkwasserversorgung": "Trinkwasserversorgung",
+          "sonstigeNutzung": "sonstige Nutzung",
+          "sonstigeNutzungText": "sonstige Nutzung, welche?"
+        }
+      },
+      "bewirtschaftung": {
+        "legend": "Fischereiliche Bewirtschaftung",
+        "hinweis": "Wie die Probestrecke fischereilich genutzt wird. Mehrfachnennung möglich.",
+        "feld": {
+          "angelfischerei": "Angelfischerei",
+          "berufsfischerei": "Berufsfischerei",
+          "teichspeisung": "Teichspeisung",
+          "teichablauf": "Teichablauf",
+          "berechtigter": "Fischereiausübungsberechtigter",
+          "berechtigterHinweis": "Verein / Ansprechpartner mit Tel.-Nr. und ggf. E-Mail-Adresse"
+        },
+        "besatz": {
+          "legend": "Besatzmaßnahmen",
+          "zeile": "Besatz {{nr}}",
+          "feld": {
+            "fischart": "Fischart",
+            "groessenklassen": "Größenklasse(n)",
+            "jahr": "Jahr"
+          }
+        }
+      },
+      "bemerkungen": {
+        "legend": "Sonstiges",
+        "feld": {
+          "sonstigeBemerkungen": "sonstige Bemerkungen zur Probestrecke"
+        }
+      }
+    },
     "felder": {
       "bitteWaehlen": "Bitte wählen",
       "einheit": {
@@ -281,7 +347,10 @@
       "schaetzwertKeineZahl": "Bitte eine Zahl in Metern eintragen, zum Beispiel 1,5.",
       "schaetzwertAusserhalbBand": "Der Schätzwert liegt außerhalb der oben gewählten Bandbreite.",
       "prozentKeineGanzeZahl": "Bitte einen ganzen Prozentwert von 0 bis 100 eintragen.",
-      "prozentsummeNichtHundert": "Die Anteile müssen zusammen genau 100 % ergeben."
+      "prozentsummeNichtHundert": "Die Anteile müssen zusammen genau 100 % ergeben.",
+      "einfluesseKeineUndNutzung": "«keine (erkennbar)» ist angekreuzt, obwohl unten eine Nutzung genannt ist. Bitte entfernen Sie eines von beiden.",
+      "einfluesseUnbekanntUndNutzung": "«unbekannt» ist angekreuzt, obwohl unten eine Nutzung genannt ist. Bitte entfernen Sie eines von beiden.",
+      "einfluesseBeideBlankett": "«keine (erkennbar)» und «unbekannt» schließen einander aus. Bitte kreuzen Sie nur eines von beiden an."
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

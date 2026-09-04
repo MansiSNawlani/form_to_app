@@ -79,7 +79,7 @@ These are not features and are not tracked here. They happen first.
         field component, and the Umland, Ufer and Gewaessersohle blocks
   - [x] 6b. Part 3 rules: the running total on each of the six blocks and the sum-to-100 rule,
         including the substrate block the legacy form never checks
-- [ ] 7. Form part 4: in-water structures, usage influences, fishery management, stocking history
+- [x] 7. Form part 4: in-water structures, usage influences, fishery management, stocking history
 - [ ] 8. Form part 5: equipment and fished areas
 - [ ] 9. Form part 6: the catch table, with the species picker, size classes, row totals, the
       young-of-year rule and the "no detection" rule

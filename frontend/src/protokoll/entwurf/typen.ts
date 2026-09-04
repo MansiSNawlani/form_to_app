@@ -30,8 +30,8 @@ export const FORM_VERSION = '20260609'
  * undefined means never touched, "" means touched and cleared. Nothing yet
  * distinguishes the two.
  *
- * Part 1 exists so far. Features 5 to 9 add their own groups, each at its own
- * legacy path.
+ * Parts 1 to 4 exist so far. Features 8 and 9 add their own groups, each at its
+ * own legacy path.
  */
 export interface Antworten {
   anlass?: string
@@ -193,6 +193,113 @@ export interface Antworten {
     eisenocker?: string
     treibsand?: string
     faulschlamm?: string
+  }
+
+  /* What grows and lies in the water itself, part 4's first block.
+
+     Eight ratings on the scale printed above the block, 0 = keine to
+     3 = dominierend, then the free text saying what the open one was. Stored as
+     the digit, because that is what the legacy form's text box holds and what
+     FiaKa receives.
+
+     Two names collide with section 3 and neither is a mistake.
+     wurzeln_strukturen is roots reaching into the water, while ufer.wurzeln is
+     the share of bank they reach in from. schilf is reeds in the water, printed
+     "Schilf / Röhricht"; ufer.schilf_rohr is reeds on the bank, printed
+     "Schilf / Rohr". Both are the legacy paths. */
+  strukturen?: {
+    totholz?: string
+    wurzeln_strukturen?: string
+    aeste?: string
+    schilf?: string
+    submerse_makrophyten?: string
+    schwimmblattpflanzen?: string
+    emerse_makrophyten?: string
+    sonstige_strukturen?: string
+    /** What that last rating was. The printed form leaves a writing line. */
+    sonstige_strukturen_text?: string
+  }
+
+  /* What the water is used for, part 4's second block.
+
+     Fifteen ticks rather than shares: several uses can apply at once, and the
+     legacy form asks only whether each is present. "Ja" or the empty string,
+     like every other checkbox here.
+
+     keine_einfluesse and unbekannt_einfluesse are not exclusive with the rest,
+     and nothing stops all three being ticked together. That matches the legacy
+     form, which checks nothing in this block. Making them exclusive means
+     deciding what happens to the other twelve, which is FFS's to specify.
+
+     sonstige_Nutzung has a capital N and its text twin does not. It is the only
+     field path in the whole form with a capital letter, and it is the legacy
+     path, so it is kept exactly. */
+  einfluesse?: {
+    keine_einfluesse?: string
+    unbekannt_einfluesse?: string
+    wasserkraft?: string
+    stauhaltung?: string
+    schwallbetrieb?: string
+    schifffahrt?: string
+    bewaesserung?: string
+    entwaesserung?: string
+    hochwasserrueckhaltung?: string
+    hochwasserablauf?: string
+    badebetrieb?: string
+    viehtraenke?: string
+    holzberieselung?: string
+    trinkwasserversorgung?: string
+    sonstige_Nutzung?: string
+    /** What that last use was. The printed form leaves a writing line. */
+    sonstige_nutzung_text?: string
+  }
+
+  /* How the water is fished and stocked, part 4's third block.
+
+     Note the spelling. The legacy form's field group is bewirschaftung, without
+     the second t, while the heading it prints is "Fischereiliche
+     Bewirtschaftung". The typo is kept because coding-standards.md makes the
+     legacy path the name, and a corrected spelling here would break the direct
+     FiaKa mapping that rule exists to protect.
+
+     The typo has a cost in the legacy form, and it is severe: both of its export
+     routines ask for "bewirtschaftung", which is not a field, so this entire
+     block has never left the PDF. See defect 10 in docs/ffs-defect-list.md. We
+     inherit the name, not the bug, because we do not use that export routine. */
+  bewirschaftung?: {
+    angelfischerei?: string
+    berufsfischerei?: string
+    teichspeisung?: string
+    teichablauf?: string
+    /** The club or contact, with telephone number and e-mail. Several lines. */
+    'fischereiausübungsberechtigter'?: string
+
+    /* Four stocking rows, exactly as many as the printed form has. The digit
+       moves between the species field and its two neighbours, which is the
+       legacy form's own inconsistency and not a slip here.
+
+       Nothing checks a row for completeness. A year with no species, or a
+       species with no year, is accepted, as it is in the legacy form. */
+    besatz_fischart1?: string
+    besatz1_groessenklassen?: string
+    besatz1_jahr?: string
+    besatz_fischart2?: string
+    besatz2_groessenklassen?: string
+    besatz2_jahr?: string
+    besatz_fischart3?: string
+    besatz3_groessenklassen?: string
+    besatz3_jahr?: string
+    besatz_fischart4?: string
+    besatz4_groessenklassen?: string
+    besatz4_jahr?: string
+  }
+
+  /* Free text. bemerkungen.sonstige_bemerkungen is the wide box at the foot of
+     page 2, which is why it lands with part 4 even though no build-plan item
+     names it. bemerkungen.bemerkung_fische is printed above the catch table on
+     page 3 and belongs to feature 9. */
+  bemerkungen?: {
+    sonstige_bemerkungen?: string
   }
 
   probestrecke?: {
