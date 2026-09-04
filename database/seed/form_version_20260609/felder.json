@@ -923,7 +923,8 @@
       "werte": [
         "alte",
         "neue"
-      ]
+      ],
+      "optionsliste": "ausruestung.bauweise"
     },
     {
       "name": "ausruestung.ringanoden",

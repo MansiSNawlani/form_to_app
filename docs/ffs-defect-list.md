@@ -4,10 +4,14 @@ Found while reading `Formular_Protokoll_E-Befischung_V20260609.pdf` and its embe
 (`all_js_Formular.js`, `validation.js`) in preparation for building the replacement web
 application.
 
-Three of these mean data already in FiaKa is wrong, and a fourth means a whole block of the form
-has probably never reached it at all. Those four need FFS attention regardless of what happens with
-the new application. The rest will be fixed in the new application, which means new records will
-differ from historical ones. That divergence is intentional and is flagged per item.
+Four of these mean data already in FiaKa is wrong or was entered blind, and a fifth means a whole
+block of the form has probably never reached it at all. Those five need FFS attention regardless of
+what happens with the new application. The rest will be fixed in the new application, which means
+new records will differ from historical ones. That divergence is intentional and is flagged per
+item.
+
+One item, the unlabelled Bauweise question, is the only thing on this list we cannot fix ourselves:
+the question it asks was never written down anywhere in the form.
 
 Send this to FFS for confirmation before building begins.
 
@@ -191,13 +195,75 @@ This is worth checking before anything else on this list, because unlike the oth
 matter of some records being wrong. If the answer is yes, the answer is that a whole category of
 data was never collected.
 
+## 11. The Bauweise question is compulsory and has no printed label
+
+**Severity: high. Historical data is affected.**
+
+On page 3, under "Eingesetzte Ausrüstung", sit two radio buttons exporting the values `alte` and
+`neue`. **Nothing is printed beside either one.** There is no caption, no heading and no wording of
+any kind at that position on the page.
+
+`validation()` nevertheless refuses to send the form until one of the two is chosen:
+
+```
+if ((this.getField("ausruestung.bauweise").value == "Off")) {
+    fehler = fehler + 'Geben Sie bitte die Bauweise des E-Gerätes an!' + lb;
+}
+```
+
+That error message is the only place in the entire form where the question is named at all. It is
+also the only place the word "Bauweise" appears: it is printed nowhere on any of the four pages.
+
+So every surveyor who has ever filed this protocol had to choose between two blank buttons in order
+to submit, guided only by an error message that says the subject is the E-Gerät's construction but
+not what "alt" and "neu" mean, nor where the line between them falls.
+
+Confirmed four ways on 2026-09-04:
+
+- the page's content stream draws no text between y=715 and y=736, which is where the two buttons
+  sit, and the nearest text above and below is the E-Gerät row and the Anodenführer row
+- the field carries no tooltip (`/TU`)
+- neither widget carries a caption (`/MK` `/CA`)
+- the strings "Bauweise", "alte" and "neue" appear in none of the four pages' text
+
+Every `bauweise` value in FiaKa was therefore entered without the question being visible, and should
+be treated as a guess rather than as an answer.
+
+**What we need FFS to confirm.** What the two options actually mean and how a surveyor is meant to
+tell them apart. Until then the new application labels them "alte Bauweise" and "neue Bauweise",
+which repeats the error message and claims nothing further, and the question remains as
+unanswerable in the new form as it is in the old one. This is the one item on this list we cannot
+fix ourselves, because the missing information was never in the form to begin with.
+
+## 12. The E-Gerät list offers the same answer twice
+
+**Severity: low. Historical data is not affected.**
+
+The E-Gerät dropdown has 34 entries, and two of them store the identical value `keine Angabe`:
+
+| Shown to the user | Stored |
+|---|---|
+| keine Angabe | `keine Angabe` |
+| unbekannt | `keine Angabe` |
+
+Both choices produce the same record, so nothing in FiaKa is wrong. But a user who deliberately
+picks "unbekannt" over "keine Angabe" is making a distinction the form then throws away, and any
+count of how often each was chosen is meaningless.
+
+It is the only list in the form with a repeated export value, checked across all 22 extracted option
+lists on 2026-09-04.
+
+**What we need FFS to confirm.** Whether the two were ever meant to be distinct answers. If they
+were, the second needs its own export value and historical records cannot recover the distinction.
+If they were not, the new application shows the choice once, which is what it does today.
+
 ---
 
 ## What we intend to do
 
-Nine of the ten items are live; item 7 was withdrawn before this list was sent. All nine are
-addressed in the new application. This means new records will be more correct than historical ones,
-and specifically:
+Eleven of the twelve items are live; item 7 was withdrawn before this list was sent. Ten of the
+eleven are addressed in the new application, and item 11 cannot be until FFS answers it. This means
+new records will be more correct than historical ones, and specifically:
 
 - Substrate percentages will be enforced to total exactly 100
 - Water body names will be stored exactly as entered
@@ -207,6 +273,8 @@ and specifically:
   abgeschnittenes Altwasser, keyed to the codes the field actually exports
 - The fishery management block will be stored and submitted like every other section, since the new
   application does not use the PDF's export routine and cannot inherit its misspelling
+- The E-Gerät list will offer "keine Angabe" once rather than twice, so the choice a user makes is
+  the choice that gets stored
 
 On that last point, one thing stays as it is on purpose. The new application keeps the misspelled
 field name `bewirschaftung` for its own stored fields, because every field name in the new system
@@ -214,7 +282,11 @@ matches the legacy form exactly so that the eventual transfer into FiaKa is a di
 than a translation table somebody has to maintain. The name is wrong and stays wrong; what changes
 is that the data now actually arrives.
 
-Defects 1, 2 and 9 mean historical FiaKa data cannot be assumed clean, and defect 10 may mean part
-of it was never there. If any reporting depends on joining by water body name, on substrate
-percentages summing correctly, on hydrology being present for oxbows, or on stocking history, that
-reporting needs review.
+Defects 1, 2, 9 and 11 mean historical FiaKa data cannot be assumed clean, and defect 10 may mean
+part of it was never there. If any reporting depends on joining by water body name, on substrate
+percentages summing correctly, on hydrology being present for oxbows, on stocking history, or on the
+E-Gerät's Bauweise, that reporting needs review.
+
+Defect 11 is the one to answer first among the new items, because until FFS says what the two
+Bauweise options mean, the new application has to keep asking a question nobody can answer, and it
+will keep collecting the same unreliable value the old form did.

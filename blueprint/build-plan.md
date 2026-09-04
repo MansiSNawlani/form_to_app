@@ -80,7 +80,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 6b. Part 3 rules: the running total on each of the six blocks and the sum-to-100 rule,
         including the substrate block the legacy form never checks
 - [x] 7. Form part 4: in-water structures, usage influences, fishery management, stocking history
-- [ ] 8. Form part 5: equipment and fished areas
+- [x] 8. Form part 5: equipment and fished areas
 - [ ] 9. Form part 6: the catch table, with the species picker, size classes, row totals, the
       young-of-year rule and the "no detection" rule
 - [ ] 10. Photo and map excerpt upload

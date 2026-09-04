@@ -32,6 +32,7 @@ export type ListenName =
   | 'z.quelle'
   | 'arten'
   | 'besatz_fischart'
+  | 'ausruestung.bauweise'
   | 'ausruestung.egeraet'
   | 'ausruestung.kathode'
   | 'messdaten.regenfaelle'
@@ -63,9 +64,46 @@ export type ListenName =
  * build error rather than an empty control. */
 export type Optionsquelle = ListenName | readonly Option[]
 
-const listen = optionslisten.listen as Record<string, Option[]>
+/* The same answer is never offered twice.
+ *
+ * ausruestung.egeraet holds 34 entries, two of which export the identical value
+ * keine Angabe under the labels "keine Angabe" and "unbekannt". It is the only
+ * list in the form that does this. See docs/ffs-defect-list.md item 12.
+ *
+ * Collapsing it here rather than in the extraction script is deliberate. The
+ * seed file is a faithful record of what is in the PDF and both entries really
+ * are, so it keeps them; what a control shows is a display question, and this is
+ * the one place display options are resolved.
+ *
+ * The first label wins, because nothing distinguishes the two: they store the
+ * same answer, so the choice between them cannot be recovered later either way.
+ */
+function ohneDoppelte(eintraege: readonly Option[]): readonly Option[] {
+  const gesehen = new Set<string>()
+  return eintraege.filter(({ wert }) => {
+    if (gesehen.has(wert)) return false
+    gesehen.add(wert)
+    return true
+  })
+}
+
+/* Collapsed once, when the module loads, rather than on every call.
+ *
+ * optionen() is called during render: FeldSuche hands its result straight to an
+ * MUI Autocomplete, which for the 722 monitoring numbers means a new array of 722
+ * objects on every keystroke and a prop that never compares equal. Doing it here
+ * keeps the reference stable, which is what it was before the duplicate needed
+ * handling at all. */
+const listen: Record<string, readonly Option[]> = Object.fromEntries(
+  Object.entries(optionslisten.listen as Record<string, Option[]>).map(
+    ([name, eintraege]) => [name, ohneDoppelte(eintraege)],
+  ),
+)
 
 export function optionen(quelle: Optionsquelle): readonly Option[] {
+  /* Options declared in code are returned untouched. They are written by hand a
+     few lines from where they are used, so a duplicate there is a typo somebody
+     can see, not a fact about a generated file. */
   if (typeof quelle !== 'string') return quelle
   return listen[quelle] ?? []
 }

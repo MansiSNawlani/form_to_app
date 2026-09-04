@@ -294,6 +294,81 @@ export interface Antworten {
     besatz4_jahr?: string
   }
 
+  /* The electrofishing gear and how it was rigged, part 5's first block.
+
+     leistung is the Ausgangsleistung, printed in kW. project-overview.md calls
+     it ausgangsleistung; the legacy path is leistung, and coding-standards.md
+     makes the legacy path the name, exactly as it does for messdaten.temperatur.
+
+     bauweise is the one answer on this form whose question is not printed
+     anywhere. Two buttons exporting "alte" and "neue", with no text beside them,
+     no tooltip and no caption, which the legacy form nonetheless refuses to
+     submit without. See defect 11 in docs/ffs-defect-list.md. The labels we show
+     repeat the wording of that form's error message and nothing more.
+
+     ringanoden and streifenanoden are counts, ringanoden_durchmesser is a
+     diameter in cm. At least one anode of either kind is required, which is
+     regeln/ausruestung.ts.
+
+     kiemennetz and stoppnetz are the two nets that may accompany the fishing.
+     Printed under "begleitend:", ticked rather than counted. */
+  ausruestung?: {
+    egeraet?: string
+    spannung?: string
+    leistung?: string
+    bauweise?: string
+    ringanoden?: string
+    ringanoden_durchmesser?: string
+    kathode?: string
+    streifenanoden?: string
+    kiemennetz?: string
+    stoppnetz?: string
+  }
+
+  /* Who led the anode. Its own top-level group, not a child of ausruestung,
+     because that is where the legacy form puts it: the paths really are
+     anodenfuehrer.vorname and anodenfuehrer.nachname. project-overview.md's
+     antworten sketch nests it under ausruestung, but that sketch says of itself
+     that exact keys follow the legacy field paths.
+
+     A name split in two, unlike bearbeiter.name, which the form keeps whole.
+     Both are the legacy shapes. */
+  anodenfuehrer?: {
+    vorname?: string
+    nachname?: string
+  }
+
+  /* What was actually fished, part 5's second block.
+
+     Two areas, each with the same seven questions: a length, an effective width,
+     which way the crew worked and how. The prefixes are the legacy form's:
+     ges_gew_ is the whole width of the water, ufer_ is along the banks.
+
+     The two lengths are checked against each other and the two widths against
+     each other, never a row against itself, which is what the legacy form does.
+     regeln/ausruestung.ts says why we kept that.
+
+     The five ticks per row are not exclusive. A crew can work upstream and back
+     down, and can wade part of a stretch and take a boat for the rest, so the
+     legacy form allows every combination and so do we. */
+  befischte_bereiche?: {
+    ges_gew_laenge?: string
+    ges_gew_breite?: string
+    ges_gew_stromauf?: string
+    ges_gew_stromab?: string
+    ges_gew_vom_boot?: string
+    ges_gew_watend?: string
+    ges_gew_vom_ufer?: string
+
+    ufer_laenge?: string
+    ufer_breite?: string
+    ufer_stromauf?: string
+    ufer_stromab?: string
+    ufer_vom_boot?: string
+    ufer_watend?: string
+    ufer_vom_ufer?: string
+  }
+
   /* Free text. bemerkungen.sonstige_bemerkungen is the wide box at the foot of
      page 2, which is why it lands with part 4 even though no build-plan item
      names it. bemerkungen.bemerkung_fische is printed above the catch table on

@@ -1,6 +1,6 @@
-import { istLeer, type Regel, type Regelverstoss } from './regel'
+import { istLeer, wertAus, type Regel, type Regelverstoss } from './regel'
 import { PROZENTGRUPPEN, type Prozentgruppe } from '../abschnitte/teil3/gruppen'
-import type { Antworten, AntwortPfad } from '../entwurf/typen'
+import type { Antworten } from '../entwurf/typen'
 
 /* The six Prozentgruppen of part 3, each of which has to come to exactly 100.
  *
@@ -32,20 +32,6 @@ export interface Gruppenbewertung {
    with parseInt, and 6a set min, max and step on the input, so anything else
    can only arrive by paste or by hand-editing a saved draft. */
 const GANZER_PROZENTWERT = /^\d{1,3}$/
-
-/* The groups address their fields by path, so the value has to be looked up
-   from one. A walk rather than two fixed indexes, because AntwortPfad is any
-   depth the document has, and part 1 already nests three deep at
-   probestrecke.gewaesser.vorfluter1. */
-function wertAus(antworten: Antworten, pfad: AntwortPfad): string {
-  const wert = pfad
-    .split('.')
-    .reduce<unknown>(
-      (aktuell, teil) => (aktuell as Record<string, unknown> | undefined)?.[teil],
-      antworten,
-    )
-  return typeof wert === 'string' ? wert : ''
-}
 
 /* The shares of one run, in the run's own order, judged on their own.
  *

@@ -160,6 +160,17 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
         "2": "einseitig oder unvollständig",
         "1": "nicht vorhanden",
     },
+    # The one entry here that is NOT transcribed from the print, because nothing
+    # is printed. These two buttons sit on page 3 with no text beside them, no
+    # tooltip and no widget caption, and the form still refuses to submit until
+    # one is chosen. The only place the question is named anywhere in the file is
+    # validation.js: "Geben Sie bitte die Bauweise des E-Gerätes an!". These two
+    # labels repeat that message and claim nothing further. See
+    # docs/ffs-defect-list.md item 11, which asks FFS what the options mean.
+    "ausruestung.bauweise": {
+        "alte": "alte Bauweise",
+        "neue": "neue Bauweise",
+    },
 }
 
 # gewaessertyp keeps the short list name it was first published under, since the
