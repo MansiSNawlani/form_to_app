@@ -29,8 +29,13 @@ interface FeldTextProps extends Omit<FeldRahmenProps, 'id'> {
   /* What a number input's spinner may reach, for a field with a natural range
      such as a percentage. An affordance only: the browser will not stop a
      pasted value, so anything that must be true of the answer is a rule in
-     regeln/ as well. */
-  bereich?: { min: number; max: number; step: number }
+     regeln/ as well.
+
+     Only min is required. Part 5's quantities have a floor of 0 and no ceiling
+     anyone can name: a voltage cannot be negative, but what counts as too high
+     is a question for FFS, and guessing it would put a limit in the interface
+     that no rule backs. */
+  bereich?: { min: number; max?: number; step?: number }
   /* How many lines tall the box starts, for the few answers the printed form
      gives several writing lines to: the Fischereiausübungsberechtigter's contact
      details and the two remarks boxes. Left out everywhere else, which is the

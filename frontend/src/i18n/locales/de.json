@@ -322,6 +322,65 @@
         }
       }
     },
+    "abschnitt5": {
+      "ausruestung": {
+        "legend": "Eingesetzte Ausrüstung",
+        "hinweis": "Das E-Gerät, mit dem befischt wurde, und wie es bestückt war.",
+        "feld": {
+          "egeraet": "E-Gerät, Hersteller, Modell",
+          "spannung": "Spannung",
+          "leistung": "Ausgangsleistung",
+          "bauweise": "Bauweise des E-Gerätes",
+          "kiemennetz": "Kiemen- oder Spiegelnetz",
+          "stoppnetz": "Stopp- bzw. Sperrnetz"
+        }
+      },
+      "anodenfuehrer": {
+        "legend": "Anodenführer",
+        "feld": {
+          "vorname": "Vorname",
+          "nachname": "Nachname"
+        }
+      },
+      "anoden": {
+        "legend": "Anoden und Kathode",
+        "feld": {
+          "ringanoden": "Anzahl Ringanoden",
+          "ringanodenDurchmesser": "Durchmesser der Ringanoden",
+          "streifenanoden": "Anzahl Streifenanoden",
+          "kathode": "Kathodentyp"
+        }
+      },
+      "netze": {
+        "legend": "Begleitend eingesetzt"
+      },
+      "bereiche": {
+        "legend": "Befischte Bereiche",
+        "hinweis": "Welche Strecke tatsächlich befischt wurde, in welche Richtung und mit welcher Methode. Mindestens einer der beiden Bereiche ist auszufüllen.",
+        "feld": {
+          "laenge": "Effektiv befischte Länge",
+          "breite": "Effektiv befischte Breite"
+        },
+        "gesamteBreite": {
+          "legend": "Über die gesamte Gewässerbreite",
+          "stromauf": "stromauf, über die gesamte Gewässerbreite",
+          "stromab": "stromab, über die gesamte Gewässerbreite",
+          "vomBoot": "vom Boot, über die gesamte Gewässerbreite",
+          "watend": "watend, über die gesamte Gewässerbreite",
+          "vomUfer": "vom Ufer, über die gesamte Gewässerbreite"
+        },
+        "entlangUfer": {
+          "legend": "Entlang der Ufer",
+          "stromauf": "stromauf, entlang der Ufer",
+          "stromab": "stromab, entlang der Ufer",
+          "vomBoot": "vom Boot, entlang der Ufer",
+          "watend": "watend, entlang der Ufer",
+          "vomUfer": "vom Ufer, entlang der Ufer"
+        },
+        "richtung": "Richtung",
+        "methode": "Methode"
+      }
+    },
     "felder": {
       "bitteWaehlen": "Bitte wählen",
       "einheit": {
@@ -331,7 +390,9 @@
         "zentimeter": "cm",
         "meterProSekunde": "m/s",
         "prozent": "%",
-        "winkelgrad": "°"
+        "winkelgrad": "°",
+        "volt": "V",
+        "kilowatt": "kW"
       },
       "auswahlAufheben": "Auswahl aufheben"
     },
@@ -350,7 +411,11 @@
       "prozentsummeNichtHundert": "Die Anteile müssen zusammen genau 100 % ergeben.",
       "einfluesseKeineUndNutzung": "«keine (erkennbar)» ist angekreuzt, obwohl unten eine Nutzung genannt ist. Bitte entfernen Sie eines von beiden.",
       "einfluesseUnbekanntUndNutzung": "«unbekannt» ist angekreuzt, obwohl unten eine Nutzung genannt ist. Bitte entfernen Sie eines von beiden.",
-      "einfluesseBeideBlankett": "«keine (erkennbar)» und «unbekannt» schließen einander aus. Bitte kreuzen Sie nur eines von beiden an."
+      "einfluesseBeideBlankett": "«keine (erkennbar)» und «unbekannt» schließen einander aus. Bitte kreuzen Sie nur eines von beiden an.",
+      "zahlNegativ": "Bitte einen Wert ab 0 eintragen.",
+      "anodenKeine": "Ohne Anode ist keine Befischung möglich. Bitte tragen Sie die Anzahl der Ringanoden oder der Streifenanoden ein.",
+      "befischteLaengeNull": "Für keinen der beiden Bereiche ist eine befischte Länge angegeben. Bitte tragen Sie mindestens eine ein.",
+      "befischteBreiteNull": "Für keinen der beiden Bereiche ist eine befischte Breite angegeben. Bitte tragen Sie mindestens eine ein."
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

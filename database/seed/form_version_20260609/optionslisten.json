@@ -522,6 +522,16 @@
         "label": "Zwergwels"
       }
     ],
+    "ausruestung.bauweise": [
+      {
+        "wert": "alte",
+        "label": "alte Bauweise"
+      },
+      {
+        "wert": "neue",
+        "label": "neue Bauweise"
+      }
+    ],
     "ausruestung.egeraet": [
       {
         "wert": "EFGI 1300",

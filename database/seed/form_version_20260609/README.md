@@ -22,6 +22,7 @@ FiaKa receives today.
 | `z.quelle` | 13 | Feature 4 |
 | `arten` | 123 | Feature 9 |
 | `besatz_fischart` | 77 | Feature 7 |
+| `ausruestung.bauweise` | 2 | Feature 8 |
 | `ausruestung.egeraet` | 34 | Feature 8 |
 | `ausruestung.kathode` | 9 | Feature 8 |
 | `messdaten.regenfaelle` | 3 | Feature 5 |
@@ -59,6 +60,18 @@ paired with the values on extraction, which raises if the two disagree. The valu
 always come from the PDF. For `gewaessertyp` they are `28` and `29` for the two Altwasser types,
 not `31` and `32` as the form's own JavaScript assumes; see
 [defect 9](../../../docs/ffs-defect-list.md).
+
+**One group's labels are not transcribed, because the form prints none.**
+`ausruestung.bauweise` is two buttons with no text beside them, no tooltip and no caption, and the
+form still refuses to submit until one is chosen. Its two labels are the only invented strings in
+this file. They repeat the wording of the error message the form throws, which is the only place
+the question is named at all. See [defect 11](../../../docs/ffs-defect-list.md), which asks FFS what
+the two options mean.
+
+**One list offers the same answer twice.** `ausruestung.egeraet` has 34 entries and two of them
+export `keine Angabe`, labelled "keine Angabe" and "unbekannt". That is faithful to the PDF and
+stays here; the duplicate is collapsed where options are read for display, in
+`frontend/src/protokoll/optionen.ts`. See [defect 12](../../../docs/ffs-defect-list.md).
 
 **Radio lists are in printed order, `felder.json` is in the PDF's order.** The two differ.
 `hydrologie.fliessgeschwindigkeit` lists its values as 1, 2, 3, 5, 6, 4 for buttons that read left
