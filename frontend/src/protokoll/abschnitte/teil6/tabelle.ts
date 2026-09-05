@@ -109,12 +109,26 @@ export const KLASSEN: readonly Groessenklasse[] = [
   },
 ]
 
-/** Everything one row stores, in the order the printed form prints it. */
-export const ZEILENFELDER: readonly Artfeld[] = [
-  'name',
-  ...KLASSEN.map(({ feld }) => feld),
-  '0plus',
+/* Everything one row stores, in the order the printed form prints it, each with
+ * the words that name it.
+ *
+ * The names are the same ones ArtZeile builds each cell's accessible name from,
+ * so a message about a cell can say which cell it is in exactly the wording the
+ * cell announces itself with. Kept as one list rather than restated where the
+ * messages are rendered, because two lists of twelve would drift. */
+export interface Zeilenspalte {
+  feld: Artfeld
+  nameKey: ParseKeys
+}
+
+export const ZEILENSPALTEN: readonly Zeilenspalte[] = [
+  { feld: 'name', nameKey: 'protokoll.abschnitt6.spalte.art' },
+  ...KLASSEN.map(({ feld, nameKey }) => ({ feld, nameKey })),
+  { feld: '0plus', nameKey: 'protokoll.abschnitt6.spalte.nullPlusName' },
 ]
+
+/** Everything one row stores, in the order the printed form prints it. */
+export const ZEILENFELDER: readonly Artfeld[] = ZEILENSPALTEN.map(({ feld }) => feld)
 
 /** One answer's legacy path, such as arten.art7.klasse_3. */
 export function artPfad(nr: Artnummer, feld: Artfeld): AntwortPfad {
@@ -125,6 +139,105 @@ export function artPfad(nr: Artnummer, feld: Artfeld): AntwortPfad {
 export function klassenPfade(nr: Artnummer): AntwortPfad[] {
   return KLASSEN.map(({ feld }) => artPfad(nr, feld))
 }
+
+/* The eleven fields in a row that hold a count: the ten size classes, then 0+.
+ *
+ * Not the same list as KLASSEN, and the difference is load-bearing. A row total
+ * is the ten classes alone, because the printed form heads the 0+ column "davon"
+ * and those individuals are already counted beside them. What all eleven have in
+ * common is only that each must be a whole number of animals. */
+export const ZAEHLFELDER: readonly Artfeld[] = [
+  ...KLASSEN.map(({ feld }) => feld),
+  '0plus',
+]
+
+/** One row's eleven count paths. */
+export function zaehlfelder(nr: Artnummer): AntwortPfad[] {
+  return ZAEHLFELDER.map((feld) => artPfad(nr, feld))
+}
+
+/* Whether anybody has left a count cell in the table yet.
+ *
+ * React Hook Form's touched tree mirrors the values, so this is a walk two levels
+ * down rather than a lookup. The species cells are deliberately not counted: the
+ * table's own message is a verdict on the counts, and a species picker is blurred
+ * the moment one is chosen, which would open the gate before a single number had
+ * been typed.
+ *
+ * Takes unknown because React Hook Form's touched tree is a deep partial of the
+ * answers document and this only ever asks whether a leaf is set. */
+export function zaehlzelleBeruehrt(zeilen: unknown): boolean {
+  if (!zeilen || typeof zeilen !== 'object') return false
+
+  return Object.values(zeilen as Record<string, unknown>).some((zeile) => {
+    if (!zeile || typeof zeile !== 'object') return false
+    const felder = zeile as Record<string, unknown>
+    return ZAEHLFELDER.some((feld) => Boolean(felder[feld]))
+  })
+}
+
+/** Every row's species cell, which is what the cross-row rules are judged on. */
+export function namensPfade(): AntwortPfad[] {
+  return ARTNUMMERN.map((nr) => artPfad(nr, 'name'))
+}
+
+/* Which cells are worth rechecking when one cell changes.
+ *
+ * Three of part 6's rules span more than one cell, and React Hook Form only
+ * rechecks the field being edited, so without this they go stale: correcting the
+ * size class that a 0+ count was too large for would leave the 0+ message
+ * standing, and clearing a duplicate species would leave the second row red.
+ *
+ * A pure function over a path, so it is testable without a form. Handed to
+ * useNachpruefung by ArtenTabelle.
+ */
+export function nachzupruefen(geaendert: AntwortPfad): readonly AntwortPfad[] {
+  const [, zeile, feld] = geaendert.split('.')
+
+  /* A species changing can settle or raise a duplicate anywhere in the table,
+     and OFAN's rule reads every row, so all twenty-six are rechecked. */
+  if (feld === 'name') return namensPfade()
+
+  const name = `arten.${zeile}.name` as AntwortPfad
+
+  /* A count changing can settle the row's 0+ message and the no-detection
+     contradiction on its species. 0+ is left out when it changed itself, so its
+     own message keeps the blur cadence every field on this form follows rather
+     than objecting to a number still being typed. */
+  return feld === '0plus' ? [name] : [`arten.${zeile}.0plus` as AntwortPfad, name]
+}
+
+/* Where the table's own message lives.
+ *
+ * The same device teil3/gruppen.ts, teil4/bloecke.ts and teil5/bloecke.ts all
+ * use, and for the same reason: no path in the answers document names the table,
+ * and a survey that recorded nothing without saying so is wrong in no single
+ * cell. The prefix keeps it clear of the answers, where arten is a real group. */
+export const ARTEN_TABELLE = 'tabelle.arten' as const
+
+export type Tabellenpfad = typeof ARTEN_TABELLE
+
+/* The four species codes that record a survey finding nothing.
+ *
+ * Read straight out of the printed form's own species list, where they sit
+ * between Kaulbarsch and Kesslergrundel under the labels "kein Nachweis", "kein
+ * Nachweis, Fische", "kein Nachweis, Krebse" and "kein Nachweis, Muscheln". They
+ * are ordinary entries in the picker; what makes them different is only what
+ * they mean, which is what feature 9b's rules are about.
+ *
+ * Pinned against optionslisten.json in tabelle.test.ts. A code renamed upstream
+ * would otherwise disable the rule silently rather than fail. */
+export const KEIN_NACHWEIS: readonly string[] = ['OFAN', 'OFAF', 'KNKR', 'KNMU']
+
+/* The unqualified one. The other three each name what was not found, so "kein
+ * Nachweis, Krebse" beside three Hechte is coherent, while this one says nothing
+ * at all was found and so excludes every other species in the table.
+ *
+ * Telling the qualified three apart from a species they contradict would need to
+ * know which of the 123 entries is a fish, a crayfish or a mussel, and the seed
+ * list carries only a code and a German label. See question 10 in
+ * docs/ffs-questions.md. */
+export const OHNE_QUALIFIKATION = 'OFAN'
 
 /* Every path part 6 stores: 26 rows of 12. Recomputed on each call rather than
    frozen into a constant, because the only callers are the test and a memo. */

@@ -553,3 +553,47 @@
   font-size: var(--step-0);
   line-height: 1;
 }
+
+/* What is wrong in the catch table, written out under it.
+ *
+ * A cell is about sixty pixels wide, so its message cannot sit in it the way
+ * every other field's does. The cell is marked instead, and the sentence is
+ * here, prefixed with the row and column it belongs to. */
+.tabelle-meldungen {
+  margin-top: 0.85rem;
+}
+
+.tabelle-meldungen__titel {
+  margin: 0 0 0.25rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Same weight and colour as .field__error and .block-message, since it says the
+   same kind of thing in a place that has no room for it. MUI's List brings the
+   semantics and its own reset; only what is particular to this one list is set
+   here, which is what keeps it out of muiTheme.ts. */
+.tabelle-meldungen__liste {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.tabelle-meldungen__liste .MuiListItem-root {
+  display: list-item;
+  list-style: disc;
+  margin-left: 1.25rem;
+  padding: 0;
+}
+
+.tabelle-meldungen__liste .MuiListItem-root + .MuiListItem-root {
+  margin-top: 0.15rem;
+}
+
+/* The place is quieter than the instruction: it says where to look, and the red
+   sentence beside it says what to do. */
+.tabelle-meldungen__ort {
+  color: var(--muted);
+  font-weight: 500;
+}

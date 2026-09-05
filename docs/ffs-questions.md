@@ -141,6 +141,30 @@ it is only ever displayed.
 **If it is just a slip:** we trim it for display, the same way other obvious label typos in the
 legacy form are corrected without touching the stored value.
 
+## 10. Which species does each "kein Nachweis" code rule out?
+
+**Where:** Part 6, the species list and the catch table rules.
+
+Four of the 123 entries record a survey finding nothing. Three of them are qualified: `OFAF` is
+"kein Nachweis, Fische", `KNKR` is "kein Nachweis, Krebse" and `KNMU` is "kein Nachweis, Muscheln".
+The fourth, `OFAN`, is plain "kein Nachweis".
+
+`OFAN` is unambiguous, so the application already refuses to let it stand beside any other species
+in the table. The other three are not. "No crayfish" beside three Hechte is a perfectly sensible
+record, while "no fish" beside three Hechte contradicts itself, and telling those two apart means
+knowing which of the 123 entries is a fish, which a crayfish and which a mussel. The extracted list
+carries only a code and a German label, and inferring the group from the wording of the label would
+be a guess dressed up as a rule.
+
+**What we assume meanwhile:** the three qualified codes are checked only within their own row. A row
+that reports no detection and still counts animals is rejected, and the same code cannot be chosen
+twice, but a qualified code standing beside a named species is accepted.
+
+**If FFS can supply the grouping:** a species-group column in the list, or a rule for deriving it,
+would let the application catch a genuine contradiction that reaches FiaKa today. It would be a
+small change here, not a schema change: the group would live alongside the code in the extracted
+option list.
+
 ---
 
 ## What happens to the answers

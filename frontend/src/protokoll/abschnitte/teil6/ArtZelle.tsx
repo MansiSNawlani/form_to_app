@@ -27,6 +27,7 @@ function ArtZelle({ name, bezeichnung }: ArtZelleProps) {
       name={name}
       liste="arten"
       className="zelle__suche"
+      fehlerhaft={Boolean(fehlerKey)}
       eingabeAria={{
         'aria-label': bezeichnung,
         'aria-invalid': fehlerKey ? true : undefined,
