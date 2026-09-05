@@ -360,6 +360,45 @@ the button. Deciding when to grow means watching the last row, and a watch in th
 re-render all 312 controls per keystroke, so it is `Zeilenwaechter`, a component that renders
 nothing and exists to hold that subscription in a leaf.
 
+### The table was rebuilt on MUI, and the rule that says so was widened
+
+Asked on 2026-09-05, after the table was finished: why is this a bare `<table>` when every control
+inside it is MUI? Fair question, and the honest answer was that MUI's `Table` had never been
+weighed. The comment at the top of `ArtenTabelle.tsx` argued against a grid of divs, which is a
+different argument.
+
+Offered the choice between MUI everywhere and a narrower rule keeping MUI for behaviour-carrying
+controls only, the answer was MUI everywhere. So `coding-standards.md` now reads "use MUI wherever
+MUI has a component" with no behaviour-versus-structure carve-out, and section 6 was rebuilt on
+`Table`, `TableHead`, `TableBody`, `TableFooter`, `TableRow`, `TableCell` and `TableContainer`.
+`<caption>` stays native, because MUI genuinely has no component for it.
+
+The look moved with it. The cell borders, spacing, type and the two sunken backgrounds are now
+`MuiTable`, `MuiTableCell` and `MuiTableContainer` overrides in `muiTheme.ts`, so the review queue
+in feature 12 and the user list in feature 16 inherit them instead of restating them. What stayed in
+`protokoll.css` is only what the catch table alone needs: the two sticky columns, the cell widths,
+and the `scroll-margin-left` that keeps a focused cell out from under them. Those selectors gained
+an `.arten-tabelle` ancestor, because a single class ties with MUI's own themed class and would then
+be settled by stylesheet order rather than by intent.
+
+Three things were checked rather than assumed, since the conversion adds 364 styled components to
+the screen that already cost the most:
+
+| Measure | Before | After |
+|---|---|---|
+| Keystroke at 26 rows, 312 controls | 2.3ms | 2.28ms |
+| Bundle, raw | 1,057.67 kB | 1,065.26 kB |
+| Bundle, gzipped | 322.28 kB | 324.28 kB |
+
+Typing is unchanged because `memo` on `ArtZeile` means a keystroke re-renders one row's total and
+the grand total, not the cells; the extra components cost only at mount. `TableCell` inside a
+`TableHead` renders `th scope="col"` by itself, and `component="th" scope="row"` gives the row
+number and the Gesamtsumme label theirs, so nothing was lost from step 3's accessibility work.
+Re-verified after the conversion: the page still never scrolls sideways at either width in either
+theme, the species column still holds while the classes scroll, a focused off-screen cell still
+lands clear of the sticky columns, removing a row still shifts the rows below up and survives a
+reload, and filling the last row still opens the next.
+
 ## Data / contracts
 
 Load-bearing, and the last group the document gains. Feature 3 sends this same document to the

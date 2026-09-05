@@ -1,4 +1,6 @@
 import Button from '@mui/material/Button'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArtZelle from './ArtZelle'
@@ -13,6 +15,11 @@ import type { Artnummer } from '../../entwurf/typen'
  * built here rather than inside the cell components. Header association alone is
  * uneven across screen readers, and at 312 controls the cost of it failing is a
  * grid of identical unnamed number boxes.
+ *
+ * The row number is a th scope="row", so a screen reader reading across the row
+ * announces which species row it is in. TableCell renders a td by default and
+ * only sets scope="col" for itself inside a TableHead, so both are asked for
+ * here.
  *
  * Memoised, which coding-standards.md allows only on a measurement. Here is the
  * measurement: the table re-renders whenever a row is added or removed, and
@@ -30,18 +37,18 @@ function ArtZeile({ nr, onEntfernen }: ArtZeileProps) {
   const entfernenText = t('protokoll.abschnitt6.zeile.entfernen', { nr })
 
   return (
-    <tr>
-      <th scope="row" className="arten-tabelle__nr">
+    <TableRow>
+      <TableCell component="th" scope="row" className="arten-tabelle__nr">
         {nr}
-      </th>
-      <td className="arten-tabelle__art">
+      </TableCell>
+      <TableCell className="arten-tabelle__art">
         <ArtZelle
           name={artPfad(nr, 'name')}
           bezeichnung={t('protokoll.abschnitt6.zeile.art', { nr })}
         />
-      </td>
+      </TableCell>
       {KLASSEN.map(({ feld, nameKey }) => (
-        <td key={feld}>
+        <TableCell key={feld}>
           <ZahlZelle
             name={artPfad(nr, feld)}
             bezeichnung={t('protokoll.abschnitt6.zeile.feld', {
@@ -49,12 +56,12 @@ function ArtZeile({ nr, onEntfernen }: ArtZeileProps) {
               spalte: t(nameKey),
             })}
           />
-        </td>
+        </TableCell>
       ))}
-      <td className="arten-tabelle__summe">
+      <TableCell className="arten-tabelle__summe">
         <Zeilensumme nr={nr} />
-      </td>
-      <td>
+      </TableCell>
+      <TableCell>
         <ZahlZelle
           name={artPfad(nr, '0plus')}
           bezeichnung={t('protokoll.abschnitt6.zeile.feld', {
@@ -62,8 +69,8 @@ function ArtZeile({ nr, onEntfernen }: ArtZeileProps) {
             spalte: t('protokoll.abschnitt6.spalte.nullPlusName'),
           })}
         />
-      </td>
-      <td className="arten-tabelle__aktion">
+      </TableCell>
+      <TableCell className="arten-tabelle__aktion">
         {/* A symbol, because thirteen columns leave no room for the word, and
             the words are still there for everyone: a screen reader reads the
             aria-label, a pointer gets the title. Both name the row, so
@@ -78,8 +85,8 @@ function ArtZeile({ nr, onEntfernen }: ArtZeileProps) {
         >
           <span aria-hidden="true">✕</span>
         </Button>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
 

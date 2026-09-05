@@ -402,77 +402,38 @@
   border: 0;
 }
 
-/* The catch table.
+/* Tables.
  *
- * Thirteen columns of numbers do not fit a narrow window and will not be made
- * to: the table keeps its shape and scrolls sideways inside this frame, rather
- * than stacking into cards that lose the comparison down a column, which is the
- * whole reason the data is a table. The page body itself never scrolls
- * sideways, which is what this container is for. */
-.tabelle-rahmen {
-  overflow-x: auto;
-  /* Without this the frame grows to fit the table instead of scrolling it, and
-     the page body scrolls sideways instead. */
-  max-width: 100%;
-  /* A containing block for the .visually-hidden labels inside the table.
-     They are position: absolute, so without a positioned ancestor they resolve
-     against the initial containing block, which overflow cannot clip: the
-     column headings sit 1000px into a table that scrolls inside a 600px frame,
-     and the whole page scrolled sideways to reach text nobody can see. Found on
-     2026-09-05 by bisecting the layout, after overflow-x: hidden on this element
-     failed to contain it and contain: paint did. */
-  position: relative;
-  /* Room for the focus ring on the bottom row, which a clipped overflow box
-     would otherwise cut in half. */
-  padding-bottom: 0.35rem;
+ * The look itself lives in muiTheme.ts, on MuiTable, MuiTableCell and
+ * MuiTableContainer, so every table in the app carries it. What is left here is
+ * what only the catch table needs. */
+
+/* MUI's TableCell draws the other three borders from the theme; the left-hand
+   edge is here because :first-child inside styleOverrides trips emotion's
+   server-side-rendering warning, and this app has no server to render on. It
+   has to sit on the cell rather than on the table so the sticky first column
+   keeps its edge while the rest scrolls under it. */
+.MuiTable-root tr > :first-child {
+  border-left: 1px solid var(--border);
 }
 
 /* A fieldset defaults to min-inline-size: min-content, so it refuses to be
    narrower than the widest thing inside it. Every other section on the protocol
    fits, so this never mattered until a thirteen column table arrived: the
    fieldset grew to the table's width, took the card with it, and the page body
-   scrolled sideways while .tabelle-rahmen sat there with nothing to scroll. */
+   scrolled sideways while the scroll container sat there with nothing to
+   scroll. */
 .form-section--tabelle {
   min-inline-size: 0;
-}
-
-.arten-tabelle {
-  border-collapse: separate;
-  /* separate, not collapse, because a sticky first column drops its borders
-     under collapse in every engine. 0 spacing keeps it looking collapsed. */
-  border-spacing: 0;
-  width: max-content;
-  min-width: 100%;
-}
-
-.arten-tabelle th,
-.arten-tabelle td {
-  border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--border);
-  padding: 0.3rem;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.arten-tabelle thead th {
-  background: var(--surface-sunken);
-  border-top: 1px solid var(--border);
-  font-size: var(--step--1);
-  font-weight: 600;
-  white-space: nowrap;
-  z-index: 2;
-}
-
-.arten-tabelle th:first-child,
-.arten-tabelle td:first-child {
-  border-left: 1px solid var(--border);
 }
 
 /* The row number and the species both stay put while the ten size classes
    scroll under them, so a cell is never stranded away from the row it belongs
    to. Two sticky columns, so their left offsets have to add up: the species
-   starts exactly where the number ends. */
-.arten-tabelle__nr {
+   starts exactly where the number ends.
+   Written as descendants of .arten-tabelle rather than on the modifier alone,
+   so each rule outweighs the single class MUI's own themed styles use. */
+.arten-tabelle .arten-tabelle__nr {
   width: 2.5rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -482,7 +443,7 @@
   background: var(--surface);
 }
 
-.arten-tabelle__art {
+.arten-tabelle .arten-tabelle__art {
   position: sticky;
   left: 2.5rem;
   z-index: 1;
@@ -505,13 +466,12 @@
    spans twelve columns and its text sits at the right-hand end, against the Σ
    column it belongs to, so pinning its left edge would hold the cell still and
    let the words scroll out of it. */
-.arten-tabelle__gesamt {
+.arten-tabelle .arten-tabelle__gesamt {
   text-align: right;
-  background: var(--surface-sunken);
   white-space: nowrap;
 }
 
-.arten-tabelle__summe {
+.arten-tabelle .arten-tabelle__summe {
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   min-width: 3.5rem;
@@ -561,12 +521,6 @@
   font-weight: 600;
 }
 
-.arten-tabelle tfoot th,
-.arten-tabelle tfoot td {
-  background: var(--surface-sunken);
-  font-weight: 600;
-}
-
 /* The Art hinzufügen button and the note that appears when the table is full. */
 .tabelle-aktionen {
   display: flex;
@@ -589,7 +543,7 @@
 /* Narrow on purpose: the whole table has to fit a desktop card, and thirteen
    columns leave nothing to spare. The button shows a symbol and carries the
    words in its accessible name and its tooltip, so nothing is lost to anyone. */
-.arten-tabelle__aktion {
+.arten-tabelle .arten-tabelle__aktion {
   width: 2.75rem;
 }
 

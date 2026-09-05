@@ -1,4 +1,11 @@
 import Button from '@mui/material/Button'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableFooter from '@mui/material/TableFooter'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { useCallback, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -13,7 +20,14 @@ import type { Antworten, Artnummer } from '../../entwurf/typen'
  *
  * A real table, not a grid of divs. Thirteen columns of numbers that a surveyor
  * reads down as well as across is the case tables exist for, and the semantics
- * are what let a screen reader answer "which column am I in" at all.
+ * are what let a screen reader answer "which column am I in" at all. MUI's
+ * table components render exactly those elements, and the look comes from
+ * muiTheme.ts so the tables in features 12 and 16 do not have to restate it.
+ *
+ * TableContainer is the scroll frame: thirteen columns do not fit a narrow
+ * window and will not be made to, so the table keeps its shape and scrolls
+ * sideways inside it rather than stacking into cards that lose the comparison
+ * down a column, which is the whole reason the data is a table.
  *
  * The row count is component state, not an answer: how many rows are open
  * describes the screen rather than the survey. zeilen.ts seeds it from the draft
@@ -59,69 +73,72 @@ function ArtenTabelle() {
       <legend>{t('protokoll.abschnitt6.tabelle.legend')}</legend>
       <p className="form-section__hint">{t('protokoll.abschnitt6.tabelle.hinweis')}</p>
 
-      <div className="tabelle-rahmen">
-        <table className="arten-tabelle">
+      <TableContainer>
+        <Table className="arten-tabelle">
+          {/* MUI has no caption component, and a table needs one: it is what
+              names the table to a screen reader listing the page's tables. */}
           <caption className="visually-hidden">
             {t('protokoll.abschnitt6.tabelle.beschriftung')}
           </caption>
-          <thead>
-            <tr>
-              <th scope="col" className="arten-tabelle__nr">
+          <TableHead>
+            <TableRow>
+              <TableCell className="arten-tabelle__nr">
                 <span className="visually-hidden">
                   {t('protokoll.abschnitt6.spalte.nr')}
                 </span>
-              </th>
-              <th scope="col" className="arten-tabelle__art">
+              </TableCell>
+              <TableCell className="arten-tabelle__art">
                 {t('protokoll.abschnitt6.spalte.art')}
-              </th>
+              </TableCell>
               {KLASSEN.map(({ feld, kopfKey, nameKey }) => (
                 /* The short form fits the column, the long one is the tooltip.
                    The cells below depend on neither: each names its own class
                    outright. */
-                <th scope="col" key={feld} title={t(nameKey)}>
+                <TableCell key={feld} title={t(nameKey)}>
                   {t(kopfKey)}
-                </th>
+                </TableCell>
               ))}
-              <th scope="col" title={t('protokoll.abschnitt6.spalte.summeName')}>
+              <TableCell title={t('protokoll.abschnitt6.spalte.summeName')}>
                 {t('protokoll.abschnitt6.spalte.summe')}
-              </th>
-              <th scope="col" title={t('protokoll.abschnitt6.spalte.nullPlusName')}>
+              </TableCell>
+              <TableCell title={t('protokoll.abschnitt6.spalte.nullPlusName')}>
                 {t('protokoll.abschnitt6.spalte.nullPlus')}
-              </th>
-              <th scope="col" className="arten-tabelle__aktion">
+              </TableCell>
+              <TableCell className="arten-tabelle__aktion">
                 <span className="visually-hidden">
                   {t('protokoll.abschnitt6.spalte.aktion')}
                 </span>
-              </th>
-            </tr>
-          </thead>
+              </TableCell>
+            </TableRow>
+          </TableHead>
 
-          <tbody>
+          <TableBody>
             {zeilen.map((nr) => (
               <ArtZeile key={nr} nr={nr} onEntfernen={entfernen} />
             ))}
-          </tbody>
+          </TableBody>
 
-          <tfoot>
-            <tr>
+          <TableFooter>
+            <TableRow>
               {/* Spans the row number, the species and the ten classes, so the
                   grand total sits under the Σ column it totals. */}
-              <th
+              <TableCell
+                component="th"
                 scope="row"
                 colSpan={2 + KLASSEN.length}
                 className="arten-tabelle__gesamt"
               >
                 {t('protokoll.abschnitt6.tabelle.gesamt')}
-              </th>
-              <td className="arten-tabelle__summe">
+              </TableCell>
+              <TableCell className="arten-tabelle__summe">
                 <Gesamtsumme />
-              </td>
-              <td />
-              <td className="arten-tabelle__aktion" />
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+              </TableCell>
+              <TableCell />
+              <TableCell className="arten-tabelle__aktion" />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
 
       {/* Renders nothing. It watches the last row so the table can grow without
           the table itself subscribing to anything. */}

@@ -62,13 +62,23 @@ next to each other in the code and change them together.
 
 - **MUI** for components, themed against our own design tokens
   ([ADR 0006](../../docs/adr/0006-mui-supersedes-kern.md), superseding ADR 0005, which chose KERN)
-- **Form controls come from MUI wherever MUI has one**, decided on 2026-09-01 during feature 4a.
-  Reach for `Select`, `TextField`, `Checkbox`, `RadioGroup` and `Autocomplete` before writing a
-  native control. Where MUI's default composition fights the approved mockups, theme MUI to match
-  the mockup in `muiTheme.ts` rather than dropping to a hand-styled native element. The label sits
-  above the field, so use `FormLabel` inside a `FormControl`, not `InputLabel` and its border notch.
-  A native element is right only where MUI genuinely has no equivalent. This matters because the
-  form has roughly 338 fields: whatever the first one does, the rest copy
+- **Use MUI wherever MUI has a component**, decided on 2026-09-01 during feature 4a for form
+  controls and widened on 2026-09-05 during feature 9a to cover everything else MUI ships. Reach
+  for `Select`, `TextField`, `Checkbox`, `RadioGroup` and `Autocomplete` before writing a native
+  control, and for `Table`, `TableRow` and `TableCell` before writing a bare `<table>`. There is no
+  carve-out for components that only supply styling rather than behaviour: the rule is one rule so
+  that it needs no judgement call per case. Where MUI's default composition fights the approved
+  mockups, theme MUI to match the mockup in `muiTheme.ts` rather than dropping to a hand-styled
+  native element. The label sits above the field, so use `FormLabel` inside a `FormControl`, not
+  `InputLabel` and its border notch. A native element is right only where MUI genuinely has no
+  equivalent at all, such as a table's `<caption>`; "it lives in a separate MUI X package" does not
+  count, and that trade-off is put to the user rather than decided quietly. This matters because
+  the form has roughly 338 fields: whatever the first one does, the rest copy
+- **Theme a component once, not per use.** Anything MUI renders in more than one place is styled in
+  `muiTheme.ts` under `components`, so the next feature to use it inherits the look instead of
+  restating it. The catch table's cells were themed this way in feature 9a specifically so the
+  review queue in feature 12 and the user list in feature 16 do not each rebuild a table style. A
+  per-instance class is for what only that one place needs
 - **The tokens in `frontend/src/styles/theme.css` outrank MUI's defaults.** Configure MUI's theme
   from them in one place. Do not scatter per-component `sx` colour overrides, and never hard-code a
   colour to work around the theme
