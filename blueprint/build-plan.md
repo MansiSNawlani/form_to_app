@@ -83,7 +83,7 @@ These are not features and are not tracked here. They happen first.
 - [x] 8. Form part 5: equipment and fished areas
 - [ ] 9. Form part 6: the catch table, with the species picker, size classes, row totals, the
       young-of-year rule and the "no detection" rule
-  - [ ] 9a. Part 6 fields: the 26 catch rows and their ten size classes, the species picker over
+  - [x] 9a. Part 6 fields: the 26 catch rows and their ten size classes, the species picker over
         the 123 entry list, the live row totals and grand total, rows that grow and shrink, and
         the Ergänzende Anmerkungen box printed above the table
   - [ ] 9b. Part 6 rules: the young-of-year count not exceeding its row, the four "no detection"
