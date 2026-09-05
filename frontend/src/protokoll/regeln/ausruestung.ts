@@ -1,4 +1,4 @@
-import { istLeer, wertAus, type Regel, type Regelverstoss } from './regel'
+import { alsZahl, istLeer, wertAus, type Regel, type Regelverstoss } from './regel'
 import {
   ANODEN_FELDER,
   ANODEN_PAAR,
@@ -69,8 +69,8 @@ import type { Antworten } from '../entwurf/typen'
    That is the legacy form's own pairing and it is kept deliberately, on the same
    grounds typen.ts gives for the Besatzmaßnahmen rows: the legacy form checks no
    row for completeness and neither do we. Whether a fished area needs both
-   numbers is a question about how FFS reads these records, and it is on the list
-   to ask them. It is not in ffs-defect-list.md, because permitting a thin answer
+   numbers is a question about how FFS reads these records, and it is question 5
+   in docs/ffs-questions.md. It is not in ffs-defect-list.md, because permitting a thin answer
    is a gap in what the form asks for rather than something that corrupted a
    record. */
 
@@ -108,21 +108,6 @@ export function findePaar(pfad: Paarpfad): Paar {
   return PAARE.find((paar) => paar.pfad === pfad) as Paar
 }
 
-
-/* An answer read as a number, however it was written. A count is typed as "0"
-   and a length can be "0", "0,0" or "0.0", since the form is German and the
-   input is not.
-
-   undefined for blank, and for anything that is not a number at all. Neither is
-   this file's business: a blank is an unanswered question, and a pasted word is
-   rejected by the number input, so it can only arrive by hand-editing a saved
-   draft and is caught by Pydantic at the boundary once feature 3 lands. */
-function alsZahl(wert: string | undefined): number | undefined {
-  const roh = (wert ?? '').trim().replace(',', '.')
-  if (roh === '') return undefined
-  const zahl = Number(roh)
-  return Number.isFinite(zahl) ? zahl : undefined
-}
 
 /** Whether a pair of answers is a claim of nothing rather than an unfilled pair. */
 export function istLeeresPaar(werte: readonly (string | undefined)[]): boolean {

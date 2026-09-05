@@ -3,18 +3,19 @@ import Abschnitt2 from './Abschnitt2'
 import Abschnitt3 from './Abschnitt3'
 import Abschnitt4 from './Abschnitt4'
 import Abschnitt5 from './Abschnitt5'
-import AbschnittPlatzhalter from './AbschnittPlatzhalter'
+import Abschnitt6 from './Abschnitt6'
 import type { Abschnitt } from '../abschnitte'
 
 interface AbschnittInhaltProps {
   abschnitt: Abschnitt
-  titel: string
 }
 
-/* The one place a section number becomes a section body. Features 5 to 9 each
-   add a case here and delete a placeholder, so there is a single file to change
-   rather than a condition to find. */
-function AbschnittInhalt({ abschnitt, titel }: AbschnittInhaltProps) {
+/* The one place a section number becomes a section body.
+ *
+ * Every section is real as of feature 9a, so there is no placeholder branch left
+ * and no default case: the switch is exhaustive over Abschnitt['nr'], which is
+ * what makes a seventh section a build error here rather than a blank page. */
+function AbschnittInhalt({ abschnitt }: AbschnittInhaltProps) {
   switch (abschnitt.nr) {
     case 1:
       return <Abschnitt1 />
@@ -26,8 +27,8 @@ function AbschnittInhalt({ abschnitt, titel }: AbschnittInhaltProps) {
       return <Abschnitt4 />
     case 5:
       return <Abschnitt5 />
-    default:
-      return <AbschnittPlatzhalter title={titel} feature={abschnitt.feature} />
+    case 6:
+      return <Abschnitt6 />
   }
 }
 

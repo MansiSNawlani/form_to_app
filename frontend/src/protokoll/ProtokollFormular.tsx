@@ -85,7 +85,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
             is automatic. The form element is here for the semantics and so that
             the fields sit inside one. */}
         <form>
-          <AbschnittInhalt abschnitt={abschnitt} titel={titel} />
+          <AbschnittInhalt abschnitt={abschnitt} />
         </form>
 
         <AbschnittWechsel

@@ -53,3 +53,26 @@ export function wertAus(antworten: Antworten, pfad: AntwortPfad): string {
     )
   return typeof wert === 'string' ? wert : ''
 }
+
+/* An answer read as a number, however it was written.
+ *
+ * A count is typed as "0" and a length can be "0", "0,0" or "0.0", since the
+ * form is German and the input is not. Whitespace survives a paste.
+ *
+ * undefined for blank, and for anything that is not a number at all. The two
+ * are not distinguished here because the callers disagree about what they mean:
+ * regeln/ausruestung.ts treats both as "no answer", while regeln/arten.ts counts
+ * a blank cell as nothing and refuses to total a column holding a word. Each
+ * asks istLeer first when it needs to tell them apart.
+ *
+ * Moved here from ausruestung.ts during feature 9a, when the catch table needed
+ * the same parse. The same move wertAus made out of prozent.ts when part 5
+ * arrived, and for the same reason: two copies of a number parser is how the
+ * two halves of a form quietly start disagreeing about what a value is.
+ */
+export function alsZahl(wert: string | undefined): number | undefined {
+  const roh = (wert ?? '').trim().replace(',', '.')
+  if (roh === '') return undefined
+  const zahl = Number(roh)
+  return Number.isFinite(zahl) ? zahl : undefined
+}
