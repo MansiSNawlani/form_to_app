@@ -85,7 +85,7 @@ spec: the PDF files the time under part 2, the mockup and the `Submission` model
 `bearbeiter.ort` **does not exist in the PDF.** The form has a street and a postcode but no town,
 while both the mockup and the `Person` model have one. Discrepancy 2 from the 4a spec, which says
 4b adds it. Since it is not in the extracted definition, the field carries a comment saying so, and
-it is on the list to raise with FFS.
+it is question 1 in [../../../docs/ffs-questions.md](../../../docs/ffs-questions.md).
 
 ### Block 3 - Probestrecke
 

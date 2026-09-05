@@ -57,9 +57,6 @@
       "zurueck": "Zurück",
       "weiter": "Weiter: {{abschnitt}}"
     },
-    "platzhalter": {
-      "text": "Dieser Abschnitt wird mit Feature {{feature}} gebaut."
-    },
     "abschnitt1": {
       "anlass": {
         "legend": "Anlass der Befischung",
@@ -379,6 +376,78 @@
         },
         "richtung": "Richtung",
         "methode": "Methode"
+      }
+    },
+    "abschnitt6": {
+      "bemerkung": {
+        "legend": "Ergänzende Anmerkungen",
+        "hinweis": "Anmerkungen zur Befischung oder zum Fischbestand, die in keine Spalte der Artentabelle passen.",
+        "feld": "Ergänzende Anmerkungen zur Befischung oder zum Fischbestand"
+      },
+      "tabelle": {
+        "legend": "Nachgewiesene Arten und Größenklassen",
+        "hinweis": "Alle Längen in Zentimetern. Individuen der Altersklasse 0+ sind bereits während der Befischung artspezifisch zu identifizieren und getrennt zu protokollieren; sie sind in den Größenklassen links bereits mitgezählt.",
+        "beschriftung": "Nachgewiesene Arten und Größenklassen in Zentimetern",
+        "gesamt": "Gesamtsumme",
+        "summeUnbekannt": "nicht berechenbar",
+        "hinzufuegen": "Art hinzufügen",
+        "voll": "Das Formular hat Platz für {{max}} Arten. Weitere lassen sich nicht eintragen."
+      },
+      "spalte": {
+        "nr": "Nr.",
+        "art": "Art",
+        "summe": "Σ",
+        "summeName": "Summe der Größenklassen",
+        "nullPlus": "davon 0+",
+        "nullPlusName": "davon Altersklasse 0+",
+        "aktion": "Aktion"
+      },
+      "klasse": {
+        "klasse_1": {
+          "kopf": "≤ 5",
+          "name": "bis 5 cm"
+        },
+        "klasse_2": {
+          "kopf": ">5 - 10",
+          "name": "über 5 bis 10 cm"
+        },
+        "klasse_3": {
+          "kopf": ">10 - 15",
+          "name": "über 10 bis 15 cm"
+        },
+        "klasse_4": {
+          "kopf": ">15 - 20",
+          "name": "über 15 bis 20 cm"
+        },
+        "klasse_5": {
+          "kopf": ">20 - 25",
+          "name": "über 20 bis 25 cm"
+        },
+        "klasse_6": {
+          "kopf": ">25 - 30",
+          "name": "über 25 bis 30 cm"
+        },
+        "klasse_7": {
+          "kopf": ">30 - 40",
+          "name": "über 30 bis 40 cm"
+        },
+        "klasse_8": {
+          "kopf": ">40 - 50",
+          "name": "über 40 bis 50 cm"
+        },
+        "klasse_9": {
+          "kopf": ">50 - 60",
+          "name": "über 50 bis 60 cm"
+        },
+        "klasse_10": {
+          "kopf": "> 60",
+          "name": "über 60 cm"
+        }
+      },
+      "zeile": {
+        "art": "Art {{nr}}",
+        "feld": "Art {{nr}}, {{spalte}}",
+        "entfernen": "Art {{nr}} entfernen"
       }
     },
     "felder": {

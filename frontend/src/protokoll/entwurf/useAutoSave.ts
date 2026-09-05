@@ -21,6 +21,22 @@ export type SaveState =
    nobody navigates away in the gap. The unmount flush covers that gap anyway. */
 const DEBOUNCE_MS = 800
 
+/* One shared object, not a fresh one per keystroke, and this is a performance
+ * fix rather than tidiness.
+ *
+ * setState re-renders whenever the new value is not Object.is-equal to the old
+ * one, so a literal here made every keystroke re-render ProtokollFormular, and
+ * with it the whole open section under FormProvider. Through parts 1 to 5 that
+ * cost nothing worth measuring. Part 6 puts 312 controls on one screen, 26 of
+ * them Autocompletes over a 123 entry species list, and the same re-render came
+ * to 206ms per keystroke: measured on 2026-09-04 with all 26 catch rows filled,
+ * which is the sticky typing coding-standards.md chose React Hook Form to avoid.
+ *
+ * Reusing the object lets React bail out, so the second and later keystrokes of
+ * a burst re-render nothing at all. The indicator already reads "wird
+ * gespeichert" by then and has nothing new to say. */
+const SPEICHERT: SaveState = { status: 'saving' }
+
 export function useAutoSave(
   entwurf: Entwurf,
   form: UseFormReturn<Antworten>,
@@ -54,7 +70,7 @@ export function useAutoSave(
 
     const subscription = form.watch(() => {
       pending = true
-      setState({ status: 'saving' })
+      setState(SPEICHERT)
       clearTimeout(timer)
       timer = setTimeout(() => save(true), DEBOUNCE_MS)
     })

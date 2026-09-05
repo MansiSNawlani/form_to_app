@@ -386,3 +386,170 @@
   font-size: var(--step--1);
   color: var(--text);
 }
+
+/* Text that only a screen reader gets. Used for the catch table's caption and
+   for its row-number heading, both of which a sighted user reads straight off
+   the grid and neither of which a screen reader can infer. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tables.
+ *
+ * The look itself lives in muiTheme.ts, on MuiTable, MuiTableCell and
+ * MuiTableContainer, so every table in the app carries it. What is left here is
+ * what only the catch table needs. */
+
+/* MUI's TableCell draws the other three borders from the theme; the left-hand
+   edge is here because :first-child inside styleOverrides trips emotion's
+   server-side-rendering warning, and this app has no server to render on. It
+   has to sit on the cell rather than on the table so the sticky first column
+   keeps its edge while the rest scrolls under it. */
+.MuiTable-root tr > :first-child {
+  border-left: 1px solid var(--border);
+}
+
+/* A fieldset defaults to min-inline-size: min-content, so it refuses to be
+   narrower than the widest thing inside it. Every other section on the protocol
+   fits, so this never mattered until a thirteen column table arrived: the
+   fieldset grew to the table's width, took the card with it, and the page body
+   scrolled sideways while the scroll container sat there with nothing to
+   scroll. */
+.form-section--tabelle {
+  min-inline-size: 0;
+}
+
+/* The row number and the species both stay put while the ten size classes
+   scroll under them, so a cell is never stranded away from the row it belongs
+   to. Two sticky columns, so their left offsets have to add up: the species
+   starts exactly where the number ends.
+   Written as descendants of .arten-tabelle rather than on the modifier alone,
+   so each rule outweighs the single class MUI's own themed styles use. */
+.arten-tabelle .arten-tabelle__nr {
+  width: 2.5rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.arten-tabelle .arten-tabelle__art {
+  position: sticky;
+  left: 2.5rem;
+  z-index: 1;
+  background: var(--surface);
+  min-width: 11rem;
+  text-align: left;
+  /* Marks where the scrolling part of the table begins, so the cells passing
+     under this column read as passing under something rather than as ending. */
+  box-shadow: 1px 0 0 var(--border);
+}
+
+/* Above the body cells that scroll under them. */
+.arten-tabelle thead .arten-tabelle__nr,
+.arten-tabelle thead .arten-tabelle__art {
+  z-index: 3;
+  background: var(--surface-sunken);
+}
+
+/* The Gesamtsumme label is not sticky, unlike the species cells above it. It
+   spans twelve columns and its text sits at the right-hand end, against the Σ
+   column it belongs to, so pinning its left edge would hold the cell still and
+   let the words scroll out of it. */
+.arten-tabelle .arten-tabelle__gesamt {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.arten-tabelle .arten-tabelle__summe {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  min-width: 3.5rem;
+}
+
+/* Numeric cells are narrow on purpose: a count of fish is rarely more than three
+   digits, and ten wide columns would push the table far past any screen. The
+   browser spinner is hidden because it steals a third of an already narrow box
+   and the keyboard arrows still work. */
+.zelle__eingabe {
+  width: 3.4rem;
+  /* The row number and the species are sticky and together cover the first
+     13.5rem of the frame. Without this, tabbing to a cell that is off to the
+     right scrolls it flush to the frame's left edge, which is underneath them:
+     the cell has focus and cannot be seen. */
+  scroll-margin-left: 14rem;
+}
+
+.zelle__eingabe input {
+  padding: 0.35rem 0.4rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+
+.zelle__eingabe input::-webkit-outer-spin-button,
+.zelle__eingabe input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.zelle__suche .MuiOutlinedInput-root {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.zelle__suche input {
+  padding: 0.35rem 0.4rem;
+}
+
+/* The Σ cell and the grand total. Read-only text rather than a disabled input:
+   the value is derived, so a control would take a tab stop and be announced as
+   broken for something nobody can edit. */
+.zeilensumme,
+.gesamtsumme {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* The Art hinzufügen button and the note that appears when the table is full. */
+.tabelle-aktionen {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.85rem;
+}
+
+.tabelle-aktionen__hinweis {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.tabelle-aktionen__hinweis:empty {
+  display: none;
+}
+
+/* Narrow on purpose: the whole table has to fit a desktop card, and thirteen
+   columns leave nothing to spare. The button shows a symbol and carries the
+   words in its accessible name and its tooltip, so nothing is lost to anyone. */
+.arten-tabelle .arten-tabelle__aktion {
+  width: 2.75rem;
+}
+
+.arten-tabelle__aktion .MuiButton-root {
+  min-width: 0;
+  padding: 0.15rem 0.35rem;
+  font-size: var(--step-0);
+  line-height: 1;
+}

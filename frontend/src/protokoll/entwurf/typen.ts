@@ -11,6 +11,50 @@ import type { FieldPathByValue } from 'react-hook-form'
 /** ADR 0004: a submission is never migrated to a later form version. */
 export const FORM_VERSION = '20260609'
 
+/* The catch table's row and column numbers, part 6.
+ *
+ * Written as unions and combined into keys rather than spelled out, because the
+ * alternative is 312 near-identical lines that no reviewer can check. The keys
+ * they produce are still exactly the legacy form's: arten.art7.klasse_3,
+ * arten.art26.0plus, and so on, which is what coding-standards.md requires and
+ * what keeps the eventual FiaKa transfer a direct match.
+ *
+ * Twenty-six rows and ten size classes are both the printed form's, and both are
+ * pinned against felder.json in abschnitte/teil6/tabelle.test.ts.
+ */
+export type Artnummer =
+  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13
+  | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26
+
+type Klassennummer = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+
+/** One of the ten size class columns, ascending: klasse_1 is up to 5 cm. */
+export type Klassenfeld = `klasse_${Klassennummer}`
+
+/** Everything a catch row stores. Not summe, which the form works out itself. */
+export type Artfeld = 'name' | Klassenfeld | '0plus'
+
+/* One species and what was caught of it.
+ *
+ * name holds the export code (BFOR), not the German label, like every other
+ * picker on this form.
+ *
+ * 0plus is a quoted key because the legacy path begins with a digit.
+ * project-overview.md's sketch calls it null_plus; the legacy path wins, exactly
+ * as it did for messdaten.temperatur and ausruestung.leistung. React Hook Form
+ * reads "0plus" as an object key rather than an array index, because it is not a
+ * number.
+ *
+ * The count printed under "davon 0+" is a subset of the ten classes beside it,
+ * not an eleventh class, so a row total must never include it. Feature 9b holds
+ * it to that.
+ *
+ * There is deliberately no summe here. The legacy form calculates it and marks
+ * it read-only, so storing it would let a hand-edited draft carry a total that
+ * disagrees with its own cells. It is derived on screen instead.
+ */
+export type Artzeile = { [F in Artfeld]?: string }
+
 /* Answers nested so that each path spells out the legacy PDF field path exactly:
  * probestrecke.gewaesser.vorfluter1, messdaten.uhrzeit, and so on. React Hook
  * Form addresses a field by its dotted name, so a field registered under its
@@ -58,7 +102,8 @@ export interface Antworten {
 
   /* The z. group looks like FiaKa bookkeeping rather than survey data: none of
      it appears in the data model in project-overview.md. Included by decision on
-     2026-09-01, pending confirmation from FFS that surveyors fill it in. */
+     2026-09-01, pending confirmation from FFS that surveyors fill it in; that is
+     question 2 in docs/ffs-questions.md. */
   z?: {
     rp?: string
     quelle?: string
@@ -71,8 +116,8 @@ export interface Antworten {
     strasse?: string
     plz?: string
     /* Not in the PDF, which has a street and a postcode but no town. Both the
-       mockup and the Person model have one, so it is added here and is on the
-       list to raise with FFS. */
+       mockup and the Person model have one, so it is added here; it is
+       question 1 in docs/ffs-questions.md. */
     ort?: string
     telefon?: string
     email?: string
@@ -369,12 +414,27 @@ export interface Antworten {
     ufer_vom_ufer?: string
   }
 
+  /* What was caught, part 6 and the last group the document gains.
+   *
+   * Twenty-six rows, because the printed form has twenty-six. They are not all
+   * on screen at once: the section shows the rows that hold something plus one
+   * blank, which is why every row is optional and an untouched one stores
+   * nothing at all. The legacy form does the same thing by hiding its empty
+   * rows, and 312 empty boxes is the reason.
+   *
+   * Ordered and gapless by construction. Removing a row shifts the ones below
+   * up, so art1 to artN are the filled rows and everything after them is empty;
+   * abschnitte/teil6/zeilen.ts owns that shift.
+   */
+  arten?: { [N in Artnummer as `art${N}`]?: Artzeile }
+
   /* Free text. bemerkungen.sonstige_bemerkungen is the wide box at the foot of
      page 2, which is why it lands with part 4 even though no build-plan item
      names it. bemerkungen.bemerkung_fische is printed above the catch table on
-     page 3 and belongs to feature 9. */
+     page 3, reads as its introduction, and belongs to part 6. */
   bemerkungen?: {
     sonstige_bemerkungen?: string
+    bemerkung_fische?: string
   }
 
   probestrecke?: {

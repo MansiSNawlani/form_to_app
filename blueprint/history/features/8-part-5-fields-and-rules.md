@@ -278,8 +278,9 @@ We mirror that rather than inventing a row completeness rule, on the same ground
 for the Besatzmaßnahmen rows: "Nothing checks a row for completeness. A year with no species, or a
 species with no year, is accepted, as it is in the legacy form." Whether a fished area needs both
 numbers is a question about how FFS reads these records, and it is theirs to answer. It is not a
-defect, because nothing here corrupts a record that was entered, so it goes on the list of questions
-for FFS rather than into `ffs-defect-list.md`.
+defect, because nothing here corrupts a record that was entered, so it is question 5 in
+[../../../docs/ffs-questions.md](../../../docs/ffs-questions.md) rather than an item in
+`ffs-defect-list.md`.
 
 ## Two names that do not match project-overview.md
 

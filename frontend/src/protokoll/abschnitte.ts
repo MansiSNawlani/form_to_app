@@ -5,17 +5,18 @@
  * in sequence is what makes people type a placeholder value to get past a gate
  * and never come back.
  *
- * `feature` is the build-plan item that fills the section, which the placeholder
- * bodies show until it does.
+ * Each entry carried a `feature` number until 9a, naming the build-plan item
+ * that would fill the section. Section 6 was the last unbuilt one, so the
+ * placeholder that read it is gone and the number went with it.
  */
 
 export const ABSCHNITTE = [
-  { nr: 1, titelKey: 'protokoll.abschnitte.anlass', feature: 4 },
-  { nr: 2, titelKey: 'protokoll.abschnitte.messdaten', feature: 5 },
-  { nr: 3, titelKey: 'protokoll.abschnitte.umland', feature: 6 },
-  { nr: 4, titelKey: 'protokoll.abschnitte.struktur', feature: 7 },
-  { nr: 5, titelKey: 'protokoll.abschnitte.ausruestung', feature: 8 },
-  { nr: 6, titelKey: 'protokoll.abschnitte.faenge', feature: 9 },
+  { nr: 1, titelKey: 'protokoll.abschnitte.anlass' },
+  { nr: 2, titelKey: 'protokoll.abschnitte.messdaten' },
+  { nr: 3, titelKey: 'protokoll.abschnitte.umland' },
+  { nr: 4, titelKey: 'protokoll.abschnitte.struktur' },
+  { nr: 5, titelKey: 'protokoll.abschnitte.ausruestung' },
+  { nr: 6, titelKey: 'protokoll.abschnitte.faenge' },
 ] as const
 
 export type Abschnitt = (typeof ABSCHNITTE)[number]

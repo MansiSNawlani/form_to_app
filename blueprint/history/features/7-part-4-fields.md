@@ -532,7 +532,8 @@ focus.
   rule that needs it.
 - **Do not add a rule.** No exclusivity between "keine (erkennbar)" and the rest, no completeness
   check on a stocking row, no year range, no total. Both candidates are written up above as
-  questions for FFS. If one comes back as a requirement, it is a `/fix`, not a quiet addition here.
+  questions 3 and 4 in [../../../docs/ffs-questions.md](../../../docs/ffs-questions.md). If one
+  comes back as a requirement, it is a `/fix`, not a quiet addition here.
 
 ## Amended during the build
 

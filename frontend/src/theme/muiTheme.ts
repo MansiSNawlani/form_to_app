@@ -253,6 +253,78 @@ export const muiTheme = createTheme({
         },
       },
     },
+    /* The app's one table look, defined here rather than on each table, so the
+       review queue in feature 12 and the user list in feature 16 inherit it
+       instead of restating it. MUI's defaults are Material's: 16px cells, a
+       hairline under each row and nothing between columns. The protocol's
+       tables are dense grids of numbers read down a column as much as across a
+       row, so they get a full rule between every cell, our spacing and our
+       tokens. */
+    MuiTableContainer: {
+      styleOverrides: {
+        root: {
+          /* Without this the container grows to fit the table instead of
+             scrolling it, and the page body scrolls sideways instead. */
+          maxWidth: '100%',
+          /* A containing block for any .visually-hidden text inside the table.
+             That text is position: absolute, so with no positioned ancestor it
+             resolves against the initial containing block, which overflow
+             cannot clip: part 6's column headings sit 1000px into a table that
+             scrolls inside a 600px frame, and the whole page scrolled sideways
+             to reach words nobody can see. Found on 2026-09-05 by bisecting the
+             layout, after overflow-x: hidden here failed to contain it and
+             contain: paint did. */
+          position: 'relative',
+          // Room for the focus ring on the bottom row, which the clipped
+          // overflow box would otherwise cut in half.
+          paddingBottom: '0.35rem',
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          /* separate, not MUI's collapse, because a sticky first column drops
+             its borders under collapse in every engine. Zero spacing keeps it
+             looking collapsed. */
+          borderCollapse: 'separate',
+          borderSpacing: 0,
+          /* A table too wide for its container keeps its shape and scrolls
+             inside it rather than squeezing its columns; a narrow one still
+             fills the width it is given. */
+          width: 'max-content',
+          minWidth: '100%',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          color: 'var(--text)',
+          fontSize: 'var(--step-0)',
+          borderBottom: '1px solid var(--border)',
+          borderRight: '1px solid var(--border)',
+          padding: '0.3rem',
+          textAlign: 'center',
+          verticalAlign: 'middle',
+        },
+        head: {
+          background: 'var(--surface-sunken)',
+          borderTop: '1px solid var(--border)',
+          fontSize: 'var(--step--1)',
+          fontWeight: 600,
+          whiteSpace: 'nowrap',
+          // Above the body cells that scroll under a sticky column.
+          zIndex: 2,
+        },
+        footer: {
+          background: 'var(--surface-sunken)',
+          color: 'var(--text)',
+          fontSize: 'var(--step-0)',
+          fontWeight: 600,
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         // Visible focus is a requirement, not a default. MUI's own focus styling
