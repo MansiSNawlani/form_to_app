@@ -9,6 +9,9 @@ import type { Abschnitt } from '../abschnitte'
 
 interface AbschnittInhaltProps {
   abschnitt: Abschnitt
+  /* Only section 7 needs it. Passed as a prop rather than put in a context
+     because one consumer is not a reason to make the draft ambient. */
+  entwurfId: string
 }
 
 /* The one place a section number becomes a section body.
@@ -17,7 +20,7 @@ interface AbschnittInhaltProps {
  * and no default case: the switch is exhaustive over Abschnitt['nr'], which is
  * what made adding section 7 in feature 10 a build error here rather than a
  * blank page, and would do the same for an eighth. */
-function AbschnittInhalt({ abschnitt }: AbschnittInhaltProps) {
+function AbschnittInhalt({ abschnitt, entwurfId }: AbschnittInhaltProps) {
   switch (abschnitt.nr) {
     case 1:
       return <Abschnitt1 />
@@ -32,7 +35,7 @@ function AbschnittInhalt({ abschnitt }: AbschnittInhaltProps) {
     case 6:
       return <Abschnitt6 />
     case 7:
-      return <Abschnitt7 />
+      return <Abschnitt7 entwurfId={entwurfId} />
   }
 }
 

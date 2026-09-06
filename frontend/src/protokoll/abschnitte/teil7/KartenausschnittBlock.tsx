@@ -1,4 +1,13 @@
+import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
+import AnlagenMeldungen from './AnlagenMeldungen'
+import AnlagenPicker from './AnlagenPicker'
+import AnlagenVorschau from './AnlagenVorschau'
+import { useAnlagen } from '../../anlagen/useAnlagen'
+
+interface KartenausschnittBlockProps {
+  entwurfId: string
+}
 
 /* The map excerpt showing where the stretch is.
  *
@@ -10,8 +19,14 @@ import { useTranslation } from 'react-i18next'
  * part 1 are the whole of what version 1 knows about where a survey happened.
  * docs/decisions.md pulled attachments forward for exactly that reason.
  */
-function KartenausschnittBlock() {
+function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
   const { t } = useTranslation()
+  const { status, anlagen, meldungen, ersetzen, entfernen } = useAnlagen(
+    entwurfId,
+    'KARTENAUSSCHNITT',
+  )
+
+  const karte = anlagen[0]
 
   return (
     <fieldset className="form-section">
@@ -19,6 +34,36 @@ function KartenausschnittBlock() {
       <p className="form-section__hint">
         {t('protokoll.abschnitt7.kartenausschnitt.hinweis')}
       </p>
+
+      {status === 'geladen' && karte === undefined && (
+        <AnlagenPicker
+          beschriftung={t('protokoll.abschnitt7.kartenausschnitt.waehlen')}
+          onDateien={(dateien) => void ersetzen(dateien[0])}
+        />
+      )}
+
+      {status === 'geladen' && karte !== undefined && (
+        <AnlagenVorschau
+          anlage={karte}
+          klasse="anlage--einzeln"
+          beschreibung={t('protokoll.abschnitt7.kartenausschnitt.alt', {
+            dateiname: karte.dateiname,
+          })}
+        >
+          {/* Replacing does not ask first: the button says what it does, and the
+              picker that opens is a second chance to change your mind. Removing
+              does, in step 5, because nothing takes the file's place. */}
+          <AnlagenPicker
+            beschriftung={t('protokoll.abschnitt7.ersetzen')}
+            onDateien={(dateien) => void ersetzen(dateien[0])}
+          />
+          <Button variant="text" onClick={() => void entfernen(karte.id)}>
+            {t('protokoll.abschnitt7.entfernen')}
+          </Button>
+        </AnlagenVorschau>
+      )}
+
+      <AnlagenMeldungen meldungen={meldungen} />
     </fieldset>
   )
 }

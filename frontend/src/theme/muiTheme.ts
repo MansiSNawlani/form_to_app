@@ -325,6 +325,53 @@ export const muiTheme = createTheme({
         },
       },
     },
+    /* Introduced in feature 10 for the attachment messages. Themed here rather
+       than per use so the review workflow in feature 11 and the queue in
+       feature 12 inherit it instead of restating it.
+
+       Material's Alert is a tinted panel with a coloured icon and no border. The
+       mockups' equivalent is .callout: a hairline box with a thick coloured edge
+       on the left, which is what this rebuilds. The icon stays, because colour
+       alone must not carry the severity. */
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          fontSize: 'var(--step--1)',
+          color: 'var(--text)',
+          alignItems: 'flex-start',
+        },
+        colorWarning: {
+          background: 'var(--warn-soft)',
+          borderLeft: '4px solid var(--warn)',
+        },
+        colorError: {
+          background: 'var(--danger-soft)',
+          borderLeft: '4px solid var(--danger)',
+        },
+        colorInfo: {
+          background: 'var(--info-soft)',
+          borderLeft: '4px solid var(--info)',
+        },
+        colorSuccess: {
+          background: 'var(--ok-soft)',
+          borderLeft: '4px solid var(--ok)',
+        },
+      },
+    },
+    /* Flat like every other surface here: MUI's dialog carries an elevation
+       shadow, and the shadows tuple above has already emptied it, so this only
+       has to supply the border that used to be implied by the shadow. */
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          backgroundImage: 'none',
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         // Visible focus is a requirement, not a default. MUI's own focus styling

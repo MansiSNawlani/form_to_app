@@ -19,7 +19,7 @@ interface ProtokollFormularProps {
 
 /* One protocol: the head, the step bar, the open section and the action row.
  *
- * The form spans all six sections rather than one form per section, because the
+ * The form spans every section rather than one form per section, because the
  * answers are one document and switching section must not discard what is not
  * yet saved. React Hook Form holds the values, so typing in a 338 field form
  * re-renders the field and not the page; coding-standards.md rules out useState
@@ -85,7 +85,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
             is automatic. The form element is here for the semantics and so that
             the fields sit inside one. */}
         <form>
-          <AbschnittInhalt abschnitt={abschnitt} />
+          <AbschnittInhalt abschnitt={abschnitt} entwurfId={entwurf.id} />
         </form>
 
         <AbschnittWechsel

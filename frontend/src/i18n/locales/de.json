@@ -504,14 +504,21 @@
       "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
     },
     "abschnitt7": {
+      "groesse": "{{mb}} MB",
+      "ersetzen": "Ersetzen",
+      "entfernen": "Entfernen",
       "kartenausschnitt": {
         "legend": "Kartenausschnitt",
-        "hinweis": "Ein Kartenausschnitt, der zeigt, wo die Probestrecke liegt. Ein Bild im Format JPG, PNG oder WEBP, bis zu 10 MB."
+        "hinweis": "Ein Kartenausschnitt, der zeigt, wo die Probestrecke liegt. Ein Bild im Format JPG, PNG oder WEBP, bis zu 10 MB.",
+        "waehlen": "Kartenausschnitt auswählen",
+        "alt": "Kartenausschnitt der Probestrecke, Datei «{{dateiname}}»"
       },
       "fotos": {
         "legend": "Fotos der Probestrecke",
         "hinweis": "Aufnahmen der Strecke, des Ufers und der Sohle. Bis zu {{max}} Bilder im Format JPG, PNG oder WEBP, je bis zu 10 MB. Mehrere Bilder lassen sich auf einmal auswählen.",
-        "anzahl": "{{vorhanden}} von {{max}}"
+        "waehlen": "Fotos auswählen",
+        "anzahl": "{{vorhanden}} von {{max}}",
+        "alt": "Foto {{nummer}} der Probestrecke, Datei «{{dateiname}}»"
       }
     },
     "anlagen": {

@@ -10,10 +10,14 @@ import KartenausschnittBlock from './teil7/KartenausschnittBlock'
  * The map excerpt comes first because it answers where, which the rest of the
  * protocol has already been describing, and the photographs illustrate it.
  */
-function Abschnitt7() {
+interface Abschnitt7Props {
+  entwurfId: string
+}
+
+function Abschnitt7({ entwurfId }: Abschnitt7Props) {
   return (
     <>
-      <KartenausschnittBlock />
+      <KartenausschnittBlock entwurfId={entwurfId} />
       <FotosBlock />
     </>
   )
