@@ -4,6 +4,7 @@ import Abschnitt3 from './Abschnitt3'
 import Abschnitt4 from './Abschnitt4'
 import Abschnitt5 from './Abschnitt5'
 import Abschnitt6 from './Abschnitt6'
+import Abschnitt7 from './Abschnitt7'
 import type { Abschnitt } from '../abschnitte'
 
 interface AbschnittInhaltProps {
@@ -14,7 +15,8 @@ interface AbschnittInhaltProps {
  *
  * Every section is real as of feature 9a, so there is no placeholder branch left
  * and no default case: the switch is exhaustive over Abschnitt['nr'], which is
- * what makes a seventh section a build error here rather than a blank page. */
+ * what made adding section 7 in feature 10 a build error here rather than a
+ * blank page, and would do the same for an eighth. */
 function AbschnittInhalt({ abschnitt }: AbschnittInhaltProps) {
   switch (abschnitt.nr) {
     case 1:
@@ -29,6 +31,8 @@ function AbschnittInhalt({ abschnitt }: AbschnittInhaltProps) {
       return <Abschnitt5 />
     case 6:
       return <Abschnitt6 />
+    case 7:
+      return <Abschnitt7 />
   }
 }
 

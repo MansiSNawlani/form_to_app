@@ -47,7 +47,8 @@
       "umland": "Umland, Ufer und Sohle",
       "struktur": "Struktur und Bewirtschaftung",
       "ausruestung": "Ausrüstung und Bereiche",
-      "faenge": "Fänge"
+      "faenge": "Fänge",
+      "anlagen": "Karte und Fotos"
     },
     "nichtGefunden": {
       "titel": "Protokoll nicht gefunden",
@@ -501,6 +502,17 @@
       "speichert": "Wird gespeichert",
       "gespeichertUm": "Automatisch gespeichert um {{zeit}}",
       "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
+    },
+    "abschnitt7": {
+      "kartenausschnitt": {
+        "legend": "Kartenausschnitt",
+        "hinweis": "Ein Kartenausschnitt, der zeigt, wo die Probestrecke liegt. Ein Bild im Format JPG, PNG oder WEBP, bis zu 10 MB."
+      },
+      "fotos": {
+        "legend": "Fotos der Probestrecke",
+        "hinweis": "Aufnahmen der Strecke, des Ufers und der Sohle. Bis zu {{max}} Bilder im Format JPG, PNG oder WEBP, je bis zu 10 MB. Mehrere Bilder lassen sich auf einmal auswählen.",
+        "anzahl": "{{vorhanden}} von {{max}}"
+      }
     },
     "anlagen": {
       "fehler": {
