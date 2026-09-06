@@ -126,11 +126,15 @@
   font-weight: 600;
 }
 
+/* Capped at a readable measure rather than running the full width of the card.
+   Long lines are hard to follow because the eye loses its place on the return
+   sweep; 75ch is the upper end of the comfortable range, chosen on 2026-09-05
+   over a tighter 62ch so the hints use more of the width they are given. */
 .form-section__hint {
   margin: 0.25rem 0 1.25rem;
   color: var(--muted);
   font-size: var(--step--1);
-  max-width: 62ch;
+  max-width: 75ch;
 }
 
 /* A named run of fields inside a section, such as the three percentage blocks

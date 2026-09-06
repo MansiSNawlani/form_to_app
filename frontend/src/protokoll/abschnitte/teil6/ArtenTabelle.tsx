@@ -50,7 +50,7 @@ const LOESEN_AUS: readonly AntwortPfad[] = alleArtPfade()
 
 function ArtenTabelle() {
   const { t } = useTranslation()
-  const { getValues, setValue } = useFormContext<Antworten>()
+  const { getValues, setValue, trigger } = useFormContext<Antworten>()
 
   const [anzahl, setAnzahl] = useState(() => anfangsZeilen(getValues('arten')))
 
@@ -70,12 +70,35 @@ function ArtenTabelle() {
     (nr: Artnummer) => {
       /* A write per field, not one write of the whole group; zeilen.ts says
          why. */
-      for (const { pfad, wert } of entfernenSchreiben(getValues('arten'), nr)) {
+      const schreibvorgaenge = entfernenSchreiben(getValues('arten'), nr)
+
+      for (const { pfad, wert } of schreibvorgaenge) {
         setValue(pfad, wert, { shouldDirty: true })
       }
+
+      /* Every moved cell rechecked once, after the last one has landed.
+       *
+       * Neither of the two mechanisms that normally keep a message honest
+       * reaches this. React Hook Form validates a field when the user leaves it,
+       * and nobody left these; useNachpruefung deliberately never rechecks the
+       * field that changed, because while somebody is typing that field is
+       * already React Hook Form's own job.
+       *
+       * So without this a removal leaves the messages of the row that moved
+       * behind: the cells are blanked and their complaints stay on screen,
+       * pointing at rows that no longer hold what they describe, until the page
+       * is reloaded. Found on 2026-09-06 by removing a row that held a wrong
+       * count.
+       *
+       * After the loop rather than inside it, and once rather than per write.
+       * The row rules read a whole row and the duplicate rule reads every row,
+       * so a check run halfway through the shift would judge a table that is
+       * half old and half new. */
+      void trigger(schreibvorgaenge.map(({ pfad }) => pfad))
+
       setAnzahl((offen) => Math.max(offen - 1, 1))
     },
-    [getValues, setValue],
+    [getValues, setValue, trigger],
   )
 
   return (
