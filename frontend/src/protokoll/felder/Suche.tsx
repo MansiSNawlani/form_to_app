@@ -38,9 +38,13 @@ interface SucheProps {
   liste: ListenName
   eingabeAria: EingabeAria
   className?: string
+  /* Draws the error look muiTheme.ts defines for every field. FeldSuche leaves
+     it off, because FeldRahmen already puts the state on the FormControl around
+     it; ArtZelle has no frame and needs it on the control itself. */
+  fehlerhaft?: boolean
 }
 
-function Suche({ name, liste, eingabeAria, className }: SucheProps) {
+function Suche({ name, liste, eingabeAria, className, fehlerhaft }: SucheProps) {
   const { control } = useFormContext<Antworten>()
   const alle = optionen(liste)
 
@@ -71,6 +75,7 @@ function Suche({ name, liste, eingabeAria, className }: SucheProps) {
             <OutlinedInput
               {...slotProps.input}
               inputProps={{ ...slotProps.htmlInput, ...eingabeAria }}
+              error={fehlerhaft}
               fullWidth
             />
           )}

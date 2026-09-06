@@ -40,6 +40,29 @@ describe('antwortenSchema', () => {
     expect(errors.summe).toBeUndefined()
   })
 
+  /* Part 6's table message is the second path outside the answers document, so
+     the same guard applies to it: a resolver that ever started filtering issues
+     against the document would make it vanish in silence. */
+  it('legt die Meldung der Fangtabelle unter tabelle.arten ab', async () => {
+    const errors = await fehlerFuer({ arten: { art1: { name: 'HECH', klasse_1: '0' } } })
+
+    expect(errors.tabelle?.arten?.message).toBe('protokoll.regeln.fangOhneNachweisCode')
+  })
+
+  it('faerbt keine Zelle ein, wenn nur die Tabelle als Ganzes falsch ist', async () => {
+    const errors = await fehlerFuer({ arten: { art1: { name: 'HECH', klasse_1: '0' } } })
+
+    expect(errors.arten).toBeUndefined()
+  })
+
+  it('meldet eine unmoegliche Anzahl weiterhin an der Zelle selbst', async () => {
+    const errors = await fehlerFuer({ arten: { art1: { klasse_1: '-4' } } })
+    const zeile = errors.arten?.art1 as unknown as Record<string, { message?: string }>
+
+    expect(zeile.klasse_1.message).toBe('protokoll.regeln.anzahlKeineGanzeZahl')
+    expect(errors.tabelle).toBeUndefined()
+  })
+
   it('sagt zu einem leeren Entwurf nichts', async () => {
     expect(await fehlerFuer({})).toEqual({})
   })

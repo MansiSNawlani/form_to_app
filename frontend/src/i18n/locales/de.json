@@ -448,6 +448,10 @@
         "art": "Art {{nr}}",
         "feld": "Art {{nr}}, {{spalte}}",
         "entfernen": "Art {{nr}} entfernen"
+      },
+      "meldung": {
+        "legend": "Hinweise zur Fangtabelle",
+        "zelle": "Art {{nr}}, {{spalte}}:"
       }
     },
     "felder": {
@@ -484,7 +488,13 @@
       "zahlNegativ": "Bitte einen Wert ab 0 eintragen.",
       "anodenKeine": "Ohne Anode ist keine Befischung möglich. Bitte tragen Sie die Anzahl der Ringanoden oder der Streifenanoden ein.",
       "befischteLaengeNull": "Für keinen der beiden Bereiche ist eine befischte Länge angegeben. Bitte tragen Sie mindestens eine ein.",
-      "befischteBreiteNull": "Für keinen der beiden Bereiche ist eine befischte Breite angegeben. Bitte tragen Sie mindestens eine ein."
+      "befischteBreiteNull": "Für keinen der beiden Bereiche ist eine befischte Breite angegeben. Bitte tragen Sie mindestens eine ein.",
+      "anzahlKeineGanzeZahl": "Bitte eine ganze Zahl von 0 oder mehr eintragen.",
+      "nullPlusUeberSumme": "Es können nicht mehr 0+ Tiere sein, als die Zeile insgesamt zählt.",
+      "artDoppelt": "Diese Art steht bereits in einer früheren Zeile.",
+      "keinNachweisMitFang": "Diese Zeile meldet keinen Nachweis und zählt trotzdem Tiere.",
+      "keinNachweisNebenArt": "\"kein Nachweis\" schließt jede andere Art in der Tabelle aus.",
+      "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag."
     },
     "speichern": {
       "unveraendert": "Alle Änderungen gespeichert",

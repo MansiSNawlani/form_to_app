@@ -5,12 +5,19 @@ import {
   ARTNUMMERN,
   ABGELEITETE_FELDER,
   GESAMTSUMME_FELD,
+  KEIN_NACHWEIS,
   KLASSEN,
   MAX_ARTEN,
+  OHNE_QUALIFIKATION,
   alleArtPfade,
   artPfad,
   klassenPfade,
+  nachzupruefen,
+  namensPfade,
+  zaehlfelder,
+  zaehlzelleBeruehrt,
 } from './tabelle'
+import { optionen } from '../../optionen'
 
 /* Section 6 is 339 of the form's 540 fields, and not one of them is written out
    by hand: they are generated from KLASSEN and ARTNUMMERN. That is what makes
@@ -121,6 +128,88 @@ describe('die Felder von Teil 6', () => {
       'klasse_9',
       'klasse_10',
     ])
+  })
+
+  /* A row total is the ten classes; the rule about whole numbers covers eleven
+     cells. Two lists, and mixing them up would either exclude 0+ from the sign
+     check or count every young-of-year fish twice in the total. */
+  it('zaehlt 0plus zu den Zaehlfeldern, aber nicht zu den Klassen', () => {
+    expect(zaehlfelder(3)).toHaveLength(11)
+    expect(zaehlfelder(3)).toEqual([...klassenPfade(3), 'arten.art3.0plus'])
+    expect(klassenPfade(3)).not.toContain('arten.art3.0plus')
+  })
+
+  /* The four codes are the only way a survey can record that it found nothing,
+     so a code renamed upstream would disable feature 9b's rule without breaking
+     anything a reader would notice. Checked against the real seed list rather
+     than against a copy of it. */
+  it('findet alle vier kein-Nachweis-Codes in der Artenliste', () => {
+    const werte = optionen('arten').map(({ wert }) => wert)
+
+    for (const code of KEIN_NACHWEIS) {
+      expect(werte).toContain(code)
+    }
+    expect(KEIN_NACHWEIS).toContain(OHNE_QUALIFIKATION)
+  })
+
+  /* Three of part 6's rules span more than one cell, and React Hook Form only
+     rechecks the one being edited. A wrong mapping here leaves a message
+     standing after the answer it complained about has been corrected, which is
+     invisible until somebody hits it. */
+  describe('nachzupruefen', () => {
+    it('prueft nach einer Artaenderung alle Artenfelder nach', () => {
+      expect(nachzupruefen('arten.art3.name')).toEqual(namensPfade())
+      expect(namensPfade()).toHaveLength(MAX_ARTEN)
+    })
+
+    it('prueft nach einer Klassenaenderung 0plus und die Art der Zeile nach', () => {
+      expect(nachzupruefen('arten.art3.klasse_5')).toEqual([
+        'arten.art3.0plus',
+        'arten.art3.name',
+      ])
+    })
+
+    /* 0+ keeps the blur cadence of its own cell, so it does not recheck itself
+       and object to a number still being typed. */
+    it('prueft nach einer 0plus-Aenderung nur die Art der Zeile nach', () => {
+      expect(nachzupruefen('arten.art3.0plus')).toEqual(['arten.art3.name'])
+    })
+
+    it('bleibt in der Zeile, aus der die Aenderung kam', () => {
+      for (const pfad of nachzupruefen('arten.art26.klasse_1')) {
+        expect(pfad.startsWith('arten.art26.')).toBe(true)
+      }
+    })
+  })
+
+  /* The gate on the table's own message. Counting the species cell would open it
+     before a single number had been typed, because a picker is blurred the moment
+     an option is chosen, and the message would then object to the 0 still being
+     typed into the first cell. */
+  describe('zaehlzelleBeruehrt', () => {
+    it('sagt nein zu einer unberuehrten Tabelle', () => {
+      expect(zaehlzelleBeruehrt(undefined)).toBe(false)
+      expect(zaehlzelleBeruehrt({})).toBe(false)
+      expect(zaehlzelleBeruehrt({ art1: {} })).toBe(false)
+    })
+
+    it('zaehlt eine beruehrte Art nicht als beruehrte Zaehlzelle', () => {
+      expect(zaehlzelleBeruehrt({ art1: { name: true } })).toBe(false)
+    })
+
+    it('erkennt eine beruehrte Groessenklasse', () => {
+      expect(zaehlzelleBeruehrt({ art1: { name: true, klasse_4: true } })).toBe(true)
+    })
+
+    it('erkennt eine beruehrte 0plus-Zelle', () => {
+      expect(zaehlzelleBeruehrt({ art1: { '0plus': true } })).toBe(true)
+    })
+
+    it('findet eine beruehrte Zelle auch in einer spaeteren Zeile', () => {
+      expect(zaehlzelleBeruehrt({ art1: { name: true }, art7: { klasse_1: true } })).toBe(
+        true,
+      )
+    })
   })
 
   it('setzt Pfade aus Zeile und Feld zusammen', () => {

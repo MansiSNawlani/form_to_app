@@ -2,6 +2,7 @@ import type { ParseKeys } from 'i18next'
 import type { Gruppenpfad } from '../abschnitte/teil3/gruppen'
 import type { Einflusspfad } from '../abschnitte/teil4/bloecke'
 import type { Paarpfad } from '../abschnitte/teil5/bloecke'
+import type { Tabellenpfad } from '../abschnitte/teil6/tabelle'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* A rule is a plain function from the answers document to what is wrong with
@@ -21,8 +22,10 @@ export interface Regelverstoss {
      cases no path in the document names the thing that is wrong, and turning
      every box in the group red for one problem is noise. See gruppen.ts and
      teil4/bloecke.ts. Part 5 adds three more, where the wrong thing is a pair of
-     numbers that between them say nothing; see teil5/bloecke.ts. */
-  pfad: AntwortPfad | Gruppenpfad | Einflusspfad | Paarpfad
+     numbers that between them say nothing; see teil5/bloecke.ts. Part 6 adds one
+     more, where a survey that recorded nothing without saying so is wrong in no
+     single cell; see teil6/tabelle.ts. */
+  pfad: AntwortPfad | Gruppenpfad | Einflusspfad | Paarpfad | Tabellenpfad
   schluessel: ParseKeys
 }
 

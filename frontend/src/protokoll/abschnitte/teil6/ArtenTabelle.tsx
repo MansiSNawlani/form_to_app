@@ -11,10 +11,18 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import ArtZeile from './ArtZeile'
 import Gesamtsumme from './Gesamtsumme'
+import NachweisMeldung from './NachweisMeldung'
 import Zeilenwaechter from './Zeilenwaechter'
-import { KLASSEN, MAX_ARTEN } from './tabelle'
+import Zellmeldungen from './Zellmeldungen'
+import { KLASSEN, MAX_ARTEN, alleArtPfade, nachzupruefen } from './tabelle'
 import { anfangsZeilen, entfernenSchreiben } from './zeilen'
-import type { Antworten, Artnummer } from '../../entwurf/typen'
+import { useNachpruefung } from '../../regeln/useNachpruefung'
+import type { Antworten, AntwortPfad, Artnummer } from '../../entwurf/typen'
+
+/* Declared out here because useNachpruefung's arguments have to be stable across
+   renders; an inline array resubscribes on every one. What the recheck actually
+   maps to lives in tabelle.ts, where it can be tested without a form. */
+const LOESEN_AUS: readonly AntwortPfad[] = alleArtPfade()
 
 /* What was caught, by species and size.
  *
@@ -42,9 +50,11 @@ import type { Antworten, Artnummer } from '../../entwurf/typen'
 
 function ArtenTabelle() {
   const { t } = useTranslation()
-  const { getValues, setValue } = useFormContext<Antworten>()
+  const { getValues, setValue, trigger } = useFormContext<Antworten>()
 
   const [anzahl, setAnzahl] = useState(() => anfangsZeilen(getValues('arten')))
+
+  useNachpruefung(LOESEN_AUS, nachzupruefen)
 
   const zeilen = Array.from({ length: anzahl }, (_, i) => (i + 1) as Artnummer)
   const voll = anzahl >= MAX_ARTEN
@@ -60,12 +70,35 @@ function ArtenTabelle() {
     (nr: Artnummer) => {
       /* A write per field, not one write of the whole group; zeilen.ts says
          why. */
-      for (const { pfad, wert } of entfernenSchreiben(getValues('arten'), nr)) {
+      const schreibvorgaenge = entfernenSchreiben(getValues('arten'), nr)
+
+      for (const { pfad, wert } of schreibvorgaenge) {
         setValue(pfad, wert, { shouldDirty: true })
       }
+
+      /* Every moved cell rechecked once, after the last one has landed.
+       *
+       * Neither of the two mechanisms that normally keep a message honest
+       * reaches this. React Hook Form validates a field when the user leaves it,
+       * and nobody left these; useNachpruefung deliberately never rechecks the
+       * field that changed, because while somebody is typing that field is
+       * already React Hook Form's own job.
+       *
+       * So without this a removal leaves the messages of the row that moved
+       * behind: the cells are blanked and their complaints stay on screen,
+       * pointing at rows that no longer hold what they describe, until the page
+       * is reloaded. Found on 2026-09-06 by removing a row that held a wrong
+       * count.
+       *
+       * After the loop rather than inside it, and once rather than per write.
+       * The row rules read a whole row and the duplicate rule reads every row,
+       * so a check run halfway through the shift would judge a table that is
+       * half old and half new. */
+      void trigger(schreibvorgaenge.map(({ pfad }) => pfad))
+
       setAnzahl((offen) => Math.max(offen - 1, 1))
     },
-    [getValues, setValue],
+    [getValues, setValue, trigger],
   )
 
   return (
@@ -143,6 +176,13 @@ function ArtenTabelle() {
       {/* Renders nothing. It watches the last row so the table can grow without
           the table itself subscribing to anything. */}
       {!voll && <Zeilenwaechter nr={anzahl as Artnummer} onGefuellt={wachsen} />}
+
+      {/* Both are leaves, so their wide subscriptions re-render themselves and
+          nothing above them. The cell messages first, because each names a row
+          somebody can go to; the table's own verdict after, because it is about
+          all of them. */}
+      <Zellmeldungen />
+      <NachweisMeldung />
 
       <div className="tabelle-aktionen">
         <Button

@@ -40,6 +40,11 @@ function ZahlZelle({ name, bezeichnung }: ZahlZelleProps) {
       inputRef={ref}
       id={name}
       type="number"
+      /* The wrong cell has to be findable in a grid of 312. error is what puts
+         MuiOutlinedInput's Mui-error look on it, which muiTheme.ts already
+         defines once for every field on the protocol; aria-invalid below is what
+         says "this one" to somebody not looking at the colour. */
+      error={Boolean(fehlerKey)}
       className="zelle__eingabe"
       inputProps={{
         /* A count of fish. No decimals, and no ceiling anyone can name: what
