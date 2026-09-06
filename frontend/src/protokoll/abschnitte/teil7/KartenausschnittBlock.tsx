@@ -1,8 +1,10 @@
 import Button from '@mui/material/Button'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AnlagenMeldungen from './AnlagenMeldungen'
 import AnlagenPicker from './AnlagenPicker'
 import AnlagenVorschau from './AnlagenVorschau'
+import EntfernenDialog from './EntfernenDialog'
 import { useAnlagen } from '../../anlagen/useAnlagen'
 
 interface KartenausschnittBlockProps {
@@ -27,6 +29,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
   )
 
   const karte = anlagen[0]
+  const [fragt, setFragt] = useState(false)
 
   return (
     <fieldset className="form-section">
@@ -50,20 +53,29 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
             dateiname: karte.dateiname,
           })}
         >
-          {/* Replacing does not ask first: the button says what it does, and the
-              picker that opens is a second chance to change your mind. Removing
-              does, in step 5, because nothing takes the file's place. */}
+          {/* Replacing does not ask first: the button says what it does, and
+              the picker that opens is a second chance to change your mind.
+              Removing does ask, because nothing takes the file's place. */}
           <AnlagenPicker
             beschriftung={t('protokoll.abschnitt7.ersetzen')}
             onDateien={(dateien) => void ersetzen(dateien[0])}
           />
-          <Button variant="text" onClick={() => void entfernen(karte.id)}>
+          <Button variant="text" onClick={() => setFragt(true)}>
             {t('protokoll.abschnitt7.entfernen')}
           </Button>
         </AnlagenVorschau>
       )}
 
       <AnlagenMeldungen meldungen={meldungen} />
+
+      <EntfernenDialog
+        dateiname={fragt && karte !== undefined ? karte.dateiname : null}
+        onAbbrechen={() => setFragt(false)}
+        onBestaetigen={() => {
+          if (karte !== undefined) void entfernen(karte.id)
+          setFragt(false)
+        }}
+      />
     </fieldset>
   )
 }

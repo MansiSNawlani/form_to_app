@@ -507,6 +507,12 @@
       "groesse": "{{mb}} MB",
       "ersetzen": "Ersetzen",
       "entfernen": "Entfernen",
+      "entfernenFrage": {
+        "titel": "Anlage entfernen?",
+        "text": "«{{dateiname}}» wird aus diesem Protokoll entfernt. Die Datei ist danach nur noch dort vorhanden, wo Sie sie ausgewählt haben; rückgängig machen lässt sich das hier nicht.",
+        "abbrechen": "Abbrechen",
+        "bestaetigen": "Entfernen"
+      },
       "kartenausschnitt": {
         "legend": "Kartenausschnitt",
         "hinweis": "Ein Kartenausschnitt, der zeigt, wo die Probestrecke liegt. Ein Bild im Format JPG, PNG oder WEBP, bis zu 10 MB.",

@@ -18,7 +18,7 @@ function Abschnitt7({ entwurfId }: Abschnitt7Props) {
   return (
     <>
       <KartenausschnittBlock entwurfId={entwurfId} />
-      <FotosBlock />
+      <FotosBlock entwurfId={entwurfId} />
     </>
   )
 }
