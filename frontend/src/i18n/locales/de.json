@@ -505,6 +505,7 @@
     },
     "abschnitt7": {
       "groesse": "{{mb}} MB",
+      "laedt": "Anlagen werden geladen.",
       "ersetzen": "Ersetzen",
       "entfernen": "Entfernen",
       "entfernenFrage": {
@@ -524,6 +525,7 @@
         "hinweis": "Aufnahmen der Strecke, des Ufers und der Sohle. Bis zu {{max}} Bilder im Format JPG, PNG oder WEBP, je bis zu 10 MB. Mehrere Bilder lassen sich auf einmal auswählen.",
         "waehlen": "Fotos auswählen",
         "anzahl": "{{vorhanden}} von {{max}}",
+        "leer": "Noch keine Fotos hinterlegt.",
         "alt": "Foto {{nummer}} der Probestrecke, Datei «{{dateiname}}»"
       }
     },

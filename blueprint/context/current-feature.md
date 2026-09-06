@@ -1,7 +1,7 @@
 # Feature: Anlagen - photo and map excerpt upload
 
 **From build-plan:** feature 10
-**Status:** not started
+**Status:** built, awaiting manual verification in a browser
 
 ## Goal
 
@@ -134,7 +134,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - The `Anlage` contract and the browser store.** Add
+- [x] **Step 1 - The `Anlage` contract and the browser store.** Add
       `protokoll/anlagen/typen.ts` with the record shape, and `protokoll/anlagen/store.ts`
       with `createAnlagenStore({ speicher, now, createId })` over a narrow `AnlagenSpeicher`
       interface, plus the IndexedDB implementation of that interface. Same shape as
@@ -145,7 +145,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       result rather than throwing, and a database that will not open degrading to an empty
       list instead of breaking the page.
 
-- [ ] **Step 2 - The rules on what may be attached.** Add `protokoll/anlagen/regeln.ts`: a
+- [x] **Step 2 - The rules on what may be attached.** Add `protokoll/anlagen/regeln.ts`: a
       plain function taking one picked file, the kind of attachment, and how many of that
       kind are already there, returning an i18n key for what is wrong or nothing. Rules: the
       type must be one this browser can display, the file must be under the size cap, and
@@ -168,7 +168,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       rejected type, a file over the size cap, a second map excerpt, and a photo arriving
       when twenty are already there; and `docs/ffs-questions.md` carries question 11.
 
-- [ ] **Step 3 - The section exists and is reachable.** Add the seventh entry to
+- [x] **Step 3 - The section exists and is reachable.** Add the seventh entry to
       `ABSCHNITTE`, `abschnitte/Abschnitt7.tsx` with the two block headings and nothing in
       them yet, the `case 7` that `AbschnittInhalt`'s exhaustive switch now demands, and the
       German and English strings. No storage and no picking yet.
@@ -177,7 +177,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       move 6 to 7 and stop there, `npm run build` is green, and no string on screen is a
       hard-coded German literal.
 
-- [ ] **Step 4 - The Kartenausschnitt block.** One slot in
+- [x] **Step 4 - The Kartenausschnitt block.** One slot in
       `abschnitte/teil7/KartenausschnittBlock.tsx`: a labelled file picker, and once a file
       is there, its preview, name and size with buttons to replace or remove it. Wire it to
       the store and the rules from steps 1 and 2. Build the whole refusal path here, with
@@ -191,7 +191,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       and saying what to do instead, and nothing is stored in any of those cases; and no
       object URL is left behind (checked in the browser's memory tools).
 
-- [ ] **Step 5 - The Fotos block.** `abschnitte/teil7/FotosBlock.tsx`: up to twenty, each
+- [x] **Step 5 - The Fotos block.** `abschnitte/teil7/FotosBlock.tsx`: up to twenty, each
       shown as a preview with its name and size and its own remove button, laid out as a
       grid that stays readable at twenty. The picker takes several files at once
       (`multiple`), since twenty added singly is twenty dialogs. A pick that partly fails
@@ -206,7 +206,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       count reads correctly after every add and remove; and the grid is still readable with
       twenty in it.
 
-- [ ] **Step 6 - The states around the edges, and the accessibility pass.** The section
+- [x] **Step 6 - The states around the edges, and the accessibility pass.** The section
       while its attachments are still loading, a browser that refuses the database
       altogether, and the empty section with nothing attached. Then the pass both blocks
       need: every picker labelled, every preview with alternative text naming what it is,

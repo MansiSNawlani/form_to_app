@@ -1,9 +1,10 @@
 import Button from '@mui/material/Button'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AnlagenMeldungen from './AnlagenMeldungen'
 import AnlagenPicker from './AnlagenPicker'
 import AnlagenVorschau from './AnlagenVorschau'
+import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
 import { useAnlagen } from '../../anlagen/useAnlagen'
 
@@ -31,6 +32,10 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
   const karte = anlagen[0]
   const [fragt, setFragt] = useState(false)
 
+  /* Where focus goes once the preview disappears, so it does not fall to the
+     top of the document and make a keyboard user tab the section again. */
+  const picker = useRef<HTMLLabelElement>(null)
+
   return (
     <fieldset className="form-section">
       <legend>{t('protokoll.abschnitt7.kartenausschnitt.legend')}</legend>
@@ -38,8 +43,11 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
         {t('protokoll.abschnitt7.kartenausschnitt.hinweis')}
       </p>
 
+      <AnlagenZustand status={status} />
+
       {status === 'geladen' && karte === undefined && (
         <AnlagenPicker
+          ref={picker}
           beschriftung={t('protokoll.abschnitt7.kartenausschnitt.waehlen')}
           onDateien={(dateien) => void ersetzen(dateien[0])}
         />
@@ -74,6 +82,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
         onBestaetigen={() => {
           if (karte !== undefined) void entfernen(karte.id)
           setFragt(false)
+          picker.current?.focus()
         }}
       />
     </fieldset>

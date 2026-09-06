@@ -1,10 +1,11 @@
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AnlagenMeldungen from './AnlagenMeldungen'
 import AnlagenPicker from './AnlagenPicker'
 import AnlagenVorschau from './AnlagenVorschau'
+import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
 import { MAX_FOTOS } from '../../anlagen/regeln'
 import { useAnlagen } from '../../anlagen/useAnlagen'
@@ -35,6 +36,11 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
   const [zuEntfernen, setZuEntfernen] = useState<string | null>(null)
   const gefragt = anlagen.find((anlage) => anlage.id === zuEntfernen)
 
+  /* Where focus goes once a tile disappears. The button that had focus went
+     with it, and the browser's fallback is the top of the document, which for a
+     keyboard user means tabbing back through the whole section. */
+  const picker = useRef<HTMLLabelElement>(null)
+
   return (
     <fieldset className="form-section">
       <legend>{t('protokoll.abschnitt7.fotos.legend')}</legend>
@@ -42,10 +48,13 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
         {t('protokoll.abschnitt7.fotos.hinweis', { max: MAX_FOTOS })}
       </p>
 
+      <AnlagenZustand status={status} />
+
       {status === 'geladen' && (
         <>
           <div className="anlagen__kopf">
             <AnlagenPicker
+              ref={picker}
               beschriftung={t('protokoll.abschnitt7.fotos.waehlen')}
               mehrere
               onDateien={(dateien) => void hinzufuegen(dateien)}
@@ -57,6 +66,12 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
               })}
             </Typography>
           </div>
+
+          {anlagen.length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              {t('protokoll.abschnitt7.fotos.leer')}
+            </Typography>
+          )}
 
           {anlagen.length > 0 && (
             <ul className="anlagen__liste">
@@ -88,6 +103,7 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
         onBestaetigen={() => {
           if (zuEntfernen !== null) void entfernen(zuEntfernen)
           setZuEntfernen(null)
+          picker.current?.focus()
         }}
       />
     </fieldset>

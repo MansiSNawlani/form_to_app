@@ -118,20 +118,29 @@ export function useAnlagen(entwurfId: string, art: Anlagenart): UseAnlagen {
     [anlagen.length, aufnehmen],
   )
 
-  /* The single slot's replace. The old file goes first so the count the rule
-     sees is zero, which is the honest answer: the surveyor asked to replace, not
-     to add a second.
+  /* The single slot's replace: the new file lands first, and the old one goes
+     only once it has.
 
-     If the write then fails, the slot is empty and the message says why. Keeping
-     the old file instead would mean writing the new one first and being over the
-     cap in between, and a half-applied replace is worse than an empty slot with
-     an explanation. */
+     The order is the whole point. Removing first would mean that picking a HEIC
+     photograph, or picking anything at all with a full disk, destroys the map
+     excerpt that was already there and puts nothing in its place. Nothing is
+     lost here unless the replacement actually arrived.
+
+     The rule is asked about a count of zero rather than the real one, which is
+     the honest question: the surveyor asked to replace, not to add a second.
+     Being briefly over the cap in the store is fine, because the cap is a rule
+     about the form and not an invariant of the database. */
   const ersetzen = useCallback(
     async (datei: File) => {
       const alt = anlagen[0]
-      if (alt !== undefined) await anlagenStore.removeAnlage(alt.id)
-
       const { angenommen, fehler } = await aufnehmen([datei], 0)
+
+      if (angenommen.length === 0) {
+        setMeldungen(fehler)
+        return
+      }
+
+      if (alt !== undefined) await anlagenStore.removeAnlage(alt.id)
       setAnlagen(angenommen)
       setMeldungen(fehler)
     },

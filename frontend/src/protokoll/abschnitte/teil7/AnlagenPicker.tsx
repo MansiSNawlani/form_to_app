@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button'
-import { useId, useRef } from 'react'
+import { useId, useRef, type Ref } from 'react'
 import { ERLAUBTE_TYPEN } from '../../anlagen/regeln'
 
 interface AnlagenPickerProps {
@@ -7,6 +7,10 @@ interface AnlagenPickerProps {
   beschriftung: string
   mehrere?: boolean
   onDateien: (dateien: File[]) => void
+  /* So a block can put focus back here after a removal. Without it, focus is
+     left on a button that no longer exists and falls to the top of the
+     document, which for a keyboard user means tabbing the whole section again. */
+  ref?: Ref<HTMLLabelElement>
 }
 
 /* The one control on this form that is a native element by necessity rather
@@ -23,12 +27,17 @@ interface AnlagenPickerProps {
  * display:none would take it out of the accessibility tree entirely, leaving a
  * button that says nothing about what it opens.
  */
-function AnlagenPicker({ beschriftung, mehrere = false, onDateien }: AnlagenPickerProps) {
+function AnlagenPicker({
+  beschriftung,
+  mehrere = false,
+  onDateien,
+  ref,
+}: AnlagenPickerProps) {
   const id = useId()
   const input = useRef<HTMLInputElement>(null)
 
   return (
-    <Button component="label" htmlFor={id} variant="outlined">
+    <Button component="label" htmlFor={id} variant="outlined" ref={ref}>
       {beschriftung}
       <input
         id={id}
