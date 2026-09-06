@@ -165,6 +165,25 @@ would let the application catch a genuine contradiction that reaches FiaKa today
 small change here, not a schema change: the group would live alongside the code in the extracted
 option list.
 
+## 11. How many photographs may a protocol have?
+
+**Where:** The attachments, which the printed form carries as image buttons rather than as fields.
+
+The form has five image slots: one for the map excerpt, `fotos.kartenausschnitt_image`, and four
+for photographs, `fotos.bild1` to `fotos.bild4`. We read the four as a consequence of how much room
+there was on the page rather than as a rule about surveys. A crew that took eight useful pictures of
+a stretch should not have to choose four and email the rest, which is what the four-slot form makes
+them do today.
+
+**What we assume meanwhile:** up to twenty photographs, decided on 2026-09-06. Twenty is a technical
+safety valve so that one protocol cannot fill up a laptop, not a judgement about how many pictures a
+survey deserves. One photograph and twenty are both perfectly normal. The map excerpt stays at
+exactly one, because there is one stretch and one excerpt of it, and that limit is about the thing
+rather than about the page.
+
+**If four was deliberate:** we lower one constant. Worth knowing whether the number carries any
+meaning downstream, in particular whether FiaKa or the eventual PDF expects a fixed four.
+
 ---
 
 ## What happens to the answers

@@ -501,6 +501,17 @@
       "speichert": "Wird gespeichert",
       "gespeichertUm": "Automatisch gespeichert um {{zeit}}",
       "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
+    },
+    "anlagen": {
+      "fehler": {
+        "heic": "«{{dateiname}}» liegt im iPhone-Format HEIC vor, das kein Browser anzeigen kann. Damit künftige Aufnahmen passen, wählen Sie am iPhone unter Einstellungen > Kamera > Formate den Eintrag «Maximale Kompatibilität». Für dieses Foto jetzt: öffnen Sie es am iPhone und teilen oder exportieren Sie es, dabei entsteht eine JPG-Datei, die hier funktioniert.",
+        "typ": "«{{dateiname}}» ist kein Bild. Bitte wählen Sie eine Datei im Format JPG, PNG oder WEBP.",
+        "groesse": "«{{dateiname}}» ist {{groesseMb, number}} MB groß, möglich sind bis zu {{maxMb}} MB. Die meisten Handys und Foto-Apps erzeugen beim Teilen oder Exportieren eine kleinere Fassung.",
+        "kartenausschnittBelegt": "Es ist bereits ein Kartenausschnitt hinterlegt. Bitte ersetzen Sie ihn oder entfernen Sie ihn zuerst.",
+        "fotosVoll": "Es sind bereits {{vorhanden}} Fotos hinterlegt, mehr als {{max}} sind nicht möglich. Bitte entfernen Sie zuerst ein Foto.",
+        "speicherVoll": "«{{dateiname}}» konnte nicht gespeichert werden: Der Browser hat für dieses Protokoll keinen Platz mehr. Alles bereits Hinterlegte ist unverändert erhalten. Bitte schaffen Sie auf dem Gerät Speicherplatz oder hinterlegen Sie weniger oder kleinere Bilder.",
+        "speicherNichtVerfuegbar": "In diesem Fenster lassen sich keine Anlagen speichern. Das kommt im privaten Modus und bei eingeschränkten Browser-Einstellungen vor. Bitte verwenden Sie ein normales Fenster oder einen anderen Browser."
+      }
     }
   }
 }
