@@ -157,6 +157,7 @@ where the virtual environment is.
 - Apply everything outstanding: `alembic upgrade head`
 - Undo the most recent one: `alembic downgrade -1`
 - Print the SQL instead of running it: `alembic upgrade head --sql`
+- Check the models and the database still agree: `alembic check`
 - A new empty migration: `alembic revision -m "what changed"`
 - A new migration drafted from the models: `alembic revision --autogenerate -m "what changed"`
 

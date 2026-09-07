@@ -23,24 +23,57 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.sql.schema import SchemaItem
 
 from alembic import context
 from app.config import get_settings
+
+# Imported for its side effect as much as its value: app.models registers every
+# model on this metadata, and autogenerate can only see a table that is on it.
+# Importing the package rather than one model is what keeps that true as tables
+# are added.
+from app.models import Base
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# What autogenerate compares the live database against. None until feature 2a's
-# second step introduces the first model; with no metadata, autogenerate would
-# see an empty schema and cheerfully generate a migration dropping everything.
-target_metadata = None
+# What autogenerate compares the live database against.
+target_metadata = Base.metadata
 
 # Type changes are off by default, so widening a column in a model would
 # otherwise produce an empty migration and a silent mismatch between the model
 # and the database.
 COMPARE_TYPE = True
+
+# Tables PostGIS creates for itself. No model claims them, so without this filter
+# autogenerate reads them as tables somebody forgot to delete and drafts a
+# migration dropping them. spatial_ref_sys holds every coordinate system
+# definition, including the EPSG:25832 that all of this project's coordinates are
+# in, so dropping it would break feature 18 in a way that only shows up there.
+#
+# Seen for real while generating the users migration on 2026-09-07.
+POSTGIS_TABELLEN = frozenset(
+    {
+        "spatial_ref_sys",
+        "geography_columns",
+        "geometry_columns",
+        "raster_columns",
+        "raster_overviews",
+    }
+)
+
+
+def include_object(
+    object: SchemaItem,
+    name: str | None,
+    type_: str,
+    reflected: bool,
+    compare_to: SchemaItem | None,
+) -> bool:
+    """Decides whether autogenerate considers a database object at all."""
+    return not (type_ == "table" and name in POSTGIS_TABELLEN)
 
 
 def database_url() -> str:
@@ -60,6 +93,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=COMPARE_TYPE,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -71,6 +105,7 @@ def do_run_migrations(connection: Connection) -> None:
         connection=connection,
         target_metadata=target_metadata,
         compare_type=COMPARE_TYPE,
+        include_object=include_object,
     )
 
     # Postgres can roll back a failed CREATE TABLE, unlike some databases, so a

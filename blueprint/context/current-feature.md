@@ -166,7 +166,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       verified in `psql`; `alembic current` reports the revision; and `AGENTS.md` carries the
       commands that were actually run.
 
-- [ ] **Step 2 - The `User` model and the table.** `app/models/base.py` with the declarative
+- [x] **Step 2 - The `User` model and the table.** `app/models/base.py` with the declarative
       base, `app/models/benutzer.py` with the `Rolle` enum and the `User` model, and the
       generated migration read line by line before it is kept. All eight columns, the unique
       email index, and the four check constraints: at least one role, every role a known one,
