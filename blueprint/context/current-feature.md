@@ -203,7 +203,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       passphrase accepted and verifying correctly, and `braucht_neuen_hash` answering false
       for a hash made with the current settings.
 
-- [ ] **Step 4 - The two account rules.** `app/benutzer/regeln.py`: `normalisiere_email`
+- [x] **Step 4 - The two account rules.** `app/benutzer/regeln.py`: `normalisiere_email`
       (trim and lower case) and `pruefe_regierungspraesidium`, which says that the number is
       required on a `REGIERUNGSPRAESIDIUM` account and forbidden on any other. Plain
       functions again, and the second is a genuine domain rule: a regional account with no
