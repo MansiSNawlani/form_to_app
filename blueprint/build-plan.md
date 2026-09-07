@@ -88,7 +88,9 @@ These are not features and are not tracked here. They happen first.
         the Ergänzende Anmerkungen box printed above the table
   - [x] 9b. Part 6 rules: the young-of-year count not exceeding its row, the four "no detection"
         codes when nothing was caught, no negative counts, and no species named twice
-- [ ] 10. Photo and map excerpt upload
+- [x] 10. Photo and map excerpt upload: one Kartenausschnitt and up to twenty Fotos, kept in
+      the browser until feature 3 gives them a server. Built out of order, before items 2 and
+      3, by decision on 2026-09-06
 - [ ] 11. Submit and review workflow: the state machine, rejection reasons, change requests, locking
 - [ ] 12. Review queue: list, filter and search, including by species
 - [ ] 13. Regierungspräsidium access: regional read-only role
