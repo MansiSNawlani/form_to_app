@@ -51,6 +51,40 @@ uvicorn app.main:app --reload
 
 API docs are then at `http://localhost:8000/api/v1/docs`.
 
+## Creating the first account
+
+There is no sign-up page, by design: every account is created by an administrator. That leaves a
+chicken and egg at the very start, because creating an account requires being signed in as a Super
+Admin and to begin with there is not one. The first account is therefore made from the command
+line, by somebody with access to the machine.
+
+With the stack running, from `backend/`:
+
+```bash
+alembic upgrade head                      # once, so the users table exists
+befischung benutzer anlegen --email you@example.org --rolle SUPER_ADMIN
+```
+
+The password is asked for, twice, and is never typed as an option. An option would land in your
+shell history and be visible to anyone who can list running processes.
+
+The other account commands:
+
+```bash
+befischung benutzer liste
+befischung benutzer deaktivieren --email you@example.org
+befischung benutzer aktivieren --email you@example.org
+befischung benutzer --help
+```
+
+Deactivating keeps the account and stops it signing in. Accounts are never deleted, because a
+deleted account would take the owner of every protocol it filed with it.
+
+The six roles are `SUBMITTER`, `DATA_STEWARD`, `REVIEWER`, `SUPER_ADMIN`, `REGIERUNGSPRAESIDIUM`
+and `INTEGRATION`. Give `--rolle` more than once for an account that holds several. A
+`REGIERUNGSPRAESIDIUM` account also needs `--regierungspraesidium`, a number from 1 to 4:
+1 Stuttgart, 2 Karlsruhe, 3 Freiburg, 4 Tübingen.
+
 ## Language
 
 The domain is German and stays German. Identifiers, database columns and API fields use the German

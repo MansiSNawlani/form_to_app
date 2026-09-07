@@ -1,7 +1,7 @@
 # Feature: 2a - The User record and the admin command
 
 **From build-plan:** feature 2a
-**Status:** not started
+**Status:** complete
 
 ## Goal
 
@@ -271,7 +271,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       way out, and each exits non-zero; running it with the stack stopped says what to start
       rather than printing a stack trace; and `--help` reads sensibly.
 
-- [ ] **Step 8 - Activating, deactivating and listing, and the documentation.** The other
+- [x] **Step 8 - Activating, deactivating and listing, and the documentation.** The other
       three commands: `aktivieren`, `deaktivieren`, `liste`. `liste` prints email, roles and
       active state, and never the hash. Deactivating an account that is already inactive says
       so rather than pretending to work.

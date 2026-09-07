@@ -170,6 +170,21 @@ service runs as more than one container they would all migrate at once. Applying
 them is a deploy step somebody runs, which is also what makes a failure visible
 rather than a restart loop.
 
+**Account commands** (also from `backend/`, added in feature 2a, needs the database
+running and migrated). There is no sign-up page, so the first Super Admin is
+created here; see the README for why.
+
+- Create an account: `befischung benutzer anlegen --email <adresse> --rolle SUPER_ADMIN`
+- List them: `befischung benutzer liste`
+- Lock one: `befischung benutzer deaktivieren --email <adresse>`
+- Unlock one: `befischung benutzer aktivieren --email <adresse>`
+- What else there is: `befischung benutzer --help`
+
+The password is prompted for, twice, and is never an option: an option would land
+in the shell history and be visible to anyone who can list running processes.
+`--rolle` may be given more than once. A `REGIERUNGSPRAESIDIUM` account also needs
+`--regierungspraesidium` with a number from 1 to 4.
+
 **Backend tests use a real database.** Added in feature 2a. `pytest` creates a
 separate `befischung_test` database, migrates it to head, and runs each test in a
 transaction it rolls back, so the development database is never touched. Tests

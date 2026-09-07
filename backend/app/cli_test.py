@@ -290,3 +290,111 @@ def test_ein_aufruf_nutzt_genau_eine_ereignisschleife(
 
     assert ergebnis.exit_code == 0, ergebnis.output
     assert "Event loop" not in ergebnis.output
+
+
+def _sperren(befehl: str, email: str) -> Result:
+    return runner.invoke(cli.app, ["benutzer", befehl, "--email", email])
+
+
+def _liste() -> Result:
+    return runner.invoke(cli.app, ["benutzer", "liste"])
+
+
+def test_konto_wird_deaktiviert_und_wieder_aktiviert(
+    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+) -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    gesperrt = _sperren("deaktivieren", "anna@ffs.de")
+    assert gesperrt.exit_code == 0, gesperrt.output
+    assert "deaktiviert" in gesperrt.output
+    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    assert konto is not None and konto.ist_aktiv is False
+
+    frei = _sperren("aktivieren", "anna@ffs.de")
+    assert frei.exit_code == 0, frei.output
+    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    assert konto is not None and konto.ist_aktiv is True
+
+
+def test_sperren_findet_das_konto_unter_jeder_schreibweise() -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    assert _sperren("deaktivieren", "  ANNA@FFS.de ").exit_code == 0
+
+
+def test_erneutes_deaktivieren_sagt_dass_nichts_geschah() -> None:
+    """Reporting success for an account that was already inactive would be true
+    and useless: whoever ran it wanted to know they had had an effect."""
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    _sperren("deaktivieren", "anna@ffs.de")
+
+    nochmal = _sperren("deaktivieren", "anna@ffs.de")
+    assert nochmal.exit_code == 0
+    assert "bereits" in nochmal.output
+    assert "Nichts geändert" in nochmal.output
+
+
+def test_unbekanntes_konto_sperren_wird_gemeldet() -> None:
+    ergebnis = _sperren("deaktivieren", "niemand@ffs.de")
+
+    assert ergebnis.exit_code == 1
+    assert "niemand@ffs.de" in ergebnis.output
+    assert "benutzer liste" in ergebnis.output
+
+
+def test_ungueltige_adresse_beim_sperren_wird_gemeldet() -> None:
+    ergebnis = _sperren("aktivieren", "anna")
+
+    assert ergebnis.exit_code == 1
+    assert "keine E-Mail-Adresse" in ergebnis.output
+
+
+def test_leere_liste_sagt_wie_man_anfaengt() -> None:
+    """The first thing anybody setting this up sees, so it has to point
+    somewhere rather than printing an empty table."""
+    ergebnis = _liste()
+
+    assert ergebnis.exit_code == 0
+    assert "noch kein Konto" in ergebnis.output
+    assert "benutzer anlegen" in ergebnis.output
+
+
+def test_liste_zeigt_konten_sortiert() -> None:
+    for email in ["carla@ffs.de", "anna@ffs.de"]:
+        _anlegen("--email", email, "--rolle", "SUBMITTER")
+
+    ausgabe = _liste().output
+    assert ausgabe.index("anna@ffs.de") < ausgabe.index("carla@ffs.de")
+    assert "2 Konten" in ausgabe
+
+
+def test_liste_zeigt_rollen_status_und_region() -> None:
+    _anlegen(
+        "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "4"
+    )
+    _sperren("deaktivieren", "rp@ffs.de")
+
+    ausgabe = _liste().output
+    assert "REGIERUNGSPRAESIDIUM" in ausgabe
+    assert "gesperrt" in ausgabe
+    assert "4 Tübingen" in ausgabe
+
+
+def test_liste_zeigt_niemals_einen_hash(
+    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+) -> None:
+    """This output is scrolled back through, pasted into tickets and captured by
+    logs, so a hash printed once should be assumed to be kept forever."""
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    assert konto is not None
+
+    ausgabe = _liste().output
+    assert "argon2" not in ausgabe
+    assert konto.password_hash not in ausgabe
+
+
+def test_eine_einzelne_zeile_wird_im_singular_gezaehlt() -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    assert _liste().output.rstrip().endswith("1 Konto")

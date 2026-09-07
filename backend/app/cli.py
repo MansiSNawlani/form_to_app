@@ -24,10 +24,17 @@ from typing import Annotated
 import typer
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
-from app.benutzer.dienst import lege_benutzer_an
+from app.benutzer.dienst import (
+    finde_nach_email,
+    lege_benutzer_an,
+    liste_benutzer,
+    setze_aktiv,
+)
 from app.benutzer.fehler import (
+    BenutzerNichtGefunden,
     EmailBereitsVergeben,
     EmailUngueltig,
     RegierungspraesidiumAusserhalbBereich,
@@ -40,9 +47,24 @@ from app.benutzer.regeln import (
     normalisiere_rollen,
     pruefe_regierungspraesidium,
 )
-from app.db import session_factory
+from app.config import get_settings
 from app.models.benutzer import Locale, Rolle
 from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
+
+# The command line gets its own engine rather than app/db.py's.
+#
+# NullPool is the point: it opens a connection when one is needed and closes it
+# again, keeping nothing. app/db.py holds a long lived pool, which is right for a
+# web service answering many requests and wrong here, where the process runs one
+# command and exits.
+#
+# It also removes a whole class of defect rather than documenting it. A pooled
+# connection belongs to the event loop that opened it, and every asyncio.run()
+# closes its loop at the end, so any second one would be handed a connection
+# that no longer works. That is the failure found on 2026-09-07, and with
+# nothing pooled it cannot happen at all.
+_motor = create_async_engine(str(get_settings().database_url), poolclass=NullPool)
+session_factory = async_sessionmaker(_motor)
 
 app = typer.Typer(help="Verwaltung der Anwendung Protokoll E-Befischung.", no_args_is_help=True)
 benutzer_app = typer.Typer(help="Konten anlegen und verwalten.", no_args_is_help=True)
@@ -76,20 +98,19 @@ def _ausfuehren[T](arbeit: Callable[[AsyncSession], Awaitable[T]]) -> T:
     The commands are ordinary synchronous functions and the service layer is
     async, so this is the one place the two meet.
 
-    A command must call this exactly once, with everything it needs to do
-    inside, including anything it asks the user between two queries.
+    A command should still call this once, with everything it needs to do
+    inside, including anything it asks the user between two queries. That is now
+    a matter of tidiness rather than correctness: the engine above keeps no pool,
+    so a second call opens a fresh connection instead of reaching for one that
+    belonged to a loop asyncio.run() has already closed.
 
-    asyncio.run() creates an event loop and closes it again, and a database
-    connection belongs to the loop it was opened on. app/db.py keeps a long
-    lived pool, so a second call here is handed a connection from the first
-    loop, which has already gone, and fails with "Event loop is closed" and no
-    useful message.
-
-    Found on 2026-09-07 by running the command for real, after a reachability
-    check was added as a separate call. The suite had not caught it: the tests
-    replaced the session factory with one that pools nothing, so a fixture more
-    forgiving than production hid a defect that only appeared outside it. There
-    is now a test using a pooling factory for exactly this reason.
+    It was not always tidiness. On 2026-09-07 this ran on the pooled engine in
+    app/db.py, a reachability check was added as a second call, and the command
+    failed with "Event loop is closed" and no useful message. The suite had not
+    caught it: the tests replaced the session factory with one that pools
+    nothing, so a fixture more forgiving than production hid the defect until
+    the command was run by hand. There is now a test using a pooling factory,
+    which holds the rule even for a caller that supplies a pooled engine.
     """
 
     async def mit_sitzung() -> T:
@@ -260,6 +281,106 @@ def anlegen(
     if regierungspraesidium is not None:
         ort = REGIERUNGSPRAESIDIEN[regierungspraesidium]
         typer.echo(f"Regierungspräsidium: {regierungspraesidium} {ort}")
+
+
+def _sperrstatus_setzen(email: str, aktiv: bool) -> None:
+    """The shared body of aktivieren and deaktivieren.
+
+    Both read the account first, so an account that is already in the wanted
+    state can be told apart from one that was changed. Reporting "deaktiviert"
+    for an account that was already inactive would be true and useless: whoever
+    ran it wanted to know they had had an effect.
+    """
+    wortlaut = "aktiviert" if aktiv else "deaktiviert"
+
+    async def arbeit(sitzung: AsyncSession) -> tuple[str, bool]:
+        vorher = await finde_nach_email(sitzung, email)
+        if vorher is None:
+            raise BenutzerNichtGefunden(normalisiere_email(email))
+        if vorher.ist_aktiv == aktiv:
+            return vorher.email, False
+        geaendert = await setze_aktiv(sitzung, email, aktiv)
+        return geaendert.email, True
+
+    try:
+        betroffene_email, geaendert = _ausfuehren(arbeit)
+    except EmailUngueltig as fehler:
+        _abbrechen(
+            f"„{fehler.email}“ ist keine E-Mail-Adresse, deshalb wurde nichts geändert.",
+            "",
+            "Bitte die vollständige Adresse des Kontos angeben.",
+            "Welche es gibt, zeigt: befischung benutzer liste",
+        )
+    except BenutzerNichtGefunden as fehler:
+        _abbrechen(
+            f"Für {fehler.email} gibt es kein Konto, deshalb wurde nichts geändert.",
+            "",
+            "Vielleicht ist die Adresse anders geschrieben als gedacht.",
+            "Alle vorhandenen Konten zeigt: befischung benutzer liste",
+        )
+
+    if geaendert:
+        typer.echo(f"Konto {betroffene_email} wurde {wortlaut}.")
+    else:
+        typer.echo(f"Konto {betroffene_email} war bereits {wortlaut}. Nichts geändert.")
+
+
+@benutzer_app.command("aktivieren")
+def aktivieren(
+    email: Annotated[str, typer.Option("--email", help="Die Adresse des Kontos.")],
+) -> None:
+    """Ein gesperrtes Konto wieder freischalten."""
+    _sperrstatus_setzen(email, aktiv=True)
+
+
+@benutzer_app.command("deaktivieren")
+def deaktivieren(
+    email: Annotated[str, typer.Option("--email", help="Die Adresse des Kontos.")],
+) -> None:
+    """Ein Konto sperren. Es bleibt erhalten und kann wieder freigeschaltet werden."""
+    _sperrstatus_setzen(email, aktiv=False)
+
+
+def _regierungspraesidium_text(nummer: int | None) -> str:
+    if nummer is None:
+        return "-"
+    return f"{nummer} {REGIERUNGSPRAESIDIEN[nummer]}"
+
+
+@benutzer_app.command("liste")
+def liste() -> None:
+    """Alle Konten anzeigen."""
+    konten = _ausfuehren(liste_benutzer)
+
+    if not konten:
+        typer.echo("Es gibt noch kein Konto.")
+        typer.echo("")
+        typer.echo("Das erste anlegen mit:")
+        typer.echo("    befischung benutzer anlegen --email <adresse> --rolle SUPER_ADMIN")
+        return
+
+    # Columns sized from the data rather than fixed, because an email address
+    # and a list of roles vary enough that any fixed width is wrong somewhere.
+    # No password hash in any of them, deliberately: this output is scrolled
+    # back through, pasted into tickets and captured by logs.
+    zeilen = [
+        (
+            konto.email,
+            ", ".join(rolle.value for rolle in konto.rollen),
+            "aktiv" if konto.ist_aktiv else "gesperrt",
+            _regierungspraesidium_text(konto.regierungspraesidium),
+        )
+        for konto in konten
+    ]
+    kopf = ("E-Mail", "Rollen", "Status", "Regierungspräsidium")
+    breiten = [max(len(zeile[spalte]) for zeile in [kopf, *zeilen]) for spalte in range(4)]
+
+    for zeile in [kopf, *zeilen]:
+        spalten = zip(zeile, breiten, strict=True)
+        typer.echo("  ".join(wert.ljust(breite) for wert, breite in spalten).rstrip())
+
+    typer.echo("")
+    typer.echo(f"{len(konten)} Konto" if len(konten) == 1 else f"{len(konten)} Konten")
 
 
 if __name__ == "__main__":
