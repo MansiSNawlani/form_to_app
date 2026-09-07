@@ -21,6 +21,9 @@ dependencies = [
     # Email syntax checking and normalisation. Pydantic uses the same library
     # behind EmailStr, so the browser side and this agree on what an address is.
     "email-validator>=2.2",
+    # The command line. By the author of FastAPI and the conventional choice
+    # here; gives help text, option validation and exit codes for free.
+    "typer>=0.15",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +38,11 @@ dev = [
     "pypdf>=6.0",
     "cryptography>=44",
 ]
+
+# Lets an administrator run "befischung benutzer anlegen" rather than
+# remembering a module path. Installed by pip install -e ".[dev]".
+[project.scripts]
+befischung = "app.cli:app"
 
 [build-system]
 requires = ["hatchling"]

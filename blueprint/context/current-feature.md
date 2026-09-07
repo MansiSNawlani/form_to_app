@@ -250,7 +250,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       without its number refused, deactivating and reactivating, and the list coming back in
       a stable order.
 
-- [ ] **Step 7 - Creating an account from the command line.** `app/cli.py`, a Typer
+- [x] **Step 7 - Creating an account from the command line.** `app/cli.py`, a Typer
       application with a `benutzer` group, and `anlegen` in it. Registered as a console
       script in `pyproject.toml` so it runs as `befischung` as well as `python -m app.cli`.
       The password is prompted for, hidden, and asked twice. Roles are a repeatable option
