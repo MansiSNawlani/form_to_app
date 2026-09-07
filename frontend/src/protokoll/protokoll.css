@@ -142,10 +142,18 @@
 
 .steps__link {
   display: flex;
-  /* Top, not centre: a label on two lines beside a one-line label would
-     otherwise float its number to the middle of the cell and break the row of
+  /* Top, not centre, vertically: a label on two lines beside a one-line label
+     would otherwise float its number down the cell and break the line of
      numbers the eye follows across the bar. */
   align-items: flex-start;
+  /* Centred horizontally, so each cell carries the same margin either side.
+     Left-aligned, a short label like "Fänge" sat against the left edge of a
+     cell as wide as "Struktur und Bewirtschaftung" and left a hole beside it,
+     which made the bar look ragged at desktop width even though the cells were
+     the same size. The cost, accepted: the numbers no longer sit at one
+     interval across the bar, since each one now follows the width of its own
+     label. Balance reads better here than a ruler would. */
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.85rem 0.7rem;
   border-bottom: 3px solid transparent;

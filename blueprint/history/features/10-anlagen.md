@@ -236,7 +236,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       leaving roughly 370px of dead margin each side on a 1920px screen and cramping the catch
       table. Below about 1200px the bar is replaced by one line naming the open section and a
       dropdown of links, because seven cells stop fitting there and a bar of bare numbers
-      would need a hover that a tablet does not have.
+      would need a hover that a tablet does not have. The cell contents were then centred rather than left aligned, so a short label like "Fänge" no longer sits against the left edge of a cell sized for "Struktur und Bewirtschaftung".
 
 ## Files / areas
 
