@@ -4,6 +4,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { useId, useState } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { ChevronIcon } from '../components/icons'
 import { ABSCHNITTE, abschnittPfad } from './abschnitte'
 
 interface AbschnittMenuProps {
@@ -57,6 +58,14 @@ function AbschnittMenu({ entwurfId, aktuelleNr }: AbschnittMenuProps) {
         <span className="steps-kompakt__titel">
           {aktuell === undefined ? '' : t(aktuell.titelKey)}
         </span>
+        {/* The only thing on the button that says it opens a menu rather than
+            doing something. Decorative: aria-haspopup already says it to a
+            screen reader, and a second announcement would be noise. */}
+        <ChevronIcon
+          className={`steps-kompakt__pfeil${offen ? ' steps-kompakt__pfeil--offen' : ''}`}
+          fontSize="small"
+          aria-hidden="true"
+        />
       </Button>
 
       <Menu

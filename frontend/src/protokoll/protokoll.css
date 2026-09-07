@@ -792,3 +792,24 @@
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+
+/* The chevron on the compact section button. Points down when the menu is
+   closed and up when it is open. */
+.steps-kompakt__pfeil {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+  transition: transform 120ms ease;
+}
+
+.steps-kompakt__pfeil--offen {
+  transform: rotate(180deg);
+}
+
+/* A surveyor who has asked for reduced motion gets the same two positions with
+   no spin between them. */
+@media (prefers-reduced-motion: reduce) {
+  .steps-kompakt__pfeil {
+    transition: none;
+  }
+}
