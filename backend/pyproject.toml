@@ -14,6 +14,10 @@ dependencies = [
     # step run against a real environment, not something only developers do. A
     # deployment installing main dependencies only must still be able to migrate.
     "alembic>=1.14",
+    # Argon2id, the current first recommendation for password storage. Used
+    # directly rather than through a wrapper: it already offers the rehash check
+    # that is the only thing a wrapper would add.
+    "argon2-cffi>=23.1",
 ]
 
 [project.optional-dependencies]

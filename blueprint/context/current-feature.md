@@ -186,7 +186,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       rejected; inserting an unknown role string is rejected; `alembic downgrade base` drops
       the table cleanly; and `mypy .` and `ruff check .` are both green.
 
-- [ ] **Step 3 - Password hashing and the password policy.** `app/security/passwoerter.py`:
+- [x] **Step 3 - Password hashing and the password policy.** `app/security/passwoerter.py`:
       `hashe_passwort`, `pruefe_passwort`, `braucht_neuen_hash`, and `pruefe_passwortregel`.
       Plain functions over strings, no database and no HTTP, which is what
       `coding-standards.md` asks of any rule where a wrong answer is possible.
