@@ -161,22 +161,3 @@
 .shell-link:hover {
   color: var(--accent-hover);
 }
-
-/* The theme toggle carries an icon showing which theme is on now, a sun for
-   light and a moon for dark. See ThemeToggle.tsx for why it shows the current
-   state rather than the one a click would bring. */
-.theme-toggle {
-  gap: 0.4rem;
-}
-
-/* Softer than the label beside it. The icon is a state cue, not a second
-   heading, and at full text weight it pulls the eye off the words. */
-.theme-toggle__icon {
-  color: var(--muted);
-}
-
-/* Follows the label into the accent colour when dark is on, so the icon and
-   the pressed tint read as one state rather than two. */
-.theme-toggle[aria-pressed='true'] .theme-toggle__icon {
-  color: inherit;
-}

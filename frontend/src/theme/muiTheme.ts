@@ -153,6 +153,39 @@ export const muiTheme = createTheme({
         },
       },
     },
+    /* Introduced in feature 10 for the header's theme toggle. Themed here
+       rather than on that one instance, because the review workflow and the
+       queue will both want icon actions and should inherit this rather than
+       restate it.
+
+       Material's icon button is a circle. Everything else here is a 4px
+       rectangle, and one round control in a header of square ones reads as
+       borrowed, which is exactly the Material tell ADR 0006 rules out. It also
+       carries no border of its own: the toggle sits beside text rather than in
+       a row of controls, and a box around it would cost the width dropping the
+       label was meant to save. */
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 'var(--radius)',
+          color: 'var(--muted)',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'var(--surface-sunken)',
+          },
+          // A pressed toggle has to be visible, not only announced through
+          // aria-pressed, exactly as the outlined button above does it.
+          '&[aria-pressed="true"]': {
+            color: 'var(--accent)',
+            backgroundColor: 'var(--accent-soft)',
+          },
+        },
+        /* MUI's small icon button is 30px square. The accessibility
+           requirement asks for large targets, so this is brought up to the
+           2.1rem the header's small buttons already use. */
+        sizeSmall: { width: '2.1rem', height: '2.1rem' },
+      },
+    },
     MuiFormLabel: {
       styleOverrides: {
         // The approved mockups put a small bold label above the field rather
