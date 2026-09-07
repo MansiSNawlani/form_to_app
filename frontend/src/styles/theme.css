@@ -75,7 +75,12 @@
   --radius: 4px;          /* official, not playful: barely rounded */
   --space: 1rem;
   --field-h: 2.75rem;     /* large targets, per the accessibility requirement */
-  --shell-max: 1180px;
+  /* Widened from 1180px on 2026-09-07. 1180 left roughly 370px of empty margin
+     each side on a 1920px screen and cramped the two widest things this app
+     has: the section bar, which has seven entries now, and the catch table's
+     thirteen columns. Long prose does not stretch with it, because
+     .form-section__hint caps itself at 75ch. */
+  --shell-max: 1440px;
 }
 
 :root[data-theme="dark"] {

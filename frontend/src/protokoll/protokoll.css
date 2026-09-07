@@ -28,56 +28,81 @@
 
 /* ---------- step bar ---------- */
 
-/* The section bar wraps rather than scrolling sideways.
+/* The section bar stays one row and lets each label use two lines.
  *
- * It scrolled until feature 10, which was tolerable while there were six
- * sections: those needed about 1115px and the content column is 1180px, so the
- * scrollbar only appeared on smaller windows. The seventh label pushed the row
- * to roughly 1265px, past the column at every window size, and a bar that
- * always carries a scrollbar is a bar you cannot read at a glance.
+ * It scrolled sideways until feature 10, which was tolerable at six sections:
+ * those needed about 1115px against a 1180px column, so the scrollbar only
+ * appeared on smaller windows. A seventh entry pushed the row past the column
+ * at every size, and a bar that always carries a scrollbar cannot be read at a
+ * glance.
  *
- * Wrapping keeps every word, which is the point: "Umland, Ufer und Sohle" says
- * three things are in that section and one-word labels would not. It also has
- * room for an eighth section without another look at this.
+ * Every label keeps its full wording. "Umland, Ufer und Sohle" says three
+ * things are in that section and one-word labels would not.
  *
- * A grid rather than a wrapping flex row, so that every cell is the same width.
- * Flex would stretch the last row's three items wider than the first row's
- * four, and two rows of differently sized blocks read as a mistake. auto-fill
- * takes the narrow screens with it: four columns here, three on a tablet, one
- * on a phone, with no breakpoint of our own. 16rem is set by the longest label,
- * "Struktur und Bewirtschaftung", which needs about 230px including its number.
+ * Two things had to change together to fit seven of those on one line.
+ * --shell-max went from 1180px to 1440px, which was overdue on its own, and
+ * white-space went from nowrap to normal so a label can take a second line
+ * inside its own cell rather than widening it. The bar is one line taller and
+ * stays a single band, which a wrapped bar did not.
+ *
+ * grid-auto-flow: column with 1fr columns, rather than a column count, so the
+ * cells stay equal and adding an eighth section needs no edit here. The rows
+ * are equal height because grid stretches them, so a one-line label like
+ * "Fänge" still fills its cell.
  *
  * Every step is a real link, never a gated wizard: project-overview.md requires
- * that any section can be opened at any time. Wrapping suits that better than a
- * single band did, since this is a list to jump around in rather than a
- * progress bar to work along. */
+ * that any section can be opened at any time. */
 .steps {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 1.25rem;
-  /* Nothing should overflow now that the cells size themselves. Kept as a
-     backstop against a label longer than a phone is wide. */
+  /* Nothing should overflow now that the cells size themselves and the labels
+     wrap. Kept as a backstop for a viewport narrower than one cell. */
   overflow-x: auto;
 }
 
 .steps__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Below this the seven cells get too narrow for the longest single word,
+   "Bewirtschaftung", which needs about 95px of text on top of the 54px each
+   cell spends on its number and padding. Seven of those want roughly 1050px of
+   bar; the threshold is set well above that, near 1200px of window, because the
+   95px is an estimate from a character count rather than a measurement and
+   being early here costs nothing. Under it the bar wraps instead. Written as
+   the calculation rather than a bare number, because the last magic width in
+   this file went stale the moment a section was added. */
+@media (max-width: 1200px) {
+  .steps__list {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  }
+}
+
 .steps__link {
   display: flex;
-  align-items: center;
+  /* Top, not centre: a label on two lines beside a one-line label would
+     otherwise float its number to the middle of the cell and break the row of
+     numbers the eye follows across the bar. */
+  align-items: flex-start;
   gap: 0.5rem;
   padding: 0.85rem 0.7rem;
   border-bottom: 3px solid transparent;
   color: var(--muted);
   text-decoration: none;
-  white-space: nowrap;
+  /* Was nowrap, which is what forced the whole bar to scroll. A label now takes
+     a second line inside its own cell instead of widening it. */
+  white-space: normal;
+  /* Fills the cell, so the current step's tint covers the full height even when
+     its label is shorter than its neighbours'. */
+  height: 100%;
 }
 
 .steps__link:hover {
@@ -99,6 +124,12 @@
 
 .steps__label {
   font-size: var(--step--1);
+  /* Backstop for the estimate above. If a cell ever is narrower than its
+     longest word, the word breaks inside the cell instead of pushing the whole
+     bar wider. i18n/index.ts keeps <html lang> in step with the locale, so the
+     hyphenation is German rather than guessed. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .steps__item--current .steps__link {
