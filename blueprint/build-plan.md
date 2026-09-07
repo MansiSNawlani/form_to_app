@@ -57,6 +57,19 @@ These are not features and are not tracked here. They happen first.
   setup, so it belongs to `/ci` after 1c, not to the feature loop.
 - [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
       activate and deactivate. **Deferred on 2026-09-01**, built after the form parts.
+  - [ ] 2a. The User record and the admin command: Alembic wired up, the first migration
+        creating the users table with the six roles and the active flag, password hashing,
+        and a command line command to create the first Super Admin and to activate or
+        deactivate an account
+  - [ ] 2b. Login, sessions and role enforcement: the sign-in, sign-out and "who am I"
+        endpoints, the JWT in an httpOnly cookie, the current-user and required-role
+        dependencies, and deactivated accounts refused at sign-in
+  - [ ] 2c. The login screen and the signed-in shell: the /anmeldung page, TanStack Query
+        wired up, the real user and role tag in the header, sign-out, and the protocol
+        routes requiring a session
+
+  Activating and deactivating an account is a command line command here, not a screen. The
+  administration UI for it is item 16, so nothing is built twice.
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
       submissions" list. **Deferred on 2026-09-01**, built after the form parts, and where the
       browser-only draft storage is swapped for real server saving.

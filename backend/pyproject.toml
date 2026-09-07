@@ -10,6 +10,10 @@ dependencies = [
     "pydantic-settings>=2.6",
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.30",
+    # A runtime dependency rather than a dev one, because migrating is a deploy
+    # step run against a real environment, not something only developers do. A
+    # deployment installing main dependencies only must still be able to migrate.
+    "alembic>=1.14",
 ]
 
 [project.optional-dependencies]
