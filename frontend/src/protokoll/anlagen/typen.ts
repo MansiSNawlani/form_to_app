@@ -11,13 +11,7 @@
 /** The two kinds the legacy form has, and the values Attachment.art stores. */
 export type Anlagenart = 'KARTENAUSSCHNITT' | 'FOTO'
 
-/* One attachment, without its bytes.
- *
- * The split from the file itself is deliberate and not tidiness. Twenty
- * photographs is up to 200 MB, and a list that carried the bytes would pull all
- * of it into memory to draw a heading. Metadata is also the half that travels to
- * the server in feature 3; the bytes go up separately as a body.
- */
+/** One attachment, without its bytes. store.ts says why the two are apart. */
 export interface Anlage {
   id: string
   /** Becomes submission_id once feature 3 gives a draft a server identity. */
@@ -31,12 +25,8 @@ export interface Anlage {
   angelegtAm: string
 }
 
-/* What a picked file tells us about itself.
- *
- * A structural subset of File rather than File itself, so the rules that read it
- * can be tested with a plain object and stay honest about how little they need.
- * A real File satisfies this.
- */
+/* What a picked file tells us about itself. A structural subset of File, so a
+   rule can be tested with a plain object; a real File satisfies it. */
 export interface Dateiangaben {
   name: string
   type: string

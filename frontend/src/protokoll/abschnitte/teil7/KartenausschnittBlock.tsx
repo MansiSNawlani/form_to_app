@@ -34,7 +34,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
 
   /* Where focus goes once the preview disappears, so it does not fall to the
      top of the document and make a keyboard user tab the section again. */
-  const picker = useRef<HTMLLabelElement>(null)
+  const picker = useRef<HTMLInputElement>(null)
 
   return (
     <fieldset className="form-section">
@@ -45,7 +45,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
 
       <AnlagenZustand status={status} />
 
-      {status === 'geladen' && karte === undefined && (
+      {status === 'loaded' && karte === undefined && (
         <AnlagenPicker
           ref={picker}
           beschriftung={t('protokoll.abschnitt7.kartenausschnitt.waehlen')}
@@ -53,7 +53,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
         />
       )}
 
-      {status === 'geladen' && karte !== undefined && (
+      {status === 'loaded' && karte !== undefined && (
         <AnlagenVorschau
           anlage={karte}
           klasse="anlage--einzeln"
@@ -72,6 +72,18 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
             {t('protokoll.abschnitt7.entfernen')}
           </Button>
         </AnlagenVorschau>
+      )}
+
+      {/* The live region for this block. Attaching or removing swaps a picture
+          for a button, which a screen reader has no way to notice. */}
+      {status === 'loaded' && (
+        <span className="visually-hidden" role="status">
+          {karte === undefined
+            ? t('protokoll.abschnitt7.kartenausschnitt.statusOhne')
+            : t('protokoll.abschnitt7.kartenausschnitt.statusMit', {
+                dateiname: karte.dateiname,
+              })}
+        </span>
       )}
 
       <AnlagenMeldungen meldungen={meldungen} />

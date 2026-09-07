@@ -19,9 +19,8 @@ interface AnlagenVorschauProps {
 /* One attachment on screen: the picture, its name, its size, and whatever can
  * be done to it.
  *
- * The bytes are fetched here rather than handed down, because the list the
- * blocks hold is metadata only. Twenty photographs is up to 200 MB, and a list
- * that carried the files would load all of it to draw a heading.
+ * The bytes are fetched here rather than handed down: store.ts keeps metadata
+ * and files apart, and this is the one place that actually needs a file.
  */
 function AnlagenVorschau({
   anlage,
@@ -29,7 +28,7 @@ function AnlagenVorschau({
   children,
   klasse,
 }: AnlagenVorschauProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [quelle, setQuelle] = useState<string | null>(null)
 
   useEffect(() => {
@@ -52,9 +51,9 @@ function AnlagenVorschau({
     }
   }, [anlage.id])
 
-  const groesse = new Intl.NumberFormat(i18n.language, {
-    maximumFractionDigits: 1,
-  }).format(anlage.groesse / 1024 / 1024)
+  // Rounded here, rendered by i18next, so this agrees with the size named in
+  // the too-large message rather than formatting megabytes a second way.
+  const mb = Math.round((anlage.groesse / 1024 / 1024) * 10) / 10
 
   return (
     <figure className={klasse === undefined ? 'anlage' : `anlage ${klasse}`}>
@@ -66,7 +65,7 @@ function AnlagenVorschau({
           {anlage.dateiname}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {t('protokoll.abschnitt7.groesse', { mb: groesse })}
+          {t('protokoll.abschnitt7.groesse', { mb })}
         </Typography>
         {children !== undefined && (
           <Stack direction="row" spacing={1} className="anlage__aktionen">

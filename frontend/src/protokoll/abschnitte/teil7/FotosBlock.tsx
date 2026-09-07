@@ -39,7 +39,7 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
   /* Where focus goes once a tile disappears. The button that had focus went
      with it, and the browser's fallback is the top of the document, which for a
      keyboard user means tabbing back through the whole section. */
-  const picker = useRef<HTMLLabelElement>(null)
+  const picker = useRef<HTMLInputElement>(null)
 
   return (
     <fieldset className="form-section">
@@ -48,9 +48,12 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
         {t('protokoll.abschnitt7.fotos.hinweis', { max: MAX_FOTOS })}
       </p>
 
-      <AnlagenZustand status={status} />
+      {/* The storage failure is a fact about the section, not about this block,
+          so the block above says it once. Repeating the same paragraph here
+          would be noise. */}
+      <AnlagenZustand status={status} nurLaden />
 
-      {status === 'geladen' && (
+      {status === 'loaded' && (
         <>
           <div className="anlagen__kopf">
             <AnlagenPicker
@@ -59,7 +62,10 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
               mehrere
               onDateien={(dateien) => void hinzufuegen(dateien)}
             />
-            <Typography variant="body2" color="text.secondary">
+            {/* The live region for this block. A pick can add several tiles and
+                a removal takes one away, and neither is visible to a screen
+                reader; the count changing is the shortest true summary of both. */}
+            <Typography variant="body2" color="text.secondary" role="status">
               {t('protokoll.abschnitt7.fotos.anzahl', {
                 vorhanden: anlagen.length,
                 max: MAX_FOTOS,

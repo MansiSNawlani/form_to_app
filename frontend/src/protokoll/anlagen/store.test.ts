@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createAnlagenStore, type AnlagenSpeicher } from './store'
+import { createAnlagenStore, type AnlagenStorage } from './store'
 import type { Anlage } from './typen'
 
-/* A speicher that lives in a Map, so these tests need no browser and no
- * IndexedDB. The store takes its speicher as an argument for exactly this
+/* Storage that lives in a Map, so these tests need no browser and no
+ * IndexedDB. The store takes its storage as an argument for exactly this
  * reason: the failure modes worth testing here are a full disk and a database
  * that will not open at all, and both are close to impossible to provoke
  * against a real IndexedDB.
@@ -11,8 +11,8 @@ import type { Anlage } from './typen'
  * The IndexedDB implementation of this interface is verified in the browser
  * instead, on the same footing as browserStorage() in entwurf/store.ts.
  */
-class FakeSpeicher implements AnlagenSpeicher {
-  private eintraege = new Map<string, { anlage: Anlage; datei: Blob }>()
+class FakeStorage implements AnlagenStorage {
+  private rows = new Map<string, { anlage: Anlage; datei: Blob }>()
 
   /** Set to make every write throw, the way a full disk does. */
   failWrites = false
@@ -27,24 +27,24 @@ class FakeSpeicher implements AnlagenSpeicher {
   async put(anlage: Anlage, datei: Blob) {
     this.guard()
     if (this.failWrites) throw new DOMException('full', 'QuotaExceededError')
-    this.eintraege.set(anlage.id, { anlage, datei })
+    this.rows.set(anlage.id, { anlage, datei })
   }
 
   async remove(id: string) {
     this.guard()
-    this.eintraege.delete(id)
+    this.rows.delete(id)
   }
 
   async list(entwurfId: string) {
     this.guard()
-    return [...this.eintraege.values()]
-      .map((eintrag) => eintrag.anlage)
+    return [...this.rows.values()]
+      .map((row) => row.anlage)
       .filter((anlage) => anlage.entwurfId === entwurfId)
   }
 
   async readDatei(id: string) {
     this.guard()
-    return this.eintraege.get(id)?.datei
+    return this.rows.get(id)?.datei
   }
 }
 
@@ -52,7 +52,7 @@ function datei(name = 'strecke.jpg', type = 'image/jpeg', bytes = 4) {
   return new File([new Uint8Array(bytes)], name, { type })
 }
 
-let speicher: FakeSpeicher
+let storage: FakeStorage
 let clock: number
 
 /* Injected rather than read from the system clock: two photographs added in the
@@ -62,14 +62,14 @@ const now = () => new Date(clock).toISOString()
 function store(ids: string[] = ['a-1', 'a-2', 'a-3']) {
   const remaining = [...ids]
   return createAnlagenStore({
-    speicher,
+    storage,
     now,
-    createId: () => remaining.shift() ?? 'a-erschoepft',
+    createId: () => remaining.shift() ?? 'a-exhausted',
   })
 }
 
 beforeEach(() => {
-  speicher = new FakeSpeicher()
+  storage = new FakeStorage()
   clock = Date.parse('2026-09-06T09:00:00.000Z')
 })
 
@@ -77,10 +77,10 @@ describe('addAnlage', () => {
   it('stores the file and describes it from what the browser reported', async () => {
     const s = store()
 
-    const ergebnis = await s.addAnlage('e-1', 'FOTO', datei('ufer.jpg', 'image/jpeg', 12))
+    const result = await s.addAnlage('e-1', 'FOTO', datei('ufer.jpg', 'image/jpeg', 12))
 
-    expect(ergebnis).toEqual({
-      status: 'gespeichert',
+    expect(result).toEqual({
+      status: 'saved',
       anlage: {
         id: 'a-1',
         entwurfId: 'e-1',
@@ -95,12 +95,12 @@ describe('addAnlage', () => {
 
   it('reports a full disk instead of throwing, and stores nothing', async () => {
     const s = store()
-    speicher.failWrites = true
+    storage.failWrites = true
 
-    const ergebnis = await s.addAnlage('e-1', 'FOTO', datei())
+    const result = await s.addAnlage('e-1', 'FOTO', datei())
 
-    expect(ergebnis).toEqual({ status: 'fehlgeschlagen', grund: 'voll' })
-    expect(await s.listAnlagen('e-1')).toEqual({ status: 'geladen', anlagen: [] })
+    expect(result).toEqual({ status: 'failed', reason: 'full' })
+    expect(await s.listAnlagen('e-1')).toEqual({ status: 'loaded', anlagen: [] })
   })
 
   /* A full disk and a refused database read the same to a caller that only knows
@@ -108,11 +108,11 @@ describe('addAnlage', () => {
      being full, the other about the browser storing nothing at all. */
   it('separates a refused database from a full disk', async () => {
     const s = store()
-    speicher.unavailable = true
+    storage.unavailable = true
 
-    const ergebnis = await s.addAnlage('e-1', 'FOTO', datei())
+    const result = await s.addAnlage('e-1', 'FOTO', datei())
 
-    expect(ergebnis).toEqual({ status: 'fehlgeschlagen', grund: 'nicht_verfuegbar' })
+    expect(result).toEqual({ status: 'failed', reason: 'unavailable' })
   })
 })
 
@@ -123,11 +123,11 @@ describe('listAnlagen', () => {
     clock += 60_000
     await s.addAnlage('e-1', 'FOTO', datei('zweite.jpg'))
 
-    const ergebnis = await s.listAnlagen('e-1')
+    const result = await s.listAnlagen('e-1')
 
-    expect(ergebnis.status).toBe('geladen')
+    expect(result.status).toBe('loaded')
     expect(
-      ergebnis.status === 'geladen' && ergebnis.anlagen.map((a) => a.dateiname),
+      result.status === 'loaded' && result.anlagen.map((a) => a.dateiname),
     ).toEqual(['erste.jpg', 'zweite.jpg'])
   })
 
@@ -136,10 +136,10 @@ describe('listAnlagen', () => {
     await s.addAnlage('e-1', 'FOTO', datei('meine.jpg'))
     await s.addAnlage('e-2', 'FOTO', datei('fremde.jpg'))
 
-    const ergebnis = await s.listAnlagen('e-1')
+    const result = await s.listAnlagen('e-1')
 
     expect(
-      ergebnis.status === 'geladen' && ergebnis.anlagen.map((a) => a.dateiname),
+      result.status === 'loaded' && result.anlagen.map((a) => a.dateiname),
     ).toEqual(['meine.jpg'])
   })
 
@@ -147,9 +147,9 @@ describe('listAnlagen', () => {
      "this browser will not store attachments", because only one of those is
      worth showing the surveyor a message about. */
   it('says the store is unavailable rather than pretending it is empty', async () => {
-    speicher.unavailable = true
+    storage.unavailable = true
 
-    expect(await store().listAnlagen('e-1')).toEqual({ status: 'nicht_verfuegbar' })
+    expect(await store().listAnlagen('e-1')).toEqual({ status: 'unavailable' })
   })
 })
 
@@ -161,15 +161,15 @@ describe('removeAnlage', () => {
 
     expect(await s.removeAnlage('a-1')).toBe(true)
 
-    const ergebnis = await s.listAnlagen('e-1')
+    const result = await s.listAnlagen('e-1')
     expect(
-      ergebnis.status === 'geladen' && ergebnis.anlagen.map((a) => a.dateiname),
+      result.status === 'loaded' && result.anlagen.map((a) => a.dateiname),
     ).toEqual(['zweite.jpg'])
   })
 
   it('reports failure rather than throwing when the store is unavailable', async () => {
     const s = store()
-    speicher.unavailable = true
+    storage.unavailable = true
 
     expect(await s.removeAnlage('a-1')).toBe(false)
   })
@@ -190,7 +190,7 @@ describe('readDatei', () => {
   })
 
   it('returns null rather than throwing when the store is unavailable', async () => {
-    speicher.unavailable = true
+    storage.unavailable = true
 
     expect(await store().readDatei('a-1')).toBeNull()
   })

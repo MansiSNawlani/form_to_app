@@ -5,6 +5,10 @@ import type { AnlagenStatus } from '../../anlagen/useAnlagen'
 
 interface AnlagenZustandProps {
   status: AnlagenStatus
+  /* Show the loading line but leave the storage failure to another block. The
+     failure is a fact about the whole section, and saying it twice on one
+     screen is noise. */
+  nurLaden?: boolean
 }
 
 /* What a block shows instead of its contents while there are no contents to
@@ -18,10 +22,10 @@ interface AnlagenZustandProps {
  * though it were. It reuses the message the picker would have shown, because
  * the situation is identical: this browser will not store anything at all.
  */
-function AnlagenZustand({ status }: AnlagenZustandProps) {
+function AnlagenZustand({ status, nurLaden = false }: AnlagenZustandProps) {
   const { t } = useTranslation()
 
-  if (status === 'laedt') {
+  if (status === 'loading') {
     return (
       // Polite rather than assertive: a fast disk answers before anyone has
       // finished reading this, and interrupting for that would be noise.
@@ -31,7 +35,7 @@ function AnlagenZustand({ status }: AnlagenZustandProps) {
     )
   }
 
-  if (status === 'nicht_verfuegbar') {
+  if (status === 'unavailable' && !nurLaden) {
     return (
       <Alert severity="error">
         {t('protokoll.anlagen.fehler.speicherNichtVerfuegbar')}

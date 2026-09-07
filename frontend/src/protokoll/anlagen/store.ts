@@ -10,9 +10,14 @@
  * draft store. localStorage holds around 5 MB in total and stores text, and a
  * single phone photograph can exceed that on its own.
  *
- * Nothing here touches React. The speicher, the clock and the id generator are
+ * Nothing here touches React. The storage, the clock and the id generator are
  * all arguments, which is what makes the two failures that matter, a full disk
  * and a database the browser refuses to open, testable without a browser.
+ *
+ * Nothing deletes a draft yet, so nothing here cleans up after one. When
+ * feature 3 gives drafts a life cycle, deleting one has to delete its
+ * attachments too, or the files stay in the browser with nothing pointing at
+ * them.
  */
 
 import type { Anlage, Anlagenart } from './typen'
@@ -21,7 +26,7 @@ import type { Anlage, Anlagenart } from './typen'
 const DB_NAME = 'ffs-anlagen'
 const STORE_NAME = 'anlagen'
 const DB_VERSION = 1
-const INDEX_ENTWURF = 'entwurfId'
+const ENTWURF_INDEX = 'entwurfId'
 
 /* The narrow slice of a database this store needs.
  *
@@ -30,7 +35,7 @@ const INDEX_ENTWURF = 'entwurfId'
  * print twenty headings. It is also the shape feature 3 wants: metadata is what
  * travels as JSON, and the bytes go up separately as a body.
  */
-export interface AnlagenSpeicher {
+export interface AnlagenStorage {
   put(anlage: Anlage, datei: Blob): Promise<void>
   remove(id: string): Promise<void>
   list(entwurfId: string): Promise<Anlage[]>
@@ -38,32 +43,32 @@ export interface AnlagenSpeicher {
 }
 
 /* Why a write failed, because the two need different things said to the person
- * reading them. "voll" is the device being out of room and is nobody's mistake;
- * "nicht_verfuegbar" is a browser that will not store anything at all, which a
+ * reading them. 'full' is the device being out of room and is nobody's mistake;
+ * 'unavailable' is a browser that will not store anything at all, which a
  * private window or a locked-down profile causes and which no amount of freeing
  * space will fix. */
-export type Fehlgrund = 'voll' | 'nicht_verfuegbar'
+export type FailureReason = 'full' | 'unavailable'
 
 export type AnlageResult =
-  | { status: 'gespeichert'; anlage: Anlage }
-  | { status: 'fehlgeschlagen'; grund: Fehlgrund }
+  | { status: 'saved'; anlage: Anlage }
+  | { status: 'failed'; reason: FailureReason }
 
 /* Deliberately not just an empty array on failure. The section has to tell
    "nothing attached yet" from "this browser will not store attachments", since
    only one of those is worth a message. */
-export type ListeResult =
-  | { status: 'geladen'; anlagen: Anlage[] }
-  | { status: 'nicht_verfuegbar' }
+export type ListResult =
+  | { status: 'loaded'; anlagen: Anlage[] }
+  | { status: 'unavailable' }
 
 export interface AnlagenStore {
-  listAnlagen(entwurfId: string): Promise<ListeResult>
+  listAnlagen(entwurfId: string): Promise<ListResult>
   addAnlage(entwurfId: string, art: Anlagenart, datei: File): Promise<AnlageResult>
   removeAnlage(id: string): Promise<boolean>
   readDatei(id: string): Promise<Blob | null>
 }
 
 interface StoreOptions {
-  speicher: AnlagenSpeicher
+  storage: AnlagenStorage
   now: () => string
   createId: () => string
 }
@@ -78,36 +83,36 @@ interface StoreOptions {
  * two messages: it does not tell somebody to free disk space that would not
  * help.
  */
-function grundFuer(fehler: unknown): Fehlgrund {
-  if (fehler instanceof DOMException) {
-    const voll =
-      fehler.name === 'QuotaExceededError' ||
-      fehler.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
-      fehler.code === 22
-    if (voll) return 'voll'
+function reasonFor(error: unknown): FailureReason {
+  if (error instanceof DOMException) {
+    const outOfRoom =
+      error.name === 'QuotaExceededError' ||
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+      error.code === 22
+    if (outOfRoom) return 'full'
   }
-  return 'nicht_verfuegbar'
+  return 'unavailable'
 }
 
 export function createAnlagenStore({
-  speicher,
+  storage,
   now,
   createId,
 }: StoreOptions): AnlagenStore {
   return {
     async listAnlagen(entwurfId) {
       try {
-        const anlagen = await speicher.list(entwurfId)
+        const anlagen = await storage.list(entwurfId)
         // Oldest first, so photographs stay in the order they were added rather
         // than shuffling every time the section is reopened.
         return {
-          status: 'geladen',
+          status: 'loaded',
           anlagen: [...anlagen].sort((a, b) =>
             a.angelegtAm.localeCompare(b.angelegtAm),
           ),
         }
       } catch {
-        return { status: 'nicht_verfuegbar' }
+        return { status: 'unavailable' }
       }
     },
 
@@ -127,16 +132,16 @@ export function createAnlagenStore({
       }
 
       try {
-        await speicher.put(anlage, datei)
-        return { status: 'gespeichert', anlage }
-      } catch (fehler) {
-        return { status: 'fehlgeschlagen', grund: grundFuer(fehler) }
+        await storage.put(anlage, datei)
+        return { status: 'saved', anlage }
+      } catch (error) {
+        return { status: 'failed', reason: reasonFor(error) }
       }
     },
 
     async removeAnlage(id) {
       try {
-        await speicher.remove(id)
+        await storage.remove(id)
         return true
       } catch {
         return false
@@ -145,7 +150,7 @@ export function createAnlagenStore({
 
     async readDatei(id) {
       try {
-        return (await speicher.readDatei(id)) ?? null
+        return (await storage.readDatei(id)) ?? null
       } catch {
         return null
       }
@@ -161,14 +166,14 @@ export function createAnlagenStore({
  * the same protocol open twice is an ordinary thing rather than an edge case.
  * Opening is cheap once the database exists.
  */
-function anfrage<T>(request: IDBRequest<T>): Promise<T> {
+function asPromise<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
   })
 }
 
-function oeffne(): Promise<IDBDatabase> {
+function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     /* The property access itself throws in a locked-down profile, before any
        request exists to attach a handler to. */
@@ -177,7 +182,7 @@ function oeffne(): Promise<IDBDatabase> {
       const db = request.result
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'anlage.id' })
-        store.createIndex(INDEX_ENTWURF, 'anlage.entwurfId')
+        store.createIndex(ENTWURF_INDEX, 'anlage.entwurfId')
       }
     }
     request.onsuccess = () => resolve(request.result)
@@ -192,18 +197,18 @@ function oeffne(): Promise<IDBDatabase> {
 /* One row is the record and the bytes together, keyed on the record's id.
  * Storing the Blob in the same row is what lets a delete be one operation and
  * keeps a file from ever outliving the record that describes it. */
-interface Zeile {
+interface Row {
   anlage: Anlage
   datei: Blob
 }
 
-async function mitStore<T>(
-  modus: IDBTransactionMode,
-  arbeit: (store: IDBObjectStore) => Promise<T>,
+async function withStore<T>(
+  mode: IDBTransactionMode,
+  work: (store: IDBObjectStore) => Promise<T>,
 ): Promise<T> {
-  const db = await oeffne()
+  const db = await openDb()
   try {
-    return await arbeit(db.transaction(STORE_NAME, modus).objectStore(STORE_NAME))
+    return await work(db.transaction(STORE_NAME, mode).objectStore(STORE_NAME))
   } finally {
     /* Safe immediately after the request resolves: close() only marks the
        connection as closing, and the browser finishes any transaction still
@@ -212,36 +217,36 @@ async function mitStore<T>(
   }
 }
 
-function indexedDbSpeicher(): AnlagenSpeicher {
+function indexedDbStorage(): AnlagenStorage {
   return {
     async put(anlage, datei) {
-      await mitStore('readwrite', (store) =>
-        anfrage(store.put({ anlage, datei } satisfies Zeile)),
+      await withStore('readwrite', (store) =>
+        asPromise(store.put({ anlage, datei } satisfies Row)),
       )
     },
 
     async remove(id) {
-      await mitStore('readwrite', (store) => anfrage(store.delete(id)))
+      await withStore('readwrite', (store) => asPromise(store.delete(id)))
     },
 
     async list(entwurfId) {
-      const zeilen = await mitStore('readonly', (store) =>
-        anfrage<Zeile[]>(store.index(INDEX_ENTWURF).getAll(entwurfId)),
+      const rows = await withStore('readonly', (store) =>
+        asPromise<Row[]>(store.index(ENTWURF_INDEX).getAll(entwurfId)),
       )
-      return zeilen.map((zeile) => zeile.anlage)
+      return rows.map((row) => row.anlage)
     },
 
     async readDatei(id) {
-      const zeile = await mitStore('readonly', (store) =>
-        anfrage<Zeile | undefined>(store.get(id)),
+      const row = await withStore('readonly', (store) =>
+        asPromise<Row | undefined>(store.get(id)),
       )
-      return zeile?.datei
+      return row?.datei
     },
   }
 }
 
 export const anlagenStore = createAnlagenStore({
-  speicher: indexedDbSpeicher(),
+  storage: indexedDbStorage(),
   now: () => new Date().toISOString(),
   createId: () => crypto.randomUUID(),
 })

@@ -15,19 +15,29 @@
 import type { ParseKeys } from 'i18next'
 import type { Anlagenart, Dateiangaben } from './typen'
 
-/** What a browser can put in an <img> without help. */
-export const ERLAUBTE_TYPEN = ['image/jpeg', 'image/png', 'image/webp']
+/* What a browser can put in an <img> without help, with the name a person
+   would use for each. One list rather than two, so the accepted types and the
+   types the messages name can never drift apart. */
+const FORMATE = [
+  { typ: 'image/jpeg', label: 'JPG' },
+  { typ: 'image/png', label: 'PNG' },
+  { typ: 'image/webp', label: 'WEBP' },
+] as const
+
+export const ERLAUBTE_TYPEN: string[] = FORMATE.map((format) => format.typ)
+export const ERLAUBTE_FORMATE: string[] = FORMATE.map((format) => format.label)
 
 /* A phone photograph is 2 to 8 MB, so this leaves room without letting a single
    file eat the protocol's whole allowance. */
 export const MAX_BYTES = 10 * 1024 * 1024
+export const MAX_MB = MAX_BYTES / 1024 / 1024
 
 /* Not the legacy form's four. Four is how many image buttons fitted on the
    printed page, not a statement about how many photographs a survey may have;
    decided on 2026-09-06. Twenty is a safety valve against a browser running out
    of room, not a judgement about the survey. */
 export const MAX_FOTOS = 20
-export const MAX_KARTENAUSSCHNITTE = 1
+const MAX_KARTENAUSSCHNITTE = 1
 
 export type Anlagengrund = 'anzahl' | 'heic' | 'typ' | 'groesse'
 
@@ -85,6 +95,10 @@ export function pruefeAnlage(
           werte: { ...werte, vorhanden, max: MAX_FOTOS },
         }
       : {
+          /* Not reachable from the section as it stands, because its single
+             slot replaces rather than adds. Kept because this function is the
+             cap, not the screen: feature 3 mirrors it in Pydantic, where a
+             second excerpt very much can arrive. */
           grund: 'anzahl',
           schluessel: 'protokoll.anlagen.fehler.kartenausschnittBelegt',
           werte,

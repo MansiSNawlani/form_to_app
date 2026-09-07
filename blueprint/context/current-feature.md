@@ -171,7 +171,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 - [x] **Step 3 - The section exists and is reachable.** Add the seventh entry to
       `ABSCHNITTE`, `abschnitte/Abschnitt7.tsx` with the two block headings and nothing in
       them yet, the `case 7` that `AbschnittInhalt`'s exhaustive switch now demands, and the
-      German and English strings. No storage and no picking yet.
+      German strings. No storage and no picking yet.
       *Done when:* `/protokolle/:id/abschnitt/7` renders the section, the step bar shows
       seven steps and reaches it by mouse and by keyboard, the previous and next buttons
       move 6 to 7 and stop there, `npm run build` is green, and no string on screen is a
@@ -245,7 +245,9 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 - `frontend/src/protokoll/abschnitte.ts` - the seventh entry.
 - `frontend/src/protokoll/abschnitte/AbschnittInhalt.tsx` - `case 7`. Its switch is
   exhaustive on purpose, so this is currently a build error and not a blank page.
-- `frontend/src/i18n/locales/de.json`, `en.json` - the `abschnitt7` block.
+- `frontend/src/i18n/locales/de.json` - the `abschnitt7` and `anlagen` blocks. Not
+  `en.json`: `i18n/index.ts` keeps that a deliberate two-key stub until feature 17, and
+  sections 1 to 6 have no English either.
 - `frontend/src/protokoll/protokoll.css` - only if the preview grid needs something the
   twelve column grid cannot do.
 - `docs/ffs-questions.md` - question 11.
@@ -313,8 +315,10 @@ browser evidence and the build rather than unit tests. For those:
 - Start the dev server from `frontend/`, open a draft, go to section 7.
 - Add a map excerpt and several photos in one pick, reload, and confirm they are all there.
 - Fill to twenty photos and confirm the grid is still readable and the page still responsive.
-- Refuse cases: a `.txt`, an image over 10 MB, a second map excerpt, a twenty-first photo,
-  and one pick mixing accepted and refused files.
+- Refuse cases: a `.txt`, a HEIC file, an image over 10 MB, a twenty-first photo, and one
+  pick mixing accepted and refused files. Not a second map excerpt: the single slot replaces
+  rather than adds, so that rule guards the store and feature 3's Pydantic half rather than
+  the screen, and is proved in `regeln.test.ts` instead.
 - Remove one of each and confirm the reload agrees.
 - Tab through the whole section with no mouse.
 - Both themes, checked against our tokens rather than assumed.
