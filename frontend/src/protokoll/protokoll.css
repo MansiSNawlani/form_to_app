@@ -71,19 +71,73 @@
   list-style: none;
 }
 
-/* Below this the seven cells get too narrow for the longest single word,
-   "Bewirtschaftung", which needs about 95px of text on top of the 54px each
-   cell spends on its number and padding. Seven of those want roughly 1050px of
-   bar; the threshold is set well above that, near 1200px of window, because the
-   95px is an estimate from a character count rather than a measurement and
-   being early here costs nothing. Under it the bar wraps instead. Written as
-   the calculation rather than a bare number, because the last magic width in
-   this file went stale the moment a section was added. */
+/* The narrow-screen shape: one line and a dropdown, AbschnittMenu.tsx.
+
+   The threshold is where the seven cells get too narrow for the longest single
+   word, "Bewirtschaftung". That word needs about 95px of text on top of the
+   54px each cell spends on its number and padding, so seven of them want
+   roughly 1050px of bar. The switch is set well above that, near 1200px of
+   window, because the 95px is an estimate from a character count rather than a
+   measurement and being early costs nothing. Written as the calculation rather
+   than a bare number, because the last magic width in this file went stale the
+   moment a section was added.
+
+   display: none rather than not rendering, so the swap needs no window
+   measuring in JavaScript, and so the hidden shape leaves the accessibility
+   tree with the screen: a screen reader must never find two copies of these
+   seven links. */
+.steps-kompakt {
+  display: none;
+}
+
 @media (max-width: 1200px) {
-  .steps__list {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  .steps {
+    display: none;
   }
+
+  .steps-kompakt {
+    display: block;
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Full width, and left-aligned rather than centred like an ordinary button:
+   this reads as a field showing where you are, not as an action. */
+.steps-kompakt__knopf {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.steps-kompakt__zaehler {
+  flex: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.steps-kompakt__titel {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Wide enough for the longest title rather than sized to the button, which on a
+   phone would wrap every entry onto three lines. */
+.steps-kompakt__liste {
+  min-width: min(22rem, calc(100vw - 2 * var(--space)));
+}
+
+.steps-kompakt__num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
 }
 
 .steps__link {

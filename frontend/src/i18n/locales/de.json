@@ -48,7 +48,8 @@
       "struktur": "Struktur und Bewirtschaftung",
       "ausruestung": "Ausrüstung und Bereiche",
       "faenge": "Fänge",
-      "anlagen": "Karte und Fotos"
+      "anlagen": "Karte und Fotos",
+      "abschnittVon": "Abschnitt {{nr}} von {{anzahl}}:"
     },
     "nichtGefunden": {
       "titel": "Protokoll nicht gefunden",

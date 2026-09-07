@@ -226,9 +226,17 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       a seventh section pushed the step bar past the 1180px content column at every window
       size, so its horizontal scrollbar stopped being a narrow-screen fallback and became
       permanent. The bar now wraps into an even grid instead of scrolling.
-      *Done when:* the bar shows all seven sections with no scrollbar at desktop width, every
-      label keeps its full wording, the cells are the same size across both rows, and the
-      columns reduce on narrower windows without a breakpoint of our own.
+      *Done when:* the bar shows all seven sections on one line with no scrollbar at desktop
+      width, every label keeps its full wording, the cells are the same width and height, and
+      a narrow window gets the compact shape instead rather than a scrollbar or extra rows.
+
+      Reworked twice after review on screen. Wrapping the bar onto two rows was rejected on
+      sight, so the bar stays one line and each label takes a second line inside its own cell.
+      That needed the shell widened from 1180px to 1440px, which was overdue anyway: it was
+      leaving roughly 370px of dead margin each side on a 1920px screen and cramping the catch
+      table. Below about 1200px the bar is replaced by one line naming the open section and a
+      dropdown of links, because seven cells stop fitting there and a bar of bare numbers
+      would need a hover that a tablet does not have.
 
 ## Files / areas
 

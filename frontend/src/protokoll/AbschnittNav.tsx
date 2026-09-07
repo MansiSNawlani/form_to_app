@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import AbschnittMenu from './AbschnittMenu'
 import { ABSCHNITTE, abschnittPfad } from './abschnitte'
 
 interface AbschnittNavProps {
@@ -7,8 +8,13 @@ interface AbschnittNavProps {
   aktuelleNr: number
 }
 
-/* The step bar. Every section is a real link, so all six are reachable in any
-   order, by mouse and by keyboard, and each one can be bookmarked.
+/* The step bar. Every section is a real link, so all of them are reachable in
+   any order, by mouse and by keyboard, and each one can be bookmarked.
+
+   Two shapes, swapped by a media query in protokoll.css: this bar down to about
+   1200px, and AbschnittMenu below that, where seven cells stop fitting. Both
+   are rendered and one is display: none, which keeps the hidden one out of the
+   accessibility tree too, so a screen reader never finds two copies.
 
    It is an ordered list inside a nav landmark because the sections are numbered
    and their order is meaningful, even though following it is not required.
@@ -18,28 +24,32 @@ function AbschnittNav({ entwurfId, aktuelleNr }: AbschnittNavProps) {
   const { t } = useTranslation()
 
   return (
-    <nav className="steps" aria-label={t('protokoll.abschnitte.navLabel')}>
-      <ol className="steps__list">
-        {ABSCHNITTE.map((abschnitt) => {
-          const aktuell = abschnitt.nr === aktuelleNr
-          return (
-            <li
-              key={abschnitt.nr}
-              className={`steps__item${aktuell ? ' steps__item--current' : ''}`}
-            >
-              <NavLink
-                className="steps__link"
-                to={abschnittPfad(entwurfId, abschnitt.nr)}
-                aria-current={aktuell ? 'step' : undefined}
+    <>
+      <nav className="steps" aria-label={t('protokoll.abschnitte.navLabel')}>
+        <ol className="steps__list">
+          {ABSCHNITTE.map((abschnitt) => {
+            const aktuell = abschnitt.nr === aktuelleNr
+            return (
+              <li
+                key={abschnitt.nr}
+                className={`steps__item${aktuell ? ' steps__item--current' : ''}`}
               >
-                <span className="steps__num">{abschnitt.nr}</span>
-                <span className="steps__label">{t(abschnitt.titelKey)}</span>
-              </NavLink>
-            </li>
-          )
-        })}
-      </ol>
-    </nav>
+                <NavLink
+                  className="steps__link"
+                  to={abschnittPfad(entwurfId, abschnitt.nr)}
+                  aria-current={aktuell ? 'step' : undefined}
+                >
+                  <span className="steps__num">{abschnitt.nr}</span>
+                  <span className="steps__label">{t(abschnitt.titelKey)}</span>
+                </NavLink>
+              </li>
+            )
+          })}
+        </ol>
+      </nav>
+
+      <AbschnittMenu entwurfId={entwurfId} aktuelleNr={aktuelleNr} />
+    </>
   )
 }
 
