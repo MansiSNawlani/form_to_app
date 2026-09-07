@@ -170,6 +170,14 @@ service runs as more than one container they would all migrate at once. Applying
 them is a deploy step somebody runs, which is also what makes a failure visible
 rather than a restart loop.
 
+**Backend tests use a real database.** Added in feature 2a. `pytest` creates a
+separate `befischung_test` database, migrates it to head, and runs each test in a
+transaction it rolls back, so the development database is never touched. Tests
+needing it skip with a message when nothing is reachable, so a run without Docker
+reports "not run here" rather than failing. Everything the schema guarantees is
+Postgres specific, so an in-memory stand-in would pass on exactly the rows the
+constraints exist to reject.
+
 **Test command: `pytest`, from `backend/`.** Switched on in feature 1c, because
 that feature added the first backend logic where a wrong answer is possible: the
 readiness check. The gate applies to logic-bearing backend steps.

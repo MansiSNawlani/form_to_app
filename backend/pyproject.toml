@@ -29,6 +29,7 @@ dev = [
     "httpx>=0.27",
     "ruff>=0.7",
     "mypy>=1.13",
+    "pytest-asyncio>=0.24",
     # scripts/extract_form_definition.py only. The legacy PDF is encrypted, so
     # pypdf needs cryptography to open it even though there is no password.
     "pypdf>=6.0",
@@ -58,3 +59,15 @@ testpaths = ["app", "scripts"]
 python_files = ["*_test.py", "test_*.py"]
 # An empty suite must fail rather than pass, so "no tests ran" never looks like "passed".
 addopts = "--strict-markers"
+# "auto" so an async test needs no marker of its own. The alternative is a
+# decorator on every database test, and a forgotten one does not fail loudly:
+# pytest collects the coroutine, never runs it, and reports a pass.
+asyncio_mode = "auto"
+# The test database is created and migrated once per run, so the fixture holding
+# it outlives a single test and needs an event loop that does the same.
+asyncio_default_fixture_loop_scope = "session"
+# Tests share that loop rather than each getting their own. A database
+# connection belongs to the loop it was opened on, so a session-lived connection
+# pool and per-test loops cannot work together: the second test to run gets
+# "attached to a different loop" instead of a connection.
+asyncio_default_test_loop_scope = "session"

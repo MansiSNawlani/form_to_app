@@ -213,7 +213,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       without a number rejected, a regional account with a number accepted, a number 5 or 0
       rejected, and a submitter carrying a number rejected.
 
-- [ ] **Step 5 - A test database.** Add `pytest-asyncio` and `backend/conftest.py`. One
+- [x] **Step 5 - A test database.** Add `pytest-asyncio` and `backend/conftest.py`. One
       fixture per test run creates a separate `befischung_test` database and runs the
       migrations into it. One fixture per test opens a transaction, hands the test a session
       inside it, and rolls it back at the end, so every test starts from an empty table
