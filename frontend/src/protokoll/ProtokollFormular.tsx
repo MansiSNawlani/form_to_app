@@ -66,7 +66,23 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const previousNr = useRef<number>(undefined)
   useEffect(() => {
     if (previousNr.current !== undefined && previousNr.current !== abschnitt.nr) {
-      card.current?.focus()
+      /* preventScroll, then scroll ourselves.
+       *
+       * focus() scrolls its element into view by default, and a section card is
+       * nearly always taller than the window. When an element is larger than the
+       * scrollport the browser aligns its top edge with the top of the viewport,
+       * so focusing the card pushed the site header, the page heading and the
+       * step bar off the screen: choosing a section appeared to jump the page
+       * down. Reported on 2026-09-07.
+       *
+       * Focus still has to move, for the reason above, so the fix is to keep the
+       * focus and take back the scrolling. */
+      card.current?.focus({ preventScroll: true })
+      /* The top, not the card, so the step bar stays in sight and the section
+         you just chose is visibly the one that is open. Instant rather than
+         smooth: this is a navigation, and a long glide would be one more thing
+         to wait for on every section change. */
+      window.scrollTo({ top: 0 })
     }
     previousNr.current = abschnitt.nr
   }, [abschnitt.nr])
