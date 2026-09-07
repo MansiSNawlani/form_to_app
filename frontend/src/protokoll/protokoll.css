@@ -28,28 +28,45 @@
 
 /* ---------- step bar ---------- */
 
-/* Six sections with long German labels do not fit one row below roughly 1100px,
-   so the bar scrolls sideways rather than shrinking labels to unreadable. Every
-   step is a real link, never a gated wizard: project-overview.md requires that
-   any section can be opened at any time. */
+/* The section bar wraps rather than scrolling sideways.
+ *
+ * It scrolled until feature 10, which was tolerable while there were six
+ * sections: those needed about 1115px and the content column is 1180px, so the
+ * scrollbar only appeared on smaller windows. The seventh label pushed the row
+ * to roughly 1265px, past the column at every window size, and a bar that
+ * always carries a scrollbar is a bar you cannot read at a glance.
+ *
+ * Wrapping keeps every word, which is the point: "Umland, Ufer und Sohle" says
+ * three things are in that section and one-word labels would not. It also has
+ * room for an eighth section without another look at this.
+ *
+ * A grid rather than a wrapping flex row, so that every cell is the same width.
+ * Flex would stretch the last row's three items wider than the first row's
+ * four, and two rows of differently sized blocks read as a mistake. auto-fill
+ * takes the narrow screens with it: four columns here, three on a tablet, one
+ * on a phone, with no breakpoint of our own. 16rem is set by the longest label,
+ * "Struktur und Bewirtschaftung", which needs about 230px including its number.
+ *
+ * Every step is a real link, never a gated wizard: project-overview.md requires
+ * that any section can be opened at any time. Wrapping suits that better than a
+ * single band did, since this is a list to jump around in rather than a
+ * progress bar to work along. */
 .steps {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 1.25rem;
+  /* Nothing should overflow now that the cells size themselves. Kept as a
+     backstop against a label longer than a phone is wide. */
   overflow-x: auto;
 }
 
 .steps__list {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   margin: 0;
   padding: 0;
   list-style: none;
-  min-width: max-content;
-}
-
-.steps__item {
-  flex: 1;
 }
 
 .steps__link {

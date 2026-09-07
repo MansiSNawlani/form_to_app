@@ -222,6 +222,14 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       in light and dark against our tokens; and `npm run build` and `npm test` are both
       green.
 
+- [x] **Step 7 - The section bar, found during the build.** Not in the original plan. Adding
+      a seventh section pushed the step bar past the 1180px content column at every window
+      size, so its horizontal scrollbar stopped being a narrow-screen fallback and became
+      permanent. The bar now wraps into an even grid instead of scrolling.
+      *Done when:* the bar shows all seven sections with no scrollbar at desktop width, every
+      label keeps its full wording, the cells are the same size across both rows, and the
+      columns reduce on narrower windows without a breakpoint of our own.
+
 ## Files / areas
 
 **New**
