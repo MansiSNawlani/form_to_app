@@ -235,7 +235,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       development database is untouched; and with the Compose stack stopped, `pytest` reports
       skips with a message naming what to start, and exits zero rather than failing.
 
-- [ ] **Step 6 - The four account functions.** `app/benutzer/dienst.py` with
+- [x] **Step 6 - The four account functions.** `app/benutzer/dienst.py` with
       `lege_benutzer_an`, `finde_nach_email`, `setze_aktiv` and `liste_benutzer`, and
       `app/benutzer/fehler.py` with the domain errors they raise. This is where steps 2 to 5
       come together: the model, the hashing, the rules and the test database.
