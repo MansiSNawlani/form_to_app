@@ -153,6 +153,39 @@ export const muiTheme = createTheme({
         },
       },
     },
+    /* Introduced in feature 10 for the header's theme toggle. Themed here
+       rather than on that one instance, because the review workflow and the
+       queue will both want icon actions and should inherit this rather than
+       restate it.
+
+       Material's icon button is a circle. Everything else here is a 4px
+       rectangle, and one round control in a header of square ones reads as
+       borrowed, which is exactly the Material tell ADR 0006 rules out. It also
+       carries no border of its own: the toggle sits beside text rather than in
+       a row of controls, and a box around it would cost the width dropping the
+       label was meant to save. */
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 'var(--radius)',
+          color: 'var(--muted)',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'var(--surface-sunken)',
+          },
+          // A pressed toggle has to be visible, not only announced through
+          // aria-pressed, exactly as the outlined button above does it.
+          '&[aria-pressed="true"]': {
+            color: 'var(--accent)',
+            backgroundColor: 'var(--accent-soft)',
+          },
+        },
+        /* MUI's small icon button is 30px square. The accessibility
+           requirement asks for large targets, so this is brought up to the
+           2.1rem the header's small buttons already use. */
+        sizeSmall: { width: '2.1rem', height: '2.1rem' },
+      },
+    },
     MuiFormLabel: {
       styleOverrides: {
         // The approved mockups put a small bold label above the field rather
@@ -322,6 +355,53 @@ export const muiTheme = createTheme({
           color: 'var(--text)',
           fontSize: 'var(--step-0)',
           fontWeight: 600,
+        },
+      },
+    },
+    /* Introduced in feature 10 for the attachment messages. Themed here rather
+       than per use so the review workflow in feature 11 and the queue in
+       feature 12 inherit it instead of restating it.
+
+       Material's Alert is a tinted panel with a coloured icon and no border. The
+       mockups' equivalent is .callout: a hairline box with a thick coloured edge
+       on the left, which is what this rebuilds. The icon stays, because colour
+       alone must not carry the severity. */
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          fontSize: 'var(--step--1)',
+          color: 'var(--text)',
+          alignItems: 'flex-start',
+        },
+        colorWarning: {
+          background: 'var(--warn-soft)',
+          borderLeft: '4px solid var(--warn)',
+        },
+        colorError: {
+          background: 'var(--danger-soft)',
+          borderLeft: '4px solid var(--danger)',
+        },
+        colorInfo: {
+          background: 'var(--info-soft)',
+          borderLeft: '4px solid var(--info)',
+        },
+        colorSuccess: {
+          background: 'var(--ok-soft)',
+          borderLeft: '4px solid var(--ok)',
+        },
+      },
+    },
+    /* Flat like every other surface here: MUI's dialog carries an elevation
+       shadow, and the shadows tuple above has already emptied it, so this only
+       has to supply the border that used to be implied by the shadow. */
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          backgroundImage: 'none',
         },
       },
     },

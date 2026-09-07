@@ -28,39 +28,143 @@
 
 /* ---------- step bar ---------- */
 
-/* Six sections with long German labels do not fit one row below roughly 1100px,
-   so the bar scrolls sideways rather than shrinking labels to unreadable. Every
-   step is a real link, never a gated wizard: project-overview.md requires that
-   any section can be opened at any time. */
+/* The section bar stays one row and lets each label use two lines.
+ *
+ * It scrolled sideways until feature 10, which was tolerable at six sections:
+ * those needed about 1115px against a 1180px column, so the scrollbar only
+ * appeared on smaller windows. A seventh entry pushed the row past the column
+ * at every size, and a bar that always carries a scrollbar cannot be read at a
+ * glance.
+ *
+ * Every label keeps its full wording. "Umland, Ufer und Sohle" says three
+ * things are in that section and one-word labels would not.
+ *
+ * Two things had to change together to fit seven of those on one line.
+ * --shell-max went from 1180px to 1440px, which was overdue on its own, and
+ * white-space went from nowrap to normal so a label can take a second line
+ * inside its own cell rather than widening it. The bar is one line taller and
+ * stays a single band, which a wrapped bar did not.
+ *
+ * grid-auto-flow: column with 1fr columns, rather than a column count, so the
+ * cells stay equal and adding an eighth section needs no edit here. The rows
+ * are equal height because grid stretches them, so a one-line label like
+ * "Fänge" still fills its cell.
+ *
+ * Every step is a real link, never a gated wizard: project-overview.md requires
+ * that any section can be opened at any time. */
 .steps {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 1.25rem;
+  /* Nothing should overflow now that the cells size themselves and the labels
+     wrap. Kept as a backstop for a viewport narrower than one cell. */
   overflow-x: auto;
 }
 
 .steps__list {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   margin: 0;
   padding: 0;
   list-style: none;
-  min-width: max-content;
 }
 
-.steps__item {
-  flex: 1;
+/* The narrow-screen shape: one line and a dropdown, AbschnittMenu.tsx.
+
+   The threshold is where the seven cells get too narrow for the longest single
+   word, "Bewirtschaftung". That word needs about 95px of text on top of the
+   54px each cell spends on its number and padding, so seven of them want
+   roughly 1050px of bar. The switch is set well above that, near 1200px of
+   window, because the 95px is an estimate from a character count rather than a
+   measurement and being early costs nothing. Written as the calculation rather
+   than a bare number, because the last magic width in this file went stale the
+   moment a section was added.
+
+   display: none rather than not rendering, so the swap needs no window
+   measuring in JavaScript, and so the hidden shape leaves the accessibility
+   tree with the screen: a screen reader must never find two copies of these
+   seven links. */
+.steps-kompakt {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .steps {
+    display: none;
+  }
+
+  .steps-kompakt {
+    display: block;
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Full width, and left-aligned rather than centred like an ordinary button:
+   this reads as a field showing where you are, not as an action. */
+.steps-kompakt__knopf {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.steps-kompakt__zaehler {
+  flex: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.steps-kompakt__titel {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Wide enough for the longest title rather than sized to the button, which on a
+   phone would wrap every entry onto three lines. */
+.steps-kompakt__liste {
+  min-width: min(22rem, calc(100vw - 2 * var(--space)));
+}
+
+.steps-kompakt__num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
 }
 
 .steps__link {
   display: flex;
-  align-items: center;
+  /* Top, not centre, vertically: a label on two lines beside a one-line label
+     would otherwise float its number down the cell and break the line of
+     numbers the eye follows across the bar. */
+  align-items: flex-start;
+  /* Centred horizontally, so each cell carries the same margin either side.
+     Left-aligned, a short label like "Fänge" sat against the left edge of a
+     cell as wide as "Struktur und Bewirtschaftung" and left a hole beside it,
+     which made the bar look ragged at desktop width even though the cells were
+     the same size. The cost, accepted: the numbers no longer sit at one
+     interval across the bar, since each one now follows the width of its own
+     label. Balance reads better here than a ruler would. */
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.85rem 0.7rem;
   border-bottom: 3px solid transparent;
   color: var(--muted);
   text-decoration: none;
-  white-space: nowrap;
+  /* Was nowrap, which is what forced the whole bar to scroll. A label now takes
+     a second line inside its own cell instead of widening it. */
+  white-space: normal;
+  /* Fills the cell, so the current step's tint covers the full height even when
+     its label is shorter than its neighbours'. */
+  height: 100%;
 }
 
 .steps__link:hover {
@@ -82,6 +186,12 @@
 
 .steps__label {
   font-size: var(--step--1);
+  /* Backstop for the estimate above. If a cell ever is narrower than its
+     longest word, the word breaks inside the cell instead of pushing the whole
+     bar wider. i18n/index.ts keeps <html lang> in step with the locale, so the
+     hyphenation is German rather than guessed. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .steps__item--current .steps__link {
@@ -600,4 +710,114 @@
 .tabelle-meldungen__ort {
   color: var(--muted);
   font-weight: 500;
+}
+
+/* Attachments, section 7.
+
+   A grid rather than a row, because the photograph block holds up to twenty and
+   a single row would either scroll sideways forever or shrink every picture to
+   nothing. auto-fill with a minimum keeps the tiles a usable size and lets the
+   count per row follow the window. */
+.anlagen__liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.anlage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  padding: 0.75rem;
+}
+
+/* A fixed aspect box, so a portrait photograph and a wide map excerpt sit in
+   tiles of the same height and the grid does not stagger. */
+.anlage__bild {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.anlage__bild img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.anlage__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+/* A file name is arbitrary and can be long enough to widen its own tile. */
+.anlage__name {
+  overflow-wrap: anywhere;
+}
+
+.anlage__aktionen {
+  margin-top: 0.25rem;
+}
+
+/* The single slot is one tile wide rather than full width: a map excerpt
+   stretched across the card reads as a banner rather than as an attachment. */
+.anlage--einzeln {
+  max-width: 20rem;
+}
+
+.anlagen__meldungen {
+  margin-top: 1rem;
+}
+
+.anlagen__kopf {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* The file picker's focus ring.
+
+   The control is the <input type="file"> inside this label, because that is
+   what opens the file dialog and what a screen reader announces. It is clipped
+   to a single pixel, so its own ring would be invisible; the label wears it
+   instead. The label is out of the tab order (tabIndex -1 in AnlagenPicker), so
+   one control means one tab stop. */
+.anlagen-picker:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The chevron on the compact section button. Points down when the menu is
+   closed and up when it is open. */
+.steps-kompakt__pfeil {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+  transition: transform 120ms ease;
+}
+
+.steps-kompakt__pfeil--offen {
+  transform: rotate(180deg);
+}
+
+/* A surveyor who has asked for reduced motion gets the same two positions with
+   no spin between them. */
+@media (prefers-reduced-motion: reduce) {
+  .steps-kompakt__pfeil {
+    transition: none;
+  }
 }

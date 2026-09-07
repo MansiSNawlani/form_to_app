@@ -19,7 +19,7 @@ interface ProtokollFormularProps {
 
 /* One protocol: the head, the step bar, the open section and the action row.
  *
- * The form spans all six sections rather than one form per section, because the
+ * The form spans every section rather than one form per section, because the
  * answers are one document and switching section must not discard what is not
  * yet saved. React Hook Form holds the values, so typing in a 338 field form
  * re-renders the field and not the page; coding-standards.md rules out useState
@@ -66,7 +66,23 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
   const previousNr = useRef<number>(undefined)
   useEffect(() => {
     if (previousNr.current !== undefined && previousNr.current !== abschnitt.nr) {
-      card.current?.focus()
+      /* preventScroll, then scroll ourselves.
+       *
+       * focus() scrolls its element into view by default, and a section card is
+       * nearly always taller than the window. When an element is larger than the
+       * scrollport the browser aligns its top edge with the top of the viewport,
+       * so focusing the card pushed the site header, the page heading and the
+       * step bar off the screen: choosing a section appeared to jump the page
+       * down. Reported on 2026-09-07.
+       *
+       * Focus still has to move, for the reason above, so the fix is to keep the
+       * focus and take back the scrolling. */
+      card.current?.focus({ preventScroll: true })
+      /* The top, not the card, so the step bar stays in sight and the section
+         you just chose is visibly the one that is open. Instant rather than
+         smooth: this is a navigation, and a long glide would be one more thing
+         to wait for on every section change. */
+      window.scrollTo({ top: 0 })
     }
     previousNr.current = abschnitt.nr
   }, [abschnitt.nr])
@@ -85,7 +101,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
             is automatic. The form element is here for the semantics and so that
             the fields sit inside one. */}
         <form>
-          <AbschnittInhalt abschnitt={abschnitt} />
+          <AbschnittInhalt abschnitt={abschnitt} entwurfId={entwurf.id} />
         </form>
 
         <AbschnittWechsel

@@ -47,7 +47,9 @@
       "umland": "Umland, Ufer und Sohle",
       "struktur": "Struktur und Bewirtschaftung",
       "ausruestung": "Ausrüstung und Bereiche",
-      "faenge": "Fänge"
+      "faenge": "Fänge",
+      "anlagen": "Karte und Fotos",
+      "abschnittVon": "Abschnitt {{nr}} von {{anzahl}}:"
     },
     "nichtGefunden": {
       "titel": "Protokoll nicht gefunden",
@@ -501,6 +503,47 @@
       "speichert": "Wird gespeichert",
       "gespeichertUm": "Automatisch gespeichert um {{zeit}}",
       "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
+    },
+    "abschnitt7": {
+      "groesse": "{{mb, number}} MB",
+      "laedt": "Anlagen werden geladen.",
+      "ersetzen": "Ersetzen",
+      "entfernen": "Entfernen",
+      "entfernenFrage": {
+        "titel": "Anlage entfernen?",
+        "text": "«{{dateiname}}» wird aus diesem Protokoll entfernt. Die Datei ist danach nur noch dort vorhanden, wo Sie sie ausgewählt haben; rückgängig machen lässt sich das hier nicht.",
+        "abbrechen": "Abbrechen",
+        "bestaetigen": "Entfernen"
+      },
+      "kartenausschnitt": {
+        "legend": "Kartenausschnitt",
+        "hinweis": "Ein Kartenausschnitt, der zeigt, wo die Probestrecke liegt. Ein Bild im Format {{formate, list(type: disjunction)}}, bis zu {{maxMb}} MB.",
+        "waehlen": "Kartenausschnitt auswählen",
+        "alt": "Kartenausschnitt der Probestrecke, Datei «{{dateiname}}»",
+        "statusMit": "Kartenausschnitt hinterlegt: {{dateiname}}",
+        "statusOhne": "Kein Kartenausschnitt hinterlegt."
+      },
+      "fotos": {
+        "legend": "Fotos der Probestrecke",
+        "hinweis": "Aufnahmen der Strecke, des Ufers und der Sohle. Bis zu {{max}} Bilder im Format {{formate, list(type: disjunction)}}, je bis zu {{maxMb}} MB. Mehrere Bilder lassen sich auf einmal auswählen.",
+        "waehlen": "Fotos auswählen",
+        "anzahl": "{{vorhanden}} von {{max}}",
+        "leer": "Noch keine Fotos hinterlegt.",
+        "alt": "Foto {{nummer}} der Probestrecke, Datei «{{dateiname}}»"
+      }
+    },
+    "anlagen": {
+      "fehler": {
+        "heic": "«{{dateiname}}» liegt im iPhone-Format HEIC vor, das kein Browser anzeigen kann. Damit künftige Aufnahmen passen, wählen Sie am iPhone unter Einstellungen > Kamera > Formate den Eintrag «Maximale Kompatibilität». Für dieses Foto jetzt: öffnen Sie es am iPhone und teilen oder exportieren Sie es, dabei entsteht eine JPG-Datei, die hier funktioniert.",
+        "typ": "«{{dateiname}}» ist kein Bild. Bitte wählen Sie eine Datei im Format {{formate, list(type: disjunction)}}.",
+        "groesse": "«{{dateiname}}» ist {{groesseMb, number}} MB groß, möglich sind bis zu {{maxMb, number}} MB. Die meisten Handys und Foto-Apps erzeugen beim Teilen oder Exportieren eine kleinere Fassung.",
+        "kartenausschnittBelegt": "«{{dateiname}}» wurde nicht hinzugefügt: Es ist bereits ein Kartenausschnitt hinterlegt. Bitte ersetzen Sie ihn oder entfernen Sie ihn zuerst.",
+        "fotosVoll": "«{{dateiname}}» wurde nicht hinzugefügt: Es sind bereits {{vorhanden}} Fotos hinterlegt, mehr als {{max}} sind nicht möglich. Bitte entfernen Sie zuerst ein Foto.",
+        "speicherVoll": "«{{dateiname}}» konnte nicht gespeichert werden: Der Browser hat für dieses Protokoll keinen Platz mehr. Alles bereits Hinterlegte ist unverändert erhalten. Bitte schaffen Sie auf dem Gerät Speicherplatz oder hinterlegen Sie weniger oder kleinere Bilder.",
+        "dateiNichtGespeichert": "«{{dateiname}}» wurde nicht gespeichert: In diesem Fenster lassen sich keine Anlagen ablegen. Das kommt im privaten Modus und bei eingeschränkten Browser-Einstellungen vor. Bitte verwenden Sie ein normales Fenster oder einen anderen Browser.",
+        "nichtEntfernt": "«{{dateiname}}» konnte nicht entfernt werden. Die Datei ist noch da. Bitte versuchen Sie es noch einmal; hilft das nicht, laden Sie die Seite neu.",
+        "speicherNichtVerfuegbar": "In diesem Fenster lassen sich keine Anlagen speichern. Das kommt im privaten Modus und bei eingeschränkten Browser-Einstellungen vor. Bitte verwenden Sie ein normales Fenster oder einen anderen Browser."
+      }
     }
   }
 }
