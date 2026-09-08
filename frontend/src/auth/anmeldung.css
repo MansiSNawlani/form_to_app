@@ -7,6 +7,7 @@
    harder to read rather than easier. */
 
 .anmeldung-seite {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -14,6 +15,12 @@
   justify-content: center;
   gap: 1.25rem;
   padding: 2rem var(--space);
+}
+
+.anmeldung__thema {
+  position: absolute;
+  top: var(--space);
+  right: var(--space);
 }
 
 .anmeldung {
@@ -25,18 +32,31 @@
   border-radius: var(--radius);
 }
 
-/* The wordmark and the theme toggle share the top line: without the header
-   there is nowhere else for either to go, and a person arriving in the dark
-   theme should not have to sign in before they can turn it off. */
-.anmeldung__kopf {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space);
-  margin-bottom: 1.5rem;
+/* The same brand block the header uses, stacked and centred rather than in a
+   row. Only the arrangement changes, so the real logo still replaces
+   .brand__mark in one place and lands correctly in both. */
+.anmeldung__marke {
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  text-align: center;
 }
 
-.anmeldung__kopf .brand {
-  flex: 1;
+/* Bigger than the header's, which is 2.5rem: this is the only thing above the
+   fold on an otherwise empty page, and the header's size would read as timid. */
+.anmeldung__marke .brand__mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: var(--step-0);
+}
+
+/* The header truncates the organisation name with an ellipsis because it shares
+   one line with everything else. Here it has the card to itself and should wrap
+   instead: a name cut short is exactly the wrong thing on the page that says who
+   you are signing in to. */
+.anmeldung__marke .brand__org {
+  white-space: normal;
+  overflow: visible;
 }
 
 .anmeldung__einleitung {

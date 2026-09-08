@@ -88,22 +88,26 @@ function AnmeldungSeite() {
 
   return (
     <div className="anmeldung-seite">
+      {/* In the page's corner rather than on the card, so the card holds nothing
+          but who this is and how to sign in. Still on the page at all, because
+          somebody who needs the light theme needs it before signing in. */}
+      <div className="anmeldung__thema">
+        <ThemeToggle />
+      </div>
+
       <main className="anmeldung">
-        {/* The same wordmark the header carries, so that what you are signing
-            into is named before a password is typed. The organisation name and
-            the form name are proper nouns and stay untranslated, as in
-            SiteHeader. */}
-        <div className="anmeldung__kopf">
-          <div className="brand">
-            <span className="brand__mark" aria-hidden="true">
-              FFS
-            </span>
-            <span className="brand__text">
-              <span className="brand__org">Fischereiforschungsstelle Baden-Württemberg</span>
-              <span className="brand__app">Protokoll E-Befischung</span>
-            </span>
-          </div>
-          <ThemeToggle />
+        {/* Stacked and centred here, a row in the header, but the same three
+            elements either way, so the real logo replaces brand__mark in one
+            place when FFS supplies it. The organisation name and the form name
+            are proper nouns and stay untranslated, as in SiteHeader. */}
+        <div className="brand anmeldung__marke">
+          <span className="brand__mark" aria-hidden="true">
+            FFS
+          </span>
+          <span className="brand__text">
+            <span className="brand__org">Fischereiforschungsstelle Baden-Württemberg</span>
+            <span className="brand__app">Protokoll E-Befischung</span>
+          </span>
         </div>
 
         <Typography variant="h1" gutterBottom>
