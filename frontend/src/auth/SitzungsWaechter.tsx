@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useKontoSprache } from './useKontoSprache'
-import { useSitzung } from './useSitzung'
+import { sitzungIstWeggefallen, useSitzung } from './useSitzung'
 import { anmeldungsZiel } from './weiter'
 
 /* The lock on every screen except the login page.
@@ -49,7 +49,7 @@ function SitzungsWaechter() {
        to that section and not to the home page. replace, so the page they could
        not see does not sit in the history for the back button to return to. */
     const gefragt = `${ort.pathname}${ort.search}${ort.hash}`
-    return <Navigate to={anmeldungsZiel(gefragt)} replace />
+    return <Navigate to={anmeldungsZiel(gefragt, sitzungIstWeggefallen())} replace />
   }
 
   return <Outlet />

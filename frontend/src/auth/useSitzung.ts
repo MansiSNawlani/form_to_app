@@ -35,9 +35,30 @@ export type Sitzung =
  * different handling: one sends you to the login page, the other tells you the
  * server cannot be reached.
  */
+/* Whether a session has existed in this tab and then gone away.
+ *
+ * It is what tells being thrown out of a half-filled protocol apart from
+ * arriving at a locked door, so the login page can explain the first and stay
+ * quiet about the second.
+ *
+ * A module variable rather than React state or a ref, because it belongs to the
+ * session rather than to any component: the guard reads it, and the only two
+ * things that change it are the two places a session begins and ends. It is
+ * cleared on a deliberate sign-out, so somebody who signs out and then walks
+ * back into the app is not told their session expired when they ended it
+ * themselves.
+ */
+let sitzungBestand = false
+
+export function sitzungIstWeggefallen(): boolean {
+  return sitzungBestand
+}
+
 async function ladeSitzung(): Promise<BenutzerAntwort | null> {
   try {
-    return await apiAnfrage<BenutzerAntwort>('/ich')
+    const benutzer = await apiAnfrage<BenutzerAntwort>('/ich')
+    sitzungBestand = true
+    return benutzer
   } catch (fehler) {
     if (fehler instanceof ApiFehler && fehler.code === NICHT_ANGEMELDET) return null
     throw fehler
@@ -88,6 +109,7 @@ export function useAnmeldung() {
     mutationFn: (anfrage: AnmeldungAnfrage) =>
       apiAnfrage<BenutzerAntwort>('/anmeldung', { methode: 'POST', koerper: anfrage }),
     onSuccess: (benutzer) => {
+      sitzungBestand = true
       queryClient.setQueryData(SITZUNGS_KEY, benutzer)
     },
   })
@@ -108,6 +130,11 @@ export function useAbmeldung() {
          throw away the very entry that tells the guard to show the login page. */
       queryClient.clear()
       queryClient.setQueryData(SITZUNGS_KEY, null)
+
+      /* Ending it yourself is not the same as it running out, so somebody who
+         signs out and then walks back into the app is shown the plain login
+         page rather than told their session expired. */
+      sitzungBestand = false
     },
   })
 }

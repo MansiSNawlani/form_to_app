@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { anmeldungsZiel, sichererWeiterPfad } from './weiter'
+import { anmeldungsZiel, istAbgelaufen, sichererWeiterPfad } from './weiter'
 
 describe('sichererWeiterPfad', () => {
   it('keeps a path on this site, with everything hanging off it', () => {
@@ -64,10 +64,40 @@ describe('anmeldungsZiel', () => {
     expect(anmeldungsZiel('//example.com')).toBe('/anmeldung')
   })
 
+  it('carries the reason alongside the page, when there is one', () => {
+    expect(anmeldungsZiel('/protokolle/neu', true)).toBe(
+      '/anmeldung?weiter=%2Fprotokolle%2Fneu&grund=abgelaufen',
+    )
+  })
+
+  /* Worth saying even to somebody who was on the home page, which is the one
+     case where there is no page to carry back. */
+  it('carries the reason on its own from the home page', () => {
+    expect(anmeldungsZiel('/', true)).toBe('/anmeldung?grund=abgelaufen')
+  })
+
   it('round-trips: what it writes, sichererWeiterPfad reads back unchanged', () => {
     const pfad = '/protokolle/abc/abschnitt/4'
     const ziel = new URL(anmeldungsZiel(pfad), 'https://befischung.example')
 
     expect(sichererWeiterPfad(ziel.searchParams.get('weiter'))).toBe(pfad)
+  })
+})
+
+describe('istAbgelaufen', () => {
+  it('recognises the one value it writes itself', () => {
+    expect(istAbgelaufen('abgelaufen')).toBe(true)
+  })
+
+  /* The parameter is in the address bar, so anybody can put anything in it.
+     Everything but the known value is ignored, which is what keeps a stranger's
+     text off our login page. */
+  it('ignores anything else, including something that only looks close', () => {
+    expect(istAbgelaufen('Abgelaufen')).toBe(false)
+    expect(istAbgelaufen('abgelaufen ')).toBe(false)
+    expect(istAbgelaufen('Ihr Konto wurde gesperrt, rufen Sie 0800 123 an')).toBe(false)
+    expect(istAbgelaufen('')).toBe(false)
+    expect(istAbgelaufen(null)).toBe(false)
+    expect(istAbgelaufen(undefined)).toBe(false)
   })
 })

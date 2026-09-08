@@ -15,7 +15,7 @@ import { fehlertext } from '../api/fehler'
 import lazbw from '../assets/lazbw.png'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAnmeldung } from './useSitzung'
-import { sichererWeiterPfad, WEITER_PARAM } from './weiter'
+import { GRUND_PARAM, istAbgelaufen, sichererWeiterPfad, WEITER_PARAM } from './weiter'
 // The brand block and the link colour are the shell's, and this page borrows
 // both rather than restating them. Imported explicitly rather than relying on
 // the shell having been loaded by some other route first.
@@ -87,6 +87,10 @@ function AnmeldungSeite() {
 
   const abgelehnt = anmeldung.error ? fehlertext(anmeldung.error) : undefined
 
+  /* Shown only until they try, because a stale explanation sitting above a fresh
+     refusal is two messages competing for the same attention. */
+  const abgelaufen = istAbgelaufen(suchparameter.get(GRUND_PARAM)) && abgelehnt === undefined
+
   return (
     <div className="anmeldung-seite">
       {/* In the page's corner rather than on the card, so the card holds nothing
@@ -116,6 +120,17 @@ function AnmeldungSeite() {
         <Typography variant="body1" className="anmeldung__einleitung">
           {t('anmeldung.einleitung')}
         </Typography>
+
+        {/* Why they are looking at this page at all, when they did not ask to
+            be. Being returned to a login screen out of a half-filled protocol
+            reads as the application having thrown the work away, and it has
+            not: the draft is in this browser and the address they were on
+            travels back with them. */}
+        {abgelaufen && (
+          <Alert severity="info" className="anmeldung__fehler">
+            {t('sitzung.abgelaufen')}
+          </Alert>
+        )}
 
         {/* role="alert" so a refusal is announced rather than only drawn. It sits
             above the fields and before them in the DOM, which is where somebody

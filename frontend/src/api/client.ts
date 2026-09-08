@@ -37,7 +37,21 @@ function standardFetch(): typeof fetch {
  * crash before FastAPI's handler runs is not our shape either, and neither may
  * be presented to the person as though it were a considered refusal.
  */
+/* The statuses a proxy sends when it could not reach the service behind it.
+ *
+ * Worth telling apart from an ordinary failure. Stop the backend and nothing our
+ * code sent was wrong: the answer is "the service is down, try shortly", and it
+ * must never read as though a password were mistaken. fetch itself only rejects
+ * when nothing at all answered, which is what happens with no network, so
+ * without this a stopped backend behind a working proxy would be reported as an
+ * answer we could not understand. */
+const NICHT_ERREICHBAR = new Set([502, 503, 504])
+
 async function ablehnung(antwort: Response): Promise<ApiFehler> {
+  if (NICHT_ERREICHBAR.has(antwort.status)) {
+    return new ApiFehler(NETZWERK_FEHLER, { status: antwort.status })
+  }
+
   let koerper: unknown
   try {
     koerper = await antwort.json()

@@ -187,7 +187,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       instead of opening; a draft typed before signing out is still there after signing back
       in. Screenshot of the header in both themes.
 
-- [ ] **Step 6 - The unhappy paths.** A session that has expired or been deactivated, found
+- [x] **Step 6 - The unhappy paths.** A session that has expired or been deactivated, found
       mid-use, sends the person to the login page carrying the page they were on and says why,
       rather than appearing to have signed them out for no reason. The login page says
       something specific when the backend cannot be reached at all.

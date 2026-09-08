@@ -18,6 +18,21 @@ export const WEITER_PARAM = 'weiter'
 /** The login page's own path, which is the one route outside the guard. */
 export const ANMELDUNG_PFAD = '/anmeldung'
 
+/* Why somebody is looking at the login page, when there is a reason worth
+ * saying. Being bounced out of a half-filled protocol with no explanation reads
+ * as the application having lost your work, and it has not.
+ *
+ * One value, and anything else is ignored rather than shown. The parameter is in
+ * the address bar, so a stranger can put whatever they like in it; mapping it to
+ * a fixed message means the worst they can do is make our own sentence appear.
+ */
+export const GRUND_PARAM = 'grund'
+const ABGELAUFEN = 'abgelaufen'
+
+export function istAbgelaufen(roh: string | null | undefined): boolean {
+  return roh === ABGELAUFEN
+}
+
 const STARTSEITE = '/'
 
 /* An address on this site, or the home page.
@@ -54,11 +69,17 @@ export function sichererWeiterPfad(roh: string | null | undefined): string {
  *
  * Nothing is carried for the home page: it is where a signed-in visitor lands
  * anyway, and /anmeldung reads better than /anmeldung?weiter=%2F on the address
- * bar of the most ordinary arrival there is.
+ * bar of the most ordinary arrival there is. The reason, when there is one, is
+ * carried either way, because it is worth saying even to somebody who was on the
+ * home page when their session ran out.
  */
-export function anmeldungsZiel(pfad: string): string {
+export function anmeldungsZiel(pfad: string, abgelaufen = false): string {
   const ziel = sichererWeiterPfad(pfad)
-  if (ziel === STARTSEITE) return ANMELDUNG_PFAD
+  const teile = new URLSearchParams()
 
-  return `${ANMELDUNG_PFAD}?${WEITER_PARAM}=${encodeURIComponent(ziel)}`
+  if (ziel !== STARTSEITE) teile.set(WEITER_PARAM, ziel)
+  if (abgelaufen) teile.set(GRUND_PARAM, ABGELAUFEN)
+
+  const abfrage = teile.toString()
+  return abfrage === '' ? ANMELDUNG_PFAD : `${ANMELDUNG_PFAD}?${abfrage}`
 }

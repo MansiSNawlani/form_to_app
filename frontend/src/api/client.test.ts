@@ -64,14 +64,26 @@ describe('apiAnfrage', () => {
     })
   })
 
-  /* A 502 from the reverse proxy is HTML, not our shape. Reading it as a refusal
-     would put a page of markup in front of somebody as an error message. */
+  /* A 502, 503 or 504 means a proxy could not reach the backend. Nothing we sent
+     was wrong, so the person is told the service is down rather than shown a
+     page of the proxy's HTML, and certainly not left thinking their password
+     was mistaken. */
+  it('reports a service that a proxy could not reach', async () => {
+    for (const status of [502, 503, 504]) {
+      const fetchImpl = fakeFetch(new Response('<html>Bad Gateway</html>', { status }))
+
+      const fehler = await apiAnfrage('/ich', { fetchImpl }).catch((f: unknown) => f)
+
+      expect(fehler).toMatchObject({ code: NETZWERK_FEHLER, status })
+    }
+  })
+
   it('reports an unreadable body rather than trusting it', async () => {
-    const fetchImpl = fakeFetch(new Response('<html>Bad Gateway</html>', { status: 502 }))
+    const fetchImpl = fakeFetch(new Response('<html>Was ist das</html>', { status: 418 }))
 
     const fehler = await apiAnfrage('/ich', { fetchImpl }).catch((f: unknown) => f)
 
-    expect(fehler).toMatchObject({ code: ANTWORT_UNLESBAR, status: 502 })
+    expect(fehler).toMatchObject({ code: ANTWORT_UNLESBAR, status: 418 })
   })
 
   it('reports an answer that is JSON but not the error shape', async () => {
