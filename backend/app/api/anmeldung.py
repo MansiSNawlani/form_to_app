@@ -23,13 +23,13 @@ router = APIRouter(prefix="/api/v1", tags=["Anmeldung"])
 
 # Documented on the routes so the generated API docs show what a refusal looks
 # like, rather than only the happy path.
-REFUSALS: dict[int | str, dict[str, Any]] = {
+ABLEHNUNGEN: dict[int | str, dict[str, Any]] = {
     status.HTTP_401_UNAUTHORIZED: {"model": FehlerAntwort},
     status.HTTP_403_FORBIDDEN: {"model": FehlerAntwort},
 }
 
 
-@router.post("/anmeldung", responses=REFUSALS)
+@router.post("/anmeldung", responses=ABLEHNUNGEN)
 async def anmeldung(
     anfrage: AnmeldungAnfrage,
     response: Response,
@@ -46,7 +46,7 @@ async def anmeldung(
     return BenutzerAntwort.model_validate(benutzer)
 
 
-@router.get("/ich", responses=REFUSALS)
+@router.get("/ich", responses=ABLEHNUNGEN)
 async def ich(benutzer: AngemeldeterBenutzer) -> BenutzerAntwort:
     """Who the session belongs to.
 

@@ -258,17 +258,31 @@ async def test_unbekannte_adresse_wird_genauso_abgewiesen(session: AsyncSession)
         await melde_an(session, email="niemand@ffs.de", passwort=PASSWORT)
 
 
-async def test_unbekannte_adresse_kostet_auch_zeit(session: AsyncSession) -> None:
+async def test_unbekannte_adresse_kostet_so_viel_wie_ein_falsches_passwort(
+    session: AsyncSession,
+) -> None:
     """The identical message is not enough on its own: an answer that comes back
-    instantly says "no such account" just as loudly. Both paths hash something.
+    instantly says "no such account" just as loudly as a different message would.
 
-    The bound is deliberately generous. This asserts that hashing happened at all,
-    not how fast this machine is."""
-    beginn = time.perf_counter()
-    with pytest.raises(AnmeldungFehlgeschlagen):
-        await melde_an(session, email="niemand@ffs.de", passwort=PASSWORT)
+    Compared against the other refusal rather than against a fixed number of
+    milliseconds, because the claim is that the two are alike, not that either is
+    slow."""
+    await _anlegen(session)
 
-    assert time.perf_counter() - beginn > 0.005
+    async def dauer(email: str) -> float:
+        beginn = time.perf_counter()
+        with pytest.raises(AnmeldungFehlgeschlagen):
+            await melde_an(session, email=email, passwort="etwas ganz anderes")
+        return time.perf_counter() - beginn
+
+    unbekannte_adresse = await dauer("niemand@ffs.de")
+    falsches_passwort = await dauer("anna@ffs.de")
+
+    # A wide margin on purpose. Both paths do one Argon2 verify, so they are
+    # inherently comparable, and a loaded machine can stall either of them. What
+    # this catches is not a slow answer but an instant one, which is what leaving
+    # the blind hash out would produce.
+    assert unbekannte_adresse > falsches_passwort / 3
 
 
 async def test_deaktiviertes_konto_wird_abgewiesen(session: AsyncSession) -> None:

@@ -49,12 +49,15 @@ class BenutzerAntwort(BaseModel):
 
 
 class FehlerAntwort(BaseModel):
-    """The shape every refusal from this API takes.
+    """The shape every refusal from this API takes, including a 422.
 
     Two fields, because they have two different readers. code is for the browser,
     which decides what to do about a failure and must not do that by matching on
     a sentence somebody may reword. nachricht is for the person, and says what
     went wrong and what they can do about it.
+
+    Neither ever carries anything the caller sent. FastAPI's own validation
+    response does, which is why app/api/fehler_http.py replaces it.
     """
 
     code: str

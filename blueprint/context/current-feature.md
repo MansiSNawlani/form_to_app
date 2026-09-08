@@ -1,7 +1,7 @@
 # Feature: 2b - Login, sessions and role enforcement
 
 **From build-plan:** feature 2b
-**Status:** not started
+**Status:** built, ready for review
 
 ## Goal
 
@@ -77,6 +77,34 @@ user. Each one says what it rules out, so any of them can be overturned on sight
 | **Domain errors become HTTP responses in one registered handler** | `coding-standards.md` asks for exactly this. 2a's `app/benutzer/fehler.py` was written with no wording in it for this moment. The handler is the one place that decides a status code, so a later feature cannot quietly answer 500 for a refusal. |
 | **The password is rehashed on a successful sign in when the settings have moved on** | 2a wrote `braucht_neuen_hash` and nothing has ever called it. Sign in is the only moment the plain password exists, so it is the only moment a stronger hash can be made. Without this, raising the Argon2 settings later would only apply to accounts created after the change. |
 
+### Amended during the build, agreed on 2026-09-08
+
+Six things were built differently from the spec above. All six were kept after review;
+this section is the record, because a spec that no longer describes what was built is worse
+than no spec. Three of them came out of the code review at the end of the build.
+
+| Change | Was | Is | Why |
+|---|---|---|---|
+| **A second error handler, for unreadable requests** | Not in the spec at all | `behandle_anfragefehler`, registered beside the domain one | FastAPI's own response for a request Pydantic cannot read quotes the rejected value back. On this route that put a submitted password in the response body, and from there into any log that records one. Found by the code review, confirmed by hand, and now covered by a test that posts a 5000 character password and asserts it does not come back. |
+| **The error code is a written-out string** | Undecided; the first build used the exception's class name | `ANMELDUNG_FEHLGESCHLAGEN` and the rest, written in the translation table | The code is what feature 2c branches on, so it is a published contract. A Python class name is not one: renaming an exception would have silently broken the browser. |
+| **The translation table covers five errors, not every one** | Read as "every `BenutzerFehler`", and the first build mapped twelve | Only what a route in this feature can raise. Everything else falls to 500 | A status code invented before any route can produce it is a contract nobody reviewed. One of them mattered: mapping `BenutzerNichtGefunden` to 404 would have let an unauthenticated caller learn that an address has no account here, which is exactly what `melde_an` goes to some trouble to keep unknowable. |
+| **The cookie has its own module** | Files / areas put the cookie in `anmeldung.py` | `app/api/sitzung.py`, with one dict of attributes both setting and clearing use | A browser deletes a cookie by matching its attributes, so a sign-out that drifts from the sign-in does nothing and still answers 204. One module and one dict make that structural rather than a promise in a comment. |
+| **`config.py` gained `KonfigurationUngueltig`** | Step 1 said only to add the three settings | A missing or invalid setting now fails with a message naming the environment variable and how to fix it, `DATABASE_URL` included | The step required that the message name the variable, and Pydantic's own does not. It changes the failure for a setting that already existed, which is why it is recorded here. |
+| **The short-secret test uses 31 characters** | The step named 20 | `GEHEIMNIS_MINDESTLAENGE - 1` | One below the limit is the case worth testing, and it stays correct if the minimum ever moves. |
+
+### Evidence from the running stack, 2026-09-08
+
+Recorded here because the done-when clauses in steps 3 and 4 ask for it and nothing else in
+the branch would show it happened.
+
+- `POST /api/v1/anmeldung` against the Compose stack returns 200 with the account, and
+  `set-cookie: befischung_sitzung=...; HttpOnly; Max-Age=28800; Path=/; SameSite=lax; Secure`.
+- `GET /api/v1/ich` with that cookie returns the account; without it, and with a cookie one
+  character longer, 401 `NICHT_ANGEMELDET`.
+- A wrong password and an unknown address return byte-identical 401 bodies.
+- `POST /api/v1/abmeldung` returns 204 and clears the cookie with the same attributes.
+- `/api/v1/openapi.json` lists exactly `anmeldung`, `abmeldung`, `ich`, `health`, `ready`.
+
 ## In scope
 
 - The signing secret as a required setting, in `.env.example` and `docker-compose.yml`.
@@ -127,7 +155,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - The signing secret and the token functions.** Add `pyjwt` to
+- [x] **Step 1 - The signing secret and the token functions.** Add `pyjwt` to
       `pyproject.toml`. Add `jwt_secret`, `cookie_secure` and `sitzungsdauer_stunden` to
       `app/config.py`, the secret required with a minimum length of 32 and no default. Then
       `app/security/token.py` with `erstelle_token(benutzer_id)` and `lies_token(token)`,
@@ -148,7 +176,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       a missing secret and a 20 character secret both refused at startup with a message
       naming the variable; and `ruff check .` and `mypy .` are green.
 
-- [ ] **Step 2 - The sign-in rule.** `melde_an(session, email, passwort)` in
+- [x] **Step 2 - The sign-in rule.** `melde_an(session, email, passwort)` in
       `app/benutzer/dienst.py`, returning the `User` or raising. Three new errors in
       `app/benutzer/fehler.py`: `AnmeldungFehlgeschlagen` for a wrong password or an unknown
       address, `KontoDeaktiviert`, and `KontoNichtInteraktiv` for an `INTEGRATION` account.
@@ -170,7 +198,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       password, an `INTEGRATION` account refused with its own error, and an account whose
       hash used weaker settings coming back with a new hash stored and the old one gone.
 
-- [ ] **Step 3 - Signing in over HTTP.** `app/api/anmeldung.py` with
+- [x] **Step 3 - Signing in over HTTP.** `app/api/anmeldung.py` with
       `POST /api/v1/anmeldung`, mounted on `app/main.py` as a router. The request is JSON
       with `email` and `passwort`. On success the cookie is set with all four attributes and
       the account comes back in the response body as `BenutzerAntwort` (id, email, rollen,
@@ -192,7 +220,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       stack, `curl -i` on a real account shows the cookie and the browser's storage
       inspector shows `HttpOnly` ticked.
 
-- [ ] **Step 4 - Who am I, and signing out.** `app/api/abhaengigkeiten.py` with
+- [x] **Step 4 - Who am I, and signing out.** `app/api/abhaengigkeiten.py` with
       `aktueller_benutzer`: read the cookie, refuse if absent, read the token, refuse if it
       does not verify, load the account, refuse if it has gone or is no longer active. Then
       `GET /api/v1/ich` returning the same `BenutzerAntwort`, and `POST /api/v1/abmeldung`
@@ -214,7 +242,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       the running stack, signing in and then opening `/api/v1/ich` in the address bar returns
       the account.
 
-- [ ] **Step 5 - Requiring a role.** `erfordert_rollen(*rollen)` in the same module: a
+- [x] **Step 5 - Requiring a role.** `erfordert_rollen(*rollen)` in the same module: a
       dependency factory that takes the roles that would satisfy it and returns a dependency
       allowing an account holding any one of them. Any-of rather than all-of, because the
       real cases read "a reviewer or a super admin may accept this", and an account holding
@@ -241,9 +269,11 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 - `backend/app/security/token.py` + `_test.py` - making and reading a JWT
 - `backend/app/api/__init__.py` - the routers package
 - `backend/app/api/anmeldung.py` + `_test.py` - the three endpoints
+- `backend/app/api/sitzung.py` + `_test.py` - the cookie, and the /ich and /abmeldung tests
 - `backend/app/api/abhaengigkeiten.py` + `_test.py` - `aktueller_benutzer`, `erfordert_rollen`
-- `backend/app/api/schemas.py` - `AnmeldungAnfrage`, `BenutzerAntwort`
-- `backend/app/api/fehler_http.py` - domain errors to HTTP, in one place
+- `backend/app/api/schemas.py` - `AnmeldungAnfrage`, `BenutzerAntwort`, `FehlerAntwort`
+- `backend/app/api/fehler_http.py` - refusals to HTTP, in one place
+- `backend/app/config_test.py` - the settings that must be present and long enough
 
 **Changed**
 
@@ -252,7 +282,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 - `backend/app/benutzer/dienst.py` - `melde_an`
 - `backend/app/benutzer/fehler.py` - the three sign-in errors
 - `backend/app/main.py` - the router and the exception handler
-- `backend/conftest.py` - the HTTP client fixture
+- `backend/conftest.py` - the HTTP client fixture, and the shared account fixtures
 - `.env.example`, `docker-compose.yml` - the signing secret
 - `AGENTS.md`, `README.md` - the new variable, and how to make one
 

@@ -13,7 +13,7 @@ session anywhere.
 """
 
 import uuid
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import Response
 
@@ -34,31 +34,35 @@ SITZUNGS_COOKIE = "befischung_sitzung"
 SAMESITE: Literal["lax"] = "lax"
 
 
+def _eigenschaften() -> dict[str, Any]:
+    """The attributes both setting and clearing must agree on, in one place.
+
+    A dict rather than the same four keywords written twice, so the two cannot
+    drift apart. They are read fresh each call because cookie_secure comes from
+    the settings, which the tests substitute.
+    """
+    return {
+        "key": SITZUNGS_COOKIE,
+        "httponly": True,
+        "secure": get_settings().cookie_secure,
+        "samesite": SAMESITE,
+        "path": "/",
+    }
+
+
 def setze_sitzung(response: Response, benutzer_id: uuid.UUID) -> None:
     """Attach a fresh session cookie to this response."""
-    einstellungen = get_settings()
     response.set_cookie(
-        key=SITZUNGS_COOKIE,
         value=erstelle_token(benutzer_id),
         # Matches the token's own expiry, so the browser stops sending a cookie
         # at about the moment the service would start refusing it. Without it the
         # cookie would live until the browser closed and every request after
         # expiry would be a pointless round trip.
-        max_age=einstellungen.sitzungsdauer_stunden * 60 * 60,
-        httponly=True,
-        secure=einstellungen.cookie_secure,
-        samesite=SAMESITE,
-        path="/",
+        max_age=get_settings().sitzungsdauer_stunden * 60 * 60,
+        **_eigenschaften(),
     )
 
 
 def loesche_sitzung(response: Response) -> None:
     """Clear the session cookie, with the attributes it was set with."""
-    einstellungen = get_settings()
-    response.delete_cookie(
-        key=SITZUNGS_COOKIE,
-        httponly=True,
-        secure=einstellungen.cookie_secure,
-        samesite=SAMESITE,
-        path="/",
-    )
+    response.delete_cookie(**_eigenschaften())

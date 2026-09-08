@@ -10,7 +10,6 @@ Features 3, 11, 12, 13 and 16 all need exactly this, which is why it is built no
 rather than five times later.
 """
 
-import uuid
 from collections.abc import Awaitable, Callable
 from typing import Annotated
 
@@ -50,16 +49,13 @@ async def aktueller_benutzer(
         # it is something somebody probing would like to know.
         raise NichtAngemeldet from fehler
 
-    benutzer = await _lade(session, benutzer_id)
+    # Annotated because session.get is typed loosely enough to hand back Any, and
+    # mypy in strict mode is right to object.
+    benutzer: User | None = await session.get(User, benutzer_id)
     if benutzer is None or not benutzer.ist_aktiv:
         raise NichtAngemeldet
 
     return benutzer
-
-
-async def _lade(session: AsyncSession, benutzer_id: uuid.UUID) -> User | None:
-    gefunden: User | None = await session.get(User, benutzer_id)
-    return gefunden
 
 
 AngemeldeterBenutzer = Annotated[User, Depends(aktueller_benutzer)]

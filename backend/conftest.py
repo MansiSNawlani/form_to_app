@@ -27,14 +27,14 @@ regardless of how this one ended.
 
 import asyncio
 import os
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Sequence
 from pathlib import Path
 
 import pytest
 import pytest_asyncio
 from alembic import command
 from alembic.config import Config
-from httpx import ASGITransport, AsyncClient
+from httpx import ASGITransport, AsyncClient, Response
 from sqlalchemy import URL, make_url, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
@@ -46,10 +46,12 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
+from app.benutzer.dienst import lege_benutzer_an
 from app.config import get_settings
 from app.db import get_session
 from app.main import app
 from app.models import Base
+from app.models.benutzer import Rolle, User
 
 TESTDATENBANK = "befischung_test"
 
@@ -254,3 +256,42 @@ async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
             yield offener_client
     finally:
         app.dependency_overrides.clear()
+
+
+PASSWORT = "ein gutes langes passwort"
+
+
+@pytest.fixture
+def anlegen(session: AsyncSession) -> Callable[..., Awaitable[User]]:
+    """Create an account with everything but the point of the test defaulted.
+
+    Shared here rather than restated in each route test file, which is where four
+    near-identical copies of it were heading.
+    """
+
+    async def _anlegen(
+        email: str = "anna@ffs.de",
+        rollen: Sequence[Rolle] = (Rolle.SUBMITTER,),
+        passwort: str = PASSWORT,
+    ) -> User:
+        return await lege_benutzer_an(
+            session, email=email, passwort=passwort, rollen=rollen
+        )
+
+    return _anlegen
+
+
+@pytest.fixture
+def anmelden(client: AsyncClient) -> Callable[..., Awaitable[Response]]:
+    """Sign in over HTTP, against whichever client fixture is in scope.
+
+    A test module defining its own client fixture gets that one here, which is how
+    the role tests reach their own small application.
+    """
+
+    async def _anmelden(email: str = "anna@ffs.de", passwort: str = PASSWORT) -> Response:
+        return await client.post(
+            "/api/v1/anmeldung", json={"email": email, "passwort": passwort}
+        )
+
+    return _anmelden

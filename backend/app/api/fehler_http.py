@@ -1,4 +1,4 @@
-"""The one place a domain error becomes an HTTP response.
+"""The one place a refusal becomes an HTTP response.
 
 coding-standards.md asks for typed domain exceptions translated in a single
 place, and this is it. The errors in app/benutzer/fehler.py deliberately carry no
@@ -12,157 +12,151 @@ difference between 401 and 403 is decided once. That difference matters more tha
 it looks: feature 2c sends a 401 to the login page, and must not do that for a
 403, or somebody without a role gets bounced to a login form they are already
 past.
+
+The table below covers only what a route in this feature can raise. Every other
+member of the BenutzerFehler family falls to 500, which is the right answer while
+no route can produce it: a status code invented in advance is a contract nobody
+reviewed, and one of them would quietly matter. Mapping BenutzerNichtGefunden to
+404 would tell an unauthenticated caller that an address has no account here, and
+that is exactly what melde_an goes to some trouble to keep unknowable. A feature
+adding a route that raises one of those adds its line here, with the route.
 """
 
 from fastapi import FastAPI, Request, Response, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.schemas import FehlerAntwort
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
     BenutzerFehler,
-    BenutzerNichtGefunden,
-    EmailBereitsVergeben,
-    EmailUngueltig,
     KontoDeaktiviert,
     KontoNichtInteraktiv,
     NichtAngemeldet,
-    RegierungspraesidiumAusserhalbBereich,
-    RegierungspraesidiumFehlt,
-    RegierungspraesidiumUnzulaessig,
     RolleFehlt,
-    RollenLeer,
-)
-from app.security.passwoerter import (
-    HOECHSTLAENGE,
-    MINDESTLAENGE,
-    PasswortZuKurz,
-    PasswortZuLang,
 )
 
-ADMINISTRATOR = (
-    "Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator."
-)
+AN_ADMINISTRATOR_WENDEN = "Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator."
 
-# Status code and wording per error. Every message names the thing, says why in
-# ordinary words and says what to do next, which is the standard this project set
-# on 2026-09-06: a message that only says "no" leaves the person with nowhere to go.
-UEBERSETZUNG: dict[type[BenutzerFehler], tuple[int, str]] = {
+# Code, status and wording per error.
+#
+# The code is written out rather than taken from the exception's class name. It is
+# what feature 2c branches on, so it is a published contract, and a name that a
+# refactor is free to change cannot be one.
+#
+# Every message names the thing, says why in ordinary words and says what to do
+# next, which is the standard this project set on 2026-09-06: a message that only
+# says "no" leaves the person with nowhere to go.
+UEBERSETZUNG: dict[type[BenutzerFehler], tuple[str, int, str]] = {
     AnmeldungFehlgeschlagen: (
+        "ANMELDUNG_FEHLGESCHLAGEN",
         status.HTTP_401_UNAUTHORIZED,
         "E-Mail-Adresse oder Passwort ist nicht richtig. Bitte prüfen Sie die"
         " Schreibweise und die Feststelltaste. Wenn Sie Ihr Passwort nicht mehr"
-        f" wissen: {ADMINISTRATOR}",
-    ),
-    KontoDeaktiviert: (
-        status.HTTP_403_FORBIDDEN,
-        "Dieses Konto ist deaktiviert und kann sich nicht anmelden."
-        f" Um es wieder freischalten zu lassen: {ADMINISTRATOR}",
+        f" wissen: {AN_ADMINISTRATOR_WENDEN}",
     ),
     NichtAngemeldet: (
+        "NICHT_ANGEMELDET",
         status.HTTP_401_UNAUTHORIZED,
         "Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen. Bitte melden"
         " Sie sich noch einmal an. Eine Sitzung gilt acht Stunden.",
     ),
     RolleFehlt: (
+        "ROLLE_FEHLT",
         status.HTTP_403_FORBIDDEN,
         "Ihr Konto hat nicht die Berechtigung für diesen Bereich. Wenn Sie sie"
-        f" brauchen: {ADMINISTRATOR}",
+        f" brauchen: {AN_ADMINISTRATOR_WENDEN}",
+    ),
+    KontoDeaktiviert: (
+        "KONTO_DEAKTIVIERT",
+        status.HTTP_403_FORBIDDEN,
+        "Dieses Konto ist deaktiviert und kann sich nicht anmelden."
+        f" Um es wieder freischalten zu lassen: {AN_ADMINISTRATOR_WENDEN}",
     ),
     KontoNichtInteraktiv: (
+        "KONTO_NICHT_INTERAKTIV",
         status.HTTP_403_FORBIDDEN,
         "Dieses Konto ist ein technisches Konto für die Datenübergabe und kann"
         " sich hier nicht anmelden. Bitte melden Sie sich mit Ihrem persönlichen"
         " Konto an.",
     ),
-    BenutzerNichtGefunden: (
-        status.HTTP_404_NOT_FOUND,
-        "Es gibt kein Konto mit dieser E-Mail-Adresse. Bitte prüfen Sie die"
-        " Schreibweise.",
-    ),
-    EmailBereitsVergeben: (
-        status.HTTP_409_CONFLICT,
-        "Es gibt schon ein Konto mit dieser E-Mail-Adresse. Jede Adresse kann nur"
-        " einmal vergeben werden, also nehmen Sie eine andere oder lassen Sie das"
-        " vorhandene Konto wieder freischalten.",
-    ),
-    EmailUngueltig: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Das ist keine gültige E-Mail-Adresse. Erwartet wird eine Adresse in der"
-        " Form name@einrichtung.de.",
-    ),
-    RollenLeer: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Ein Konto braucht mindestens eine Rolle, sonst kann es nichts tun."
-        " Bitte wählen Sie eine aus.",
-    ),
-    RegierungspraesidiumFehlt: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Für ein Konto des Regierungspräsidiums fehlt die Nummer des"
-        " Regierungspräsidiums: 1 Stuttgart, 2 Karlsruhe, 3 Freiburg, 4 Tübingen."
-        " Ohne sie würde das Konto alle Regionen sehen.",
-    ),
-    RegierungspraesidiumUnzulaessig: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Eine Nummer des Regierungspräsidiums gehört nur zu einem Konto mit der"
-        " Rolle REGIERUNGSPRAESIDIUM. Bitte lassen Sie sie hier weg.",
-    ),
-    RegierungspraesidiumAusserhalbBereich: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        "Es gibt vier Regierungspräsidien. Bitte geben Sie 1 Stuttgart,"
-        " 2 Karlsruhe, 3 Freiburg oder 4 Tübingen an.",
-    ),
-    PasswortZuKurz: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        f"Das Passwort ist zu kurz. Es braucht mindestens {MINDESTLAENGE} Zeichen."
-        " Ein Satz, den Sie sich merken können, ist dafür gut geeignet.",
-    ),
-    PasswortZuLang: (
-        status.HTTP_422_UNPROCESSABLE_CONTENT,
-        f"Das Passwort ist zu lang. Höchstens {HOECHSTLAENGE} Zeichen sind"
-        " möglich.",
-    ),
 }
 
 UNBEKANNT = (
+    "UNBEKANNTER_FEHLER",
     status.HTTP_500_INTERNAL_SERVER_ERROR,
     "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden"
     " Sie den Fehler, wenn er bleibt.",
 )
 
+ANFRAGE_UNGUELTIG = (
+    "ANFRAGE_UNGUELTIG",
+    status.HTTP_422_UNPROCESSABLE_CONTENT,
+    "Die Anfrage ist unvollständig oder hat das falsche Format.",
+)
 
-def _antwort(fehler: BenutzerFehler) -> JSONResponse:
-    """Look the error up by its own class, then by what it inherits from.
+# Parts of a Pydantic error location that name where the value came from rather
+# than which field it was.
+HERKUNFT = frozenset({"body", "query", "path", "cookie", "header"})
 
-    The walk up the inheritance chain means a new error added to a family answers
-    sensibly from the day it exists rather than falling to 500 until somebody
-    remembers this table. An error belonging to no family still lands on 500,
-    which is honest: nobody decided what it should say.
-    """
-    for klasse in type(fehler).__mro__:
-        if klasse in UEBERSETZUNG:
-            code, nachricht = UEBERSETZUNG[klasse]
-            break
-    else:
-        code, nachricht = UNBEKANNT
 
+def _antwort(code: str, status_code: int, nachricht: str) -> JSONResponse:
     return JSONResponse(
-        status_code=code,
-        content=FehlerAntwort(code=type(fehler).__name__, nachricht=nachricht).model_dump(),
+        status_code=status_code,
+        content=FehlerAntwort(code=code, nachricht=nachricht).model_dump(),
     )
 
 
 async def behandle_benutzerfehler(request: Request, fehler: Exception) -> Response:
     """Registered for the BenutzerFehler family, so every subclass arrives here.
 
-    Typed as Exception because that is the signature Starlette hands handlers.
-    Nothing from the exception itself reaches the response: the wording comes from
-    the table above, so an email address or a hash cannot leak into a body by
-    somebody putting it in an exception message later.
+    Typed as Exception because that is the signature Starlette hands a handler.
+
+    Nothing from the exception itself reaches the response. The wording comes from
+    the table, so an email address or a hash cannot leak into a body later by
+    somebody putting one into an exception message.
+
+    The walk up the inheritance chain lets a new error added to a family answer
+    like its family from the day it exists.
     """
-    assert isinstance(fehler, BenutzerFehler)
-    return _antwort(fehler)
+    if not isinstance(fehler, BenutzerFehler):
+        # Not an assert: assertions vanish under python -O, and this is what keeps
+        # an unrelated exception from being answered as though it were a refusal.
+        raise fehler
+
+    for klasse in type(fehler).__mro__:
+        if klasse in UEBERSETZUNG:
+            return _antwort(*UEBERSETZUNG[klasse])
+
+    return _antwort(*UNBEKANNT)
+
+
+async def behandle_anfragefehler(request: Request, fehler: Exception) -> Response:
+    """A request Pydantic could not read, answered without quoting it back.
+
+    FastAPI's own handler for this returns the rejected value in the body. On the
+    sign-in route that means a password too long for its field comes straight back
+    in the response, and from there into any log that records one. This replaces
+    it: the names of the fields that were wrong, never their values.
+    """
+    if not isinstance(fehler, RequestValidationError):
+        raise fehler
+
+    felder = sorted(
+        {
+            str(teil)
+            for einzeln in fehler.errors()
+            for teil in einzeln.get("loc", ())
+            if teil not in HERKUNFT
+        }
+    )
+    code, status_code, nachricht = ANFRAGE_UNGUELTIG
+    if felder:
+        nachricht = f"{nachricht} Bitte prüfen Sie: {', '.join(felder)}."
+
+    return _antwort(code, status_code, nachricht)
 
 
 def registriere_fehlerbehandlung(app: FastAPI) -> None:
     app.add_exception_handler(BenutzerFehler, behandle_benutzerfehler)
+    app.add_exception_handler(RequestValidationError, behandle_anfragefehler)

@@ -9,23 +9,24 @@ same check, and building it once with its own tests is what stops five features
 each growing a permission check that is subtly different from the others.
 """
 
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 from typing import Annotated
 
 import pytest
 import pytest_asyncio
 from fastapi import Depends, FastAPI
-from httpx import ASGITransport, AsyncClient
+from httpx import ASGITransport, AsyncClient, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import anmeldung
 from app.api.abhaengigkeiten import erfordert_rollen
 from app.api.fehler_http import registriere_fehlerbehandlung
-from app.benutzer.dienst import lege_benutzer_an, setze_aktiv
+from app.benutzer.dienst import setze_aktiv
 from app.db import get_session
 from app.models.benutzer import Rolle, User
 
-PASSWORT = "ein gutes langes passwort"
+Anlegen = Callable[..., Awaitable[User]]
+Anmelden = Callable[..., Awaitable[Response]]
 
 
 def _testanwendung() -> FastAPI:
@@ -66,29 +67,25 @@ async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
 
 
 async def _anlegen_und_anmelden(
-    session: AsyncSession,
-    client: AsyncClient,
-    rollen: Sequence[Rolle],
-    email: str = "anna@ffs.de",
+    anlegen: Anlegen, anmelden: Anmelden, rollen: Sequence[Rolle]
 ) -> None:
-    await lege_benutzer_an(session, email=email, passwort=PASSWORT, rollen=rollen)
-    antwort = await client.post(
-        "/api/v1/anmeldung", json={"email": email, "passwort": PASSWORT}
-    )
-    assert antwort.status_code == 200
+    """Both fixtures come from conftest.py; anmelden picks up the client fixture
+    defined above, so it signs in against this file's own application."""
+    await anlegen(rollen=rollen)
+    assert (await anmelden()).status_code == 200
 
 
 async def test_ohne_anmeldung_ist_es_401(client: AsyncClient) -> None:
     antwort = await client.get("/nur-pruefer")
 
     assert antwort.status_code == 401
-    assert antwort.json()["code"] == "NichtAngemeldet"
+    assert antwort.json()["code"] == "NICHT_ANGEMELDET"
 
 
 async def test_mit_der_rolle_geht_es_durch(
-    session: AsyncSession, client: AsyncClient
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
 ) -> None:
-    await _anlegen_und_anmelden(session, client, [Rolle.REVIEWER])
+    await _anlegen_und_anmelden(anlegen, anmelden, [Rolle.REVIEWER])
 
     antwort = await client.get("/nur-pruefer")
 
@@ -96,40 +93,42 @@ async def test_mit_der_rolle_geht_es_durch(
     assert antwort.json() == {"email": "anna@ffs.de"}
 
 
-async def test_ohne_die_rolle_ist_es_403(session: AsyncSession, client: AsyncClient) -> None:
+async def test_ohne_die_rolle_ist_es_403(
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
+) -> None:
     """403 and not 401. Sending somebody who is signed in to the login page is a
     loop they cannot get out of."""
-    await _anlegen_und_anmelden(session, client, [Rolle.SUBMITTER])
+    await _anlegen_und_anmelden(anlegen, anmelden, [Rolle.SUBMITTER])
 
     antwort = await client.get("/nur-pruefer")
 
     assert antwort.status_code == 403
-    assert antwort.json()["code"] == "RolleFehlt"
+    assert antwort.json()["code"] == "ROLLE_FEHLT"
 
 
 async def test_eine_von_mehreren_rollen_genuegt(
-    session: AsyncSession, client: AsyncClient
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
 ) -> None:
-    await _anlegen_und_anmelden(session, client, [Rolle.SUPER_ADMIN])
+    await _anlegen_und_anmelden(anlegen, anmelden, [Rolle.SUPER_ADMIN])
 
     assert (await client.get("/pruefer-oder-admin")).status_code == 200
 
 
 async def test_mehrere_rollen_am_konto_sperren_nicht_aus(
-    session: AsyncSession, client: AsyncClient
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
 ) -> None:
     """The any-of case that an all-of check would get wrong."""
-    await _anlegen_und_anmelden(session, client, [Rolle.SUPER_ADMIN, Rolle.REVIEWER])
+    await _anlegen_und_anmelden(anlegen, anmelden, [Rolle.SUPER_ADMIN, Rolle.REVIEWER])
 
     assert (await client.get("/pruefer-oder-admin")).status_code == 200
 
 
 async def test_deaktiviertes_konto_ist_401_und_nicht_403(
-    session: AsyncSession, client: AsyncClient
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient, session: AsyncSession
 ) -> None:
     """Not signed in at all comes before not allowed, so a deactivated account is
     never told which roles a page wanted."""
-    await _anlegen_und_anmelden(session, client, [Rolle.REVIEWER])
+    await _anlegen_und_anmelden(anlegen, anmelden, [Rolle.REVIEWER])
     await setze_aktiv(session, "anna@ffs.de", aktiv=False)
 
     assert (await client.get("/nur-pruefer")).status_code == 401
