@@ -61,7 +61,7 @@ These are not features and are not tracked here. They happen first.
         creating the users table with the six roles and the active flag, password hashing,
         and a command line command to create the first Super Admin and to activate or
         deactivate an account
-  - [ ] 2b. Login, sessions and role enforcement: the sign-in, sign-out and "who am I"
+  - [x] 2b. Login, sessions and role enforcement: the sign-in, sign-out and "who am I"
         endpoints, the JWT in an httpOnly cookie, the current-user and required-role
         dependencies, and deactivated accounts refused at sign-in
   - [ ] 2c. The login screen and the signed-in shell: the /anmeldung page, TanStack Query
