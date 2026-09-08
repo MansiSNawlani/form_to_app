@@ -22,8 +22,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.benutzer.fehler import (
+    AnmeldungFehlgeschlagen,
     BenutzerNichtGefunden,
     EmailBereitsVergeben,
+    EmailUngueltig,
+    KontoDeaktiviert,
+    KontoNichtInteraktiv,
 )
 from app.benutzer.regeln import (
     normalisiere_email,
@@ -31,7 +35,14 @@ from app.benutzer.regeln import (
     pruefe_regierungspraesidium,
 )
 from app.models.benutzer import Locale, Rolle, User
-from app.security.passwoerter import hashe_passwort
+from app.security.passwoerter import (
+    PasswortZuKurz,
+    PasswortZuLang,
+    braucht_neuen_hash,
+    hashe_passwort,
+    pruefe_blind,
+    pruefe_passwort,
+)
 
 # The unique index from the users migration. Named here so a violation can be
 # told apart from any other constraint failure without guessing.
@@ -137,3 +148,67 @@ async def liste_benutzer(session: AsyncSession) -> list[User]:
     """
     ergebnis = await session.scalars(select(User).order_by(User.email))
     return list(ergebnis)
+
+
+async def melde_an(session: AsyncSession, *, email: str, passwort: str) -> User:
+    """The account for these credentials, or a refusal saying which kind it is.
+
+    Keyword arguments because two strings next to each other are easy to swap, and
+    swapping these produces a working call that always refuses.
+
+    The order of the checks is the security decision in this function. The
+    password comes first, so that "this account is deactivated" and "this account
+    cannot sign in here" are only ever said to somebody who already had the
+    password. Reversing it would make either message confirm that an address holds
+    an account.
+    """
+    try:
+        benutzer = await finde_nach_email(session, email)
+    except EmailUngueltig:
+        # Not a usable address at all, so certainly not one with an account. Answered
+        # like any other failed attempt rather than as a validation error, so a
+        # malformed address cannot be told apart from a wrong password either.
+        benutzer = None
+
+    if benutzer is None:
+        pruefe_blind(passwort)
+        raise AnmeldungFehlgeschlagen
+
+    if not pruefe_passwort(passwort, benutzer.password_hash):
+        raise AnmeldungFehlgeschlagen
+
+    if not benutzer.ist_aktiv:
+        raise KontoDeaktiviert
+
+    if Rolle.INTEGRATION in benutzer.rollen:
+        raise KontoNichtInteraktiv
+
+    await _erneuere_hash_falls_noetig(session, benutzer, passwort)
+    return benutzer
+
+
+async def _erneuere_hash_falls_noetig(
+    session: AsyncSession, benutzer: User, passwort: str
+) -> None:
+    """Store a stronger hash when the settings have moved on since this one was made.
+
+    A stored hash keeps its own settings forever, so without this an account
+    created years ago stays at that strength no matter what the library later
+    defaults to. A successful sign in is the only moment the plain password exists
+    to make a new one from.
+    """
+    if not braucht_neuen_hash(benutzer.password_hash):
+        return
+
+    try:
+        neuer_hash = hashe_passwort(passwort)
+    except (PasswortZuKurz, PasswortZuLang):
+        # The password predates a tightening of the policy. Refusing to rehash is
+        # right; refusing the sign in over it would lock out every account that
+        # existed before the change, which is an outage rather than a security
+        # gain. The account keeps its old hash until its password is changed.
+        return
+
+    benutzer.password_hash = neuer_hash
+    await session.commit()
+    await session.refresh(benutzer)

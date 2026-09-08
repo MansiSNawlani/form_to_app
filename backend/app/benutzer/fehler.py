@@ -81,3 +81,39 @@ class BenutzerNichtGefunden(BenutzerFehler):
     def __init__(self, email: str) -> None:
         self.email = email
         super().__init__(f"No account found for {email}")
+
+
+class AnmeldungFehlgeschlagen(BenutzerFehler):
+    """The address and password together do not identify anybody.
+
+    Deliberately one error for two different situations: no such account, and the
+    wrong password for a real one. Telling them apart would turn the login page
+    into a way of finding out who holds an account here, which for a form filed
+    by named external consultants is worth more to an attacker than it looks.
+
+    It carries no email on purpose. Anything that carries the address invites a
+    message that repeats it back, and the distinction leaks from there.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Sign in failed")
+
+
+class KontoDeaktiviert(BenutzerFehler):
+    """The account exists and the password was right, but it is switched off.
+
+    The one place we say more than AnmeldungFehlgeschlagen would, and only ever
+    after the correct password, so it tells an attacker nothing they did not
+    already have. The alternative is somebody retrying a password they know is
+    correct until they give up, which is the failure that generates a support
+    call rather than a fix.
+    """
+
+
+class KontoNichtInteraktiv(BenutzerFehler):
+    """An INTEGRATION account tried to sign in.
+
+    project-overview.md makes that role machine only. Feature 2a deliberately let
+    the command line create such an account and left the refusal to this layer,
+    because it is a rule about signing in rather than about the account existing.
+    """
