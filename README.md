@@ -26,6 +26,22 @@ docs/         decisions, ADRs, the FFS defect list
 blueprint/    the plans and the build workflow
 ```
 
+## Configuration
+
+Copy `.env.example` to `.env` in the repository root once. It is git-ignored, and both Docker
+Compose and a backend run directly on the host read it.
+
+Two values have no default and the backend refuses to start without them: `DATABASE_URL`, and
+`JWT_SECRET`, which signs the login sessions. Generate a secret of your own:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Anybody holding that value can mint a valid session for any account, so a real deployment supplies
+its own from the environment rather than from any file in the repository. Changing it signs
+everybody out, which is also the answer if it ever leaks.
+
 ## Running it
 
 The full containerised stack arrives with build item 1. Until then, the two halves run separately.
