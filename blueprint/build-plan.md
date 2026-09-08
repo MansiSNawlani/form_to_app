@@ -57,7 +57,7 @@ These are not features and are not tracked here. They happen first.
   setup, so it belongs to `/ci` after 1c, not to the feature loop.
 - [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
       activate and deactivate. **Deferred on 2026-09-01**, built after the form parts.
-  - [ ] 2a. The User record and the admin command: Alembic wired up, the first migration
+  - [x] 2a. The User record and the admin command: Alembic wired up, the first migration
         creating the users table with the six roles and the active flag, password hashing,
         and a command line command to create the first Super Admin and to activate or
         deactivate an account
