@@ -156,9 +156,9 @@ function AnmeldungSeite() {
 
       <main className="anmeldung">
         {/* Stacked and centred here, a row in the header, but the same three
-            elements either way, so the real logo replaces brand__mark in one
-            place when FFS supplies it. The organisation name and the form name
-            are proper nouns and stay untranslated, as in SiteHeader. */}
+            elements either way, so the LAZBW mark is styled in one place and
+            lands correctly in both. The organisation name and the form name are
+            proper nouns and stay untranslated, as in SiteHeader. */}
         <div className="brand anmeldung__marke">
           {/* Decorative: the name is directly beneath it. See SiteHeader. */}
           <img className="brand__mark" src={lazbw} alt="" />
@@ -168,7 +168,7 @@ function AnmeldungSeite() {
           </span>
         </div>
 
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h1">
           {t('anmeldung.titel')}
         </Typography>
         <Typography variant="body1" className="anmeldung__einleitung">
@@ -181,7 +181,7 @@ function AnmeldungSeite() {
             not: the draft is in this browser and the address they were on
             travels back with them. */}
         {abgelaufen && (
-          <Alert severity="info" className="anmeldung__fehler">
+          <Alert severity="info">
             {t('sitzung.abgelaufen')}
           </Alert>
         )}
@@ -190,7 +190,7 @@ function AnmeldungSeite() {
             above the fields and before them in the DOM, which is where somebody
             re-reading the form after a failure will look. */}
         {abgelehnt && (
-          <Alert severity="error" role="alert" className="anmeldung__fehler">
+          <Alert severity="error" role="alert">
             {abgelehnt}
           </Alert>
         )}

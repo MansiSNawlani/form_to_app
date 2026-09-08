@@ -23,6 +23,11 @@
   right: var(--space);
 }
 
+/* Spacing between the card's blocks comes from one gap here rather than from a
+   margin on each of them. MUI's Typography and Alert both set margin: 0 on their
+   own roots, at the same specificity as a class of ours, so which one wins comes
+   down to the order two stylesheets happen to be injected in. A gap on the
+   parent is not in that argument at all. */
 .anmeldung {
   width: 100%;
   max-width: 26rem;
@@ -30,15 +35,20 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 /* The same brand block the header uses, stacked and centred rather than in a
    row. Only the arrangement changes, so the real logo still replaces
    .brand__mark in one place and lands correctly in both. */
+/* A little more air under the mark than between the blocks below it, so the
+   brand reads as the card's roof rather than as its first paragraph. */
 .anmeldung__marke {
   flex-direction: column;
   gap: 0.75rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
@@ -61,11 +71,6 @@
 
 .anmeldung__einleitung {
   color: var(--muted);
-  margin-bottom: 1.5rem;
-}
-
-.anmeldung__fehler {
-  margin-bottom: 1.25rem;
 }
 
 .anmeldung__form {
