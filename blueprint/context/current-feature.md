@@ -78,6 +78,19 @@ put to the user. Each says what it rules out, so any of them can be overturned o
 | **Migrations are never run automatically when the application starts** | A tempting shortcut, and a bad one: when the service runs as more than one container, they all start at once and all try to migrate at once. Migrating is a deploy step somebody runs, which is also what makes a failed migration visible rather than a crash loop. |
 | **The password policy is a length minimum and nothing else** | Not a check against known breached password lists. That is good advice in general, but it means either a large word list in the repository or a call to an outside service, and these accounts are created one at a time by an administrator for named staff. Worth revisiting if FFS ever opens self service, which they have said they will not. |
 
+### Amended during the build, agreed on 2026-09-08
+
+Four things were built differently from the spec above. All four were kept after
+review; this section is the record, because a spec that no longer describes what was
+built is worse than no spec.
+
+| Change | Was | Is | Why |
+|---|---|---|---|
+| **A password maximum** | The draft said a minimum of 12 "and no maximum" | Also a maximum of 1024 characters | Hashing is deliberately slow, so an unbounded password is a way to make the server do heavy work on request. Far above anything anyone types, and it refuses rather than truncating. |
+| **Six check constraints, not four** | Four were listed | Also `ck_users_regierungspraesidium_nur_regional` and `ck_users_email_klein` | The first stops a regional account with no region, which would see every region. The second stops `Anna@FFS.de` becoming a second account beside `anna@ffs.de`, which the case sensitive unique index alone allows. |
+| **`normalisiere_rollen`** | Not in the spec | De-duplicates the roles and refuses an empty list | The table refuses an empty array but accepts `ARRAY['SUBMITTER', 'SUBMITTER']`, which passes every check and then reads oddly forever. |
+| **The command line has its own engine** | Data contracts said `get_session` in `app/db.py` "stays the only way a session is obtained" | The command line builds its own engine with `NullPool` | A pool is right for a web service answering many requests and wrong for a process that runs one command and exits. It also makes the "Event loop is closed" class of defect impossible rather than merely documented. `get_session` remains the only route for anything served over HTTP, which is what that contract was protecting. |
+
 ## The table
 
 Straight from the `User` model in `project-overview.md`. Entity names there are English where
@@ -172,6 +185,8 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       email index, and the four check constraints: at least one role, every role a known one,
       `regierungspraesidium` between 1 and 4, `locale` one of two values.
 
+      Six constraints were built, not the four listed here; see the amendment table above.
+
       The check constraints are named explicitly rather than left to Alembic's autogeneration,
       because an unnamed constraint cannot be dropped by a later migration without looking up
       whatever name Postgres invented.
@@ -191,8 +206,8 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       Plain functions over strings, no database and no HTTP, which is what
       `coding-standards.md` asks of any rule where a wrong answer is possible.
 
-      The policy is a minimum length of 12 and nothing else. No required digit, no required
-      symbol, no maximum: composition rules are current advice against, because they push
+      The policy is a minimum length of 12, plus a maximum of 1024 added during the build
+      and recorded in the amendment table above. No required digit and no required symbol: composition rules are current advice against, because they push
       people towards `Passwort1!` and towards writing it down. Argon2 has no length ceiling of
       its own, unlike bcrypt, so a long passphrase is genuinely accepted rather than silently
       truncated.
