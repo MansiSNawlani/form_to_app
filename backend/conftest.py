@@ -1,7 +1,7 @@
 """A real Postgres database for the tests that need one.
 
 Why a real database rather than an in-memory stand-in. Everything the users
-table guarantees is Postgres specific: a text array, five check constraints, a
+table guarantees is Postgres specific: a text array, six check constraints, a
 unique index. SQLite has none of them, so a suite running against it would pass
 happily on exactly the rows those constraints exist to reject, and the first time
 anybody found out would be in production.
@@ -67,7 +67,7 @@ def _test_url() -> URL:
     return make_url(str(get_settings().database_url)).set(database=TESTDATENBANK)
 
 
-def _verbindungstext(url: URL) -> str:
+def _connection_string(url: URL) -> str:
     """The URL as something that can actually connect.
 
     SQLAlchemy's str() replaces the password with "***", which is the right
@@ -87,19 +87,19 @@ async def _erzeuge_datenbank(url: URL) -> None:
     DATABASE and DROP DATABASE cannot run inside a transaction, which is also why
     this cannot be folded into an ordinary migration.
     """
-    verwaltung = create_async_engine(
-        _verbindungstext(url.set(database="postgres")), isolation_level="AUTOCOMMIT"
+    admin_engine = create_async_engine(
+        _connection_string(url.set(database="postgres")), isolation_level="AUTOCOMMIT"
     )
     try:
-        async with verwaltung.connect() as verbindung:
+        async with admin_engine.connect() as admin_connection:
             # FORCE disconnects anything still attached, so a psql window left
             # open on the test database does not block the next run.
-            await verbindung.execute(
+            await admin_connection.execute(
                 text(f'DROP DATABASE IF EXISTS "{TESTDATENBANK}" WITH (FORCE)')
             )
-            await verbindung.execute(text(f'CREATE DATABASE "{TESTDATENBANK}"'))
+            await admin_connection.execute(text(f'CREATE DATABASE "{TESTDATENBANK}"'))
     finally:
-        await verwaltung.dispose()
+        await admin_engine.dispose()
 
 
 def _migriere(url: URL) -> None:
@@ -111,7 +111,7 @@ def _migriere(url: URL) -> None:
 
     """
     vorher = os.environ.get("DATABASE_URL")
-    os.environ["DATABASE_URL"] = _verbindungstext(url)
+    os.environ["DATABASE_URL"] = _connection_string(url)
     get_settings.cache_clear()
     try:
         command.upgrade(Config(str(ALEMBIC_INI)), "head")
@@ -144,53 +144,53 @@ def testdatenbank() -> Iterator[URL]:
 @pytest_asyncio.fixture(scope="session")
 async def engine(testdatenbank: URL) -> AsyncIterator[AsyncEngine]:
     """One engine for the whole run, against the test database."""
-    motor = create_async_engine(_verbindungstext(testdatenbank))
-    yield motor
-    await motor.dispose()
+    engine_ = create_async_engine(_connection_string(testdatenbank))
+    yield engine_
+    await engine_.dispose()
 
 
 @pytest_asyncio.fixture
-async def verbindung(engine: AsyncEngine) -> AsyncIterator[AsyncConnection]:
+async def connection(engine: AsyncEngine) -> AsyncIterator[AsyncConnection]:
     """One connection per test, inside a transaction that is rolled back.
 
     Everything a test does goes through this connection, so nothing it writes
     survives it and tests cannot leak state into each other whatever order they
     run in.
     """
-    async with engine.connect() as offen:
-        transaktion = await offen.begin()
+    async with engine.connect() as open_connection:
+        transaction = await open_connection.begin()
         try:
-            yield offen
+            yield open_connection
         finally:
-            await transaktion.rollback()
+            await transaction.rollback()
 
 
 @pytest_asyncio.fixture
-async def session(verbindung: AsyncConnection) -> AsyncIterator[AsyncSession]:
+async def session(connection: AsyncConnection) -> AsyncIterator[AsyncSession]:
     """A session whose writes are undone when the test ends.
 
     join_transaction_mode="create_savepoint" is what lets the code under test
     call commit() normally. Without it, the first commit would end the outer
     transaction and there would be nothing left to roll back.
     """
-    fabrik = async_sessionmaker(bind=verbindung, join_transaction_mode="create_savepoint")
-    async with fabrik() as sitzung:
-        yield sitzung
+    factory = async_sessionmaker(bind=connection, join_transaction_mode="create_savepoint")
+    async with factory() as open_session:
+        yield open_session
 
 
-async def _leere_tabellen(url: str) -> None:
+async def _empty_tables(url: str) -> None:
     """Empty every table, through an engine of this call's own."""
-    motor = create_async_engine(url, poolclass=NullPool)
+    engine_ = create_async_engine(url, poolclass=NullPool)
     try:
-        async with motor.begin() as verbindung:
-            for tabelle in reversed(Base.metadata.sorted_tables):
-                await verbindung.execute(tabelle.delete())
+        async with engine_.begin() as connection:
+            for table in reversed(Base.metadata.sorted_tables):
+                await connection.execute(table.delete())
     finally:
-        await motor.dispose()
+        await engine_.dispose()
 
 
 @pytest.fixture
-def eigenstaendige_sitzungen(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSession]]:
+def eigene_sessions(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSession]]:
     """A session factory for code that runs its own event loop.
 
     The command line is the case. It calls asyncio.run(), which raises if a loop
@@ -202,24 +202,24 @@ def eigenstaendige_sitzungen(testdatenbank: URL) -> Iterator[async_sessionmaker[
     emptied afterwards instead. NullPool because each asyncio.run() is a fresh
     loop, and a pooled connection kept from a previous one could not be reused.
     """
-    motor = create_async_engine(_verbindungstext(testdatenbank), poolclass=NullPool)
-    yield async_sessionmaker(motor)
-    asyncio.run(_leere_tabellen(_verbindungstext(testdatenbank)))
+    engine_ = create_async_engine(_connection_string(testdatenbank), poolclass=NullPool)
+    yield async_sessionmaker(engine_)
+    asyncio.run(_empty_tables(_connection_string(testdatenbank)))
 
 
 @pytest.fixture
-def gepoolte_sitzungen(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSession]]:
-    """Like eigenstaendige_sitzungen, but pooling connections the way production does.
+def gepoolte_sessions(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSession]]:
+    """Like eigene_sessions, but pooling connections the way production does.
 
     app/db.py keeps one long lived pool, so anything that opens and closes an
     event loop meets a connection belonging to a loop that is gone. The
     NullPool factory above cannot show that, which is exactly how it stayed
     hidden until the command was run by hand on 2026-09-07.
     """
-    motor = create_async_engine(_verbindungstext(testdatenbank))
-    yield async_sessionmaker(motor)
+    engine_ = create_async_engine(_connection_string(testdatenbank))
+    yield async_sessionmaker(engine_)
 
     # A fresh engine to clean up with. The one above has pooled connections
     # belonging to an event loop the command already closed, so reusing it here
     # would fail on the stale connection rather than on anything real.
-    asyncio.run(_leere_tabellen(_verbindungstext(testdatenbank)))
+    asyncio.run(_empty_tables(_connection_string(testdatenbank)))

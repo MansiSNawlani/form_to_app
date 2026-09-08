@@ -73,7 +73,7 @@ async def lege_benutzer_an(
         password_hash=passwort_hash,
         rollen=list(rollen),
         regierungspraesidium=regierungspraesidium,
-        locale=locale.value,
+        locale=locale,
     )
     session.add(benutzer)
 

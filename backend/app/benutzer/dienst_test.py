@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,14 +23,21 @@ from app.security.passwoerter import PasswortZuKurz, pruefe_passwort
 PASSWORT = "ein gutes langes passwort"
 
 
-async def _anlegen(session: AsyncSession, email: str = "anna@ffs.de", **rest: object) -> User:
-    optionen: dict[str, object] = {
-        "email": email,
-        "passwort": PASSWORT,
-        "rollen": [Rolle.SUBMITTER],
-    }
-    optionen.update(rest)
-    return await lege_benutzer_an(session, **optionen)  # type: ignore[arg-type]
+async def _anlegen(
+    session: AsyncSession,
+    email: str = "anna@ffs.de",
+    passwort: str = PASSWORT,
+    rollen: Sequence[Rolle] = (Rolle.SUBMITTER,),
+    regierungspraesidium: int | None = None,
+) -> User:
+    """The defaults every test starts from, so each one states only its own case."""
+    return await lege_benutzer_an(
+        session,
+        email=email,
+        passwort=passwort,
+        rollen=rollen,
+        regierungspraesidium=regierungspraesidium,
+    )
 
 
 async def test_konto_wird_angelegt_und_ist_wiederauffindbar(session: AsyncSession) -> None:

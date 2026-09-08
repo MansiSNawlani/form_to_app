@@ -27,6 +27,8 @@ from argon2.exceptions import (
     VerifyMismatchError,
 )
 
+from app.benutzer.fehler import BenutzerFehler
+
 # The library's own defaults, deliberately not pinned to numbers here.
 #
 # They are Argon2id at 64 MiB, three passes and four threads, which is above the
@@ -55,7 +57,7 @@ MINDESTLAENGE = 12
 HOECHSTLAENGE = 1024
 
 
-class PasswortZuKurz(Exception):
+class PasswortZuKurz(BenutzerFehler):
     """Raised when a password is below MINDESTLAENGE."""
 
     def __init__(self, mindestlaenge: int = MINDESTLAENGE) -> None:
@@ -63,7 +65,7 @@ class PasswortZuKurz(Exception):
         super().__init__(f"Password shorter than {mindestlaenge} characters")
 
 
-class PasswortZuLang(Exception):
+class PasswortZuLang(BenutzerFehler):
     """Raised when a password is above HOECHSTLAENGE."""
 
     def __init__(self, hoechstlaenge: int = HOECHSTLAENGE) -> None:

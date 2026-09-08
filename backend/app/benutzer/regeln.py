@@ -25,8 +25,18 @@ from app.benutzer.fehler import (
 )
 from app.models.benutzer import Rolle
 
-# Baden-Württemberg has four: Stuttgart, Karlsruhe, Freiburg, Tübingen.
-REGIERUNGSPRAESIDIEN = range(1, 5)
+# The four Regierungspräsidien, defined once.
+#
+# Named rather than a bare range, because "--regierungspraesidium 3" means
+# nothing to somebody setting the system up and everything to the person whose
+# account it is. The command line prints the names from here, so a fifth region
+# would be one edit plus the table constraint, not three.
+REGIERUNGSPRAESIDIEN = {
+    1: "Stuttgart",
+    2: "Karlsruhe",
+    3: "Freiburg",
+    4: "Tübingen",
+}
 
 
 def normalisiere_email(email: str) -> str:

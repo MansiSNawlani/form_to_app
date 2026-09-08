@@ -21,6 +21,7 @@ from collections.abc import Awaitable, Callable
 
 import pytest
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typer.testing import CliRunner, Result
 
@@ -37,34 +38,34 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def _kommandozeile_auf_die_testdatenbank(
     monkeypatch: pytest.MonkeyPatch,
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     """The command opens its own session, so the test swaps what it opens."""
-    monkeypatch.setattr(cli, "session_factory", eigenstaendige_sitzungen)
+    monkeypatch.setattr(cli, "session_factory", eigene_sessions)
 
 
 def _abfragen[T](
-    fabrik: async_sessionmaker[AsyncSession], frage: Callable[[AsyncSession], Awaitable[T]]
+    factory: async_sessionmaker[AsyncSession], frage: Callable[[AsyncSession], Awaitable[T]]
 ) -> T:
     """Ask the database something from a synchronous test."""
 
     async def lauf() -> T:
-        async with fabrik() as sitzung:
-            return await frage(sitzung)
+        async with factory() as session:
+            return await frage(session)
 
     return asyncio.run(lauf())
 
 
-def _anzahl_konten(fabrik: async_sessionmaker[AsyncSession]) -> int:
-    async def zaehlen(sitzung: AsyncSession) -> int:
-        anzahl = await sitzung.scalar(select(func.count()).select_from(User))
+def _anzahl_konten(factory: async_sessionmaker[AsyncSession]) -> int:
+    async def zaehlen(session: AsyncSession) -> int:
+        anzahl = await session.scalar(select(func.count()).select_from(User))
         return int(anzahl or 0)
 
-    return _abfragen(fabrik, zaehlen)
+    return _abfragen(factory, zaehlen)
 
 
-def _konto(fabrik: async_sessionmaker[AsyncSession], email: str) -> User | None:
-    return _abfragen(fabrik, lambda sitzung: finde_nach_email(sitzung, email))
+def _konto(factory: async_sessionmaker[AsyncSession], email: str) -> User | None:
+    return _abfragen(factory, lambda session: finde_nach_email(session, email))
 
 
 def _anlegen(
@@ -74,7 +75,7 @@ def _anlegen(
     return runner.invoke(cli.app, ["benutzer", "anlegen", *argumente], input=eingaben)
 
 
-def test_konto_wird_angelegt(eigenstaendige_sitzungen: async_sessionmaker[AsyncSession]) -> None:
+def test_konto_wird_angelegt(eigene_sessions: async_sessionmaker[AsyncSession]) -> None:
     ergebnis = runner.invoke(
         cli.app,
         ["benutzer", "anlegen", "--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN"],
@@ -84,7 +85,7 @@ def test_konto_wird_angelegt(eigenstaendige_sitzungen: async_sessionmaker[AsyncS
     assert ergebnis.exit_code == 0, ergebnis.output
     assert "anna@ffs.de" in ergebnis.output
 
-    angelegt = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
     assert angelegt is not None
     assert angelegt.rollen == [Rolle.SUPER_ADMIN]
     assert angelegt.ist_aktiv is True
@@ -92,11 +93,11 @@ def test_konto_wird_angelegt(eigenstaendige_sitzungen: async_sessionmaker[AsyncS
 
 
 def test_passwort_wird_gehasht_gespeichert(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     _anlegen("--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN")
 
-    angelegt = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
     assert angelegt is not None
     assert angelegt.password_hash.startswith("$argon2id$")
     assert pruefe_passwort(PASSWORT, angelegt.password_hash) is True
@@ -113,26 +114,26 @@ def test_passwort_steht_in_keiner_ausgabe() -> None:
 
 
 def test_mehrere_rollen_werden_uebernommen(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     _anlegen("--email", "anna@ffs.de", "--rolle", "REVIEWER", "--rolle", "DATA_STEWARD")
 
-    angelegt = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
     assert angelegt is not None
     assert angelegt.rollen == [Rolle.REVIEWER, Rolle.DATA_STEWARD]
 
 
 def test_email_wird_normalisiert_gespeichert(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen("--email", "  Anna.Bergmann@FFS.de ", "--rolle", "SUBMITTER")
 
     assert ergebnis.exit_code == 0
-    assert _konto(eigenstaendige_sitzungen, "anna.bergmann@ffs.de") is not None
+    assert _konto(eigene_sessions, "anna.bergmann@ffs.de") is not None
 
 
 def test_ungleiche_passwoerter_legen_nichts_an(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen(
         "--email", "anna@ffs.de", "--rolle", "SUBMITTER", wiederholung="etwas anderes langes"
@@ -140,11 +141,11 @@ def test_ungleiche_passwoerter_legen_nichts_an(
 
     assert ergebnis.exit_code == 1
     assert "nicht gleich" in ergebnis.output
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_doppelte_email_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
     ergebnis = _anlegen("--email", "ANNA@ffs.de", "--rolle", "REVIEWER")
@@ -155,21 +156,21 @@ def test_doppelte_email_wird_abgelehnt(
     # Named, so the reader knows which address, and pointed somewhere useful.
     assert "anna@ffs.de" in ausgabe
     assert "benutzer liste" in ausgabe
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 1
+    assert _anzahl_konten(eigene_sessions) == 1
 
 
 def test_ungueltige_email_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen("--email", "anna", "--rolle", "SUBMITTER")
 
     assert ergebnis.exit_code == 1
     assert "keine E-Mail-Adresse" in ergebnis.output
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_kurzes_passwort_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER", passwort="kurz")
 
@@ -177,22 +178,22 @@ def test_kurzes_passwort_wird_abgelehnt(
     ausgabe = ergebnis.output
     assert "zu kurz" in ausgabe
     assert "12" in ausgabe
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_unbekannte_rolle_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     """Refused before the database is touched, and the valid roles are listed."""
     ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "ADMIN")
 
     assert ergebnis.exit_code != 0
     assert "SUPER_ADMIN" in ergebnis.output
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_regionales_konto_ohne_nummer_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen("--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM")
 
@@ -202,11 +203,11 @@ def test_regionales_konto_ohne_nummer_wird_abgelehnt(
     # The four are named, because a bare number means nothing to whoever is
     # setting this up for the first time.
     assert "Tübingen" in ausgabe
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_regionales_konto_mit_nummer_wird_angelegt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen(
         "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "4"
@@ -215,13 +216,13 @@ def test_regionales_konto_mit_nummer_wird_angelegt(
     assert ergebnis.exit_code == 0
     assert "Tübingen" in ergebnis.output
 
-    angelegt = _konto(eigenstaendige_sitzungen, "rp@ffs.de")
+    angelegt = _konto(eigene_sessions, "rp@ffs.de")
     assert angelegt is not None
     assert angelegt.regierungspraesidium == 4
 
 
 def test_submitter_mit_nummer_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen(
         "--email", "anna@ffs.de", "--rolle", "SUBMITTER", "--regierungspraesidium", "2"
@@ -229,11 +230,11 @@ def test_submitter_mit_nummer_wird_abgelehnt(
 
     assert ergebnis.exit_code == 1
     assert "REGIERUNGSPRAESIDIUM" in ergebnis.output
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_nummer_ausserhalb_des_bereichs_wird_abgelehnt(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     ergebnis = _anlegen(
         "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "7"
@@ -241,7 +242,7 @@ def test_nummer_ausserhalb_des_bereichs_wird_abgelehnt(
 
     assert ergebnis.exit_code == 1
     assert "kein Regierungspräsidium" in ergebnis.output
-    assert _anzahl_konten(eigenstaendige_sitzungen) == 0
+    assert _anzahl_konten(eigene_sessions) == 0
 
 
 def test_jede_absage_sagt_was_zu_tun_ist() -> None:
@@ -269,7 +270,7 @@ def test_jede_absage_sagt_was_zu_tun_ist() -> None:
 
 def test_ein_aufruf_nutzt_genau_eine_ereignisschleife(
     monkeypatch: pytest.MonkeyPatch,
-    gepoolte_sitzungen: async_sessionmaker[AsyncSession],
+    gepoolte_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     """The regression test for the defect found on 2026-09-07.
 
@@ -284,7 +285,7 @@ def test_ein_aufruf_nutzt_genau_eine_ereignisschleife(
     difference between fixture and production is precisely what hid the defect
     from the suite until the command was run by hand.
     """
-    monkeypatch.setattr(cli, "session_factory", gepoolte_sitzungen)
+    monkeypatch.setattr(cli, "session_factory", gepoolte_sessions)
 
     ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN")
 
@@ -301,19 +302,19 @@ def _liste() -> Result:
 
 
 def test_konto_wird_deaktiviert_und_wieder_aktiviert(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
 
     gesperrt = _sperren("deaktivieren", "anna@ffs.de")
     assert gesperrt.exit_code == 0, gesperrt.output
     assert "deaktiviert" in gesperrt.output
-    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    konto = _konto(eigene_sessions, "anna@ffs.de")
     assert konto is not None and konto.ist_aktiv is False
 
     frei = _sperren("aktivieren", "anna@ffs.de")
     assert frei.exit_code == 0, frei.output
-    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    konto = _konto(eigene_sessions, "anna@ffs.de")
     assert konto is not None and konto.ist_aktiv is True
 
 
@@ -381,13 +382,13 @@ def test_liste_zeigt_rollen_status_und_region() -> None:
 
 
 def test_liste_zeigt_niemals_einen_hash(
-    eigenstaendige_sitzungen: async_sessionmaker[AsyncSession],
+    eigene_sessions: async_sessionmaker[AsyncSession],
 ) -> None:
     """This output is scrolled back through, pasted into tickets and captured by
     logs, so a hash printed once should be assumed to be kept forever."""
     _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
 
-    konto = _konto(eigenstaendige_sitzungen, "anna@ffs.de")
+    konto = _konto(eigene_sessions, "anna@ffs.de")
     assert konto is not None
 
     ausgabe = _liste().output
@@ -398,3 +399,35 @@ def test_liste_zeigt_niemals_einen_hash(
 def test_eine_einzelne_zeile_wird_im_singular_gezaehlt() -> None:
     _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
     assert _liste().output.rstrip().endswith("1 Konto")
+
+
+def test_datenbankfehler_wird_nicht_als_nicht_erreichbar_gemeldet(
+    monkeypatch: pytest.MonkeyPatch,
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """A rule the database refused is not a database that is down.
+
+    The regression test for a defect found in review on 2026-09-07: _ausfuehren
+    caught SQLAlchemyError, the base class, and answered every one of them with
+    "Die Datenbank ist nicht erreichbar" and "docker compose up -d". Any
+    constraint violation reaching it therefore told the reader to start a
+    database that was plainly already running, which is the opposite of the
+    standard every other message here follows.
+    """
+
+    async def refused(*args: object, **kwargs: object) -> User:
+        raise IntegrityError(
+            "INSERT ...", {}, Exception('violates check constraint "ck_users_locale_bekannt"')
+        )
+
+    monkeypatch.setattr(cli, "lege_benutzer_an", refused)
+
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    assert ergebnis.exit_code == 1
+    assert "nicht erreichbar" not in ergebnis.output
+    assert "docker compose" not in ergebnis.output
+    # Says what it actually is, and what the reader can do about it.
+    assert "abgelehnt" in ergebnis.output
+    assert "Fehler im Programm" in ergebnis.output
+    assert "ck_users_locale_bekannt" in ergebnis.output

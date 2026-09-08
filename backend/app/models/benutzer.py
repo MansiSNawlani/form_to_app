@@ -100,6 +100,24 @@ def _rollen_liste_sql() -> str:
     return f"ARRAY[{werte}]::text[]"
 
 
+class LocaleText(TypeDecorator[Locale]):
+    """Stores the locale as text and hands it back as a Locale.
+
+    The same argument as RollenArray above, for the same reason: feature 17
+    switches the interface language on this value, and a bare string would have
+    it compared against a literal that nothing checks for typos.
+    """
+
+    impl = Text
+    cache_ok = True
+
+    def process_bind_param(self, value: Locale | None, dialect: Dialect) -> str | None:
+        return None if value is None else value.value
+
+    def process_result_value(self, value: str | None, dialect: Dialect) -> Locale | None:
+        return None if value is None else Locale(value)
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -153,7 +171,7 @@ class User(Base):
     # decide which region an account may see.
     regierungspraesidium: Mapped[int | None] = mapped_column(SmallInteger, default=None)
 
-    locale: Mapped[str] = mapped_column(Text, server_default=Locale.DE.value)
+    locale: Mapped[Locale] = mapped_column(LocaleText, server_default=Locale.DE.value)
 
     # Feature 2b refuses a false one at sign in. Deactivating rather than
     # deleting, because a deleted account takes its submissions' owner with it.
