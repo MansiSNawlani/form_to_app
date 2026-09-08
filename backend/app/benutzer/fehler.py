@@ -117,3 +117,26 @@ class KontoNichtInteraktiv(BenutzerFehler):
     the command line create such an account and left the refusal to this layer,
     because it is a rule about signing in rather than about the account existing.
     """
+
+
+class NichtAngemeldet(BenutzerFehler):
+    """The request carries no usable session.
+
+    One error for every way that can happen: no cookie, an expired token, a
+    forged one, or an account that has been deactivated or removed since it was
+    issued. They differ only in ways the person cannot act on, and the single
+    thing they can do about any of them is sign in again.
+    """
+
+
+class RolleFehlt(BenutzerFehler):
+    """Signed in, and without the role this needs.
+
+    Deliberately not the same as NichtAngemeldet. Sending somebody to the login
+    page when they are already signed in is a loop they cannot get out of, which
+    is why 401 and 403 have to stay different answers all the way up.
+    """
+
+    def __init__(self, benoetigt: tuple[str, ...]) -> None:
+        self.benoetigt = benoetigt
+        super().__init__(f"Requires one of {', '.join(benoetigt)}")

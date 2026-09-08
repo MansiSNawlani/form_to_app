@@ -26,9 +26,11 @@ from app.benutzer.fehler import (
     EmailUngueltig,
     KontoDeaktiviert,
     KontoNichtInteraktiv,
+    NichtAngemeldet,
     RegierungspraesidiumAusserhalbBereich,
     RegierungspraesidiumFehlt,
     RegierungspraesidiumUnzulaessig,
+    RolleFehlt,
     RollenLeer,
 )
 from app.security.passwoerter import (
@@ -56,6 +58,16 @@ UEBERSETZUNG: dict[type[BenutzerFehler], tuple[int, str]] = {
         status.HTTP_403_FORBIDDEN,
         "Dieses Konto ist deaktiviert und kann sich nicht anmelden."
         f" Um es wieder freischalten zu lassen: {ADMINISTRATOR}",
+    ),
+    NichtAngemeldet: (
+        status.HTTP_401_UNAUTHORIZED,
+        "Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen. Bitte melden"
+        " Sie sich noch einmal an. Eine Sitzung gilt acht Stunden.",
+    ),
+    RolleFehlt: (
+        status.HTTP_403_FORBIDDEN,
+        "Ihr Konto hat nicht die Berechtigung für diesen Bereich. Wenn Sie sie"
+        f" brauchen: {ADMINISTRATOR}",
     ),
     KontoNichtInteraktiv: (
         status.HTTP_403_FORBIDDEN,
