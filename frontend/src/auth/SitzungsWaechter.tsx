@@ -49,7 +49,14 @@ function SitzungsWaechter() {
        to that section and not to the home page. replace, so the page they could
        not see does not sit in the history for the back button to return to. */
     const gefragt = `${ort.pathname}${ort.search}${ort.hash}`
-    return <Navigate to={anmeldungsZiel(gefragt, sitzungIstWeggefallen())} replace />
+
+    /* Only when a session actually existed and the backend then said it is gone.
+       A server that could not be asked is not an expired session, and saying so
+       would send somebody hunting for a password problem while the real fault is
+       that nothing is answering. In that case the login page stays quiet and the
+       failure speaks for itself when they try. */
+    const abgelaufen = sitzung.grund === 'antwort' && sitzungIstWeggefallen()
+    return <Navigate to={anmeldungsZiel(gefragt, abgelaufen)} replace />
   }
 
   return <Outlet />

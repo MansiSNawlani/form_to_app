@@ -26,7 +26,11 @@ export const SITZUNGS_KEY = ['sitzung'] as const
 export type Sitzung =
   | { zustand: 'wird_geprueft' }
   | { zustand: 'angemeldet'; benutzer: BenutzerAntwort }
-  | { zustand: 'abgemeldet' }
+  /* grund is how we came to be signed out, and only two things read it. The
+     login page uses it to decide whether to explain, and it must never blame an
+     expired session for what was really an unreachable server. 'antwort' means
+     the backend said so; 'fehler' means it could not be asked. */
+  | { zustand: 'abgemeldet'; grund: 'antwort' | 'fehler' }
 
 /* Not signed in is an answer, not a failure.
  *
@@ -83,19 +87,38 @@ export const sitzungsAbfrage = {
   retry: false,
 } as const
 
+/* The mapping from what the cache holds to what a screen needs to know.
+ *
+ * Pulled out of the hook so it can be tested without React or a browser, which
+ * is what coding-standards.md asks of logic where a wrong answer is possible.
+ * Two wrong answers are possible here and both matter: calling a session that is
+ * still being checked "signed out" flashes the login page at somebody who is
+ * signed in, and calling an unreachable server "signed out" then tells them
+ * their session expired when it did not.
+ */
+export function sitzungAus(zustand: {
+  isPending: boolean
+  isError: boolean
+  data: BenutzerAntwort | null | undefined
+}): Sitzung {
+  if (zustand.isPending) return { zustand: 'wird_geprueft' }
+
+  /* The question could not be asked at all, so no session could be established.
+     Signed out for the purpose of what may be shown, but for a different reason,
+     and the reason travels because the two need different words. */
+  if (zustand.isError) return { zustand: 'abgemeldet', grund: 'fehler' }
+
+  if (zustand.data === null || zustand.data === undefined) {
+    return { zustand: 'abgemeldet', grund: 'antwort' }
+  }
+
+  return { zustand: 'angemeldet', benutzer: zustand.data }
+}
+
 export function useSitzung(): Sitzung {
   const { data, isPending, isError } = useQuery(sitzungsAbfrage)
 
-  if (isPending) return { zustand: 'wird_geprueft' }
-
-  /* An error here means the question could not be asked at all, so no session
-     could be established. Treated as signed out, which sends the person to the
-     login page, where step 6 says plainly that the server is unreachable rather
-     than pretending their password was wrong. Nothing is lost by that: drafts
-     live in this browser, and the guard carries the page they were on. */
-  if (isError || data === null) return { zustand: 'abgemeldet' }
-
-  return { zustand: 'angemeldet', benutzer: data }
+  return sitzungAus({ isPending, isError, data })
 }
 
 /* Signing in writes the account straight into the cache.

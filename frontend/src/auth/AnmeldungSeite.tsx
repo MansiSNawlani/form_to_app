@@ -7,13 +7,14 @@ import FormLabel from '@mui/material/FormLabel'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
-import { useForm } from 'react-hook-form'
+import { useForm, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
-import { fehlertext } from '../api/fehler'
+import { useFehlertext } from '../api/useFehlertext'
 import lazbw from '../assets/lazbw.png'
 import ThemeToggle from '../components/ThemeToggle'
+import { feldAria, fehlerId } from '../protokoll/felder/rahmen'
 import { useAnmeldung } from './useSitzung'
 import { GRUND_PARAM, istAbgelaufen, sichererWeiterPfad, WEITER_PARAM } from './weiter'
 // The brand block and the link colour are the shell's, and this page borrows
@@ -60,6 +61,59 @@ const anmeldungSchema = z.object({
 
 type Anmeldedaten = z.infer<typeof anmeldungSchema>
 
+/* One field of the two, so the accessibility wiring is written once.
+ *
+ * It was twice, and the copies had already drifted apart before the review that
+ * spotted it. The aria attributes and the "-fehler" id convention come from
+ * protokoll/felder/rahmen.ts rather than being restated here: those helpers are
+ * plain functions over strings, and the whole reason the protocol form keeps
+ * them in one place is that a label association got wrong once is got wrong
+ * everywhere.
+ *
+ * FeldRahmen itself is not reused, because it is typed to a path into the
+ * answers document, and an e-mail address on a login form is not one.
+ */
+interface AnmeldefeldProps {
+  name: keyof Anmeldedaten
+  labelKey: ParseKeys
+  typ: 'email' | 'password'
+  autoComplete: string
+  autoFocus?: boolean
+  register: UseFormRegister<Anmeldedaten>
+  fehlerKey?: ParseKeys
+}
+
+function Anmeldefeld({
+  name,
+  labelKey,
+  typ,
+  autoComplete,
+  autoFocus,
+  register,
+  fehlerKey,
+}: AnmeldefeldProps) {
+  const { t } = useTranslation()
+
+  return (
+    <FormControl error={Boolean(fehlerKey)} fullWidth>
+      {/* FormLabel above the field, not InputLabel in the border notch, which is
+          what coding-standards.md settles for every field on this project. */}
+      <FormLabel htmlFor={name}>{t(labelKey)}</FormLabel>
+      <OutlinedInput
+        {...register(name)}
+        id={name}
+        type={typ}
+        autoComplete={autoComplete}
+        autoFocus={autoFocus}
+        inputProps={feldAria(name, true, undefined, fehlerKey)}
+      />
+      {fehlerKey && (
+        <FormHelperText id={fehlerId(name, true)}>{t(fehlerKey)}</FormHelperText>
+      )}
+    </FormControl>
+  )
+}
+
 function AnmeldungSeite() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -85,7 +139,7 @@ function AnmeldungSeite() {
     })
   })
 
-  const abgelehnt = anmeldung.error ? fehlertext(anmeldung.error) : undefined
+  const abgelehnt = useFehlertext(anmeldung.error)
 
   /* Shown only until they try, because a stale explanation sitting above a fresh
      refusal is two messages competing for the same attention. */
@@ -137,53 +191,31 @@ function AnmeldungSeite() {
             re-reading the form after a failure will look. */}
         {abgelehnt && (
           <Alert severity="error" role="alert" className="anmeldung__fehler">
-            {abgelehnt.art === 'schluessel' ? t(abgelehnt.schluessel) : abgelehnt.text}
+            {abgelehnt}
           </Alert>
         )}
 
         <form className="anmeldung__form" onSubmit={(ereignis) => void absenden(ereignis)} noValidate>
-          <FormControl error={Boolean(errors.email)} fullWidth>
-            <FormLabel htmlFor="email">{t('anmeldung.email')}</FormLabel>
-            <OutlinedInput
-              {...register('email')}
-              id="email"
-              type="email"
-              /* username rather than email: it is what password managers look for
-                 on a sign-in form, and it is the account identifier here. */
-              autoComplete="username"
-              autoFocus
-              inputProps={{
-                'aria-required': true,
-                'aria-invalid': errors.email ? true : undefined,
-                'aria-describedby': errors.email ? 'email-fehler' : undefined,
-              }}
-            />
-            {errors.email && (
-              <FormHelperText id="email-fehler">
-                {t(errors.email.message as ParseKeys)}
-              </FormHelperText>
-            )}
-          </FormControl>
+          <Anmeldefeld
+            name="email"
+            labelKey="anmeldung.email"
+            typ="email"
+            /* username rather than email: it is what password managers look for
+               on a sign-in form, and it is the account identifier here. */
+            autoComplete="username"
+            autoFocus
+            register={register}
+            fehlerKey={errors.email?.message as ParseKeys | undefined}
+          />
 
-          <FormControl error={Boolean(errors.passwort)} fullWidth>
-            <FormLabel htmlFor="passwort">{t('anmeldung.passwort')}</FormLabel>
-            <OutlinedInput
-              {...register('passwort')}
-              id="passwort"
-              type="password"
-              autoComplete="current-password"
-              inputProps={{
-                'aria-required': true,
-                'aria-invalid': errors.passwort ? true : undefined,
-                'aria-describedby': errors.passwort ? 'passwort-fehler' : undefined,
-              }}
-            />
-            {errors.passwort && (
-              <FormHelperText id="passwort-fehler">
-                {t(errors.passwort.message as ParseKeys)}
-              </FormHelperText>
-            )}
-          </FormControl>
+          <Anmeldefeld
+            name="passwort"
+            labelKey="anmeldung.passwort"
+            typ="password"
+            autoComplete="current-password"
+            register={register}
+            fehlerKey={errors.passwort?.message as ParseKeys | undefined}
+          />
 
           <Button type="submit" variant="contained" disabled={anmeldung.isPending} fullWidth>
             {t(anmeldung.isPending ? 'anmeldung.laeuft' : 'anmeldung.absenden')}

@@ -31,12 +31,6 @@ function standardFetch(): typeof fetch {
   return globalThis.fetch.bind(globalThis)
 }
 
-/* A refusal turned into a typed error.
- *
- * The body is read defensively. A 502 from the reverse proxy is HTML, and a
- * crash before FastAPI's handler runs is not our shape either, and neither may
- * be presented to the person as though it were a considered refusal.
- */
 /* The statuses a proxy sends when it could not reach the service behind it.
  *
  * Worth telling apart from an ordinary failure. Stop the backend and nothing our
@@ -47,6 +41,12 @@ function standardFetch(): typeof fetch {
  * answer we could not understand. */
 const NICHT_ERREICHBAR = new Set([502, 503, 504])
 
+/* A refusal turned into a typed error.
+ *
+ * The body is read defensively. A gateway's answer is HTML or plain text, and a
+ * crash before FastAPI's own handler runs is not our shape either, and neither
+ * may be presented to the person as though it were a considered refusal.
+ */
 async function ablehnung(antwort: Response): Promise<ApiFehler> {
   if (NICHT_ERREICHBAR.has(antwort.status)) {
     return new ApiFehler(NETZWERK_FEHLER, { status: antwort.status })

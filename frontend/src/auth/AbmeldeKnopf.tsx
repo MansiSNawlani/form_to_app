@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { fehlertext } from '../api/fehler'
+import { useFehlertext } from '../api/useFehlertext'
 import { useAbmeldung } from './useSitzung'
 import { ANMELDUNG_PFAD } from './weiter'
 
@@ -25,13 +25,13 @@ function AbmeldeKnopf() {
      and the person is still signed in. Saying so, and staying put, is the only
      honest answer: sending them to the login page would suggest they were
      signed out when they were not. */
-  const fehler = abmeldung.error ? fehlertext(abmeldung.error) : undefined
+  const fehler = useFehlertext(abmeldung.error)
 
   return (
     <>
       {fehler && (
         <span className="site-header__fehler" role="alert">
-          {fehler.art === 'schluessel' ? t(fehler.schluessel) : fehler.text}
+          {fehler}
         </span>
       )}
       <Button
