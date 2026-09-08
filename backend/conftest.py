@@ -34,6 +34,7 @@ import pytest
 import pytest_asyncio
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, make_url, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
@@ -46,6 +47,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 
 from app.config import get_settings
+from app.db import get_session
+from app.main import app
 from app.models import Base
 
 TESTDATENBANK = "befischung_test"
@@ -223,3 +226,31 @@ def gepoolte_sessions(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSe
     # belonging to an event loop the command already closed, so reusing it here
     # would fail on the stale connection rather than on anything real.
     asyncio.run(_empty_tables(_connection_string(testdatenbank)))
+
+
+@pytest_asyncio.fixture
+async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
+    """The application, answering requests against the rolled-back test session.
+
+    get_session is overridden rather than left alone so a route test writes into
+    the same transaction the session fixture throws away afterwards. Without the
+    override the routes would open their own connection through app/db.py, write
+    for real, and leave rows behind for the next test to trip over.
+
+    base_url is https because the session cookie is marked Secure. Over
+    http://testserver httpx would accept the cookie and then never send it back,
+    and every test of a signed-in request would fail for a reason that has nothing
+    to do with what it is testing.
+    """
+
+    async def _test_session() -> AsyncIterator[AsyncSession]:
+        yield session
+
+    app.dependency_overrides[get_session] = _test_session
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="https://testserver"
+        ) as offener_client:
+            yield offener_client
+    finally:
+        app.dependency_overrides.clear()
