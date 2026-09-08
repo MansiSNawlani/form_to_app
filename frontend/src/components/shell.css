@@ -68,22 +68,18 @@
   min-width: 0;
 }
 
-/* Placeholder for the real FFS or LAZBW mark, which FFS has to supply. Kept as a
-   plain lettered box so it reads as unfinished. The thin yellow rule echoes the
-   striped E in the LAZBW logo without pretending to be the logo. */
+/* The LAZBW logo, supplied on 2026-09-08 and replacing the lettered placeholder
+   that stood here from feature 1a. The Fischereiforschungsstelle is part of the
+   Landwirtschaftliches Zentrum Baden-Württemberg, so this is the authoritative
+   mark rather than one of our own.
+
+   Height fixed and width left to follow it. The wordmark is wide, near enough
+   3.9:1, and a width that forced it towards a square would distort somebody
+   else's logo. */
 .brand__mark {
   flex: none;
-  width: 2.5rem;
   height: 2.5rem;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 700;
-  font-size: var(--step--1);
-  letter-spacing: 0.04em;
-  border-radius: var(--radius);
-  border-bottom: 3px solid var(--logo-yellow);
+  width: auto;
 }
 
 .brand__text {

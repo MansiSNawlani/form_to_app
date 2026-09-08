@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
 import { fehlertext } from '../api/fehler'
+import lazbw from '../assets/lazbw.png'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAnmeldung } from './useSitzung'
 import { sichererWeiterPfad, WEITER_PARAM } from './weiter'
@@ -101,9 +102,8 @@ function AnmeldungSeite() {
             place when FFS supplies it. The organisation name and the form name
             are proper nouns and stay untranslated, as in SiteHeader. */}
         <div className="brand anmeldung__marke">
-          <span className="brand__mark" aria-hidden="true">
-            FFS
-          </span>
+          {/* Decorative: the name is directly beneath it. See SiteHeader. */}
+          <img className="brand__mark" src={lazbw} alt="" />
           <span className="brand__text">
             <span className="brand__org">Fischereiforschungsstelle Baden-Württemberg</span>
             <span className="brand__app">Protokoll E-Befischung</span>

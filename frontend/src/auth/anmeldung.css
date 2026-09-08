@@ -42,12 +42,12 @@
   text-align: center;
 }
 
-/* Bigger than the header's, which is 2.5rem: this is the only thing above the
-   fold on an otherwise empty page, and the header's size would read as timid. */
+/* Bigger than the header's 2.5rem: this is the only thing above the form on an
+   otherwise empty page, and the header's size would read as timid. Capped by
+   width as well, so a narrow phone never has to scroll sideways to see a logo. */
 .anmeldung__marke .brand__mark {
-  width: 3.5rem;
   height: 3.5rem;
-  font-size: var(--step-0);
+  max-width: 100%;
 }
 
 /* The header truncates the organisation name with an ellipsis because it shares

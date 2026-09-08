@@ -1,3 +1,4 @@
+import lazbw from '../assets/lazbw.png'
 import ThemeToggle from './ThemeToggle'
 
 /* Three strings here are deliberately NOT in the locale file and must never be
@@ -12,9 +13,10 @@ function SiteHeader() {
     <header className="site-header">
       <div className="site-header__inner">
         <div className="brand">
-          <span className="brand__mark" aria-hidden="true">
-            FFS
-          </span>
+          {/* Decorative, so alt is empty on purpose: the organisation's name is
+              spelled out in text immediately beside it, and a screen reader
+              announcing it twice helps nobody. */}
+          <img className="brand__mark" src={lazbw} alt="" />
           <span className="brand__text">
             <span className="brand__org">
               Fischereiforschungsstelle Baden-Württemberg
