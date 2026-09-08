@@ -2,6 +2,7 @@ import { createBrowserRouter, redirect } from 'react-router'
 import Layout from './components/Layout'
 import NotFound from './components/NotFound'
 import App from './App'
+import AnmeldungSeite from './auth/AnmeldungSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { entwurfStore } from './protokoll/entwurf/store'
@@ -13,6 +14,10 @@ export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
+      /* The one screen reachable without a session. The guard that requires one
+         for everything else arrives in the next step and wraps the routes below
+         this, not this one, or signing in would need somewhere to sign in. */
+      { path: 'anmeldung', element: <AnmeldungSeite /> },
       { index: true, element: <App /> },
       {
         /* A loader rather than a component, because creating a draft is the

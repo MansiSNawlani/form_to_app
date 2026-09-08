@@ -154,7 +154,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       The network-tab half of this, one request and no retry, cannot be seen until something
       mounts the hook, so it is checked in step 4 where the guard first does.
 
-- [ ] **Step 3 - The login page.** The `/anmeldung` route, outside the guard, built with MUI
+- [x] **Step 3 - The login page.** The `/anmeldung` route, outside the guard, built with MUI
       and React Hook Form with a Zod resolver, following the field components already in
       `frontend/src/protokoll/felder/`. Email and password, labels above the fields, a submit
       button that shows it is working, and refusals printed where they can be seen and

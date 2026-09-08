@@ -1,0 +1,30 @@
+/* The login card. Every value is a token from styles/theme.css.
+
+   Narrow rather than full width, which is the one place on this project that is
+   right: layout-prefers-width elsewhere because the protocol has 338 fields to
+   show, while this screen has two, and a form field stretched across 1440px is
+   harder to read, not easier. */
+
+.anmeldung {
+  max-width: 26rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.anmeldung__einleitung {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.anmeldung__fehler {
+  margin-bottom: 1.25rem;
+}
+
+.anmeldung__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
