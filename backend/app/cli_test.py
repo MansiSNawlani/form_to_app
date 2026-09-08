@@ -1,0 +1,433 @@
+"""The command line, driven the way a person drives it.
+
+Two things here are not like the other test modules, and both come from the same
+cause: the command line runs its own event loop.
+
+The tests are ordinary synchronous functions, not async ones. The command calls
+asyncio.run(), which raises if a loop is already running, so an async test could
+not invoke it at all.
+
+They run the command in process through Typer's own runner rather than as a
+subprocess. The runner feeds the hidden password prompt, which a pipe cannot do
+on Windows: click reads the console directly there, so a piped password is
+ignored and the command waits for a keypress that never comes.
+
+Database effects are checked through the same standalone factory the command is
+pointed at, and the table is emptied after each test.
+"""
+
+import asyncio
+from collections.abc import Awaitable, Callable
+
+import pytest
+from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from typer.testing import CliRunner, Result
+
+from app import cli
+from app.benutzer.dienst import finde_nach_email
+from app.models.benutzer import Locale, Rolle, User
+from app.security.passwoerter import pruefe_passwort
+
+PASSWORT = "ein gutes langes passwort"
+
+runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def _kommandozeile_auf_die_testdatenbank(
+    monkeypatch: pytest.MonkeyPatch,
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """The command opens its own session, so the test swaps what it opens."""
+    monkeypatch.setattr(cli, "session_factory", eigene_sessions)
+
+
+def _abfragen[T](
+    factory: async_sessionmaker[AsyncSession], frage: Callable[[AsyncSession], Awaitable[T]]
+) -> T:
+    """Ask the database something from a synchronous test."""
+
+    async def lauf() -> T:
+        async with factory() as session:
+            return await frage(session)
+
+    return asyncio.run(lauf())
+
+
+def _anzahl_konten(factory: async_sessionmaker[AsyncSession]) -> int:
+    async def zaehlen(session: AsyncSession) -> int:
+        anzahl = await session.scalar(select(func.count()).select_from(User))
+        return int(anzahl or 0)
+
+    return _abfragen(factory, zaehlen)
+
+
+def _konto(factory: async_sessionmaker[AsyncSession], email: str) -> User | None:
+    return _abfragen(factory, lambda session: finde_nach_email(session, email))
+
+
+def _anlegen(
+    *argumente: str, passwort: str = PASSWORT, wiederholung: str | None = None
+) -> Result:
+    eingaben = f"{passwort}\n{passwort if wiederholung is None else wiederholung}\n"
+    return runner.invoke(cli.app, ["benutzer", "anlegen", *argumente], input=eingaben)
+
+
+def test_konto_wird_angelegt(eigene_sessions: async_sessionmaker[AsyncSession]) -> None:
+    ergebnis = runner.invoke(
+        cli.app,
+        ["benutzer", "anlegen", "--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN"],
+        input=f"{PASSWORT}\n{PASSWORT}\n",
+    )
+
+    assert ergebnis.exit_code == 0, ergebnis.output
+    assert "anna@ffs.de" in ergebnis.output
+
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
+    assert angelegt is not None
+    assert angelegt.rollen == [Rolle.SUPER_ADMIN]
+    assert angelegt.ist_aktiv is True
+    assert angelegt.locale == Locale.DE
+
+
+def test_passwort_wird_gehasht_gespeichert(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN")
+
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
+    assert angelegt is not None
+    assert angelegt.password_hash.startswith("$argon2id$")
+    assert pruefe_passwort(PASSWORT, angelegt.password_hash) is True
+
+
+def test_passwort_steht_in_keiner_ausgabe() -> None:
+    """Not in the confirmation, not in an error, not anywhere.
+
+    Terminal output is scrolled back through, copied into tickets and captured
+    by CI logs, so anything printed here should be assumed to be kept.
+    """
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN")
+    assert PASSWORT not in ergebnis.output
+
+
+def test_mehrere_rollen_werden_uebernommen(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "REVIEWER", "--rolle", "DATA_STEWARD")
+
+    angelegt = _konto(eigene_sessions, "anna@ffs.de")
+    assert angelegt is not None
+    assert angelegt.rollen == [Rolle.REVIEWER, Rolle.DATA_STEWARD]
+
+
+def test_email_wird_normalisiert_gespeichert(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen("--email", "  Anna.Bergmann@FFS.de ", "--rolle", "SUBMITTER")
+
+    assert ergebnis.exit_code == 0
+    assert _konto(eigene_sessions, "anna.bergmann@ffs.de") is not None
+
+
+def test_ungleiche_passwoerter_legen_nichts_an(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen(
+        "--email", "anna@ffs.de", "--rolle", "SUBMITTER", wiederholung="etwas anderes langes"
+    )
+
+    assert ergebnis.exit_code == 1
+    assert "nicht gleich" in ergebnis.output
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_doppelte_email_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    ergebnis = _anlegen("--email", "ANNA@ffs.de", "--rolle", "REVIEWER")
+
+    assert ergebnis.exit_code == 1
+    ausgabe = ergebnis.output
+    assert "bereits ein Konto" in ausgabe
+    # Named, so the reader knows which address, and pointed somewhere useful.
+    assert "anna@ffs.de" in ausgabe
+    assert "benutzer liste" in ausgabe
+    assert _anzahl_konten(eigene_sessions) == 1
+
+
+def test_ungueltige_email_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen("--email", "anna", "--rolle", "SUBMITTER")
+
+    assert ergebnis.exit_code == 1
+    assert "keine E-Mail-Adresse" in ergebnis.output
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_kurzes_passwort_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER", passwort="kurz")
+
+    assert ergebnis.exit_code == 1
+    ausgabe = ergebnis.output
+    assert "zu kurz" in ausgabe
+    assert "12" in ausgabe
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_unbekannte_rolle_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """Refused before the database is touched, and the valid roles are listed."""
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "ADMIN")
+
+    assert ergebnis.exit_code != 0
+    assert "SUPER_ADMIN" in ergebnis.output
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_regionales_konto_ohne_nummer_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen("--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM")
+
+    assert ergebnis.exit_code == 1
+    ausgabe = ergebnis.output
+    assert "--regierungspraesidium" in ausgabe
+    # The four are named, because a bare number means nothing to whoever is
+    # setting this up for the first time.
+    assert "Tübingen" in ausgabe
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_regionales_konto_mit_nummer_wird_angelegt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen(
+        "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "4"
+    )
+
+    assert ergebnis.exit_code == 0
+    assert "Tübingen" in ergebnis.output
+
+    angelegt = _konto(eigene_sessions, "rp@ffs.de")
+    assert angelegt is not None
+    assert angelegt.regierungspraesidium == 4
+
+
+def test_submitter_mit_nummer_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen(
+        "--email", "anna@ffs.de", "--rolle", "SUBMITTER", "--regierungspraesidium", "2"
+    )
+
+    assert ergebnis.exit_code == 1
+    assert "REGIERUNGSPRAESIDIUM" in ergebnis.output
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_nummer_ausserhalb_des_bereichs_wird_abgelehnt(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    ergebnis = _anlegen(
+        "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "7"
+    )
+
+    assert ergebnis.exit_code == 1
+    assert "kein Regierungspräsidium" in ergebnis.output
+    assert _anzahl_konten(eigene_sessions) == 0
+
+
+def test_jede_absage_sagt_was_zu_tun_ist() -> None:
+    """The standard this project set on 2026-09-06, checked in one place.
+
+    A message that names the problem and stops leaves the reader stuck. Each of
+    these has to end somewhere they can act: a command to run, an option to add,
+    or an instruction to try again.
+    """
+    faelle: list[tuple[list[str], dict[str, str]]] = [
+        (["--email", "anna", "--rolle", "SUBMITTER"], {}),
+        (["--email", "anna@ffs.de", "--rolle", "SUBMITTER"], {"passwort": "kurz"}),
+        (["--email", "anna@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM"], {}),
+        (["--email", "anna@ffs.de", "--rolle", "SUBMITTER", "--regierungspraesidium", "2"], {}),
+        (["--email", "anna@ffs.de", "--rolle", "SUBMITTER"], {"wiederholung": "etwas anderes"}),
+    ]
+    wege_hinaus = ("befischung", "--rolle", "--regierungspraesidium", "noch einmal", "--email")
+
+    for argumente, optionen in faelle:
+        ergebnis = _anlegen(*argumente, **optionen)
+        assert ergebnis.exit_code == 1, argumente
+        ausgabe = ergebnis.output
+        assert any(weg in ausgabe for weg in wege_hinaus), ausgabe
+
+
+def test_ein_aufruf_nutzt_genau_eine_ereignisschleife(
+    monkeypatch: pytest.MonkeyPatch,
+    gepoolte_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """The regression test for the defect found on 2026-09-07.
+
+    The command had grown a second asyncio.run(), for a reachability check
+    before the password prompt. Each asyncio.run() closes its loop at the end,
+    and a pooled connection belongs to the loop that opened it, so the second
+    one was handed a connection that was already gone. It failed with "Event
+    loop is closed" and no useful message.
+
+    This uses a pooling factory rather than the NullPool one the rest of this
+    module uses, because a factory that pools nothing cannot reproduce it. That
+    difference between fixture and production is precisely what hid the defect
+    from the suite until the command was run by hand.
+    """
+    monkeypatch.setattr(cli, "session_factory", gepoolte_sessions)
+
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUPER_ADMIN")
+
+    assert ergebnis.exit_code == 0, ergebnis.output
+    assert "Event loop" not in ergebnis.output
+
+
+def _sperren(befehl: str, email: str) -> Result:
+    return runner.invoke(cli.app, ["benutzer", befehl, "--email", email])
+
+
+def _liste() -> Result:
+    return runner.invoke(cli.app, ["benutzer", "liste"])
+
+
+def test_konto_wird_deaktiviert_und_wieder_aktiviert(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    gesperrt = _sperren("deaktivieren", "anna@ffs.de")
+    assert gesperrt.exit_code == 0, gesperrt.output
+    assert "deaktiviert" in gesperrt.output
+    konto = _konto(eigene_sessions, "anna@ffs.de")
+    assert konto is not None and konto.ist_aktiv is False
+
+    frei = _sperren("aktivieren", "anna@ffs.de")
+    assert frei.exit_code == 0, frei.output
+    konto = _konto(eigene_sessions, "anna@ffs.de")
+    assert konto is not None and konto.ist_aktiv is True
+
+
+def test_sperren_findet_das_konto_unter_jeder_schreibweise() -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    assert _sperren("deaktivieren", "  ANNA@FFS.de ").exit_code == 0
+
+
+def test_erneutes_deaktivieren_sagt_dass_nichts_geschah() -> None:
+    """Reporting success for an account that was already inactive would be true
+    and useless: whoever ran it wanted to know they had had an effect."""
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    _sperren("deaktivieren", "anna@ffs.de")
+
+    nochmal = _sperren("deaktivieren", "anna@ffs.de")
+    assert nochmal.exit_code == 0
+    assert "bereits" in nochmal.output
+    assert "Nichts geändert" in nochmal.output
+
+
+def test_unbekanntes_konto_sperren_wird_gemeldet() -> None:
+    ergebnis = _sperren("deaktivieren", "niemand@ffs.de")
+
+    assert ergebnis.exit_code == 1
+    assert "niemand@ffs.de" in ergebnis.output
+    assert "benutzer liste" in ergebnis.output
+
+
+def test_ungueltige_adresse_beim_sperren_wird_gemeldet() -> None:
+    ergebnis = _sperren("aktivieren", "anna")
+
+    assert ergebnis.exit_code == 1
+    assert "keine E-Mail-Adresse" in ergebnis.output
+
+
+def test_leere_liste_sagt_wie_man_anfaengt() -> None:
+    """The first thing anybody setting this up sees, so it has to point
+    somewhere rather than printing an empty table."""
+    ergebnis = _liste()
+
+    assert ergebnis.exit_code == 0
+    assert "noch kein Konto" in ergebnis.output
+    assert "benutzer anlegen" in ergebnis.output
+
+
+def test_liste_zeigt_konten_sortiert() -> None:
+    for email in ["carla@ffs.de", "anna@ffs.de"]:
+        _anlegen("--email", email, "--rolle", "SUBMITTER")
+
+    ausgabe = _liste().output
+    assert ausgabe.index("anna@ffs.de") < ausgabe.index("carla@ffs.de")
+    assert "2 Konten" in ausgabe
+
+
+def test_liste_zeigt_rollen_status_und_region() -> None:
+    _anlegen(
+        "--email", "rp@ffs.de", "--rolle", "REGIERUNGSPRAESIDIUM", "--regierungspraesidium", "4"
+    )
+    _sperren("deaktivieren", "rp@ffs.de")
+
+    ausgabe = _liste().output
+    assert "REGIERUNGSPRAESIDIUM" in ausgabe
+    assert "gesperrt" in ausgabe
+    assert "4 Tübingen" in ausgabe
+
+
+def test_liste_zeigt_niemals_einen_hash(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """This output is scrolled back through, pasted into tickets and captured by
+    logs, so a hash printed once should be assumed to be kept forever."""
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    konto = _konto(eigene_sessions, "anna@ffs.de")
+    assert konto is not None
+
+    ausgabe = _liste().output
+    assert "argon2" not in ausgabe
+    assert konto.password_hash not in ausgabe
+
+
+def test_eine_einzelne_zeile_wird_im_singular_gezaehlt() -> None:
+    _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+    assert _liste().output.rstrip().endswith("1 Konto")
+
+
+def test_datenbankfehler_wird_nicht_als_nicht_erreichbar_gemeldet(
+    monkeypatch: pytest.MonkeyPatch,
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """A rule the database refused is not a database that is down.
+
+    The regression test for a defect found in review on 2026-09-07: _ausfuehren
+    caught SQLAlchemyError, the base class, and answered every one of them with
+    "Die Datenbank ist nicht erreichbar" and "docker compose up -d". Any
+    constraint violation reaching it therefore told the reader to start a
+    database that was plainly already running, which is the opposite of the
+    standard every other message here follows.
+    """
+
+    async def refused(*args: object, **kwargs: object) -> User:
+        raise IntegrityError(
+            "INSERT ...", {}, Exception('violates check constraint "ck_users_locale_bekannt"')
+        )
+
+    monkeypatch.setattr(cli, "lege_benutzer_an", refused)
+
+    ergebnis = _anlegen("--email", "anna@ffs.de", "--rolle", "SUBMITTER")
+
+    assert ergebnis.exit_code == 1
+    assert "nicht erreichbar" not in ergebnis.output
+    assert "docker compose" not in ergebnis.output
+    # Says what it actually is, and what the reader can do about it.
+    assert "abgelehnt" in ergebnis.output
+    assert "Fehler im Programm" in ergebnis.output
+    assert "ck_users_locale_bekannt" in ergebnis.output
