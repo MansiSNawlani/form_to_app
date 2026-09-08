@@ -1,17 +1,42 @@
-/* The login card. Every value is a token from styles/theme.css.
+/* The login screen, which is the one page that stands outside the app shell.
+   Every value is a token from styles/theme.css.
 
-   Narrow rather than full width, which is the one place on this project that is
-   right: layout-prefers-width elsewhere because the protocol has 338 fields to
-   show, while this screen has two, and a form field stretched across 1440px is
-   harder to read, not easier. */
+   Narrow rather than full width, and the one place on this project where that is
+   right: elsewhere the layout uses the width because the protocol has 338 fields
+   to show, while this screen has two, and a field stretched across 1440px is
+   harder to read rather than easier. */
+
+.anmeldung-seite {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem var(--space);
+}
 
 .anmeldung {
+  width: 100%;
   max-width: 26rem;
-  margin: 3rem auto;
-  padding: 1.5rem;
+  padding: 1.75rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+
+/* The wordmark and the theme toggle share the top line: without the header
+   there is nowhere else for either to go, and a person arriving in the dark
+   theme should not have to sign in before they can turn it off. */
+.anmeldung__kopf {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space);
+  margin-bottom: 1.5rem;
+}
+
+.anmeldung__kopf .brand {
+  flex: 1;
 }
 
 .anmeldung__einleitung {
@@ -27,4 +52,15 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+/* Impressum and Datenschutz have to be reachable from every page of a public
+   authority's site, this one included, so they stay even with the footer gone.
+   Quieter than the footer's row, because nothing here competes with the form. */
+.anmeldung__recht {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  font-size: var(--step--1);
 }

@@ -11,13 +11,16 @@ import { entwurfStore } from './protokoll/entwurf/store'
    rest of the domain. Component and variable names around them stay English. */
 
 export const router = createBrowserRouter([
+  /* The one screen reachable without a session, and the one outside the app
+     shell. Decided on 2026-09-08: a header with an account area, on the single
+     page where nobody has an account, reads as a mistake, and there is no
+     navigation for the skip link to skip. The guard that requires a session for
+     everything else arrives in the next step and wraps the layout route below,
+     not this one, or signing in would need somewhere to sign in. */
+  { path: '/anmeldung', element: <AnmeldungSeite /> },
   {
     element: <Layout />,
     children: [
-      /* The one screen reachable without a session. The guard that requires one
-         for everything else arrives in the next step and wraps the routes below
-         this, not this one, or signing in would need somewhere to sign in. */
-      { path: 'anmeldung', element: <AnmeldungSeite /> },
       { index: true, element: <App /> },
       {
         /* A loader rather than a component, because creating a draft is the
