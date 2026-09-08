@@ -144,14 +144,15 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       carries a `nachricht`, an unreadable body and a network failure; `npm test` is green and
       `npm run build` passes.
 
-- [ ] **Step 2 - TanStack Query and the session hook.** Install `@tanstack/react-query`, add
+- [x] **Step 2 - TanStack Query and the session hook.** Install `@tanstack/react-query`, add
       one `QueryClientProvider` in `main.tsx`, and write `frontend/src/auth/useSitzung.ts`:
       the `/ich` query with `retry: false`, exposing signed-in, signed-out and still-checking
       as three distinct states, plus `useAnmeldung` and `useAbmeldung` mutations that write the
       cache rather than causing a second request.
-      *Done when:* with the stack running and no cookie, loading the app makes exactly one
-      `GET /api/v1/ich`, it answers 401, and no retry follows it in the network tab.
-      `npm run build` passes.
+      *Done when:* `GET /api/v1/ich` with no cookie answers 401 with code `NICHT_ANGEMELDET`,
+      which is what the hook turns into the signed-out state, and `npm run build` passes.
+      The network-tab half of this, one request and no retry, cannot be seen until something
+      mounts the hook, so it is checked in step 4 where the guard first does.
 
 - [ ] **Step 3 - The login page.** The `/anmeldung` route, outside the guard, built with MUI
       and React Hook Form with a Zod resolver, following the field components already in

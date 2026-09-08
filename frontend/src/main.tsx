@@ -10,14 +10,20 @@ import './styles/theme.css'
 import { muiTheme } from './theme/muiTheme'
 import { RouterProvider } from 'react-router'
 import { router } from './routes'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from './api/queryClient'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={muiTheme} defaultMode="system">
       <CssBaseline />
-      <DatumsProvider>
-        <RouterProvider router={router} />
-      </DatumsProvider>
+      {/* Outside the router, so the session survives every navigation and is
+          asked for once rather than once per page. */}
+      <QueryClientProvider client={queryClient}>
+        <DatumsProvider>
+          <RouterProvider router={router} />
+        </DatumsProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>,
 )
