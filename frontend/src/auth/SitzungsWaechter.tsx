@@ -2,6 +2,7 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation } from 'react-router'
+import { useKontoSprache } from './useKontoSprache'
 import { useSitzung } from './useSitzung'
 import { anmeldungsZiel } from './weiter'
 
@@ -24,6 +25,11 @@ function SitzungsWaechter() {
   const sitzung = useSitzung()
   const ort = useLocation()
   const { t } = useTranslation()
+
+  /* Here rather than in the header, because this is the one component that
+     exists for every signed-in screen and for no other reason. Hooks run before
+     the returns below, so it is called on every render whatever the state. */
+  useKontoSprache(sitzung.zustand === 'angemeldet' ? sitzung.benutzer.locale : undefined)
 
   /* Neither signed in nor signed out yet.
    *

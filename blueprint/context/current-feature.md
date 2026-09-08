@@ -178,7 +178,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `weiter.test.ts` covers the absolute URL, the protocol-relative `//host`, a path carrying
       its own query string, and the empty case. `npm test` green.
 
-- [ ] **Step 5 - The header: the real user, the roles and sign-out.** Replace the placeholder
+- [x] **Step 5 - The header: the real user, the roles and sign-out.** Replace the placeholder
       identity in `SiteHeader.tsx` with the signed-in address and one tag per role, add the six
       role labels to `de.json`, add a sign-out button, and point the active locale at the
       account's `locale`.

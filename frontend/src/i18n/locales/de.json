@@ -22,8 +22,13 @@
     }
   },
   "common": {
-    "roles": {
-      "submitter": "Einreicher"
+    "rollen": {
+      "SUBMITTER": "Einreicher",
+      "DATA_STEWARD": "Datenpflege",
+      "REVIEWER": "Prüfer",
+      "SUPER_ADMIN": "Administration",
+      "REGIERUNGSPRAESIDIUM": "Regierungspräsidium",
+      "INTEGRATION": "Schnittstelle"
     }
   },
   "anmeldung": {
@@ -39,7 +44,11 @@
     }
   },
   "sitzung": {
-    "wirdGeprueft": "Anmeldung wird geprüft"
+    "wirdGeprueft": "Anmeldung wird geprüft",
+    "angemeldetAls": "Angemeldet als",
+    "abmelden": "Abmelden",
+    "abmeldungLaeuft": "Abmeldung läuft",
+    "abgelaufen": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich noch einmal an, dann geht es dort weiter, wo Sie waren."
   },
   "fehler": {
     "netzwerk": "Der Server ist nicht erreichbar. Möglicherweise besteht gerade keine Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einem Moment noch einmal.",
