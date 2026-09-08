@@ -148,12 +148,6 @@
   gap: 1.25rem;
 }
 
-.site-footer__version {
-  margin-left: auto;
-  color: var(--faint);
-  font-family: var(--font-mono);
-}
-
 .shell-link {
   color: var(--accent);
 }

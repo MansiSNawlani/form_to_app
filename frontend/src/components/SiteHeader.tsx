@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next'
 import ThemeToggle from './ThemeToggle'
 
 /* Three strings here are deliberately NOT in the locale file and must never be
@@ -9,8 +8,6 @@ import ThemeToggle from './ThemeToggle'
    Keeping them literal means feature 17's English pass cannot reach them by
    accident. */
 function SiteHeader() {
-  const { t } = useTranslation()
-
   return (
     <header className="site-header">
       <div className="site-header__inner">
@@ -28,13 +25,10 @@ function SiteHeader() {
         <div className="site-header__spacer" />
         <div className="site-header__user">
           <ThemeToggle />
-          {/* Placeholder identity, not a translatable string. The name is sample
-              data and the role label comes from the locale file. Feature 2
-              replaces both with the signed-in user. */}
-          <span>
-            <strong>M. Bergmann</strong>{' '}
-            <span className="role-tag">{t('common.roles.submitter')}</span>
-          </span>
+          {/* The signed-in account goes here in the next step. Until then there
+              is nothing: the sample name that stood here through features 1a to
+              10 became a lie the moment a login page existed, because it told
+              somebody who was not signed in that they were. */}
         </div>
       </div>
     </header>
