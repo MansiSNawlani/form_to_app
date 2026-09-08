@@ -15,6 +15,9 @@
 /** The query parameter name. A link can carry it, so it is a fixed contract. */
 export const WEITER_PARAM = 'weiter'
 
+/** The login page's own path, which is the one route outside the guard. */
+export const ANMELDUNG_PFAD = '/anmeldung'
+
 const STARTSEITE = '/'
 
 /* An address on this site, or the home page.
@@ -36,4 +39,26 @@ export function sichererWeiterPfad(roh: string | null | undefined): string {
   if (roh.startsWith('//') || roh.startsWith('/\\')) return STARTSEITE
 
   return roh
+}
+
+/* Where to send somebody who is not signed in.
+ *
+ * The page they asked for travels with them so they arrive at it rather than at
+ * the home page, which matters most for the case somebody was sent a link to one
+ * particular protocol.
+ *
+ * The path is put through the same check on the way out as on the way back. It
+ * comes from the router rather than from a stranger, so this is belt and braces,
+ * but the alternative is a rule that holds only as long as every future caller
+ * remembers where its argument came from.
+ *
+ * Nothing is carried for the home page: it is where a signed-in visitor lands
+ * anyway, and /anmeldung reads better than /anmeldung?weiter=%2F on the address
+ * bar of the most ordinary arrival there is.
+ */
+export function anmeldungsZiel(pfad: string): string {
+  const ziel = sichererWeiterPfad(pfad)
+  if (ziel === STARTSEITE) return ANMELDUNG_PFAD
+
+  return `${ANMELDUNG_PFAD}?${WEITER_PARAM}=${encodeURIComponent(ziel)}`
 }

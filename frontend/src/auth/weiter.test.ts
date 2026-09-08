@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sichererWeiterPfad } from './weiter'
+import { anmeldungsZiel, sichererWeiterPfad } from './weiter'
 
 describe('sichererWeiterPfad', () => {
   it('keeps a path on this site, with everything hanging off it', () => {
@@ -33,5 +33,41 @@ describe('sichererWeiterPfad', () => {
     expect(sichererWeiterPfad(null)).toBe('/')
     expect(sichererWeiterPfad(undefined)).toBe('/')
     expect(sichererWeiterPfad('')).toBe('/')
+  })
+})
+
+describe('anmeldungsZiel', () => {
+  it('carries the page that was asked for, encoded', () => {
+    expect(anmeldungsZiel('/protokolle/neu')).toBe('/anmeldung?weiter=%2Fprotokolle%2Fneu')
+    expect(anmeldungsZiel('/protokolle/abc/abschnitt/4')).toBe(
+      '/anmeldung?weiter=%2Fprotokolle%2Fabc%2Fabschnitt%2F4',
+    )
+  })
+
+  /* Encoded, so a target carrying its own query string comes back whole rather
+     than having its parameters read as ours. */
+  it('encodes a target that has a query string of its own', () => {
+    expect(anmeldungsZiel('/pruefung?status=offen&art=BFOR')).toBe(
+      '/anmeldung?weiter=%2Fpruefung%3Fstatus%3Doffen%26art%3DBFOR',
+    )
+  })
+
+  it('carries nothing for the home page, which is where signing in lands anyway', () => {
+    expect(anmeldungsZiel('/')).toBe('/anmeldung')
+  })
+
+  /* The same refusal as on the way back in. The router is where this argument
+     comes from today, so this is belt and braces, but a rule that holds only
+     while every caller is careful is not a rule. */
+  it('refuses to carry an address that leaves this site', () => {
+    expect(anmeldungsZiel('https://example.com')).toBe('/anmeldung')
+    expect(anmeldungsZiel('//example.com')).toBe('/anmeldung')
+  })
+
+  it('round-trips: what it writes, sichererWeiterPfad reads back unchanged', () => {
+    const pfad = '/protokolle/abc/abschnitt/4'
+    const ziel = new URL(anmeldungsZiel(pfad), 'https://befischung.example')
+
+    expect(sichererWeiterPfad(ziel.searchParams.get('weiter'))).toBe(pfad)
   })
 })

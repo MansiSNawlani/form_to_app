@@ -44,16 +44,26 @@ async function ladeSitzung(): Promise<BenutzerAntwort | null> {
   }
 }
 
+/* The query itself, apart from the hook, because two callers need it.
+ *
+ * The guard reads it through useSitzung while rendering. The loader on
+ * /protokolle/neu reads it before rendering happens at all, since that loader
+ * creates a draft and must not do so for somebody who is not signed in. Sharing
+ * the definition means both see one cache entry and one request, rather than the
+ * loader quietly fetching a second copy under a key of its own.
+ */
+export const sitzungsAbfrage = {
+  queryKey: SITZUNGS_KEY,
+  queryFn: ladeSitzung,
+  /* A 401 is a real answer, not a hiccup, and ladeSitzung has already turned it
+     into one. What is left to retry is a backend that is down, and trying twice
+     more only makes a signed-out page load slower before it says the same
+     thing. */
+  retry: false,
+} as const
+
 export function useSitzung(): Sitzung {
-  const { data, isPending, isError } = useQuery({
-    queryKey: SITZUNGS_KEY,
-    queryFn: ladeSitzung,
-    /* A 401 is a real answer, not a hiccup, and ladeSitzung has already turned
-       it into one. What is left to retry is a backend that is down, and trying
-       twice more only makes a signed-out page load slower before it says the
-       same thing. */
-    retry: false,
-  })
+  const { data, isPending, isError } = useQuery(sitzungsAbfrage)
 
   if (isPending) return { zustand: 'wird_geprueft' }
 

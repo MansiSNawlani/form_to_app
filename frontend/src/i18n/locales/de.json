@@ -38,6 +38,9 @@
       "passwort": "Bitte geben Sie Ihr Passwort ein."
     }
   },
+  "sitzung": {
+    "wirdGeprueft": "Anmeldung wird geprüft"
+  },
   "fehler": {
     "netzwerk": "Der Server ist nicht erreichbar. Möglicherweise besteht gerade keine Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einem Moment noch einmal.",
     "unlesbar": "Der Server hat unerwartet geantwortet. Bitte versuchen Sie es noch einmal. Wenn es dabei bleibt, melden Sie den Fehler bitte.",

@@ -164,7 +164,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       German message and leaves the typed address in place; the form is fully usable with the
       keyboard alone and every control has a visible focus ring. Screenshots in both themes.
 
-- [ ] **Step 4 - The route guard.** `frontend/src/auth/weiter.ts` with the same-site path
+- [x] **Step 4 - The route guard.** `frontend/src/auth/weiter.ts` with the same-site path
       check, and a guard layout route wrapping every route except `/anmeldung`. Signed out it
       redirects to `/anmeldung?weiter=<path>`; still checking, it renders a quiet waiting
       state, never the login page.

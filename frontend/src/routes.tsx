@@ -3,6 +3,10 @@ import Layout from './components/Layout'
 import NotFound from './components/NotFound'
 import App from './App'
 import AnmeldungSeite from './auth/AnmeldungSeite'
+import SitzungsWaechter from './auth/SitzungsWaechter'
+import { sitzungsAbfrage } from './auth/useSitzung'
+import { anmeldungsZiel } from './auth/weiter'
+import { queryClient } from './api/queryClient'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { entwurfStore } from './protokoll/entwurf/store'
@@ -21,17 +25,38 @@ export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { index: true, element: <App /> },
       {
-        /* A loader rather than a component, because creating a draft is the
-           whole point of this route and there is nothing to render. Loaders run
-           once per navigation, unlike an effect under StrictMode, so this cannot
-           leave a stray empty draft behind. */
-        path: 'protokolle/neu',
-        loader: () => redirect(abschnittPfad(entwurfStore.createEntwurf().id, 1)),
+        /* Everything below here needs a session. One wrapper rather than a check
+           per page, so a route added later inherits the rule instead of having
+           to remember it. */
+        element: <SitzungsWaechter />,
+        children: [
+          { index: true, element: <App /> },
+          {
+            /* A loader rather than a component, because creating a draft is the
+               whole point of this route and there is nothing to render. Loaders
+               run once per navigation, unlike an effect under StrictMode, so
+               this cannot leave a stray empty draft behind.
+
+               It checks the session itself, which looks like a duplicate of the
+               guard above and is not. Loaders run before anything renders, and
+               React Router runs the matched routes' loaders together rather than
+               parent first, so the guard cannot stop this one. Without the check
+               here, opening this address while signed out would create an empty
+               draft, redirect to it, and only then be sent to the login page,
+               leaving litter in the browser of somebody who never signed in. */
+            path: 'protokolle/neu',
+            loader: async () => {
+              const benutzer = await queryClient.ensureQueryData(sitzungsAbfrage)
+              if (benutzer === null) return redirect(anmeldungsZiel('/protokolle/neu'))
+
+              return redirect(abschnittPfad(entwurfStore.createEntwurf().id, 1))
+            },
+          },
+          { path: 'protokolle/:id/abschnitt/:nr', element: <ProtokollSeite /> },
+          { path: '*', element: <NotFound /> },
+        ],
       },
-      { path: 'protokolle/:id/abschnitt/:nr', element: <ProtokollSeite /> },
-      { path: '*', element: <NotFound /> },
     ],
   },
 ])
