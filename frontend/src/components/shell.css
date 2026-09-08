@@ -28,6 +28,26 @@
   left: 0;
 }
 
+/* Text that only a screen reader gets.
+ *
+ * Moved here from protokoll.css during feature 2c, when the header needed it to
+ * say "Angemeldet als" before the address. That file only loads on the protocol
+ * screens, so a utility living there worked everywhere by luck: a single bundled
+ * stylesheet in a build, and whichever modules happened to have loaded in
+ * development. The header is on every screen, so the class has to be too, and
+ * shell.css is what every screen loads. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- header ---------- */
 
 .site-header {
@@ -48,12 +68,35 @@
   flex: 1;
 }
 
+/* One line, never wrapped into a second row. The address is the only part that
+   can grow without limit, so it is the only part allowed to shrink. */
 .site-header__user {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   font-size: var(--step--1);
   color: var(--muted);
+  min-width: 0;
+}
+
+.site-header__konto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A sign-out that did not go through. Rare, and never silent: the cookie is
+   still valid when this shows, so the person is still signed in. */
+.site-header__fehler {
+  color: var(--danger);
+  max-width: 22rem;
+}
+
+.role-tag,
+.site-header__user .MuiButton-root {
+  flex: none;
 }
 
 .site-header__user strong {
@@ -68,22 +111,18 @@
   min-width: 0;
 }
 
-/* Placeholder for the real FFS or LAZBW mark, which FFS has to supply. Kept as a
-   plain lettered box so it reads as unfinished. The thin yellow rule echoes the
-   striped E in the LAZBW logo without pretending to be the logo. */
+/* The LAZBW logo, supplied on 2026-09-08 and replacing the lettered placeholder
+   that stood here from feature 1a. The Fischereiforschungsstelle is part of the
+   Landwirtschaftliches Zentrum Baden-Württemberg, so this is the authoritative
+   mark rather than one of our own.
+
+   Height fixed and width left to follow it. The wordmark is wide, near enough
+   3.9:1, and a width that forced it towards a square would distort somebody
+   else's logo. */
 .brand__mark {
   flex: none;
-  width: 2.5rem;
   height: 2.5rem;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 700;
-  font-size: var(--step--1);
-  letter-spacing: 0.04em;
-  border-radius: var(--radius);
-  border-bottom: 3px solid var(--logo-yellow);
+  width: auto;
 }
 
 .brand__text {
@@ -146,12 +185,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.25rem;
-}
-
-.site-footer__version {
-  margin-left: auto;
-  color: var(--faint);
-  font-family: var(--font-mono);
 }
 
 .shell-link {

@@ -12,10 +12,17 @@ const LEGAL_LINKS = [
   'kontakt',
 ] as const
 
-// Fixed until a submission supplies its own, per the FormVersion model in
-// project-overview.md.
-const FORM_VERSION = '20260609'
-
+/* No form version here, deliberately.
+ *
+ * This footer is on every screen, including the login page, so a version printed
+ * in it claims to describe the whole application. It does not: it describes one
+ * protocol. The portal is meant to carry several different forms in time, the
+ * Protokoll Krebs among them, and each keeps its own frozen version under
+ * ADR 0004.
+ *
+ * It is already shown where it means something, in ProtokollKopf, read from the
+ * open draft's own formVersion rather than from a constant. The copy that used
+ * to sit here was hard-coded, so it would also have gone stale on its own. */
 function SiteFooter() {
   const { t } = useTranslation()
 
@@ -31,9 +38,6 @@ function SiteFooter() {
             </a>
           ))}
         </nav>
-        <span className="site-footer__version">
-          {t('shell.footer.formVersion', { version: FORM_VERSION })}
-        </span>
       </div>
     </footer>
   )

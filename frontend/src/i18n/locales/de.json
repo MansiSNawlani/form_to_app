@@ -22,9 +22,38 @@
     }
   },
   "common": {
-    "roles": {
-      "submitter": "Einreicher"
+    "rollen": {
+      "SUBMITTER": "Einreicher",
+      "DATA_STEWARD": "Datenpflege",
+      "REVIEWER": "Prüfer",
+      "SUPER_ADMIN": "Administration",
+      "REGIERUNGSPRAESIDIUM": "Regierungspräsidium",
+      "INTEGRATION": "Schnittstelle"
     }
+  },
+  "anmeldung": {
+    "titel": "Anmeldung",
+    "einleitung": "Bitte melden Sie sich mit Ihrem Konto an. Konten werden von der Administration angelegt, eine Selbstregistrierung gibt es nicht.",
+    "email": "E-Mail-Adresse",
+    "passwort": "Passwort",
+    "absenden": "Anmelden",
+    "laeuft": "Anmeldung läuft",
+    "fehlt": {
+      "email": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
+      "passwort": "Bitte geben Sie Ihr Passwort ein."
+    }
+  },
+  "sitzung": {
+    "wirdGeprueft": "Anmeldung wird geprüft",
+    "angemeldetAls": "Angemeldet als",
+    "abmelden": "Abmelden",
+    "abmeldungLaeuft": "Abmeldung läuft",
+    "abgelaufen": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich noch einmal an, dann geht es dort weiter, wo Sie waren."
+  },
+  "fehler": {
+    "netzwerk": "Der Server ist nicht erreichbar. Möglicherweise besteht gerade keine Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einem Moment noch einmal.",
+    "unlesbar": "Der Server hat unerwartet geantwortet. Bitte versuchen Sie es noch einmal. Wenn es dabei bleibt, melden Sie den Fehler bitte.",
+    "unbekannt": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt."
   },
   "protokolle": {
     "list": {

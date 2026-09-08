@@ -11,9 +11,12 @@ import { ERLAUBTE_FORMATE, MAX_MB } from '../protokoll/anlagen/regeln'
  * is German, the legacy form is German, and a missing key should degrade to the
  * language the content was written in rather than to a half-built translation.
  *
- * Feature 2 points this at the signed-in account's User.locale field. Until then
- * the choice lives in localStorage, so it can be exercised from devtools without
- * a language switcher existing yet.
+ * The signed-in account decides it, from feature 2c: auth/useKontoSprache.ts
+ * applies User.locale once the session is known. localStorage still holds the
+ * last answer, and that is not a second source of truth but a head start: it is
+ * what the very first paint after a reload uses, before /ich has answered, and
+ * the account overrides it a moment later. It is also what the login page runs
+ * on, since nobody has an account there yet.
  *
  * en.json is a deliberate stub holding two keys. It is not a translation effort;
  * feature 17 fills it. It exists so the fallback path is exercised rather than

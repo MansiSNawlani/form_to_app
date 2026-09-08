@@ -1,0 +1,91 @@
+/* The login screen, which is the one page that stands outside the app shell.
+   Every value is a token from styles/theme.css.
+
+   Narrow rather than full width, and the one place on this project where that is
+   right: elsewhere the layout uses the width because the protocol has 338 fields
+   to show, while this screen has two, and a field stretched across 1440px is
+   harder to read rather than easier. */
+
+.anmeldung-seite {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem var(--space);
+}
+
+.anmeldung__thema {
+  position: absolute;
+  top: var(--space);
+  right: var(--space);
+}
+
+/* Spacing between the card's blocks comes from one gap here rather than from a
+   margin on each of them. MUI's Typography and Alert both set margin: 0 on their
+   own roots, at the same specificity as a class of ours, so which one wins comes
+   down to the order two stylesheets happen to be injected in. A gap on the
+   parent is not in that argument at all. */
+.anmeldung {
+  width: 100%;
+  max-width: 26rem;
+  padding: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* The same brand block the header uses, stacked and centred rather than in a
+   row. Only the arrangement changes, so the real logo still replaces
+   .brand__mark in one place and lands correctly in both. */
+/* A little more air under the mark than between the blocks below it, so the
+   brand reads as the card's roof rather than as its first paragraph. */
+.anmeldung__marke {
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* Bigger than the header's 2.5rem: this is the only thing above the form on an
+   otherwise empty page, and the header's size would read as timid. Capped by
+   width as well, so a narrow phone never has to scroll sideways to see a logo. */
+.anmeldung__marke .brand__mark {
+  height: 3.5rem;
+  max-width: 100%;
+}
+
+/* The header truncates the organisation name with an ellipsis because it shares
+   one line with everything else. Here it has the card to itself and should wrap
+   instead: a name cut short is exactly the wrong thing on the page that says who
+   you are signing in to. */
+.anmeldung__marke .brand__org {
+  white-space: normal;
+  overflow: visible;
+}
+
+.anmeldung__einleitung {
+  color: var(--muted);
+}
+
+.anmeldung__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Impressum and Datenschutz have to be reachable from every page of a public
+   authority's site, this one included, so they stay even with the footer gone.
+   Quieter than the footer's row, because nothing here competes with the form. */
+.anmeldung__recht {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  font-size: var(--step--1);
+}
