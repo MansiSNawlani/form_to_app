@@ -55,7 +55,7 @@ These are not features and are not tracked here. They happen first.
 
   The Verify command is deliberately not a sub-item. `AGENTS.md` makes CI a separate explicit
   setup, so it belongs to `/ci` after 1c, not to the feature loop.
-- [ ] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
+- [x] 2. Accounts and login: JWT in an httpOnly cookie, the six roles, a first-admin command,
       activate and deactivate. **Deferred on 2026-09-01**, built after the form parts.
   - [x] 2a. The User record and the admin command: Alembic wired up, the first migration
         creating the users table with the six roles and the active flag, password hashing,
@@ -64,7 +64,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 2b. Login, sessions and role enforcement: the sign-in, sign-out and "who am I"
         endpoints, the JWT in an httpOnly cookie, the current-user and required-role
         dependencies, and deactivated accounts refused at sign-in
-  - [ ] 2c. The login screen and the signed-in shell: the /anmeldung page, TanStack Query
+  - [x] 2c. The login screen and the signed-in shell: the /anmeldung page, TanStack Query
         wired up, the real user and role tag in the header, sign-out, and the protocol
         routes requiring a session
 
