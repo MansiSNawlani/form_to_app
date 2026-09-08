@@ -65,8 +65,10 @@ async def test_ich_mit_verfaelschtem_cookie_ist_401(
 ) -> None:
     await _anlegen(session)
     await _anmelden(client)
-    echt = client.cookies[SITZUNGS_COOKIE]
-    _setze_cookie(client, echt[:-1] + ("a" if echt[-1] != "a" else "b"))
+    # Lengthened rather than edited in place: a signature is a fixed number of
+    # bytes, so one more character can never decode to a matching one, while
+    # changing the last character can, because it carries spare bits.
+    _setze_cookie(client, client.cookies[SITZUNGS_COOKIE] + "a")
 
     assert (await client.get("/api/v1/ich")).status_code == 401
 

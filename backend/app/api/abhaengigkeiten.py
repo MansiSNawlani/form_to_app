@@ -11,6 +11,7 @@ rather than five times later.
 """
 
 import uuid
+from collections.abc import Awaitable, Callable
 from typing import Annotated
 
 from fastapi import Cookie, Depends
@@ -64,17 +65,25 @@ async def _lade(session: AsyncSession, benutzer_id: uuid.UUID) -> User | None:
 AngemeldeterBenutzer = Annotated[User, Depends(aktueller_benutzer)]
 
 
-def erfordert_rollen(*rollen: Rolle) -> object:
+def erfordert_rollen(*rollen: Rolle) -> Callable[[User], Awaitable[User]]:
     """A dependency that lets through an account holding any one of these roles.
+
+    Used as:
+
+        benutzer: Annotated[User, Depends(erfordert_rollen(Rolle.REVIEWER))]
 
     Any-of rather than all-of, because the real cases read "a reviewer or a super
     admin may accept this". An all-of check would lock out somebody holding both
     of two acceptable roles, which is the opposite of what anybody means.
 
-    Written as a factory so the roles are named at the route: a route reads
-    Depends(erfordert_rollen(Rolle.REVIEWER)) and says what it needs on its own
-    line, instead of the requirement living in a table somewhere else.
+    A factory so the requirement is written at the route that has it, rather than
+    in a table of paths somewhere else that nobody reads while changing a route.
     """
+    if not rollen:
+        # Would refuse everybody, always, and read like a protected route. Worth
+        # failing at import rather than at the first request.
+        raise ValueError("erfordert_rollen needs at least one role")
+
     benoetigt = tuple(rollen)
 
     async def pruefe(benutzer: AngemeldeterBenutzer) -> User:
@@ -82,4 +91,4 @@ def erfordert_rollen(*rollen: Rolle) -> object:
             raise RolleFehlt(tuple(rolle.value for rolle in benoetigt))
         return benutzer
 
-    return Depends(pruefe)
+    return pruefe

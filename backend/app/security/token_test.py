@@ -1,8 +1,10 @@
+import json
 import uuid
 from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
+from jwt.utils import base64url_decode, base64url_encode
 
 from app.config import get_settings
 from app.security.token import (
@@ -51,12 +53,20 @@ def test_token_kurz_vor_ablauf_gilt_noch() -> None:
     assert lies_token(erstelle_token(benutzer_id, ausgestellt_am=ausgestellt)) == benutzer_id
 
 
-def test_veraenderte_signatur_wird_abgelehnt() -> None:
-    token = erstelle_token(uuid.uuid4())
-    verfaelscht = token[:-1] + ("a" if token[-1] != "a" else "b")
+def test_veraenderter_inhalt_wird_abgelehnt() -> None:
+    """Rewriting the account id and keeping the original signature: exactly the
+    attack the signature exists to stop.
+
+    The content is edited rather than the signature, because the last character of
+    a signature carries spare bits and changing it can decode to the same bytes.
+    """
+    kopf, inhalt, signatur = erstelle_token(uuid.uuid4()).split(".")
+    entpackt = json.loads(base64url_decode(inhalt))
+    entpackt["sub"] = str(uuid.uuid4())
+    neuer_inhalt = base64url_encode(json.dumps(entpackt).encode()).decode()
 
     with pytest.raises(TokenSignaturUngueltig):
-        lies_token(verfaelscht)
+        lies_token(f"{kopf}.{neuer_inhalt}.{signatur}")
 
 
 def test_fremdes_geheimnis_wird_abgelehnt() -> None:
