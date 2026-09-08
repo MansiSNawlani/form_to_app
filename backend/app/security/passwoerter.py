@@ -20,6 +20,9 @@ email addresses hold accounts. The endpoint should verify against a throwaway
 hash when it finds no user.
 """
 
+import secrets
+from functools import lru_cache
+
 from argon2 import PasswordHasher
 from argon2.exceptions import (
     InvalidHashError,
@@ -131,3 +134,24 @@ def braucht_neuen_hash(passwort_hash: str) -> bool:
         # Unreadable, so it certainly cannot be verified against. Replacing it is
         # the only useful thing left to do with it.
         return True
+
+
+@lru_cache(maxsize=1)
+def _blindhash() -> str:
+    """One throwaway hash, made once per process, that no account can match.
+
+    Random rather than a fixed string, so nothing about it can be recognised in a
+    stolen table, and cached because making it costs exactly as much as checking
+    against it.
+    """
+    return _hasher.hash(secrets.token_urlsafe(32))
+
+
+def pruefe_blind(passwort: str) -> None:
+    """Spend the time a real check would, and throw the answer away.
+
+    Called when no account was found. Without it, an unknown address comes back
+    measurably faster than a wrong password, and that difference tells an attacker
+    which addresses hold accounts just as clearly as two different messages would.
+    """
+    pruefe_passwort(passwort, _blindhash())

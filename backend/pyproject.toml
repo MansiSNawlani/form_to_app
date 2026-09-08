@@ -18,6 +18,10 @@ dependencies = [
     # directly rather than through a wrapper: it already offers the rehash check
     # that is the only thing a wrapper would add.
     "argon2-cffi>=23.1",
+    # Signs and checks the session tokens. The maintained, minimal choice, and
+    # the one jwt.io lists first for Python; python-jose appears in older FastAPI
+    # tutorials and has had long gaps between releases.
+    "pyjwt>=2.10",
     # Email syntax checking and normalisation. Pydantic uses the same library
     # behind EmailStr, so the browser side and this agree on what an address is.
     "email-validator>=2.2",

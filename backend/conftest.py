@@ -27,13 +27,14 @@ regardless of how this one ended.
 
 import asyncio
 import os
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Sequence
 from pathlib import Path
 
 import pytest
 import pytest_asyncio
 from alembic import command
 from alembic.config import Config
+from httpx import ASGITransport, AsyncClient, Response
 from sqlalchemy import URL, make_url, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
@@ -45,8 +46,12 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
+from app.benutzer.dienst import lege_benutzer_an
 from app.config import get_settings
+from app.db import get_session
+from app.main import app
 from app.models import Base
+from app.models.benutzer import Rolle, User
 
 TESTDATENBANK = "befischung_test"
 
@@ -223,3 +228,70 @@ def gepoolte_sessions(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSe
     # belonging to an event loop the command already closed, so reusing it here
     # would fail on the stale connection rather than on anything real.
     asyncio.run(_empty_tables(_connection_string(testdatenbank)))
+
+
+@pytest_asyncio.fixture
+async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
+    """The application, answering requests against the rolled-back test session.
+
+    get_session is overridden rather than left alone so a route test writes into
+    the same transaction the session fixture throws away afterwards. Without the
+    override the routes would open their own connection through app/db.py, write
+    for real, and leave rows behind for the next test to trip over.
+
+    base_url is https because the session cookie is marked Secure. Over
+    http://testserver httpx would accept the cookie and then never send it back,
+    and every test of a signed-in request would fail for a reason that has nothing
+    to do with what it is testing.
+    """
+
+    async def _test_session() -> AsyncIterator[AsyncSession]:
+        yield session
+
+    app.dependency_overrides[get_session] = _test_session
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="https://testserver"
+        ) as offener_client:
+            yield offener_client
+    finally:
+        app.dependency_overrides.clear()
+
+
+PASSWORT = "ein gutes langes passwort"
+
+
+@pytest.fixture
+def anlegen(session: AsyncSession) -> Callable[..., Awaitable[User]]:
+    """Create an account with everything but the point of the test defaulted.
+
+    Shared here rather than restated in each route test file, which is where four
+    near-identical copies of it were heading.
+    """
+
+    async def _anlegen(
+        email: str = "anna@ffs.de",
+        rollen: Sequence[Rolle] = (Rolle.SUBMITTER,),
+        passwort: str = PASSWORT,
+    ) -> User:
+        return await lege_benutzer_an(
+            session, email=email, passwort=passwort, rollen=rollen
+        )
+
+    return _anlegen
+
+
+@pytest.fixture
+def anmelden(client: AsyncClient) -> Callable[..., Awaitable[Response]]:
+    """Sign in over HTTP, against whichever client fixture is in scope.
+
+    A test module defining its own client fixture gets that one here, which is how
+    the role tests reach their own small application.
+    """
+
+    async def _anmelden(email: str = "anna@ffs.de", passwort: str = PASSWORT) -> Response:
+        return await client.post(
+            "/api/v1/anmeldung", json={"email": email, "passwort": passwort}
+        )
+
+    return _anmelden

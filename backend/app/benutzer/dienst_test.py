@@ -1,24 +1,30 @@
+import time
 from collections.abc import Sequence
 
 import pytest
+from argon2 import PasswordHasher
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.benutzer.dienst import (
     finde_nach_email,
     lege_benutzer_an,
     liste_benutzer,
+    melde_an,
     setze_aktiv,
 )
 from app.benutzer.fehler import (
+    AnmeldungFehlgeschlagen,
     BenutzerNichtGefunden,
     EmailBereitsVergeben,
     EmailUngueltig,
+    KontoDeaktiviert,
+    KontoNichtInteraktiv,
     RegierungspraesidiumFehlt,
     RegierungspraesidiumUnzulaessig,
     RollenLeer,
 )
 from app.models.benutzer import Locale, Rolle, User
-from app.security.passwoerter import PasswortZuKurz, pruefe_passwort
+from app.security.passwoerter import PasswortZuKurz, braucht_neuen_hash, pruefe_passwort
 
 PASSWORT = "ein gutes langes passwort"
 
@@ -215,3 +221,128 @@ async def test_hash_steht_nicht_im_repr(session: AsyncSession) -> None:
     benutzer = await _anlegen(session)
     assert benutzer.password_hash not in repr(benutzer)
     assert "anna@ffs.de" in repr(benutzer)
+
+
+async def test_anmeldung_mit_richtigem_passwort_gibt_das_konto(session: AsyncSession) -> None:
+    angelegt = await _anlegen(session)
+
+    angemeldet = await melde_an(session, email="anna@ffs.de", passwort=PASSWORT)
+
+    assert angemeldet.id == angelegt.id
+
+
+async def test_anmeldung_akzeptiert_andere_grossschreibung(session: AsyncSession) -> None:
+    """The address is the login identifier and it is stored lower case, so
+    somebody typing their own name with a capital must still get in."""
+    await _anlegen(session)
+
+    angemeldet = await melde_an(session, email="Anna@FFS.de", passwort=PASSWORT)
+
+    assert angemeldet.email == "anna@ffs.de"
+
+
+async def test_falsches_passwort_wird_abgewiesen(session: AsyncSession) -> None:
+    await _anlegen(session)
+
+    with pytest.raises(AnmeldungFehlgeschlagen):
+        await melde_an(session, email="anna@ffs.de", passwort="etwas ganz anderes")
+
+
+async def test_unbekannte_adresse_wird_genauso_abgewiesen(session: AsyncSession) -> None:
+    """Deliberately the same error as a wrong password.
+
+    Two different answers would turn the login page into a way of finding out who
+    holds an account here.
+    """
+    with pytest.raises(AnmeldungFehlgeschlagen):
+        await melde_an(session, email="niemand@ffs.de", passwort=PASSWORT)
+
+
+async def test_unbekannte_adresse_kostet_so_viel_wie_ein_falsches_passwort(
+    session: AsyncSession,
+) -> None:
+    """The identical message is not enough on its own: an answer that comes back
+    instantly says "no such account" just as loudly as a different message would.
+
+    Compared against the other refusal rather than against a fixed number of
+    milliseconds, because the claim is that the two are alike, not that either is
+    slow."""
+    await _anlegen(session)
+
+    async def dauer(email: str) -> float:
+        beginn = time.perf_counter()
+        with pytest.raises(AnmeldungFehlgeschlagen):
+            await melde_an(session, email=email, passwort="etwas ganz anderes")
+        return time.perf_counter() - beginn
+
+    unbekannte_adresse = await dauer("niemand@ffs.de")
+    falsches_passwort = await dauer("anna@ffs.de")
+
+    # A wide margin on purpose. Both paths do one Argon2 verify, so they are
+    # inherently comparable, and a loaded machine can stall either of them. What
+    # this catches is not a slow answer but an instant one, which is what leaving
+    # the blind hash out would produce.
+    assert unbekannte_adresse > falsches_passwort / 3
+
+
+async def test_deaktiviertes_konto_wird_abgewiesen(session: AsyncSession) -> None:
+    await _anlegen(session)
+    await setze_aktiv(session, "anna@ffs.de", aktiv=False)
+
+    with pytest.raises(KontoDeaktiviert):
+        await melde_an(session, email="anna@ffs.de", passwort=PASSWORT)
+
+
+async def test_deaktiviertes_konto_verraet_sich_nicht_bei_falschem_passwort(
+    session: AsyncSession,
+) -> None:
+    """The password is checked first on purpose. Otherwise "this account is
+    deactivated" would confirm the address to somebody who does not have the
+    password."""
+    await _anlegen(session)
+    await setze_aktiv(session, "anna@ffs.de", aktiv=False)
+
+    with pytest.raises(AnmeldungFehlgeschlagen):
+        await melde_an(session, email="anna@ffs.de", passwort="etwas ganz anderes")
+
+
+async def test_integrationskonto_darf_sich_nicht_anmelden(session: AsyncSession) -> None:
+    """project-overview.md makes that role machine only, with no interactive login."""
+    await _anlegen(session, email="fiaka@ffs.de", rollen=[Rolle.INTEGRATION])
+
+    with pytest.raises(KontoNichtInteraktiv):
+        await melde_an(session, email="fiaka@ffs.de", passwort=PASSWORT)
+
+
+async def test_schwacher_hash_wird_bei_der_anmeldung_erneuert(session: AsyncSession) -> None:
+    """A stored hash keeps the settings it was made with forever, and a successful
+    sign in is the only moment the plain password exists to make a stronger one."""
+    benutzer = await _anlegen(session)
+    schwach = PasswordHasher(time_cost=1, memory_cost=8, parallelism=1).hash(PASSWORT)
+    benutzer.password_hash = schwach
+    await session.commit()
+
+    angemeldet = await melde_an(session, email="anna@ffs.de", passwort=PASSWORT)
+
+    assert angemeldet.password_hash != schwach
+    assert pruefe_passwort(PASSWORT, angemeldet.password_hash)
+    assert not braucht_neuen_hash(angemeldet.password_hash)
+
+
+async def test_starker_hash_bleibt_bei_der_anmeldung_unveraendert(session: AsyncSession) -> None:
+    """Rehashing every sign in would write to the table on every request."""
+    benutzer = await _anlegen(session)
+    vorher = benutzer.password_hash
+
+    angemeldet = await melde_an(session, email="anna@ffs.de", passwort=PASSWORT)
+
+    assert angemeldet.password_hash == vorher
+
+
+async def test_unbrauchbare_adresse_wird_wie_ein_falsches_passwort_behandelt(
+    session: AsyncSession,
+) -> None:
+    """Not a validation error. A different answer for "not an address at all"
+    would be one more thing the login page tells somebody probing it."""
+    with pytest.raises(AnmeldungFehlgeschlagen):
+        await melde_an(session, email="keine adresse", passwort=PASSWORT)

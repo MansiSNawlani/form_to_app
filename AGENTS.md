@@ -117,6 +117,13 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
 **The stack** (from the repository root, needs Docker Desktop running)
 
 - Copy `.env.example` to `.env` once. It is git-ignored.
+- Two values have no default and the backend refuses to start without them:
+  `DATABASE_URL`, and `JWT_SECRET`, added in feature 2b, which signs the login
+  sessions. Generate one with
+  `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Anyone holding it
+  can mint a valid session for any account, so a deployment supplies its own from
+  the environment. `SITZUNGSDAUER_STUNDEN` (default 8) and `COOKIE_SECURE`
+  (default true) are optional.
 - Start: `docker compose up -d --build`
 - Status: `docker compose ps`
 - Stop, keeping data: `docker compose down`

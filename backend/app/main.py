@@ -3,6 +3,8 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Response, status
 from pydantic import BaseModel
 
+from app.api import anmeldung
+from app.api.fehler_http import registriere_fehlerbehandlung
 from app.db import database_is_reachable
 
 app = FastAPI(
@@ -11,6 +13,12 @@ app = FastAPI(
     docs_url="/api/v1/docs",
     openapi_url="/api/v1/openapi.json",
 )
+
+# Every refusal the account rules can produce becomes an HTTP response in one
+# place, so no route decides a status code for itself.
+registriere_fehlerbehandlung(app)
+
+app.include_router(anmeldung.router)
 
 
 class Health(BaseModel):
