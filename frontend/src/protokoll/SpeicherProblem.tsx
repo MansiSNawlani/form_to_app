@@ -20,9 +20,9 @@ import type { SaveState } from './entwurf/useAutoSave'
 function SpeicherProblem({ saveState }: { saveState: SaveState }) {
   const { t } = useTranslation()
 
-  if (saveState.status !== 'failed' && saveState.status !== 'konflikt') return null
+  if (saveState.status !== 'failed' && saveState.status !== 'conflict') return null
 
-  const konflikt = saveState.status === 'konflikt'
+  const konflikt = saveState.status === 'conflict'
 
   return (
     <Alert severity={konflikt ? 'error' : 'warning'} className="protokoll-speicherproblem">
@@ -31,7 +31,7 @@ function SpeicherProblem({ saveState }: { saveState: SaveState }) {
           ? t('protokoll.speichern.problem.konfliktTitel')
           : t('protokoll.speichern.problem.fehlerTitel')}
       </AlertTitle>
-      <Typography variant="body2" sx={{ mb: konflikt ? 2 : 0 }}>
+      <Typography variant="body2" className={konflikt ? 'hinweis__text' : undefined}>
         {konflikt
           ? t('protokoll.speichern.problem.konfliktText')
           : t('protokoll.speichern.problem.fehlerText')}

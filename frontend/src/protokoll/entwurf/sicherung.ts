@@ -20,6 +20,7 @@
  * the failure modes below testable without a browser.
  */
 
+import { browserStorage } from './browserSpeicher'
 import type { Antworten } from './typen'
 
 /** One key per protocol. Namespaced, because localStorage is shared. */
@@ -131,34 +132,6 @@ export function gleicheAntworten(a: unknown, b: unknown): boolean {
   }
 
   return true
-}
-
-/* Storage that forgets everything when the tab closes.
- *
- * Used only when the real localStorage cannot be reached at all, which a
- * locked-down profile or a blocked-site-data setting can cause on the property
- * access itself. The safety copy then lasts for the session instead of the app
- * breaking on load, and the save indicator stays honest about the rest. */
-function memoryStorage(): Storage {
-  const entries = new Map<string, string>()
-  return {
-    get length() {
-      return entries.size
-    },
-    key: (index) => [...entries.keys()][index] ?? null,
-    getItem: (key) => entries.get(key) ?? null,
-    setItem: (key, value) => void entries.set(key, value),
-    removeItem: (key) => void entries.delete(key),
-    clear: () => entries.clear(),
-  }
-}
-
-function browserStorage(): Storage {
-  try {
-    return window.localStorage
-  } catch {
-    return memoryStorage()
-  }
 }
 
 export const sicherungsStore = createSicherungsStore({

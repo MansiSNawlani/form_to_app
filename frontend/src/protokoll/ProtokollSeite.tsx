@@ -74,7 +74,7 @@ function ProtokollSeite() {
     return (
       <Alert severity="error" className="protokoll-fehler">
         <AlertTitle>{t('protokoll.ladefehler.titel')}</AlertTitle>
-        <Typography variant="body2" sx={{ mb: 2 }}>
+        <Typography variant="body2" className="hinweis__text">
           {fehlertext ?? t('protokoll.ladefehler.text')}
         </Typography>
         <Button variant="outlined" size="small" onClick={() => void refetch()} disabled={isFetching}>

@@ -1,24 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { memoryStorage } from './browserSpeicher'
 import { KEY_PREFIX, createSicherungsStore, gleicheAntworten } from './sicherung'
 
-/* A Storage that behaves, and one that refuses everything. Both are handed in,
-   so these tests need no browser: the second is what a private window and a
-   locked-down profile actually do, and it throws on the accessor rather than
-   returning null. */
-function testStorage(): Storage {
-  const entries = new Map<string, string>()
-  return {
-    get length() {
-      return entries.size
-    },
-    key: (i) => [...entries.keys()][i] ?? null,
-    getItem: (k) => entries.get(k) ?? null,
-    setItem: (k, v) => void entries.set(k, v),
-    removeItem: (k) => void entries.delete(k),
-    clear: () => entries.clear(),
-  }
-}
-
+/* A Storage that behaves is the shared memoryStorage, the same stand-in the app
+   itself falls back to. The one that refuses everything is here, because nothing
+   in the app wants it: it is what a private window and a locked-down profile
+   actually do, throwing on the accessor rather than returning null. */
 function kaputteStorage(): Storage {
   const werfen = () => {
     throw new DOMException('storage is blocked')
@@ -41,7 +28,7 @@ let storage: Storage
 let store: ReturnType<typeof createSicherungsStore>
 
 beforeEach(() => {
-  storage = testStorage()
+  storage = memoryStorage()
   store = createSicherungsStore({ storage, now: () => JETZT })
 })
 

@@ -83,7 +83,7 @@ function SicherungAngebot({ entwurf, form, jetztSpeichern }: SicherungAngebotPro
   return (
     <Alert severity="warning" className="protokoll-sicherung">
       <AlertTitle>{t('protokoll.sicherung.titel')}</AlertTitle>
-      <Typography variant="body2" sx={{ mb: 2 }}>
+      <Typography variant="body2" className="hinweis__text">
         {t('protokoll.sicherung.text', { zeitpunkt: gehalten })}
       </Typography>
       <Stack direction="row" spacing={1}>

@@ -25,7 +25,7 @@ function ProtokollAnlegenFehler() {
   return (
     <Alert severity="error" className="protokoll-fehler">
       <AlertTitle>{t('protokoll.anlegen.fehlerTitel')}</AlertTitle>
-      <Typography variant="body2" sx={{ mb: 2 }}>
+      <Typography variant="body2" className="hinweis__text">
         {fehlertext ?? t('protokoll.anlegen.fehlerText')}
       </Typography>
       <Stack direction="row" spacing={1}>

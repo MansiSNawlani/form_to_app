@@ -18,7 +18,7 @@ describe('fehlerZustand', () => {
   it('calls a 409 a conflict', () => {
     const fehler = new ApiFehler(PROTOKOLL_VERAENDERT, { status: 409 })
 
-    expect(fehlerZustand(fehler)).toEqual({ status: 'konflikt' })
+    expect(fehlerZustand(fehler)).toEqual({ status: 'conflict' })
   })
 
   /* Everything else is an ordinary failure: the next save may well work, and the

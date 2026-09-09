@@ -18,10 +18,27 @@ export function entwurfsKey(id: string) {
   return ['entwurf', id] as const
 }
 
+/* Whether a failed read is worth trying again.
+ *
+ * Its own function so it can be tested without React and without a browser, the
+ * arrangement coding-standards.md asks for wherever a wrong answer is possible.
+ * Both wrong answers cost something: retrying a missing protocol makes the
+ * not-found page slower before it says the same thing, and giving up on a
+ * dropped request shows a failure to somebody whose next attempt would have
+ * worked.
+ */
+export function sollWiederholen(anzahl: number, fehler: Error): boolean {
+  if (fehler instanceof ApiFehler && fehler.code === PROTOKOLL_NICHT_GEFUNDEN) return false
+  return anzahl < 2
+}
+
 export function entwurfsAbfrage(id: string | undefined) {
   return queryOptions({
     queryKey: entwurfsKey(id ?? ''),
-    queryFn: () => holeEntwurf(id as string),
+    /* Narrowed rather than cast. enabled keeps the function from running without
+       an id, but it does not narrow this closure, and a cast here would be a
+       promise to the compiler that only the enabled flag keeps. */
+    queryFn: () => (id === undefined ? Promise.reject(new Error('no id')) : holeEntwurf(id)),
     enabled: id !== undefined,
 
     /* Never refetched behind the form's back.
@@ -38,10 +55,6 @@ export function entwurfsAbfrage(id: string | undefined) {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
 
-    /* A missing protocol is an answer, not a hiccup. Trying twice more only
-       makes the not-found page slower before it says the same thing. Everything
-       else is worth a retry, because a dropped request usually is. */
-    retry: (anzahl: number, fehler: Error) =>
-      !(fehler instanceof ApiFehler && fehler.code === PROTOKOLL_NICHT_GEFUNDEN) && anzahl < 2,
+    retry: sollWiederholen,
   })
 }

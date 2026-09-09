@@ -1,7 +1,7 @@
 # Feature: 3b. The form saves to the server
 
 **From build-plan:** feature 3b, the second of four sub-features under item 3
-**Status:** not started
+**Status:** built, reviewed, awaiting manual browser check
 
 ## Goal
 
@@ -95,16 +95,16 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - the API client learns the other two methods** - widen
+- [x] **Step 1 - the API client learns the other two methods** - widen
   `AnfrageOptionen.methode` to `GET | POST | PUT | DELETE`, add the protocol
-  types to `frontend/src/api/typen.ts` mirroring `schemas.py` field for field,
+  types mirroring `schemas.py` field for field,
   and add the two protocol error codes the browser branches on
   (`PROTOKOLL_NICHT_GEFUNDEN`, `PROTOKOLL_VERAENDERT`) to `api/fehler.ts`.
   Nothing changes on screen. *Done when:* `client.test.ts` covers a `PUT` with a
   JSON body and a `DELETE` answering 204, `npm test` and `npm run build` pass,
   and each new type in `typen.ts` matches its Pydantic model name for name.
 
-- [ ] **Step 2 - the three calls, as their own module** - `entwurf/api.ts` with
+- [x] **Step 2 - the three calls, as their own module** - `entwurf/api.ts` with
   `legeEntwurfAn()`, `holeEntwurf(id)` and `speichereAntworten({ id, version,
   antworten })`, each a thin call through `apiAnfrage`. Nothing imports it yet,
   so the app is untouched and still runs on `localStorage`. *Done when:*
@@ -112,7 +112,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   stub `fetch`, proves a 404 surfaces as an `ApiFehler` carrying
   `PROTOKOLL_NICHT_GEFUNDEN`, and `npm test` passes.
 
-- [ ] **Step 3 - the swap** - creating, opening and saving all go through step
+- [x] **Step 3 - the swap** - creating, opening and saving all go through step
   2's module, and `entwurf/store.ts` plus `store.test.ts` are deleted. `Entwurf`
   in `entwurf/typen.ts` becomes the server's shape, so `ProtokollKopf` reads
   `created_at` and `form_version` in place of `angelegtAm` and `formVersion`.
@@ -128,7 +128,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   a blank screen. **This is the biggest step: if the diff runs long, split the
   create path from the open-and-save path.**
 
-- [ ] **Step 4 - the local safety copy** - `entwurf/sicherung.ts`, a small
+- [x] **Step 4 - the local safety copy** - `entwurf/sicherung.ts`, a small
   `localStorage`-backed module keyed `ffs-sicherung:<id>` holding the id, the
   version, the answers and the moment. `useAutoSave` writes it before every save
   request and deletes it once the server confirms one. Storage is an argument,
@@ -138,7 +138,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   tab shows the entry; starting the backend and letting one save land removes
   it; and `npm test` passes.
 
-- [ ] **Step 5 - offering it back** - on opening a protocol, if a safety copy
+- [x] **Step 5 - offering it back** - on opening a protocol, if a safety copy
   exists for that id and its answers differ from what the server returned, show
   a banner at the top of the card naming the moment it was kept, with
   "Ubernehmen" and "Verwerfen" (spelled with the umlaut in the real string). The
@@ -150,7 +150,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   and the banner does not come back on the next reload; and the banner is
   reachable and operable by keyboard with the focus visible.
 
-- [ ] **Step 6 - the conflict** - a 409 becomes its own `SaveState`, not a
+- [x] **Step 6 - the conflict** - a 409 becomes its own `SaveState`, not a
   generic failure. Automatic saving stops for that draft rather than retrying
   into the same refusal, and `SpeicherAnzeige` prints a message that names what
   happened, says why, and says what to do. *Done when:* opening the same
@@ -164,10 +164,15 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 **Changed**
 
 - `frontend/src/api/client.ts` - `PUT` and `DELETE`.
-- `frontend/src/api/typen.ts` - the protocol request and response types.
+- `frontend/src/api/typen.ts` - a pointer to where the protocol types went.
 - `frontend/src/api/fehler.ts` - the two protocol error codes.
 - `frontend/src/protokoll/entwurf/typen.ts` - `Entwurf` takes the server's
-  shape; `FORM_VERSION` retires, since the server stamps it.
+  shape; `FORM_VERSION` retires, since the server stamps it. The protocol
+  request and response types landed here rather than in `api/typen.ts` as
+  drafted, because every one of them carries or describes `Antworten` and
+  splitting them across two files would mean reading both to understand either.
+- `frontend/src/theme/muiTheme.ts` - `MuiAlert` gains the spacing the four new
+  notices would otherwise each restate.
 - `frontend/src/protokoll/entwurf/useAutoSave.ts` - a mutation, the version, the
   safety copy, the conflict state.
 - `frontend/src/protokoll/ProtokollSeite.tsx` - a query, with loading.
@@ -183,8 +188,20 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 - `frontend/src/protokoll/entwurf/api.ts` and `api.test.ts`
 - `frontend/src/protokoll/entwurf/sicherung.ts` and `sicherung.test.ts`
-- A restore banner component under `frontend/src/protokoll/entwurf/`.
-- A small error element for the create path, under `frontend/src/protokoll/`.
+- `frontend/src/protokoll/entwurf/browserSpeicher.ts` - the localStorage
+  fallback, lifted out of the deleted draft store rather than copied.
+- `frontend/src/protokoll/entwurf/abfragen.ts` and `abfragen.test.ts` - the
+  shared query definition, so the page and the loader agree on one cache entry.
+- `frontend/src/protokoll/entwurf/SicherungAngebot.tsx` - the restore banner.
+- `frontend/src/protokoll/SpeicherProblem.tsx` - the panel carrying what a save
+  failure means. Added because the indicator beside the heading is a few words
+  in a tight row that appears twice on the page: it can say that something is
+  wrong but has no room for why or what to do. It covers the ordinary failure as
+  well as the conflict, which step 6 did not ask for, because "Nicht
+  gespeichert" alone fails this project's error-message rule either way.
+- `frontend/src/protokoll/ProtokollAnlegenFehler.tsx` - the create path's error
+  element.
+- `frontend/src/protokoll/entwurf/useAutoSave.test.ts` - the failed-save mapping.
 
 **Deleted**
 
@@ -279,6 +296,37 @@ would make every save fail with `ANTWORTEN_UNGUELTIG`. Before step 3 is called
 done, fill in at least one field in every one of the seven sections and confirm
 a save lands. If the two disagree, that is a real finding: report which paths
 and which side is wrong rather than loosening the check.
+
+## Open decision for the user
+
+**The automatic save does not go through TanStack Query, and both the In scope
+list above and `coding-standards.md` say it should.** That standard reads
+"TanStack Query for server calls, including the automatic save", and the code
+calls `speichereAntworten` directly from `useAutoSave`.
+
+The reason is measured rather than a preference. `useMutation` subscribes the
+component holding it to the mutation's own state, so every save would re-render
+`ProtokollFormular`, and with it the whole open section under `FormProvider`,
+twice more: once when the request starts and once when it settles. That is the
+same re-render the shared `SPEICHERT` constant already exists to avoid, timed at
+206 ms on the catch table in feature 9a, and it would land every time somebody
+pauses typing. Nothing `useMutation` offers is wanted here either: there is no
+cache entry to update, and automatically retrying a refused save is precisely
+what must not happen. Reading a protocol does go through `useQuery`, in
+`ProtokollSeite`, where the cache and the loading state earn their keep.
+
+This was flagged by both review axes as something to decide rather than settle in
+a code comment. Three ways out, and the choice is the user's:
+
+1. Keep the code and narrow the standard, so it reads "TanStack Query for server
+   reads; a save that fires while somebody types may call the API directly".
+   Cheapest, and records the real rule.
+2. Keep the code and write an ADR, since the standard is itself downstream of
+   ADR 0006's theming and performance constraints. Heaviest, most durable.
+3. Change the code to `useMutation` and accept the re-render, or find a way to
+   isolate it in a child component that holds no form state.
+
+Nothing else in this feature depends on the answer.
 
 ## Notes for the AI
 

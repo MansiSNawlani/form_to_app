@@ -374,6 +374,16 @@ export const muiTheme = createTheme({
           fontSize: 'var(--step--1)',
           color: 'var(--text)',
           alignItems: 'flex-start',
+          /* An alert is a block in a column of blocks, so it carries its own gap
+             below it rather than leaving each page to remember one. Added in
+             feature 3b, where the protocol page grew two notices and the spacing
+             had started to be restated per instance. */
+          marginBottom: '1rem',
+        },
+        /* So the buttons and text inside an alert can lay themselves out across
+           its full width instead of shrink-wrapping to the message. */
+        message: {
+          width: '100%',
         },
         colorWarning: {
           background: 'var(--warn-soft)',

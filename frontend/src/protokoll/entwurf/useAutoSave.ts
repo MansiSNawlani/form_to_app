@@ -28,7 +28,7 @@ export type SaveState =
      wrote nothing. Its own state rather than a kind of 'failed', because it is
      the one failure where trying again cannot help and the person has to do
      something. */
-  | { status: 'konflikt' }
+  | { status: 'conflict' }
 
 export interface AutoSave {
   zustand: SaveState
@@ -55,7 +55,7 @@ const DEBOUNCE_MS = 800
  * a burst re-render nothing at all. The indicator already reads "wird
  * gespeichert" by then and has nothing new to say. */
 const SPEICHERT: SaveState = { status: 'saving' }
-const KONFLIKT: SaveState = { status: 'konflikt' }
+const KONFLIKT: SaveState = { status: 'conflict' }
 const FEHLGESCHLAGEN: SaveState = { status: 'failed' }
 
 /* What a failed save means, apart from the hook, so it can be tested without
@@ -113,18 +113,28 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
        another one and hide the only thing worth reading. */
     let aufgegeben = false
 
+    /* Keep what is on screen, without sending anything.
+     *
+     * Written before the request rather than after it fails, which is what makes
+     * it cover a shut laptop and a killed tab as well as a refusal, and it is
+     * also the whole of what happens once a conflict has stopped the saving. The
+     * copy is cleared only when the server has confirmed a save, so a copy that
+     * is still here always means work the server never acknowledged. */
+    function sichern(): void {
+      sicherungsStore.schreib({
+        id: entwurf.id,
+        version: version.current,
+        antworten: form.getValues(),
+      })
+    }
+
     async function save(report: boolean): Promise<void> {
       if (!pending || laeuft || aufgegeben) return
       pending = false
       laeuft = true
 
       const antworten = form.getValues()
-
-      /* Kept before the request rather than after it fails, which is what makes
-         it cover a shut laptop and a killed tab as well as a refusal. Cleared
-         only once the server has confirmed, so a copy that is still here always
-         means work the server never acknowledged. */
-      sicherungsStore.schreib({ id: entwurf.id, version: version.current, antworten })
+      sichern()
 
       try {
         const antwort = await speichereAntworten({
@@ -140,7 +150,7 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
            It is the only place what was typed still exists. */
         const zustand = fehlerZustand(fehler)
 
-        if (zustand.status === 'konflikt') {
+        if (zustand.status === 'conflict') {
           /* Reported even on the silent unmount flush. The state outlives this
              component: navigating back into the protocol must not find the loop
              quietly retrying a save that can only be refused again. */
@@ -158,10 +168,20 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
     }
 
     const subscription = form.watch(() => {
-      if (aufgegeben) return
       pending = true
-      setState(SPEICHERT)
       clearTimeout(timer)
+
+      /* After a conflict no request is sent, but everything typed from here on
+         still has to be kept: the panel on screen tells the surveyor their
+         entries are safe in this browser and offers to reload the page, and
+         that promise is only true if this keeps running. Without it, everything
+         typed between the conflict and the reload would go silently. */
+      if (aufgegeben) {
+        timer = setTimeout(sichern, DEBOUNCE_MS)
+        return
+      }
+
+      setState(SPEICHERT)
       timer = setTimeout(() => void save(true), DEBOUNCE_MS)
     })
 
@@ -177,12 +197,17 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
       subscription.unsubscribe()
       clearTimeout(timer)
       anstossen.current = () => {}
+
       /* Leaving the page inside the debounce window must not lose the last
          change. Reporting state on the way out would be a write to a component
          that is going away, so this flush is silent. The request may well
-         outlive the page, which is exactly why the copy above is written before
-         it is sent rather than after it fails. */
-      void save(false)
+         outlive the page, which is exactly why the copy is written before it is
+         sent rather than after it fails.
+         After a conflict there is no request to make, and the copy is all there
+         is, so it is taken directly. */
+      if (!pending) return
+      if (aufgegeben) sichern()
+      else void save(false)
     }
   }, [entwurf.id, form])
 
