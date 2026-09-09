@@ -30,6 +30,12 @@ services:
   backend:
     build:
       context: ./backend
+      # The form definition is checked in under database/seed/, outside the
+      # backend's own context. Named here rather than widening the context to the
+      # repository root, which would drag frontend/ and node_modules/ through the
+      # daemon on every backend build.
+      additional_contexts:
+        seed: ./database/seed
     environment:
       # Built from the same credentials the database uses, but pointing at the
       # "db" service rather than localhost. This deliberately overrides the

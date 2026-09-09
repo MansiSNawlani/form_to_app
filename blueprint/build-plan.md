@@ -73,6 +73,20 @@ These are not features and are not tracked here. They happen first.
 - [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
       submissions" list. **Deferred on 2026-09-01**, built after the form parts, and where the
       browser-only draft storage is swapped for real server saving.
+  - [x] 3a. Drafts on the server: the submissions table, the draft endpoints for creating,
+        listing, reading, saving and deleting, ownership enforced on every one of them, and
+        the answers document checked for shape on write
+  - [ ] 3b. The form saves to the server: the browser draft store swapped for API calls behind
+        the same interface, automatic saving as a mutation, and a local safety copy that keeps
+        what was typed when a save fails
+  - [ ] 3c. Meine Protokolle: the submissions list replacing the placeholder home page, built
+        against `prototypes/meine-protokolle.html`, with the counts, the empty state, and
+        resuming or deleting a draft
+  - [ ] 3d. Attachments on the server: the attachments table, file storage, the upload,
+        download and delete endpoints, and the browser's IndexedDB store swapped for them
+
+  Feature 10 built the attachments before this one, by decision on 2026-09-06, and left them in
+  the browser. 3d is where they get the server that decision promised them.
 - [x] 4. Form part 1: occasion, recorder details, and the Probestrecke, including the Vorfluter
       chain and coordinate entry with the Baden-Württemberg bounds check
   - [x] 4a. Protocol shell and browser draft store: routing, the six-section navigation, the

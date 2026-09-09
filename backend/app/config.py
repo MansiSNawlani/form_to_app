@@ -1,8 +1,19 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from pydantic import Field, PostgresDsn, SecretStr, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# The repository root, from backend/app/config.py. Used only to point at the form
+# definition below, which is checked in beside the code rather than deployed
+# separately.
+REPO_WURZEL = Path(__file__).resolve().parents[2]
+
+# The one form version there is. ADR 0004 freezes a version rather than migrating
+# submissions between versions, so a second directory appears here rather than
+# this one changing.
+FORMULAR_SEED = REPO_WURZEL / "database" / "seed" / "form_version_20260609"
 
 # Long enough that guessing the key is hopeless. token_urlsafe(48) produces 64
 # characters, so the value .env.example tells people to generate clears this with
@@ -34,6 +45,10 @@ HINWEISE = {
         "COOKIE_SECURE must be true or false. Leave it out of .env to use the"
         " default of true, which is correct everywhere the site is served over"
         " https, and over http://localhost as well."
+    ),
+    "formular_seed_dir": (
+        "FORMULAR_SEED_DIR must be a path to the directory holding felder.json."
+        " Leave it out of .env to use the copy in this checkout."
     ),
 }
 
@@ -110,6 +125,15 @@ class Settings(BaseSettings):
     # change; this exists for the case of running the stack over plain http on
     # some other host, where the cookie would otherwise vanish with no error.
     cookie_secure: bool = True
+
+    # Where felder.json and the option lists sit. The default is the checkout's
+    # own copy, which is right for every developer and for the tests.
+    #
+    # It is configurable at all because the container does not have the same
+    # layout as the repository: the package is installed rather than run from the
+    # source tree, so a path worked out from __file__ inside the image points
+    # into site-packages. The Dockerfile sets this to where it copied the seed.
+    formular_seed_dir: Path = FORMULAR_SEED
 
 
 def lade_settings(**overrides: Any) -> Settings:

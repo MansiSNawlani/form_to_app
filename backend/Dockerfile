@@ -20,6 +20,20 @@ WORKDIR /srv
 COPY pyproject.toml README.md* ./
 COPY app ./app
 
+# The form definition, which lives in database/seed/ because coding-standards.md
+# puts seed data there, and is therefore outside this image's build context.
+#
+# A named extra context rather than moving the main context to the repository
+# root. The root holds frontend/ and node_modules/, and hauling those through the
+# daemon on every backend build to reach two JSON files is a poor trade. This
+# copies exactly the directory needed and nothing else.
+#
+# The path is given to the application rather than worked out from __file__: the
+# package is installed here, so inside the image its source sits in
+# site-packages, nowhere near the repository layout a relative path assumes.
+COPY --from=seed . ./seed
+ENV FORMULAR_SEED_DIR=/srv/seed/form_version_20260609
+
 # No dev extras: pytest, ruff and mypy have no business in a shipped image.
 RUN pip install --no-cache-dir .
 
