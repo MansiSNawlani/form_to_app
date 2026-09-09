@@ -297,7 +297,15 @@ done, fill in at least one field in every one of the seven sections and confirm
 a save lands. If the two disagree, that is a real finding: report which paths
 and which side is wrong rather than loosening the check.
 
-## Open decision for the user
+## Decided: the save stays as it is
+
+**Resolved on 2026-09-09.** The user chose to leave the code as built and to
+measure the real performance impact later, rather than narrow the standard or
+rewire the save now. Recorded in `docs/decisions.md` section 13 so a later audit
+finds the decision instead of re-raising the deviation. The original reasoning
+follows.
+
+## The deviation, as it was put to the user
 
 **The automatic save does not go through TanStack Query, and both the In scope
 list above and `coding-standards.md` say it should.** That standard reads
@@ -316,17 +324,8 @@ what must not happen. Reading a protocol does go through `useQuery`, in
 `ProtokollSeite`, where the cache and the loading state earn their keep.
 
 This was flagged by both review axes as something to decide rather than settle in
-a code comment. Three ways out, and the choice is the user's:
-
-1. Keep the code and narrow the standard, so it reads "TanStack Query for server
-   reads; a save that fires while somebody types may call the API directly".
-   Cheapest, and records the real rule.
-2. Keep the code and write an ADR, since the standard is itself downstream of
-   ADR 0006's theming and performance constraints. Heaviest, most durable.
-3. Change the code to `useMutation` and accept the re-render, or find a way to
-   isolate it in a child component that holds no form state.
-
-Nothing else in this feature depends on the answer.
+a code comment. The user was offered three ways out: narrow the standard, write
+an ADR, or rewire the save. None was taken for now; see the resolution above.
 
 ## Notes for the AI
 
