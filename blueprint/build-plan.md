@@ -76,7 +76,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 3a. Drafts on the server: the submissions table, the draft endpoints for creating,
         listing, reading, saving and deleting, ownership enforced on every one of them, and
         the answers document checked for shape on write
-  - [ ] 3b. The form saves to the server: the browser draft store swapped for API calls behind
+  - [x] 3b. The form saves to the server: the browser draft store swapped for API calls behind
         the same interface, automatic saving as a mutation, and a local safety copy that keeps
         what was typed when a save fails
   - [ ] 3c. Meine Protokolle: the submissions list replacing the placeholder home page, built

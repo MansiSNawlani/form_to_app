@@ -16,6 +16,8 @@ function SpeicherAnzeige({ live = true, ...state }: SaveState & { live?: boolean
         return t('protokoll.speichern.speichert')
       case 'failed':
         return t('protokoll.speichern.fehler')
+      case 'conflict':
+        return t('protokoll.speichern.konflikt')
       case 'saved':
         return t('protokoll.speichern.gespeichertUm', {
           zeit: new Intl.DateTimeFormat(i18n.language, {

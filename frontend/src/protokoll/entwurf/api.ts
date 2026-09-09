@@ -1,0 +1,77 @@
+/* The three calls a protocol needs while it is being filled in.
+ *
+ * Feature 3a put drafts on the server and 3b brought the form to them, replacing
+ * the localStorage store that lived here until then. A draft now belongs to an
+ * account rather than to a browser, so it survives a different machine, cleared
+ * site data, and eventually reaches FFS.
+ *
+ * Thin on purpose. Every one of these is a path, a method and a type: the cookie,
+ * the JSON, and turning a refusal into a typed error are all api/client.ts's job,
+ * and deciding what to do about a failure is the caller's. Keeping them here
+ * rather than inline in a component is what stops a fetch appearing in a screen.
+ *
+ * fetchImpl travels through so the tests need no browser and no stubbed global,
+ * the same arrangement api/client.ts already uses.
+ */
+
+import { apiAnfrage } from '../../api/client'
+import type { Antworten, AntwortenSpeichern, Entwurf, SpeicherAntwort } from './typen'
+
+const PFAD = '/protokolle'
+
+interface MitFetch {
+  fetchImpl?: typeof fetch
+}
+
+/* Start a protocol.
+ *
+ * No request body. A protocol is filled in over several sittings, so it begins
+ * empty and everything about it arrives through later saves. The whole draft
+ * comes back rather than only its id, which is what lets the form open without a
+ * second request for a document we already know is empty.
+ */
+export function legeEntwurfAn({ fetchImpl }: MitFetch = {}): Promise<Entwurf> {
+  return apiAnfrage<Entwurf>(PFAD, { methode: 'POST', fetchImpl })
+}
+
+/* One protocol in full, answers included.
+ *
+ * Answers PROTOKOLL_NICHT_GEFUNDEN for somebody else's protocol exactly as it
+ * does for one that does not exist. That is the backend's deliberate choice, not
+ * an omission, so nothing here should soften it into "no permission".
+ */
+export function holeEntwurf(id: string, { fetchImpl }: MitFetch = {}): Promise<Entwurf> {
+  return apiAnfrage<Entwurf>(`${PFAD}/${encodeURIComponent(id)}`, { fetchImpl })
+}
+
+interface SpeicherAnfrage extends MitFetch {
+  id: string
+  /** The version the form is working from, not the one it hopes to write. */
+  version: number
+  antworten: Antworten
+}
+
+/* Save a draft's answers.
+ *
+ * PUT, because this replaces the document rather than merging into it: a save
+ * carries every answer the form holds, so an answer left out is an answer the
+ * surveyor cleared.
+ *
+ * Rejects with PROTOKOLL_VERAENDERT when the protocol has moved on since the
+ * version given, and nothing is written. The caller has to handle that
+ * differently from an ordinary failure, because trying again cannot help.
+ */
+export function speichereAntworten({
+  id,
+  version,
+  antworten,
+  fetchImpl,
+}: SpeicherAnfrage): Promise<SpeicherAntwort> {
+  const koerper: AntwortenSpeichern = { version, antworten }
+
+  return apiAnfrage<SpeicherAntwort>(`${PFAD}/${encodeURIComponent(id)}/antworten`, {
+    methode: 'PUT',
+    koerper,
+    fetchImpl,
+  })
+}

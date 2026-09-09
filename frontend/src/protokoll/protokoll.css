@@ -445,6 +445,18 @@
   background: var(--danger);
 }
 
+/* A conflict is the most serious thing this indicator ever says, so it must not
+   fall through to the muted default that "unchanged" uses. It reads as an error
+   rather than a warning because nothing will resolve it on its own. */
+.save-state--conflict {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.save-state--conflict .save-state__dot {
+  background: var(--danger);
+}
+
 /* A control with a unit beside it, such as the m after a stretch length. The
    unit sits outside the input so it is never mistaken for part of the value. */
 .unit-row {
@@ -805,4 +817,12 @@
   .steps-kompakt__pfeil {
     transition: none;
   }
+}
+
+/* The gap between a notice's explanation and the buttons under it. A class
+   rather than an sx prop on each of the four notices, so they cannot drift
+   apart; the alert's own spacing lives in muiTheme.ts with the rest of its
+   look. */
+.hinweis__text {
+  margin-bottom: 1rem;
 }

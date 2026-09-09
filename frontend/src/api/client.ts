@@ -18,7 +18,10 @@ import type { FehlerAntwort } from './typen'
 const BASIS = '/api/v1'
 
 export interface AnfrageOptionen {
-  methode?: 'GET' | 'POST'
+  /* PUT and DELETE arrived with feature 3b. A protocol is saved by replacing its
+     whole answers document rather than merging into it, which is a PUT, and a
+     draft can be thrown away, which is a DELETE. */
+  methode?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   /** Serialised as JSON. Leave it out for a request with no body. */
   koerper?: unknown
   /* Injected so the tests need no browser and no stubbed global, the same way

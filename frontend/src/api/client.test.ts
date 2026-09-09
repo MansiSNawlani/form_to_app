@@ -43,6 +43,40 @@ describe('apiAnfrage', () => {
     })
   })
 
+  /* A save replaces the whole answers document rather than merging into it,
+     which is why it is a PUT. The body carries the version it started from. */
+  it('sends a PUT with its JSON body', async () => {
+    const fetchImpl = fakeFetch(jsonAntwort({ version: 4 }))
+
+    await apiAnfrage('/protokolle/abc/antworten', {
+      methode: 'PUT',
+      koerper: { version: 3, antworten: { anlass: 'wrrl' } },
+      fetchImpl,
+    })
+
+    expect(fetchImpl).toHaveBeenCalledWith('/api/v1/protokolle/abc/antworten', {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{"version":3,"antworten":{"anlass":"wrrl"}}',
+    })
+  })
+
+  it('sends a DELETE with no body at all', async () => {
+    const fetchImpl = fakeFetch(new Response(null, { status: 204 }))
+
+    await expect(
+      apiAnfrage('/protokolle/abc', { methode: 'DELETE', fetchImpl }),
+    ).resolves.toBeUndefined()
+
+    expect(fetchImpl).toHaveBeenCalledWith('/api/v1/protokolle/abc', {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: undefined,
+      body: undefined,
+    })
+  })
+
   it('resolves with nothing for a 204, rather than trying to read a body', async () => {
     const fetchImpl = fakeFetch(new Response(null, { status: 204 }))
 

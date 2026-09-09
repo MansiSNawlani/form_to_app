@@ -7,6 +7,8 @@ import AbschnittWechsel from './AbschnittWechsel'
 import ProtokollKopf from './ProtokollKopf'
 import AbschnittInhalt from './abschnitte/AbschnittInhalt'
 import type { Abschnitt } from './abschnitte'
+import SpeicherProblem from './SpeicherProblem'
+import SicherungAngebot from './entwurf/SicherungAngebot'
 import { useAutoSave } from './entwurf/useAutoSave'
 import type { Antworten, Entwurf } from './entwurf/typen'
 import { antwortenSchema } from './regeln/schema'
@@ -38,7 +40,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
     mode: 'onTouched',
     resolver: zodResolver(antwortenSchema),
   })
-  const saveState = useAutoSave(entwurf, form)
+  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form)
   useHydrologieAbgleich(form)
 
   /* An answer that was wrong when the draft was put down is still wrong when it
@@ -95,6 +97,11 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
     <FormProvider {...form}>
       <ProtokollKopf entwurf={entwurf} saveState={saveState} />
       <AbschnittNav entwurfId={entwurf.id} aktuelleNr={abschnitt.nr} />
+
+      {/* Above the section rather than inside it: the offer is about the whole
+          protocol, and it has to be seen whichever section the URL opened on. */}
+      <SicherungAngebot entwurf={entwurf} form={form} jetztSpeichern={jetztSpeichern} />
+      <SpeicherProblem saveState={saveState} />
 
       <section className="card" ref={card} tabIndex={-1} aria-label={titel}>
         {/* No onSubmit: there is nothing to submit until feature 11, and saving

@@ -361,6 +361,21 @@ command during deployment, reading its password from the environment.
 with the map picker also deferred, version 1 would document location worse than paper. Uploading
 files is simple work. Deferring all three at once was the risk.
 
+**The automatic save does not go through TanStack Query,** although
+`coding-standards.md` says server calls should. `useMutation` tells its component
+when a request starts and when it finishes, and each of those redraws the form.
+On the catch table, where 312 controls are on screen at once, one redraw was
+measured at 206 ms in feature 9a, so every pause in typing would cost two of
+them. Reading a protocol does use TanStack Query, in `ProtokollSeite`, where the
+page is not drawn yet and the caching earns its keep.
+
+Left as it is on 2026-09-09, with the performance impact to be measured properly
+later. Two things follow. The standard has deliberately not been reworded, so the
+code and the written rule still disagree and a review will keep noticing. And the
+alternative is known if the measurement goes the wrong way: move the
+`useMutation` into a small component holding no form fields, so only that
+component redraws.
+
 ---
 
 ## 14. Still open

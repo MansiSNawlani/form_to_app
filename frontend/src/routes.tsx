@@ -8,8 +8,10 @@ import { sitzungsAbfrage } from './auth/useSitzung'
 import { anmeldungsZiel } from './auth/weiter'
 import { queryClient } from './api/queryClient'
 import ProtokollSeite from './protokoll/ProtokollSeite'
+import ProtokollAnlegenFehler from './protokoll/ProtokollAnlegenFehler'
 import { abschnittPfad } from './protokoll/abschnitte'
-import { entwurfStore } from './protokoll/entwurf/store'
+import { legeEntwurfAn } from './protokoll/entwurf/api'
+import { entwurfsKey } from './protokoll/entwurf/abfragen'
 
 /* Route paths are German, decided on 2026-08-24, following the same rule as the
    rest of the domain. Component and variable names around them stay English. */
@@ -50,8 +52,20 @@ export const router = createBrowserRouter([
               const benutzer = await queryClient.ensureQueryData(sitzungsAbfrage)
               if (benutzer === null) return redirect(anmeldungsZiel('/protokolle/neu'))
 
-              return redirect(abschnittPfad(entwurfStore.createEntwurf().id, 1))
+              /* Creating it can fail now that it is a request. Nothing is caught
+                 here: a thrown ApiFehler is what React Router hands to the
+                 errorElement below, which is the one place that has somewhere to
+                 show it. */
+              const entwurf = await legeEntwurfAn()
+
+              /* Straight into the cache the protocol page reads, so the redirect
+                 that follows renders the draft we are holding instead of asking
+                 the server again for a document we just received. */
+              queryClient.setQueryData(entwurfsKey(entwurf.id), entwurf)
+
+              return redirect(abschnittPfad(entwurf.id, 1))
             },
+            errorElement: <ProtokollAnlegenFehler />,
           },
           { path: 'protokolle/:id/abschnitt/:nr', element: <ProtokollSeite /> },
           { path: '*', element: <NotFound /> },

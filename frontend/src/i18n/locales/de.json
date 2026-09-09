@@ -80,9 +80,20 @@
       "anlagen": "Karte und Fotos",
       "abschnittVon": "Abschnitt {{nr}} von {{anzahl}}:"
     },
+    "laedt": "Protokoll wird geladen.",
     "nichtGefunden": {
       "titel": "Protokoll nicht gefunden",
-      "text": "Dieser Entwurf liegt nicht in diesem Browser. Entwürfe werden bis auf Weiteres nur auf dem Gerät gespeichert, auf dem sie angelegt wurden."
+      "text": "Unter dieser Adresse liegt kein Protokoll, das Sie öffnen dürfen. Möglicherweise ist der Link veraltet oder das Protokoll gehört zu einem anderen Konto. In der Übersicht finden Sie Ihre eigenen Protokolle."
+    },
+    "ladefehler": {
+      "titel": "Protokoll konnte nicht geladen werden",
+      "text": "Das Protokoll war nicht abrufbar. Ihre gespeicherten Angaben sind davon nicht betroffen.",
+      "erneut": "Erneut versuchen"
+    },
+    "anlegen": {
+      "fehlerTitel": "Protokoll konnte nicht angelegt werden",
+      "fehlerText": "Das neue Protokoll war nicht anzulegen. Bitte versuchen Sie es erneut.",
+      "erneut": "Erneut versuchen"
     },
     "navigation": {
       "zurueck": "Zurück",
@@ -531,7 +542,21 @@
       "unveraendert": "Alle Änderungen gespeichert",
       "speichert": "Wird gespeichert",
       "gespeichertUm": "Automatisch gespeichert um {{zeit}}",
-      "fehler": "Nicht gespeichert. Dieser Browser lässt kein Speichern zu."
+      "fehler": "Nicht gespeichert",
+      "konflikt": "Nicht gespeichert: Konflikt",
+      "problem": {
+        "fehlerTitel": "Ihre letzten Eingaben sind nicht auf dem Server angekommen",
+        "fehlerText": "Der Server war nicht erreichbar. Ihre Eingaben bleiben so lange in diesem Browser erhalten und werden beim nächsten erfolgreichen Speichern übertragen. Sie können weiterarbeiten; schließen Sie dieses Fenster aber erst, wenn wieder gespeichert wurde.",
+        "konfliktTitel": "Dieses Protokoll wurde an anderer Stelle geändert",
+        "konfliktText": "Deshalb wurde hier nichts gespeichert: sonst würden die Änderungen der anderen Stelle überschrieben. Das passiert, wenn dasselbe Protokoll in einem zweiten Tab oder auf einem anderen Gerät offen ist. Ihre Eingaben von hier bleiben in diesem Browser erhalten. Laden Sie die Seite neu; Sie werden danach gefragt, ob Sie diese Eingaben übernehmen wollen.",
+        "neuLaden": "Seite neu laden"
+      }
+    },
+    "sicherung": {
+      "titel": "Nicht gespeicherte Eingaben gefunden",
+      "text": "In diesem Browser liegen Eingaben vom {{zeitpunkt}}, die nicht auf dem Server angekommen sind. Sie können sie übernehmen oder verwerfen. Übernehmen ersetzt den gespeicherten Stand vollständig.",
+      "uebernehmen": "Eingaben übernehmen",
+      "verwerfen": "Verwerfen"
     },
     "abschnitt7": {
       "groesse": "{{mb, number}} MB",
