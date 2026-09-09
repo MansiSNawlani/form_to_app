@@ -194,3 +194,49 @@
 .shell-link:hover {
   color: var(--accent-hover);
 }
+
+/* ---------- page furniture ---------- */
+
+/* The heading block and the card every page's content sits in.
+ *
+ * These lived in protokoll.css until feature 3c, when "Meine Protokolle" became
+ * a second screen using them. That file is loaded by the protocol screens alone,
+ * so a rule shared by two pages has to move here, which is what every screen
+ * loads. The same move .visually-hidden made in feature 2c, for the same reason.
+ *
+ * Class names are prototypes/mockup.css's, so the built screens and the approved
+ * mockups can still be compared side by side. */
+
+.page__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.page__sub {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.page__head-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* The gap between a notice's explanation and the buttons under it. A class
+   rather than an sx prop on each notice, so they cannot drift apart; the alert's
+   own spacing lives in muiTheme.ts with the rest of its look. */
+.hinweis__text {
+  margin-bottom: 1rem;
+}

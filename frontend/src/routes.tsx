@@ -1,12 +1,12 @@
 import { createBrowserRouter, redirect } from 'react-router'
 import Layout from './components/Layout'
 import NotFound from './components/NotFound'
-import App from './App'
 import AnmeldungSeite from './auth/AnmeldungSeite'
 import SitzungsWaechter from './auth/SitzungsWaechter'
 import { sitzungsAbfrage } from './auth/useSitzung'
 import { anmeldungsZiel } from './auth/weiter'
 import { queryClient } from './api/queryClient'
+import ProtokolleSeite from './protokoll/liste/ProtokolleSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import ProtokollAnlegenFehler from './protokoll/ProtokollAnlegenFehler'
 import { abschnittPfad } from './protokoll/abschnitte'
@@ -33,7 +33,7 @@ export const router = createBrowserRouter([
            to remember it. */
         element: <SitzungsWaechter />,
         children: [
-          { index: true, element: <App /> },
+          { index: true, element: <ProtokolleSeite /> },
           {
             /* A loader rather than a component, because creating a draft is the
                whole point of this route and there is nothing to render. Loaders

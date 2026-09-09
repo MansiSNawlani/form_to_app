@@ -505,6 +505,36 @@ export interface Entwurf {
   updated_at: string
 }
 
+/* One protocol as the list shows it: backend/app/api/schemas.py's
+ * ProtokollUebersicht.
+ *
+ * Deliberately not Entwurf without its answers. Twenty protocols carrying 338
+ * answers each is a large response for drawing twenty table rows, so the five
+ * display values below are read out of the answers document by the query that
+ * builds the list and travel on their own.
+ *
+ * A blank value arrives as null, never "". A field somebody typed into and then
+ * cleared reads to a person exactly like one they never touched, so the backend
+ * collapses the two and nothing here has to handle both.
+ */
+export interface Uebersicht {
+  id: string
+  status: Status
+  form_version: string
+  version: number
+  created_at: string
+  updated_at: string
+
+  gewaessername: string | null
+  ortsangabe: string | null
+  /** Metres, as text like every other answer. */
+  laenge: string | null
+  /** The day of the survey. updated_at is the day the draft was last touched. */
+  datum: string | null
+  /** The coded Anlass, e.g. wrrl_monitoring, not its label. */
+  anlass: string | null
+}
+
 /** A save: the whole document, and the version it started from. */
 export interface AntwortenSpeichern {
   version: number

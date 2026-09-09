@@ -15,7 +15,13 @@
  */
 
 import { apiAnfrage } from '../../api/client'
-import type { Antworten, AntwortenSpeichern, Entwurf, SpeicherAntwort } from './typen'
+import type {
+  Antworten,
+  AntwortenSpeichern,
+  Entwurf,
+  SpeicherAntwort,
+  Uebersicht,
+} from './typen'
 
 const PFAD = '/protokolle'
 
@@ -32,6 +38,17 @@ interface MitFetch {
  */
 export function legeEntwurfAn({ fetchImpl }: MitFetch = {}): Promise<Entwurf> {
   return apiAnfrage<Entwurf>(PFAD, { methode: 'POST', fetchImpl })
+}
+
+/* This account's own protocols, most recently worked on first.
+ *
+ * Summaries rather than whole protocols, and no parameters at all. The endpoint
+ * filters on the caller's own id and takes no filter or page arguments: sorting,
+ * searching and paging belong to feature 12's review queue, which reads across
+ * every account rather than one person's handful.
+ */
+export function listeProtokolle({ fetchImpl }: MitFetch = {}): Promise<Uebersicht[]> {
+  return apiAnfrage<Uebersicht[]>(PFAD, { fetchImpl })
 }
 
 /* One protocol in full, answers included.
@@ -72,6 +89,22 @@ export function speichereAntworten({
   return apiAnfrage<SpeicherAntwort>(`${PFAD}/${encodeURIComponent(id)}/antworten`, {
     methode: 'PUT',
     koerper,
+    fetchImpl,
+  })
+}
+
+/* Throw a draft away.
+ *
+ * Drafts only. A submitted protocol is a record somebody else is working with,
+ * and taking it back is a workflow step for feature 11 rather than a delete; the
+ * backend refuses anything else with a 409.
+ *
+ * Nothing comes back, and nothing is undone. Asking first is the screen's job,
+ * which is why there is no confirmation flag here for a caller to forget.
+ */
+export function loescheEntwurf(id: string, { fetchImpl }: MitFetch = {}): Promise<void> {
+  return apiAnfrage<void>(`${PFAD}/${encodeURIComponent(id)}`, {
+    methode: 'DELETE',
     fetchImpl,
   })
 }

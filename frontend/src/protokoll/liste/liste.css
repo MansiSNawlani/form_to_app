@@ -1,0 +1,46 @@
+/* "Meine Protokolle": the two-line first cell, and the columns of figures.
+
+   Ported from prototypes/mockup.css, keeping its class names so the built screen
+   and the approved mockup can be compared side by side, exactly as shell.css and
+   protokoll.css already do. Every value is a token from styles/theme.css.
+
+   The table's own look is not here. It is in theme/muiTheme.ts under
+   .tabelle--liste, because the review queue and the user list are the same kind
+   of table and should inherit it rather than each import a stylesheet. */
+
+.cell-title {
+  font-weight: 600;
+}
+
+.cell-sub {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* Dates and times line up down their column: proportional digits make
+   14.08.2026 and 09.07.2026 different widths, which reads as ragged. */
+.zeile-tabular {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The action column is as wide as its button and no wider, so the first cell
+   keeps the room it needs for a long water name. */
+.zeile-aktion {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* ---------- the account with nothing in it yet ---------- */
+
+.empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--muted);
+}
+
+.empty__text {
+  margin: 0.35rem auto 1.25rem;
+  max-width: 46ch;
+}

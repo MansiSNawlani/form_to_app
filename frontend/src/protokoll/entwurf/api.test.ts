@@ -1,6 +1,17 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN, PROTOKOLL_VERAENDERT } from '../../api/fehler'
-import { holeEntwurf, legeEntwurfAn, speichereAntworten } from './api'
+import {
+  ApiFehler,
+  NICHT_ANGEMELDET,
+  PROTOKOLL_NICHT_GEFUNDEN,
+  PROTOKOLL_VERAENDERT,
+} from '../../api/fehler'
+import {
+  holeEntwurf,
+  legeEntwurfAn,
+  listeProtokolle,
+  loescheEntwurf,
+  speichereAntworten,
+} from './api'
 
 /* Same arrangement as api/client.test.ts: the fetch is handed in, so these tests
    need no browser and no stubbed global. What is checked here is the method, the
@@ -25,6 +36,22 @@ const ENTWURF = {
   updated_at: '2026-09-09T08:00:00Z',
 }
 
+/* A summary carries no answers at all: the five display values are read out of
+   the document by the query that builds the list. */
+const UEBERSICHT = {
+  id: 'a1',
+  status: 'DRAFT',
+  form_version: '20260609',
+  version: 1,
+  created_at: '2026-09-09T08:00:00Z',
+  updated_at: '2026-09-09T08:00:00Z',
+  gewaessername: 'Schussen',
+  ortsangabe: 'Weißenau',
+  laenge: '120',
+  datum: '2026-08-14',
+  anlass: 'wrrl_monitoring',
+}
+
 function aufruf(fetchImpl: ReturnType<typeof fakeFetch>) {
   const [pfad, optionen] = fetchImpl.mock.calls[0]
   return { pfad: pfad as string, optionen: optionen as RequestInit }
@@ -40,6 +67,35 @@ describe('legeEntwurfAn', () => {
     expect(pfad).toBe('/api/v1/protokolle')
     expect(optionen.method).toBe('POST')
     expect(optionen.body).toBeUndefined()
+  })
+})
+
+describe('listeProtokolle', () => {
+  it('gets the collection and hands back the summaries in the order they arrived', async () => {
+    const fetchImpl = fakeFetch([UEBERSICHT, { ...UEBERSICHT, id: 'b2' }])
+
+    const zeilen = await listeProtokolle({ fetchImpl })
+
+    expect(zeilen.map((zeile) => zeile.id)).toEqual(['a1', 'b2'])
+
+    const { pfad, optionen } = aufruf(fetchImpl)
+    expect(pfad).toBe('/api/v1/protokolle')
+    expect(optionen.method).toBe('GET')
+    expect(optionen.body).toBeUndefined()
+  })
+
+  /* Nobody signed in has no list to show, and the page has to send them to the
+     login screen rather than print "keine Protokolle" at them. */
+  it('surfaces a 401 as a typed error', async () => {
+    const fetchImpl = fakeFetch(
+      { code: NICHT_ANGEMELDET, nachricht: 'Bitte melden Sie sich an.' },
+      401,
+    )
+
+    const fehler = await listeProtokolle({ fetchImpl }).catch((f: unknown) => f)
+
+    expect(fehler).toBeInstanceOf(ApiFehler)
+    expect(fehler).toMatchObject({ code: NICHT_ANGEMELDET, status: 401 })
   })
 })
 
@@ -78,6 +134,41 @@ describe('holeEntwurf', () => {
 
     expect(fehler).toBeInstanceOf(ApiFehler)
     expect(fehler).toMatchObject({ code: PROTOKOLL_NICHT_GEFUNDEN, status: 404 })
+  })
+})
+
+describe('loescheEntwurf', () => {
+  it('deletes the one protocol and expects no answer back', async () => {
+    const fetchImpl = fakeFetch(null, 204)
+
+    await expect(loescheEntwurf('a1', { fetchImpl })).resolves.toBeUndefined()
+
+    const { pfad, optionen } = aufruf(fetchImpl)
+    expect(pfad).toBe('/api/v1/protokolle/a1')
+    expect(optionen.method).toBe('DELETE')
+  })
+
+  it('escapes the id rather than pasting it into the path', async () => {
+    const fetchImpl = fakeFetch(null, 204)
+
+    await loescheEntwurf('a1/../andere', { fetchImpl })
+
+    expect(aufruf(fetchImpl).pfad).toBe('/api/v1/protokolle/a1%2F..%2Fandere')
+  })
+
+  /* A protocol that has been submitted is no longer the surveyor's to throw
+     away, and the backend refuses with a 409. The row has to stay and say so
+     rather than disappear from a list it is still in. */
+  it('surfaces a 409 as a typed error', async () => {
+    const fetchImpl = fakeFetch(
+      { code: PROTOKOLL_VERAENDERT, nachricht: 'Dieses Protokoll ist kein Entwurf mehr.' },
+      409,
+    )
+
+    const fehler = await loescheEntwurf('a1', { fetchImpl }).catch((f: unknown) => f)
+
+    expect(fehler).toBeInstanceOf(ApiFehler)
+    expect(fehler).toMatchObject({ status: 409 })
   })
 })
 

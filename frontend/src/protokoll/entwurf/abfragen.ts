@@ -11,11 +11,22 @@
 
 import { queryOptions } from '@tanstack/react-query'
 import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../../api/fehler'
-import { holeEntwurf } from './api'
+import { holeEntwurf, listeProtokolle } from './api'
 
 /** Namespaced by id, so two protocols never share an entry. */
 export function entwurfsKey(id: string) {
   return ['entwurf', id] as const
+}
+
+/* The list's own key, sharing no prefix with a protocol's.
+ *
+ * Deliberately not ['entwurf'], which TanStack Query treats as a prefix of every
+ * ['entwurf', id]. Invalidating the list after a delete would then also throw
+ * away the document of a protocol open in another tab, and with it the version
+ * its next save has to quote.
+ */
+export function protokolleKey() {
+  return ['protokolle'] as const
 }
 
 /* Whether a failed read is worth trying again.
@@ -55,6 +66,23 @@ export function entwurfsAbfrage(id: string | undefined) {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
 
+    retry: sollWiederholen,
+  })
+}
+
+/* The list of this account's protocols.
+ *
+ * The opposite staleness policy to entwurfsAbfrage above, and for the reason
+ * that one gives: a protocol is pinned because the open form holds answers the
+ * server has not seen, so a refetch would replace them with something older.
+ * Nothing on the list is unsaved. Everything it shows was last written by the
+ * server, so refetching can only make it more correct, and coming back to the
+ * page after saving elsewhere should show what was saved.
+ */
+export function protokolleAbfrage() {
+  return queryOptions({
+    queryKey: protokolleKey(),
+    queryFn: () => listeProtokolle(),
     retry: sollWiederholen,
   })
 }

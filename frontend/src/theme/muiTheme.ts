@@ -311,6 +311,38 @@ export const muiTheme = createTheme({
           // Room for the focus ring on the bottom row, which the clipped
           // overflow box would otherwise cut in half.
           paddingBottom: '0.35rem',
+
+          /* The other kind of table this app has, added in feature 3c: a list of
+             records rather than a grid of numbers.
+             prototypes/mockup.css draws it as table.data, and it wants the
+             opposite of everything above. Cells are read across a row, not down
+             a column, so they are left-aligned, roomy, and separated by nothing
+             but the rule under each row.
+
+             Written here, scoped to one class on the container, rather than as
+             a second set of overrides per screen. Feature 12's review queue and
+             feature 16's user list are the same kind of table and inherit this
+             by adding the class. It cannot be a MUI variant: Table has no
+             variant prop, and TableCell's already means head, body or footer. */
+          '&.tabelle--liste': {
+            paddingBottom: 0,
+
+            '& .MuiTableCell-root': {
+              textAlign: 'left',
+              padding: '0.75rem 1rem',
+              borderRight: 'none',
+            },
+
+            /* The last row's rule would sit directly on the card's own border,
+               reading as a double line. */
+            '& .MuiTableBody-root .MuiTableRow-root:last-of-type .MuiTableCell-root': {
+              borderBottom: 'none',
+            },
+
+            '& .MuiTableBody-root .MuiTableRow-root:hover': {
+              background: 'var(--surface-sunken)',
+            },
+          },
         },
       },
     },
@@ -355,6 +387,54 @@ export const muiTheme = createTheme({
           color: 'var(--text)',
           fontSize: 'var(--step-0)',
           fontWeight: 600,
+        },
+      },
+    },
+    /* The status badge, added in feature 3c for "Meine Protokolle" and themed
+       here rather than per use so feature 11's review screens and feature 12's
+       queue inherit it.
+
+       Material's Chip is a fully rounded pill sized for a touch target. The
+       mockups' .badge is a small bordered rectangle at the form's own radius,
+       which is what this rebuilds; MUI's own colour prop still chooses which
+       token pair it takes, so the mapping stays one line at the call site.
+
+       Every pair is soft background, strong text, matching border, which keeps
+       the contrast the tokens were picked for in both themes. Colour never
+       carries the meaning on its own: the badge always prints the word. */
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          height: 'auto',
+          borderRadius: 'var(--radius)',
+          border: '1px solid var(--border)',
+          background: 'var(--neutral-soft)',
+          color: 'var(--neutral)',
+          fontSize: 'var(--step--1)',
+          fontWeight: 600,
+        },
+        label: {
+          padding: '0.1rem 0.55rem',
+        },
+        colorInfo: {
+          background: 'var(--info-soft)',
+          color: 'var(--info)',
+          borderColor: 'var(--info)',
+        },
+        colorWarning: {
+          background: 'var(--warn-soft)',
+          color: 'var(--warn)',
+          borderColor: 'var(--warn)',
+        },
+        colorError: {
+          background: 'var(--danger-soft)',
+          color: 'var(--danger)',
+          borderColor: 'var(--danger)',
+        },
+        colorSuccess: {
+          background: 'var(--ok-soft)',
+          color: 'var(--ok)',
+          borderColor: 'var(--ok)',
         },
       },
     },
