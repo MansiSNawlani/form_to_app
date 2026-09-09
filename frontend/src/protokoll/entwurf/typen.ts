@@ -8,8 +8,10 @@
 
 import type { FieldPathByValue } from 'react-hook-form'
 
-/** ADR 0004: a submission is never migrated to a later form version. */
-export const FORM_VERSION = '20260609'
+/* There is no FORM_VERSION constant here any more. The server stamps a protocol
+   with the version it was started under and sends it back on Entwurf.form_version
+   below, so a browser holding a stale copy of the number cannot disagree with the
+   record. ADR 0004: a submission is never migrated to a later form version. */
 
 /* The catch table's row and column numbers, part 6.
  *
@@ -466,10 +468,60 @@ export interface Antworten {
    where a string belongs. */
 export type AntwortPfad = FieldPathByValue<Antworten, string | undefined>
 
+/* The seven states a protocol can be in, exactly as
+ * backend/app/models/protokoll.py spells them.
+ *
+ * Feature 3b only ever sees DRAFT, because nothing can submit one yet. The whole
+ * list is written down so that feature 11 adds the workflow rather than the
+ * vocabulary.
+ */
+export type Status =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'IN_REVIEW'
+  | 'NEEDS_CHANGES'
+  | 'REJECTED'
+  | 'ACCEPTED'
+  | 'LOCKED'
+
+/* One protocol as its owner sees it: backend/app/api/schemas.py's
+ * ProtokollAntwort, under the name this app has always used for it.
+ *
+ * The keys are the server's, snake_case included. Renaming them on the way in
+ * would need a mapping layer, and a mapping layer is one more place for the two
+ * halves to disagree; api/typen.ts already keeps ist_aktiv for the same reason.
+ *
+ * version is the load-bearing field. It arrives with the protocol, goes back on
+ * every save, and returns incremented. Sending a stale one is refused with a 409
+ * and nothing is written, which is what stops one open tab overwriting another.
+ */
 export interface Entwurf {
   id: string
-  formVersion: string
-  angelegtAm: string
-  geaendertAm: string
+  status: Status
+  form_version: string
+  version: number
   antworten: Antworten
+  created_at: string
+  updated_at: string
+}
+
+/** A save: the whole document, and the version it started from. */
+export interface AntwortenSpeichern {
+  version: number
+  antworten: Antworten
+}
+
+/* What a save answers with: the new state, without the answers.
+ *
+ * Deliberately not the whole protocol. Saving fires while somebody types, so
+ * echoing a twenty kilobyte document back on every keystroke burst would be pure
+ * waste; the browser already has the answers it just sent. What it does not have
+ * is the new version, needed for the next save, and the moment the save landed,
+ * which is what the indicator prints.
+ */
+export interface SpeicherAntwort {
+  id: string
+  status: Status
+  version: number
+  updated_at: string
 }

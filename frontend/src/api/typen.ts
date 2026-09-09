@@ -56,3 +56,8 @@ export interface AnmeldungAnfrage {
   email: string
   passwort: string
 }
+
+/* The protocol endpoints' own shapes are not here. They live beside Antworten in
+   protokoll/entwurf/typen.ts, because every one of them carries or describes
+   that document and splitting them across two files would mean reading both to
+   understand either. They mirror backend/app/api/schemas.py just as these do. */

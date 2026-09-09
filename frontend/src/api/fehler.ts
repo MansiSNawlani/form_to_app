@@ -18,6 +18,18 @@ export const ANTWORT_UNLESBAR = 'ANTWORT_UNLESBAR'
 /** Not signed in, or the session has run out. Published by the backend. */
 export const NICHT_ANGEMELDET = 'NICHT_ANGEMELDET'
 
+/* No such protocol, or one belonging to somebody else. Published by the backend,
+ * which deliberately answers the same way to both: telling them apart would let
+ * a stranger discover which ids exist. */
+export const PROTOKOLL_NICHT_GEFUNDEN = 'PROTOKOLL_NICHT_GEFUNDEN'
+
+/* The protocol moved on since the save being attempted was working from, so
+ * nothing was written. The same protocol open in two places, which
+ * protokoll/anlagen/store.ts already records as ordinary here rather than an
+ * edge case. Feature 3b gives it a state of its own on screen, because it is the
+ * one save failure where trying again cannot help. */
+export const PROTOKOLL_VERAENDERT = 'PROTOKOLL_VERAENDERT'
+
 export interface FehlerOptionen {
   /** The HTTP status, or null when nothing ever answered. */
   status?: number

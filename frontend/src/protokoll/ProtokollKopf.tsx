@@ -16,7 +16,7 @@ function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
 
   const angelegtAm = new Intl.DateTimeFormat(i18n.language, {
     dateStyle: 'long',
-  }).format(new Date(entwurf.angelegtAm))
+  }).format(new Date(entwurf.created_at))
 
   return (
     <div className="page__head">
@@ -27,7 +27,7 @@ function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
           {' · '}
           {t('protokoll.kopf.angelegtAm', { datum: angelegtAm })}
           {' · '}
-          {t('shell.footer.formVersion', { version: entwurf.formVersion })}
+          {t('shell.footer.formVersion', { version: entwurf.form_version })}
         </p>
       </div>
       <div className="page__head-actions">

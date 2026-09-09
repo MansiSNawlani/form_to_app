@@ -806,3 +806,13 @@
     transition: none;
   }
 }
+
+/* The two protocol-wide notices: the offer to restore what a failed save left
+   behind, and the explanation of why a save did not land. Both sit between the
+   step bar and the section card, full width, because each concerns the whole
+   protocol rather than the section that happens to be open. */
+.protokoll-sicherung,
+.protokoll-speicherproblem,
+.protokoll-fehler {
+  margin-bottom: 1rem;
+}
