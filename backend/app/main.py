@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Response, status
 from pydantic import BaseModel
 
-from app.api import anmeldung
+from app.api import anmeldung, protokolle
 from app.api.fehler_http import registriere_fehlerbehandlung
 from app.db import database_is_reachable
 
@@ -19,6 +19,7 @@ app = FastAPI(
 registriere_fehlerbehandlung(app)
 
 app.include_router(anmeldung.router)
+app.include_router(protokolle.router)
 
 
 class Health(BaseModel):

@@ -13,7 +13,13 @@ it looks: feature 2c sends a 401 to the login page, and must not do that for a
 403, or somebody without a role gets bounced to a login form they are already
 past.
 
-The table below covers only what a route in this feature can raise. Every other
+There are two tables, one per exception family, because the protocol refusals
+have to say a number or a list of field paths and a table of fixed sentences
+cannot. The field paths are safe to print: they come from our own form
+definition, not from the request, so naming them cannot repeat a person's answers
+back at them.
+
+The account table below covers only what a route in this feature can raise. Every other
 member of the BenutzerFehler family falls to 500, which is the right answer while
 no route can produce it: a status code invented in advance is a contract nobody
 reviewed, and one of them would quietly matter. Mapping BenutzerNichtGefunden to
@@ -34,6 +40,16 @@ from app.benutzer.fehler import (
     KontoNichtInteraktiv,
     NichtAngemeldet,
     RolleFehlt,
+)
+from app.protokolle.fehler import (
+    AntwortenNichtLesbar,
+    AntwortenUngueltig,
+    AntwortenZuGross,
+    ProtokollFehler,
+    ProtokollNichtGefunden,
+    ProtokollNichtMehrEntwurf,
+    ProtokollVeraendert,
+    Verstossgrund,
 )
 
 AN_ADMINISTRATOR_WENDEN = "Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator."
@@ -157,6 +173,118 @@ async def behandle_anfragefehler(request: Request, fehler: Exception) -> Respons
     return _antwort(code, status_code, nachricht)
 
 
+# The protocol refusals, kept in their own table rather than added to the one
+# above. Two of them have to say a number or a list of field paths, which a table
+# of fixed sentences cannot do, so this family gets a handler that builds the
+# tail of its message the way behandle_anfragefehler already does.
+PROTOKOLL_UEBERSETZUNG: dict[type[ProtokollFehler], tuple[str, int, str]] = {
+    # 404 rather than 403, and the same answer whether the protocol is missing or
+    # belongs to somebody else. app/protokolle/fehler.py says why the two must
+    # stay indistinguishable. The wording follows: it names both possibilities
+    # rather than claiming which one it was.
+    ProtokollNichtGefunden: (
+        "PROTOKOLL_NICHT_GEFUNDEN",
+        status.HTTP_404_NOT_FOUND,
+        "Dieses Protokoll gibt es nicht, oder es gehört zu einem anderen Konto."
+        " Bitte prüfen Sie den Link, oder öffnen Sie das Protokoll über Ihre"
+        " Übersicht.",
+    ),
+    # 409 rather than 422. Nothing about the request is malformed: it is a
+    # perfectly good save that arrived after somebody else's, which is a conflict
+    # about state and not about the message.
+    ProtokollVeraendert: (
+        "PROTOKOLL_VERAENDERT",
+        status.HTTP_409_CONFLICT,
+        "Dieses Protokoll wurde zwischendurch an anderer Stelle geändert, zum"
+        " Beispiel in einem zweiten Browser-Tab oder auf einem anderen Gerät."
+        " Ihre letzten Eingaben wurden nicht gespeichert, damit die andere"
+        " Fassung nicht überschrieben wird. Bitte laden Sie die Seite neu und"
+        " tragen Sie das Fehlende noch einmal ein.",
+    ),
+    ProtokollNichtMehrEntwurf: (
+        "PROTOKOLL_NICHT_MEHR_ENTWURF",
+        status.HTTP_409_CONFLICT,
+        "Dieses Protokoll ist kein Entwurf mehr und kann nicht mehr geändert oder"
+        " gelöscht werden. Bitte laden Sie die Seite neu, um den aktuellen Stand"
+        " zu sehen.",
+    ),
+    AntwortenNichtLesbar: (
+        "ANTWORTEN_NICHT_LESBAR",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Die Antworten dieses Protokolls konnten nicht gelesen werden. Das ist ein"
+        " Fehler in der Anwendung und nicht in Ihren Eingaben. Bitte laden Sie die"
+        " Seite neu; wenn es wieder passiert, melden Sie es bitte.",
+    ),
+    AntwortenZuGross: (
+        "ANTWORTEN_ZU_GROSS",
+        status.HTTP_413_CONTENT_TOO_LARGE,
+        "Dieses Protokoll enthält mehr Text, als gespeichert werden kann. Bitte"
+        " kürzen Sie die längeren Freitextfelder, zum Beispiel die Bemerkungen,"
+        " und speichern Sie noch einmal.",
+    ),
+    AntwortenUngueltig: (
+        "ANTWORTEN_UNGUELTIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Einige Angaben konnten nicht gespeichert werden. Das ist ein Fehler in"
+        " der Anwendung und nicht in Ihren Eingaben. Der Rest des Protokolls ist"
+        " unverändert; bitte melden Sie den Fehler mit den genannten Feldern.",
+    ),
+}
+
+# What to call each kind of violation in the sentence that lists it.
+VERSTOSS_WORTLAUT: dict[Verstossgrund, str] = {
+    Verstossgrund.UNBEKANNT: "in diesem Formular nicht vorhanden",
+    Verstossgrund.KEIN_TEXT: "kein Text",
+    Verstossgrund.ZU_LANG: "zu lang",
+    Verstossgrund.PUNKT_IM_SCHLUESSEL: "falsch geschrieben",
+}
+
+# Enough to work with, few enough that the message stays readable. A document
+# with one wrong path usually has many, and listing four hundred of them helps
+# nobody.
+HOECHSTENS_GENANNT = 5
+
+
+def _genannte_felder(pfade: list[str]) -> str:
+    """A few field paths, and how many were left out.
+
+    Field paths, never values. They come from our own form definition, so naming
+    them cannot repeat back anything the person typed.
+    """
+    gezeigt = ", ".join(pfade[:HOECHSTENS_GENANNT])
+    rest = len(pfade) - HOECHSTENS_GENANNT
+    return f"{gezeigt} und {rest} weitere" if rest > 0 else gezeigt
+
+
+def _zusatz(fehler: ProtokollFehler) -> str:
+    """The part of the message that depends on this particular failure."""
+    if isinstance(fehler, AntwortenZuGross):
+        return f" Zurzeit sind es {fehler.zeichen} Zeichen, möglich sind {fehler.hoechstens}."
+
+    if isinstance(fehler, AntwortenUngueltig):
+        teile = [
+            f"{_genannte_felder(pfade)} ({VERSTOSS_WORTLAUT[grund]})"
+            for grund, pfade in sorted(fehler.nach_grund().items())
+        ]
+        return " Betroffen: " + "; ".join(teile) + "."
+
+    return ""
+
+
+async def behandle_protokollfehler(request: Request, fehler: Exception) -> Response:
+    """Registered for the ProtokollFehler family, so every subclass arrives here."""
+    if not isinstance(fehler, ProtokollFehler):
+        raise fehler
+
+    for klasse in type(fehler).__mro__:
+        if klasse in PROTOKOLL_UEBERSETZUNG:
+            code, status_code, nachricht = PROTOKOLL_UEBERSETZUNG[klasse]
+            return _antwort(code, status_code, nachricht + _zusatz(fehler))
+
+    return _antwort(*UNBEKANNT)
+
+
 def registriere_fehlerbehandlung(app: FastAPI) -> None:
     app.add_exception_handler(BenutzerFehler, behandle_benutzerfehler)
+    app.add_exception_handler(ProtokollFehler, behandle_protokollfehler)
     app.add_exception_handler(RequestValidationError, behandle_anfragefehler)

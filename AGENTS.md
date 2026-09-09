@@ -122,8 +122,9 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
   sessions. Generate one with
   `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Anyone holding it
   can mint a valid session for any account, so a deployment supplies its own from
-  the environment. `SITZUNGSDAUER_STUNDEN` (default 8) and `COOKIE_SECURE`
-  (default true) are optional.
+  the environment. `SITZUNGSDAUER_STUNDEN` (default 8), `COOKIE_SECURE`
+  (default true) and `FORMULAR_SEED_DIR` (added in feature 3a, and defaulting to
+  this checkout's own `database/seed/form_version_20260609`) are optional.
 - Start: `docker compose up -d --build`
 - Status: `docker compose ps`
 - Stop, keeping data: `docker compose down`

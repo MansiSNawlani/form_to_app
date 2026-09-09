@@ -177,8 +177,19 @@ async def session(connection: AsyncConnection) -> AsyncIterator[AsyncSession]:
     join_transaction_mode="create_savepoint" is what lets the code under test
     call commit() normally. Without it, the first commit would end the outer
     transaction and there would be nothing left to roll back.
+
+    expire_on_commit=False because app/db.py's real session factory sets it, and
+    a fixture that behaves differently from production fails tests for reasons
+    that have nothing to do with the code under test. Left at its default, every
+    attribute of a just-committed object would need a fresh query to read, which
+    inside a request means a lazy load in async context and an error about
+    greenlets rather than about anything a reader would recognise.
     """
-    factory = async_sessionmaker(bind=connection, join_transaction_mode="create_savepoint")
+    factory = async_sessionmaker(
+        bind=connection,
+        join_transaction_mode="create_savepoint",
+        expire_on_commit=False,
+    )
     async with factory() as open_session:
         yield open_session
 

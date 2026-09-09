@@ -9,5 +9,6 @@ makes that impossible.
 
 from app.models.base import Base
 from app.models.benutzer import Locale, Rolle, User
+from app.models.protokoll import Status, Submission
 
-__all__ = ["Base", "Locale", "Rolle", "User"]
+__all__ = ["Base", "Locale", "Rolle", "Status", "Submission", "User"]
