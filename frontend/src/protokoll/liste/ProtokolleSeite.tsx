@@ -1,23 +1,16 @@
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
 import Button from '@mui/material/Button'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { protokolleAbfrage } from '../entwurf/abfragen'
 import { zaehlungen } from './anzeige'
+import Ladefehler from './Ladefehler'
 import LeererZustand from './LeererZustand'
 import LoeschenDialog from './LoeschenDialog'
-import ProtokollZeile from './ProtokollZeile'
+import Loeschfehler from './Loeschfehler'
+import ProtokollTabelle from './ProtokollTabelle'
 import { useLoeschen } from './useLoeschen'
-import { useFehlertext } from '../../api/useFehlertext'
 import './liste.css'
 
 /* The home page: this account's own protocols.
@@ -35,9 +28,7 @@ function ProtokolleSeite() {
   const { t } = useTranslation()
 
   const { data: zeilen, isPending, error, refetch, isFetching } = useQuery(protokolleAbfrage())
-  const fehlertext = useFehlertext(error)
   const loeschen = useLoeschen()
-  const loeschfehlertext = useFehlertext(loeschen.fehler)
 
   const zahlen = zeilen === undefined ? undefined : zaehlungen(zeilen)
 
@@ -78,83 +69,22 @@ function ProtokolleSeite() {
         </Typography>
       )}
 
-      {/* Nothing is wrong with the protocols themselves, so this says so and
-          offers another go rather than leaving a page that looks like an account
-          with no work in it. */}
-      {error !== null && (
-        <Alert severity="error">
-          <AlertTitle>{t('protokolle.list.ladefehler.titel')}</AlertTitle>
-          <Typography variant="body2" className="hinweis__text">
-            {fehlertext ?? t('protokolle.list.ladefehler.text')}
-          </Typography>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-          >
-            {t('protokolle.list.ladefehler.erneut')}
-          </Button>
-        </Alert>
+      {/* Only when there is nothing to show instead. The list may be refetched
+          freely, so a refetch can fail while perfectly good rows are on screen,
+          and saying the protocols could not be loaded above a table of them is
+          both alarming and untrue. */}
+      {error !== null && zeilen === undefined && (
+        <Ladefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
       )}
 
-      {/* Names the protocol that is still there, because a message about "das
-          Protokoll" over a list of several says nothing about which one. */}
       {loeschen.fehlgeschlagen !== null && (
-        <Alert severity="error">
-          <AlertTitle>{t('protokolle.list.loeschfehler.titel')}</AlertTitle>
-          <Typography variant="body2">
-            {t('protokolle.list.loeschfehler.text', {
-              name:
-                loeschen.fehlgeschlagen.gewaessername ?? t('protokolle.list.ohneGewaesser'),
-            })}{' '}
-            {loeschfehlertext}
-          </Typography>
-        </Alert>
+        <Loeschfehler zeile={loeschen.fehlgeschlagen} fehler={loeschen.fehler} />
       )}
 
       {zeilen !== undefined && zeilen.length === 0 && <LeererZustand />}
 
       {zeilen !== undefined && zeilen.length > 0 && (
-        <section className="card">
-          <TableContainer className="tabelle--liste">
-            <Table>
-              {/* The table's accessible name. A caption rather than aria-label,
-                  so it is announced by every screen reader and stays in the
-                  locale file with every other string. */}
-              <caption className="visually-hidden">
-                {t('protokolle.list.tabelle.beschriftung')}
-              </caption>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('protokolle.list.tabelle.gewaesser')}</TableCell>
-                  <TableCell>{t('protokolle.list.tabelle.datum')}</TableCell>
-                  <TableCell>{t('protokolle.list.tabelle.anlass')}</TableCell>
-                  <TableCell>{t('protokolle.list.tabelle.status')}</TableCell>
-                  <TableCell>{t('protokolle.list.tabelle.bearbeitet')}</TableCell>
-                  {/* The action column's heading is for screen readers only:
-                      sighted readers have the buttons themselves, and a printed
-                      "Aktion" over a column of buttons is noise. */}
-                  <TableCell>
-                    <span className="visually-hidden">
-                      {t('protokolle.list.tabelle.aktion')}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {zeilen.map((zeile) => (
-                  <ProtokollZeile
-                    key={zeile.id}
-                    zeile={zeile}
-                    jetzt={jetzt}
-                    onLoeschen={loeschen.frage}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </section>
+        <ProtokollTabelle zeilen={zeilen} jetzt={jetzt} onLoeschen={loeschen.frage} />
       )}
 
       <LoeschenDialog

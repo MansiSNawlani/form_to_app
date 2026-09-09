@@ -333,6 +333,15 @@ export const muiTheme = createTheme({
               borderRight: 'none',
             },
 
+            /* Muted headings, as table.data draws them. A list is read by its
+               rows; the headings say what the columns are once and should not
+               compete with the content for attention. The catch table's are
+               full strength because there the heading is the size class and is
+               read as often as the numbers under it. */
+            '& .MuiTableCell-head': {
+              color: 'var(--muted)',
+            },
+
             /* The last row's rule would sit directly on the card's own border,
                reading as a double line. */
             '& .MuiTableBody-root .MuiTableRow-root:last-of-type .MuiTableCell-root': {

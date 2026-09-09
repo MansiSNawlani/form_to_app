@@ -3,9 +3,11 @@ import {
   anlassLabel,
   bearbeitetAnzeige,
   datumAnzeige,
+  protokollName,
   statusAnzeige,
   unterzeile,
   zaehlungen,
+  zeilenTitel,
 } from './anzeige'
 import type { Status, Uebersicht } from '../entwurf/typen'
 
@@ -102,6 +104,41 @@ describe('bearbeitetAnzeige', () => {
 
   it('has nothing to print for a timestamp it cannot read', () => {
     expect(bearbeitetAnzeige('nie', jetzt)).toBeNull()
+  })
+})
+
+describe('protokollName', () => {
+  /* Two sentences about the same row that name it differently read as two
+     different protocols, which is the failure this exists to prevent: the
+     question asking about "Schussen, Weißenau" and the message afterwards
+     talking about "Schussen". */
+  it('names a protocol the way its own page heading does', () => {
+    expect(protokollName(zeile())).toBe('Schussen, Weißenau')
+  })
+
+  it('uses whichever half exists', () => {
+    expect(protokollName(zeile({ ortsangabe: null }))).toBe('Schussen')
+    expect(protokollName(zeile({ gewaessername: null }))).toBe('Weißenau')
+  })
+
+  /* A draft created a minute ago has neither, and the caller supplies the
+     placeholder because it is a word. */
+  it('has no name for a draft nobody has typed into', () => {
+    expect(protokollName(zeile({ gewaessername: null, ortsangabe: null }))).toBeNull()
+  })
+})
+
+describe('zeilenTitel', () => {
+  /* The one place the shorter name is right: unterzeile prints the Ortsangabe
+     on the line directly below, so the full name would say the place twice in
+     one cell. */
+  it('prints the water alone, since the place is on the line beneath it', () => {
+    expect(zeilenTitel(zeile())).toBe('Schussen')
+  })
+
+  it('has nothing to print when no water has been named', () => {
+    expect(zeilenTitel(zeile({ gewaessername: null }))).toBeNull()
+    expect(zeilenTitel(zeile({ gewaessername: '   ' }))).toBeNull()
   })
 })
 

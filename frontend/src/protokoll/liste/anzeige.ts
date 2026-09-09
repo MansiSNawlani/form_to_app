@@ -13,6 +13,7 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { optionen } from '../optionen'
+import { titelAusTeilen } from '../entwurf/titel'
 import type { Status, Uebersicht } from '../entwurf/typen'
 
 // Needed for the strict parse below: without it dayjs falls back to the Date
@@ -59,26 +60,60 @@ export type Bearbeitet =
  * 00:01, which is how a person reads it, and 20 hours ago is not.
  */
 export function bearbeitetAnzeige(zeitpunkt: string, jetzt: Date): Bearbeitet | null {
-  const moment = dayjs(zeitpunkt)
-  if (!moment.isValid()) return null
+  const bearbeitet = dayjs(zeitpunkt)
+  if (!bearbeitet.isValid()) return null
 
   const heute = dayjs(jetzt)
-  if (moment.isSame(heute, 'day')) return { art: 'heute', zeit: moment.format(UHRZEIT) }
-  if (moment.isSame(heute.subtract(1, 'day'), 'day')) {
-    return { art: 'gestern', zeit: moment.format(UHRZEIT) }
+  if (bearbeitet.isSame(heute, 'day')) return { art: 'heute', zeit: bearbeitet.format(UHRZEIT) }
+  if (bearbeitet.isSame(heute.subtract(1, 'day'), 'day')) {
+    return { art: 'gestern', zeit: bearbeitet.format(UHRZEIT) }
   }
 
-  return { art: 'datum', datum: moment.format(ANGEZEIGT) }
+  return { art: 'datum', datum: bearbeitet.format(ANGEZEIGT) }
 }
-
-/* Metres. The same symbol in both locales and on the printed form, so it is not
-   a translated string. */
-const EINHEIT = 'm'
 
 function gefuellt(wert: string | null): string | null {
   const sauber = wert?.trim()
   return sauber ? sauber : null
 }
+
+/* What to call one protocol in a sentence about it.
+ *
+ * One function rather than a name assembled at each call site, because two
+ * sentences about the same row that name it differently read as two different
+ * protocols: the question "«Schussen, Weißenau» löschen?" followed by "«Schussen»
+ * ist noch da" is the failure that made this its own function.
+ *
+ * The fullest name available, which is titel.ts's, the same one the protocol's
+ * own page heading uses. The table's first cell is the deliberate exception: it
+ * prints the water alone because the Ortsangabe is on the line directly beneath
+ * it, and repeating it would be noise rather than identification.
+ *
+ * null when nothing has been typed yet. The caller supplies the placeholder,
+ * since it is a word and this file has no i18next in it.
+ */
+export function protokollName(zeile: Uebersicht): string | null {
+  return titelAusTeilen(zeile.gewaessername ?? undefined, zeile.ortsangabe ?? undefined)
+}
+
+/* What the table's first cell prints, which is the water on its own.
+ *
+ * The one place a protocol is not called by protokollName above, and the reason
+ * is the cell's second line: unterzeile prints the Ortsangabe directly beneath
+ * this, so the fuller name would say the same place twice in one cell. Prose
+ * about a row has no second line and uses the full name.
+ *
+ * Here rather than inline in the row, so the rule is one named, tested thing
+ * instead of a fragment of JSX that the next screen would rewrite slightly
+ * differently.
+ */
+export function zeilenTitel(zeile: Uebersicht): string | null {
+  return gefuellt(zeile.gewaessername)
+}
+
+/* Metres. The same symbol in both locales and on the printed form, so it is not
+   a translated string. */
+const EINHEIT = 'm'
 
 /* The row's second line: where on the water, and how much of it.
  *

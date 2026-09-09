@@ -1,10 +1,5 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import { useTranslation } from 'react-i18next'
+import BestaetigungsDialog from '../../../components/BestaetigungsDialog'
 
 interface EntfernenDialogProps {
   /** The attachment awaiting confirmation, or null when nothing is. */
@@ -22,6 +17,10 @@ interface EntfernenDialogProps {
  *
  * The file is named in the question rather than left as "dieses Foto", for the
  * same reason every refusal names it: twenty tiles look much alike.
+ *
+ * The dialog itself is components/BestaetigungsDialog.tsx, shared with the
+ * delete on "Meine Protokolle" since feature 3c. What is left here is this
+ * section's words.
  */
 function EntfernenDialog({
   dateiname,
@@ -31,26 +30,17 @@ function EntfernenDialog({
   const { t } = useTranslation()
 
   return (
-    <Dialog open={dateiname !== null} onClose={onAbbrechen}>
-      <DialogTitle>{t('protokoll.abschnitt7.entfernenFrage.titel')}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {t('protokoll.abschnitt7.entfernenFrage.text', {
-            dateiname: dateiname ?? '',
-          })}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        {/* Cancel first and focused by default, so the destructive button is
-            never what a hurried Enter lands on. */}
-        <Button variant="outlined" autoFocus onClick={onAbbrechen}>
-          {t('protokoll.abschnitt7.entfernenFrage.abbrechen')}
-        </Button>
-        <Button variant="contained" color="error" onClick={onBestaetigen}>
-          {t('protokoll.abschnitt7.entfernenFrage.bestaetigen')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <BestaetigungsDialog
+      offen={dateiname !== null}
+      titel={t('protokoll.abschnitt7.entfernenFrage.titel')}
+      text={t('protokoll.abschnitt7.entfernenFrage.text', {
+        dateiname: dateiname ?? '',
+      })}
+      abbrechenLabel={t('protokoll.abschnitt7.entfernenFrage.abbrechen')}
+      bestaetigenLabel={t('protokoll.abschnitt7.entfernenFrage.bestaetigen')}
+      onAbbrechen={onAbbrechen}
+      onBestaetigen={onBestaetigen}
+    />
   )
 }
 

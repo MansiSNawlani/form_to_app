@@ -13,6 +13,7 @@ import {
   datumAnzeige,
   statusAnzeige,
   unterzeile,
+  zeilenTitel,
   type Statusfarbe,
 } from './anzeige'
 
@@ -47,7 +48,7 @@ function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
     <TableRow>
       <TableCell>
         <span className="cell-title">
-          {zeile.gewaessername ?? t('protokolle.list.ohneGewaesser')}
+          {zeilenTitel(zeile) ?? t('protokolle.list.ohneGewaesser')}
         </span>
         {zweiteZeile !== null && <span className="cell-sub">{zweiteZeile}</span>}
       </TableCell>
