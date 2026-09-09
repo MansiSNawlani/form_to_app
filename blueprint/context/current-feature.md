@@ -1,7 +1,7 @@
 # Feature: 3b. The form saves to the server
 
 **From build-plan:** feature 3b, the second of four sub-features under item 3
-**Status:** built, reviewed, awaiting manual browser check
+**Status:** built, reviewed, manually verified on 2026-09-09
 
 ## Goal
 
