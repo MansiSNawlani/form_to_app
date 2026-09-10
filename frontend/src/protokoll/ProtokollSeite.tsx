@@ -2,13 +2,17 @@ import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import { useQuery } from '@tanstack/react-query'
-import { Navigate, useParams } from 'react-router'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import NotFound from '../components/NotFound'
 import ProtokollFormular from './ProtokollFormular'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
-import { entwurfsAbfrage } from './entwurf/abfragen'
+import VerwerfenDialog from './VerwerfenDialog'
+import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
+import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
+import type { Entwurf } from './entwurf/typen'
 import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../api/fehler'
 import { useFehlertext } from '../api/useFehlertext'
 import './protokoll.css'
@@ -23,12 +27,74 @@ import './protokoll.css'
 function ProtokollSeite() {
   const { id, nr } = useParams()
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  /* Whether this visit began at /protokolle/neu, decided once and never again.
+   *
+   * It has to be sticky. The moment the first thing is typed, the record is
+   * created and the address swaps to the real id, so reading istNeu(id) on
+   * every render would flip this page onto the fetching path mid-keystroke,
+   * rebuild the form from the server's copy and take the cursor with it. The
+   * whole point of routing both addresses through one route is that nothing is
+   * torn down when the id appears. */
+  const [begannNeu] = useState(() => istNeu(id))
+
+  /* One stand-in for the life of this page, so the automatic save is handed the
+     same object throughout and its subscription is never rebuilt. */
+  const [neuerEntwurf] = useState(leererEntwurf)
+
+  /* A ref as well as state, because the blocker below is consulted during the
+     very navigation that sets it. State would still read false at that moment
+     and the page would block its own address swap. */
+  const angelegt = useRef(false)
+  const [, setAngelegt] = useState(false)
+
+  // The section the person is actually on when the record gets created, which
+  // is not always the one they started on: the effect that owns the callback
+  // never re-runs, so it would otherwise close over the first section forever.
+  const aktuelleNr = useRef(nr)
+  useEffect(() => {
+    aktuelleNr.current = nr
+  }, [nr])
+
+  const beiAnlage = useCallback(
+    (entwurf: Entwurf) => {
+      angelegt.current = true
+      setAngelegt(true)
+
+      /* Straight into the cache the protocol page reads, so the address swap
+         below renders the draft we are holding instead of asking the server for
+         a document we just wrote. */
+      queryClient.setQueryData(entwurfsKey(entwurf.id), entwurf)
+
+      /* replace, so the back button goes where the surveyor came from rather
+         than to /protokolle/neu, which would start a second empty protocol. */
+      void navigate(abschnittPfad(entwurf.id, Number(aktuelleNr.current) || 1), {
+        replace: true,
+      })
+    },
+    [navigate, queryClient],
+  )
+
+  /* Asks before leaving a protocol that was never created. Section changes are
+     not leaving, which is what verlaesstProtokoll decides. */
+  const blocker = useBlocker(
+    ({ nextLocation }) =>
+      begannNeu && !angelegt.current && verlaesstProtokoll(nextLocation.pathname),
+  )
 
   /* Reading was synchronous until feature 3b, when the draft moved to the
      server. It is a query rather than a loader because the failure has to be
      retryable from the page it happened on, and because the section links
      navigate between URLs that share this one document. */
-  const { data: entwurf, isPending, error, refetch, isFetching } = useQuery(entwurfsAbfrage(id))
+  const {
+    data: entwurf,
+    isPending,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(entwurfsAbfrage(begannNeu ? undefined : id))
   const fehlertext = useFehlertext(error)
   const abschnitt = findeAbschnitt(nr)
 
@@ -42,6 +108,26 @@ function ProtokollSeite() {
         title={t('protokoll.nichtGefunden.titel')}
         text={t('protokoll.nichtGefunden.text')}
       />
+    )
+  }
+
+  if (begannNeu) {
+    if (abschnitt === undefined) return <Navigate to={abschnittPfad(NEU, 1)} replace />
+
+    return (
+      <>
+        <ProtokollFormular
+          key={NEU}
+          entwurf={neuerEntwurf}
+          abschnitt={abschnitt}
+          onAngelegt={beiAnlage}
+        />
+        <VerwerfenDialog
+          offen={blocker.state === 'blocked'}
+          onBleiben={() => blocker.reset?.()}
+          onVerwerfen={() => blocker.proceed?.()}
+        />
+      </>
     )
   }
 

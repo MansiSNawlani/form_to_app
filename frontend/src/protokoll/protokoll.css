@@ -1,30 +1,9 @@
-/* The protocol screen: page head, step bar, form card and action row.
+/* The protocol screen: step bar, form card and action row.
 
    Ported from prototypes/mockup.css, keeping its class names so the built screen
    and the approved mockup can be compared side by side, exactly as shell.css
    already does for the header and footer. Every value is a token from
    styles/theme.css; no colour is written literally. */
-
-.page__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.page__sub {
-  margin: 0.15rem 0 0;
-  color: var(--muted);
-  font-size: var(--step--1);
-}
-
-.page__head-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
 
 /* ---------- step bar ---------- */
 
@@ -213,11 +192,9 @@
 
 /* ---------- form card ---------- */
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
+/* .card itself is in components/shell.css: the protocol form and the list of
+   protocols both sit in one, so it belongs to the stylesheet every screen
+   loads. */
 
 .form-section {
   border: none;
@@ -817,12 +794,4 @@
   .steps-kompakt__pfeil {
     transition: none;
   }
-}
-
-/* The gap between a notice's explanation and the buttons under it. A class
-   rather than an sx prop on each of the four notices, so they cannot drift
-   apart; the alert's own spacing lives in muiTheme.ts with the rest of its
-   look. */
-.hinweis__text {
-  margin-bottom: 1rem;
 }

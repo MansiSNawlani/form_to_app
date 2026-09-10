@@ -17,6 +17,9 @@ import { useHydrologieAbgleich } from './regeln/useHydrologieAbgleich'
 interface ProtokollFormularProps {
   entwurf: Entwurf
   abschnitt: Abschnitt
+  /** Passed straight to the automatic save: fired once, when a protocol that
+      had no record on the server gets one. */
+  onAngelegt?: (entwurf: Entwurf) => void
 }
 
 /* One protocol: the head, the step bar, the open section and the action row.
@@ -26,7 +29,7 @@ interface ProtokollFormularProps {
  * yet saved. React Hook Form holds the values, so typing in a 338 field form
  * re-renders the field and not the page; coding-standards.md rules out useState
  * or a context here for exactly that reason. */
-function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
+function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormularProps) {
   const { t } = useTranslation()
 
   /* onTouched, so a fresh draft says nothing until somebody has actually been
@@ -40,7 +43,7 @@ function ProtokollFormular({ entwurf, abschnitt }: ProtokollFormularProps) {
     mode: 'onTouched',
     resolver: zodResolver(antwortenSchema),
   })
-  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form)
+  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form, { onAngelegt })
   useHydrologieAbgleich(form)
 
   /* An answer that was wrong when the draft was put down is still wrong when it

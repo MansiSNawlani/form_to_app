@@ -58,8 +58,59 @@
   "protokolle": {
     "list": {
       "title": "Meine Protokolle",
-      "empty": "Hier erscheinen die Protokolle, die Sie angelegt haben.",
-      "new": "Neues Protokoll"
+      "new": "Neues Protokoll",
+      "laedt": "Protokolle werden geladen.",
+      "anzahl_one": "{{count}} Protokoll",
+      "anzahl_other": "{{count}} Protokolle",
+      "anzahlMitEntwuerfen_one": "{{count}} Protokoll, {{entwuerfe}}",
+      "anzahlMitEntwuerfen_other": "{{count}} Protokolle, {{entwuerfe}}",
+      "entwuerfe_one": "davon {{count}} Entwurf",
+      "entwuerfe_other": "davon {{count}} Entwürfe",
+      "ohneGewaesser": "Ohne Gewässername",
+      "weiter": "Weiter ausfüllen",
+      "tabelle": {
+        "beschriftung": "Ihre Protokolle, zuletzt bearbeitete zuerst",
+        "gewaesser": "Gewässer und Probestrecke",
+        "datum": "Datum",
+        "anlass": "Anlass",
+        "status": "Status",
+        "bearbeitet": "Zuletzt bearbeitet",
+        "aktion": "Aktion"
+      },
+      "bearbeitet": {
+        "heute": "heute, {{zeit}}",
+        "gestern": "gestern, {{zeit}}"
+      },
+      "status": {
+        "DRAFT": "Entwurf",
+        "SUBMITTED": "Eingereicht",
+        "IN_REVIEW": "In Prüfung",
+        "NEEDS_CHANGES": "Änderung erforderlich",
+        "REJECTED": "Abgelehnt",
+        "ACCEPTED": "Angenommen",
+        "LOCKED": "Abgeschlossen"
+      },
+      "loeschen": {
+        "aktion": "Löschen",
+        "titel": "Protokoll löschen?",
+        "text": "Das Protokoll «{{name}}» wird endgültig gelöscht, mit allen Antworten und Anlagen. Das lässt sich nicht rückgängig machen.",
+        "abbrechen": "Abbrechen",
+        "bestaetigen": "Endgültig löschen"
+      },
+      "loeschfehler": {
+        "titel": "Das Protokoll konnte nicht gelöscht werden",
+        "text": "«{{name}}» ist noch da und unverändert. Bitte versuchen Sie es noch einmal."
+      },
+      "leer": {
+        "titel": "Noch kein Protokoll angelegt",
+        "text": "Ein Protokoll kann über mehrere Sitzungen ausgefüllt werden. Es wird laufend gespeichert und erst eingereicht, wenn Sie es ausdrücklich abschicken.",
+        "knopf": "Erstes Protokoll anlegen"
+      },
+      "ladefehler": {
+        "titel": "Ihre Protokolle konnten nicht geladen werden",
+        "text": "Die Liste ist gerade nicht erreichbar. Ihre Protokolle sind gespeichert und gehen nicht verloren. Bitte versuchen Sie es noch einmal.",
+        "erneut": "Erneut versuchen"
+      }
     }
   },
   "protokoll": {
@@ -88,11 +139,6 @@
     "ladefehler": {
       "titel": "Protokoll konnte nicht geladen werden",
       "text": "Das Protokoll war nicht abrufbar. Ihre gespeicherten Angaben sind davon nicht betroffen.",
-      "erneut": "Erneut versuchen"
-    },
-    "anlegen": {
-      "fehlerTitel": "Protokoll konnte nicht angelegt werden",
-      "fehlerText": "Das neue Protokoll war nicht anzulegen. Bitte versuchen Sie es erneut.",
       "erneut": "Erneut versuchen"
     },
     "navigation": {
@@ -538,7 +584,14 @@
       "keinNachweisNebenArt": "\"kein Nachweis\" schließt jede andere Art in der Tabelle aus.",
       "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag."
     },
+    "verwerfen": {
+      "titel": "Dieses Protokoll ist noch leer",
+      "text": "Es wurde noch nicht angelegt, weil Sie noch nichts eingetragen haben. Wenn Sie jetzt zurückgehen, geht nichts verloren und es erscheint nicht in Ihrer Liste.",
+      "bleiben": "Weiter ausfüllen",
+      "verwerfen": "Verlassen"
+    },
     "speichern": {
+      "ungespeichert": "Wird angelegt, sobald Sie etwas eintragen",
       "unveraendert": "Alle Änderungen gespeichert",
       "speichert": "Wird gespeichert",
       "gespeichertUm": "Automatisch gespeichert um {{zeit}}",

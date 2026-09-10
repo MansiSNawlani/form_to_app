@@ -1,0 +1,64 @@
+/* "Meine Protokolle": the two-line first cell, and the columns of figures.
+
+   Ported from prototypes/mockup.css, keeping its class names so the built screen
+   and the approved mockup can be compared side by side, exactly as shell.css and
+   protokoll.css already do. Every value is a token from styles/theme.css.
+
+   The table's own look is not here. It is in theme/muiTheme.ts under
+   .tabelle--liste, because the review queue and the user list are the same kind
+   of table and should inherit it rather than each import a stylesheet. */
+
+.cell-title {
+  font-weight: 600;
+}
+
+.cell-sub {
+  display: block;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* Dates and times line up down their column: proportional digits make
+   14.08.2026 and 09.07.2026 different widths, which reads as ragged. */
+.zeile-tabular {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The action column is as wide as its button and no wider, so the first cell
+   keeps the room it needs for a long water name. */
+.zeile-aktion {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* ---------- the account with nothing in it yet ---------- */
+
+/* A centred column rather than centred text in a block.
+ *
+ * The first attempt gave the paragraph max-width and margin-inline: auto, which
+ * looked right and was not: MUI's Typography carries margin: 0, emotion injects
+ * its rules after this stylesheet, and one class beats one class on whichever
+ * lands last. The width survived and the centring did not, so the text sat in a
+ * narrow column against the left edge while the heading and the button centred
+ * themselves. Flex centring cannot be overridden by a margin reset, so it is
+ * used instead of winning a specificity race. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  /* No reading-measure cap on the sentence below. Capping it at about 46
+     characters wrapped it onto three lines inside a card several times that
+     wide, which reads as a layout fault rather than as careful typography. It
+     uses the width it is given and wraps only when the window makes it. */
+  padding: 3rem 1.5rem;
+  color: var(--muted);
+}
+
+/* The button is the thing to do next, so it stands apart from the sentence
+   explaining it rather than sitting in the same rhythm as the text above. */
+.empty__aktion {
+  margin-top: 0.5rem;
+}

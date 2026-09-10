@@ -12,6 +12,8 @@ function SpeicherAnzeige({ live = true, ...state }: SaveState & { live?: boolean
 
   function text() {
     switch (state.status) {
+      case 'ungespeichert':
+        return t('protokoll.speichern.ungespeichert')
       case 'saving':
         return t('protokoll.speichern.speichert')
       case 'failed':
