@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { ApiFehler, PROTOKOLL_VERAENDERT } from '../../api/fehler'
-import { speichereAntworten } from './api'
+import { legeEntwurfAn, speichereAntworten } from './api'
+import { NEU, istNeu } from './neu'
 import { sicherungsStore } from './sicherung'
 import type { Antworten, Entwurf } from './typen'
 
@@ -21,6 +22,10 @@ import type { Antworten, Entwurf } from './typen'
    a value for. */
 export type SaveState =
   | { status: 'unchanged' }
+  /* Opened but not yet written to the server, because nothing has been typed
+     into it. Its own state rather than 'unchanged', which would claim there is
+     a record and it matches: there is no record at all. */
+  | { status: 'ungespeichert' }
   | { status: 'saving' }
   | { status: 'saved'; zeitpunkt: string }
   | { status: 'failed' }
@@ -34,6 +39,14 @@ export interface AutoSave {
   zustand: SaveState
   /** Save now rather than at the end of the debounce. The restore banner's. */
   jetztSpeichern: () => void
+}
+
+export interface AutoSaveOptionen {
+  /* Called once, when a protocol that had no record gets one. The page uses it
+     to put the new draft in the cache and to swap the address bar from
+     /protokolle/neu to the real id, so a reload lands on the protocol rather
+     than on a fresh empty one. */
+  onAngelegt?: (entwurf: Entwurf) => void
 }
 
 /* Long enough that typing a word is one save and not eight, short enough that
@@ -55,6 +68,7 @@ const DEBOUNCE_MS = 800
  * a burst re-render nothing at all. The indicator already reads "wird
  * gespeichert" by then and has nothing new to say. */
 const SPEICHERT: SaveState = { status: 'saving' }
+const UNGESPEICHERT: SaveState = { status: 'ungespeichert' }
 const KONFLIKT: SaveState = { status: 'conflict' }
 const FEHLGESCHLAGEN: SaveState = { status: 'failed' }
 
@@ -86,8 +100,22 @@ export function fehlerZustand(fehler: unknown): SaveState {
  * Reading a protocol does go through useQuery, in ProtokollSeite, where the
  * cache and the loading state are worth having.
  */
-export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): AutoSave {
-  const [state, setState] = useState<SaveState>({ status: 'unchanged' })
+export function useAutoSave(
+  entwurf: Entwurf,
+  form: UseFormReturn<Antworten>,
+  { onAngelegt }: AutoSaveOptionen = {},
+): AutoSave {
+  const [state, setState] = useState<SaveState>(
+    istNeu(entwurf.id) ? UNGESPEICHERT : { status: 'unchanged' },
+  )
+
+  /* The protocol this hook is saving to, which is not always the one it was
+     handed. A protocol opened from "Neues Protokoll" has no record until the
+     first thing is typed into it, so its id arrives mid-life from the server. A
+     ref rather than state for the same reason the version below is one: saving
+     must not re-render the form, and the flush on unmount has to see the
+     current value rather than the one captured when the effect ran. */
+  const id = useRef(entwurf.id)
 
   /* The version the next save will claim to be working from. A ref rather than
      state because saving must not re-render the form, and because the flush on
@@ -122,7 +150,7 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
      * is still here always means work the server never acknowledged. */
     function sichern(): void {
       sicherungsStore.schreib({
-        id: entwurf.id,
+        id: id.current,
         version: version.current,
         antworten: form.getValues(),
       })
@@ -137,13 +165,28 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
       sichern()
 
       try {
+        /* The first thing typed into a protocol is what brings it into
+           existence. Two requests rather than one, because POST takes no body:
+           a protocol begins empty and everything about it arrives through
+           saves, which is the shape feature 3a settled on and not worth
+           reopening for this one moment. */
+        if (istNeu(id.current)) {
+          const angelegt = await legeEntwurfAn()
+          id.current = angelegt.id
+          version.current = angelegt.version
+          // Written under the placeholder id a moment ago, and pointing at a
+          // protocol that now has a real one.
+          sicherungsStore.loesche(NEU)
+          onAngelegt?.({ ...angelegt, antworten })
+        }
+
         const antwort = await speichereAntworten({
-          id: entwurf.id,
+          id: id.current,
           version: version.current,
           antworten,
         })
         version.current = antwort.version
-        sicherungsStore.loesche(entwurf.id)
+        sicherungsStore.loesche(id.current)
         if (report) setState({ status: 'saved', zeitpunkt: antwort.updated_at })
       } catch (fehler) {
         /* The copy is deliberately left where it is on every path out of here.
@@ -209,7 +252,15 @@ export function useAutoSave(entwurf: Entwurf, form: UseFormReturn<Antworten>): A
       if (aufgegeben) sichern()
       else void save(false)
     }
-  }, [entwurf.id, form])
+    /* entwurf.id is deliberately not a dependency, unlike every other value
+       this effect reads. The page hands the same draft object over for as long
+       as it is open, so the id only ever changes in the ref above, from the
+       placeholder to the one the server gave. Re-running on that would tear
+       down the subscription and flush a save against the id it had just
+       replaced. onAngelegt is left out for the same reason and runs at most
+       once. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form])
 
   const jetztSpeichern = useCallback(() => anstossen.current(), [])
 

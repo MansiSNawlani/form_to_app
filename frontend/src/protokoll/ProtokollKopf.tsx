@@ -22,12 +22,20 @@ function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
     <div className="page__head">
       <div>
         <ProtokollTitel />
+        {/* A protocol that has not been created yet has no creation date worth
+            printing and no form version: the server stamps both when it makes
+            the record. Printing "angelegt am heute" for something that does not
+            exist would be the one line on this page that is not true. */}
         <p className="page__sub">
           {t('protokoll.kopf.entwurf')}
-          {' · '}
-          {t('protokoll.kopf.angelegtAm', { datum: angelegtAm })}
-          {' · '}
-          {t('shell.footer.formVersion', { version: entwurf.form_version })}
+          {entwurf.form_version !== '' && (
+            <>
+              {' · '}
+              {t('protokoll.kopf.angelegtAm', { datum: angelegtAm })}
+              {' · '}
+              {t('shell.footer.formVersion', { version: entwurf.form_version })}
+            </>
+          )}
         </p>
       </div>
       <div className="page__head-actions">

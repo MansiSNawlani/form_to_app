@@ -16,6 +16,11 @@ interface BestaetigungsDialogProps {
   bestaetigenLabel: string
   /** Disables both buttons while the request is in flight. */
   laeuft?: boolean
+  /* Red by default, because the usual reason to ask is that something is about
+     to be destroyed. 'primary' is for the case where the answer costs nothing,
+     such as leaving a protocol that was never created, where a red button would
+     make an empty page look like a hazard. */
+  bestaetigenFarbe?: 'error' | 'primary'
   onAbbrechen: () => void
   onBestaetigen: () => void
 }
@@ -40,6 +45,7 @@ function BestaetigungsDialog({
   abbrechenLabel,
   bestaetigenLabel,
   laeuft = false,
+  bestaetigenFarbe = 'error',
   onAbbrechen,
   onBestaetigen,
 }: BestaetigungsDialogProps) {
@@ -53,7 +59,12 @@ function BestaetigungsDialog({
         <Button variant="outlined" autoFocus onClick={onAbbrechen} disabled={laeuft}>
           {abbrechenLabel}
         </Button>
-        <Button variant="contained" color="error" onClick={onBestaetigen} disabled={laeuft}>
+        <Button
+          variant="contained"
+          color={bestaetigenFarbe}
+          onClick={onBestaetigen}
+          disabled={laeuft}
+        >
           {bestaetigenLabel}
         </Button>
       </DialogActions>
