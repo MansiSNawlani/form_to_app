@@ -21,7 +21,7 @@ function LeererZustand() {
     <section className="card">
       <div className="empty">
         <Typography variant="h2">{t('protokolle.list.leer.titel')}</Typography>
-        <Typography variant="body1" className="empty__text">
+        <Typography variant="body1">
           {t('protokolle.list.leer.text')}
         </Typography>
         <Button

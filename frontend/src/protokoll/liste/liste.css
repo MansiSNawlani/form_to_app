@@ -49,15 +49,12 @@
   align-items: center;
   gap: 0.75rem;
   text-align: center;
+  /* No reading-measure cap on the sentence below. Capping it at about 46
+     characters wrapped it onto three lines inside a card several times that
+     wide, which reads as a layout fault rather than as careful typography. It
+     uses the width it is given and wraps only when the window makes it. */
   padding: 3rem 1.5rem;
   color: var(--muted);
-}
-
-/* Capped at a readable measure. Long lines are hard to follow because the eye
-   loses its place on the way back to the next one, and this paragraph is the
-   one piece of prose on the page. */
-.empty__text {
-  max-width: 46ch;
 }
 
 /* The button is the thing to do next, so it stands apart from the sentence
