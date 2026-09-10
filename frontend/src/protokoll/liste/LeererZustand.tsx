@@ -24,7 +24,12 @@ function LeererZustand() {
         <Typography variant="body1" className="empty__text">
           {t('protokolle.list.leer.text')}
         </Typography>
-        <Button component={Link} to="/protokolle/neu" variant="contained">
+        <Button
+          component={Link}
+          to="/protokolle/neu"
+          variant="contained"
+          className="empty__aktion"
+        >
           {t('protokolle.list.leer.knopf')}
         </Button>
       </div>

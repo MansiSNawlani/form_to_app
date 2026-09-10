@@ -34,13 +34,34 @@
 
 /* ---------- the account with nothing in it yet ---------- */
 
+/* A centred column rather than centred text in a block.
+ *
+ * The first attempt gave the paragraph max-width and margin-inline: auto, which
+ * looked right and was not: MUI's Typography carries margin: 0, emotion injects
+ * its rules after this stylesheet, and one class beats one class on whichever
+ * lands last. The width survived and the centring did not, so the text sat in a
+ * narrow column against the left edge while the heading and the button centred
+ * themselves. Flex centring cannot be overridden by a margin reset, so it is
+ * used instead of winning a specificity race. */
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   text-align: center;
   padding: 3rem 1.5rem;
   color: var(--muted);
 }
 
+/* Capped at a readable measure. Long lines are hard to follow because the eye
+   loses its place on the way back to the next one, and this paragraph is the
+   one piece of prose on the page. */
 .empty__text {
-  margin: 0.35rem auto 1.25rem;
   max-width: 46ch;
+}
+
+/* The button is the thing to do next, so it stands apart from the sentence
+   explaining it rather than sitting in the same rhythm as the text above. */
+.empty__aktion {
+  margin-top: 0.5rem;
 }
