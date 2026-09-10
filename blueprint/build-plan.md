@@ -79,9 +79,11 @@ These are not features and are not tracked here. They happen first.
   - [x] 3b. The form saves to the server: the browser draft store swapped for API calls behind
         the same interface, automatic saving as a mutation, and a local safety copy that keeps
         what was typed when a save fails
-  - [ ] 3c. Meine Protokolle: the submissions list replacing the placeholder home page, built
+  - [x] 3c. Meine Protokolle: the submissions list replacing the placeholder home page, built
         against `prototypes/meine-protokolle.html`, with the counts, the empty state, and
-        resuming or deleting a draft
+        resuming or deleting a draft. Also, by decision on 2026-09-10, a protocol is now
+        created by the first thing typed into it rather than by opening the page, so
+        changing your mind no longer leaves an empty draft in the list
   - [ ] 3d. Attachments on the server: the attachments table, file storage, the upload,
         download and delete endpoints, and the browser's IndexedDB store swapped for them
 
