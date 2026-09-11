@@ -16,6 +16,7 @@ from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
 from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER, NICHT_ZUTREFFEND
 from app.protokolle.formregeln.vollstaendigkeit import PFLICHTFELDER
+from app.protokolle.regeln import pruefe_antworten
 
 # The browser's German locale, which is the authority on what a valid key is.
 # Reached by path rather than by import for the obvious reason: this is the
@@ -139,3 +140,21 @@ class TestJederSchluesselHatEinenText:
 
         assert deklariert, "no rule keys found, so this test is proving nothing"
         assert deklariert <= regel_schluessel()
+
+
+@pytest.mark.parametrize("dokument", [VOLLSTAENDIG, KAPUTT], ids=["vollstaendig", "kaputt"])
+def test_die_beispiele_sind_dokumente_die_wirklich_gespeichert_werden_koennen(
+    dokument: dict[str, Any],
+) -> None:
+    """Both fixtures have to be documents the form could really hold.
+
+    They are not, automatically. Nothing in this package looks at a path the rules
+    do not judge, so a group written as a bare string sits there unnoticed: this
+    is exactly how bemerkungen was wrong from feature 11a until feature 11c saved
+    the fixture through the real endpoint and app/protokolle/regeln.py refused it.
+
+    Deliberately true of the broken fixture too. KAPUTT is meant to break rules,
+    not to be a document this form cannot store, or it would be testing two
+    different failures at once.
+    """
+    pruefe_antworten(dokument)

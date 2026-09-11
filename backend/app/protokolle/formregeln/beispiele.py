@@ -85,7 +85,16 @@ VOLLSTAENDIG: dict[str, Any] = {
         "art1": {"name": "SATR", "klasse_2": "34", "klasse_3": "18", "0plus": "41"},
         "art2": {"name": "COGO", "klasse_1": "8", "klasse_2": "21", "0plus": "19"},
     },
-    "bemerkungen": "Wasserstand nach den Regenfällen der Vorwoche leicht erhöht.",
+    # bemerkungen is a group, not a field. The legacy form has
+    # bemerkungen.sonstige_bemerkungen at the foot of the protocol and
+    # bemerkungen.bemerkung_fische above the catch table. Written as a bare string
+    # when this fixture was first created in feature 11a, which no test caught
+    # because no rule looks at free text: feature 11c found it the moment the
+    # fixture was saved through the real endpoint, where the shape check in
+    # app/protokolle/regeln.py refused it.
+    "bemerkungen": {
+        "sonstige_bemerkungen": "Wasserstand nach den Regenfällen der Vorwoche leicht erhöht.",
+    },
 }
 
 

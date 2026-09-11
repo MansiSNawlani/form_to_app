@@ -127,6 +127,45 @@ class SpeicherAntwort(BaseModel):
     updated_at: datetime
 
 
+class AbsendenAnfrage(BaseModel):
+    """A submit: the version the browser was working from, and nothing else.
+
+    Required for the same reason a save carries one, and with more at stake.
+    Submitting is the single action in this application that cannot be taken
+    back, so a tab left open across somebody else's editing session must not be
+    able to send a document that is no longer the current one: the surveyor would
+    have submitted answers they never saw. Refused as PROTOKOLL_VERAENDERT, 409,
+    exactly as a save is.
+
+    No answers. Whatever is stored is what gets submitted, which is what makes
+    the rules and the stored document the same subject. A submit carrying its own
+    document would be a save and a submit in one request, with two ways for them
+    to disagree.
+    """
+
+    version: int = Field(ge=1)
+
+
+class AbsendenAntwort(BaseModel):
+    """What a submit answers with: where the protocol ended up.
+
+    Not the whole protocol. The browser is leaving the form for Meine Protokolle,
+    which fetches its own rows, so the answers it already holds are of no further
+    use to it.
+
+    version comes back because a tab still open on this protocol is now behind,
+    and submitted_at because it is the moment the record left the surveyor's
+    hands.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    status: Status
+    version: int
+    submitted_at: datetime
+
+
 class ProtokollUebersicht(BaseModel):
     """One protocol as the list shows it, without its answers.
 
@@ -183,6 +222,28 @@ class AnlageAntwort(BaseModel):
     created_at: datetime
 
 
+class VerstossAntwort(BaseModel):
+    """One thing wrong with a protocol somebody tried to submit.
+
+    A path and a key, never a sentence, which is feature 11a's decision and the
+    reason the backend holds no German: all 29 messages already exist under
+    protokoll.regeln in the browser's locale file, and feature 17 translates them
+    once. A sentence built here could not be translated and would be a second
+    copy of one that exists.
+
+    pfad is a dotted path into the answers document, such as
+    probestrecke.gewaesser.name, or one of the four pseudo-paths the rules use
+    where the wrong thing is a combination rather than a single field. Every
+    field on the form carries its path as its DOM id, so the browser can point
+    straight at the control this concerns.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    pfad: str
+    schluessel: str
+
+
 class FehlerAntwort(BaseModel):
     """The shape every refusal from this API takes, including a 422.
 
@@ -197,3 +258,11 @@ class FehlerAntwort(BaseModel):
 
     code: str
     nachricht: str
+
+    # Only a refused submit fills this in. Every other refusal leaves it out, so
+    # nothing reading the old two-field shape breaks.
+    #
+    # It exists because this is the one refusal the browser draws rather than
+    # prints: a panel listing each unfinished or broken answer next to the field
+    # it concerns. A sentence could not be drawn that way.
+    verstoesse: list[VerstossAntwort] | None = None
