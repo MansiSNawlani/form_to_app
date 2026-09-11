@@ -1,7 +1,7 @@
 # Feature: The rules in Python
 
 **From build-plan:** feature 11a
-**Status:** not started
+**Status:** built, all ten steps done
 
 ## Goal
 
@@ -51,6 +51,11 @@ None. There is no screen in this sub-feature.
   renderable after the form changes, and it earns its place when a second form
   version exists. Raised with the user on 2026-09-11 rather than decided quietly.
 - Any change to the frontend, including its rule modules and its locale files.
+  **Deviated from on 2026-09-11, deliberately and narrowly.** This was inconsistent
+  with step 10's own done-when, which requires every key the backend can emit to have
+  German text behind it. Four keys are new here and had none, so the choice was to add
+  four lines to `de.json` or to ship a check that cannot pass. The four messages were
+  written. No other frontend file is touched.
 - Attachments. Whether a protocol must carry a Kartenausschnitt before it can be
   submitted is a real question, and it belongs to 11c where the panel that would say
   so is built.
@@ -91,7 +96,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - The rule contract and its helpers** - create
+- [x] **Step 1 - The rule contract and its helpers** - create
       `app/protokolle/formregeln/`, mirroring `frontend/src/protokoll/regeln/` module
       for module. Define the `Formverstoss` shape (a path and a message key), and port
       the three helpers in `regel.ts`: `wert_aus` walking a dotted path, `als_zahl`
@@ -102,7 +107,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `"0.0"`, `" 12 "`, `""` and `"zwoelf"`, and `wert_aus` three levels deep on
       `probestrecke.gewaesser.vorfluter1`.
 
-- [ ] **Step 2 - The option lists reach the backend** - extend `app/formular/` to
+- [x] **Step 2 - The option lists reach the backend** - extend `app/formular/` to
       publish `optionslisten.json` from the same seed directory `felder.py` already
       reads, cached the same way. Several rules below compare against coded values:
       the Gewaessertyp numbers, the four no-detection species codes, the WRRL and FFH
@@ -110,7 +115,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       *Done when:* a test reads a known list out of the seed, and a missing seed file
       fails with the same clear message `felder.py` already gives.
 
-- [ ] **Step 3 - Part 1 rules** - port `vorfluter.ts`, `koordinaten.ts` and
+- [x] **Step 3 - Part 1 rules** - port `vorfluter.ts`, `koordinaten.ts` and
       `monitoring.ts`. The receiving-water chain with no gaps and ending at Rhein or
       Donau, the Baden-Wuerttemberg coordinate bounds, the monitoring number required
       for a WRRL or FFH occasion.
@@ -120,7 +125,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `koordinateRechtswertAusserhalb`, `koordinateHochwertAusserhalb` and
       `monitoringnummerPflicht`.
 
-- [ ] **Step 4 - Part 2 rules** - port `schaetzwert.ts`, each estimate falling inside
+- [x] **Step 4 - Part 2 rules** - port `schaetzwert.ts`, each estimate falling inside
       the band chosen for it. Then the hydrology rule, which is new in this direction:
       the frontend blanks the hydrology fields when the water is standing, so the
       backend's job is to refuse a standing-water protocol that still carries
@@ -129,14 +134,14 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       band chosen, an unreadable value, and a Gewaessertyp of 21, 26 or 29 carrying a
       hydrology answer.
 
-- [ ] **Step 5 - Part 3 rules** - port `prozent.ts`: the six blocks, each summing to
+- [x] **Step 5 - Part 3 rules** - port `prozent.ts`: the six blocks, each summing to
       exactly 100, each share a whole number. Keys `prozentKeineGanzeZahl` and
       `prozentsummeNichtHundert`, the latter pointing at the group rather than at any
       one box.
       *Done when:* `pytest` covers all six blocks, a block summing to 99, one summing
       to 101, an untouched block, and a decimal share.
 
-- [ ] **Step 6 - Parts 4 and 5 rules** - port `einfluesse.ts`, where the
+- [x] **Step 6 - Parts 4 and 5 rules** - port `einfluesse.ts`, where the
       contradiction is between two ticks rather than in either, and `ausruestung.ts`,
       where three pairs of numbers must not say nothing between them, and no quantity
       may be negative.
@@ -145,14 +150,14 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `befischteLaengeNull`, `befischteBreiteNull` and `zahlNegativ` on the cases their
       `.test.ts` files already cover.
 
-- [ ] **Step 7 - Part 6, the counts** - port the first half of `arten.ts`: a row's
+- [x] **Step 7 - Part 6, the counts** - port the first half of `arten.ts`: a row's
       total read out of its ten size classes, the young-of-year count never exceeding
       that total, and no negative or fractional counts anywhere in the table.
       *Done when:* `pytest` emits `anzahlKeineGanzeZahl` and `nullPlusUeberSumme` on
       the cases `arten.test.ts` already covers, and a blank cell counts as nothing
       while a word in a cell refuses to be totalled at all.
 
-- [ ] **Step 8 - Part 6, the species** - the second half of `arten.ts`: no species
+- [x] **Step 8 - Part 6, the species** - the second half of `arten.ts`: no species
       named twice, one of the four no-detection codes when nothing was caught, and no
       no-detection code sitting beside a real catch. Split from step 7 because
       `arten.ts` is 332 lines, two and a half times the next largest module, and one
@@ -161,7 +166,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `keinNachweisNebenArt` and `fangOhneNachweisCode` on the cases
       `arten.test.ts` already covers.
 
-- [ ] **Step 9 - What a finished protocol must contain** - write
+- [x] **Step 9 - What a finished protocol must contain** - write
       `vollstaendigkeit.py`. **This step stops for a decision before any code.** The
       32 `pflicht` markers give parts 1, 2 and 5. Parts 3, 4 and 6 mark nothing today,
       so what they require is a call somebody has to make, and it is a product
@@ -176,7 +181,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       not requiring hydrology, and a flowing water requiring it. The list of required
       paths sits in one place and reads top to bottom.
 
-- [ ] **Step 10 - One check over the whole document** - `pruefe_protokoll(antworten)`
+- [x] **Step 10 - One check over the whole document** - `pruefe_protokoll(antworten)`
       running every rule in section order and returning one flat list. Add two
       fixtures: a complete, valid protocol and a deliberately broken one.
       *Done when:* the valid fixture returns zero violations, the broken one returns a
