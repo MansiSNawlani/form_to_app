@@ -10,13 +10,17 @@ makes that impossible.
 from app.models.anlage import Anlagenart, Attachment
 from app.models.base import Base
 from app.models.benutzer import Locale, Rolle, User
+from app.models.gewaesser import Gewaesser
+from app.models.person import Person
 from app.models.protokoll import Status, Submission
 
 __all__ = [
     "Anlagenart",
     "Attachment",
     "Base",
+    "Gewaesser",
     "Locale",
+    "Person",
     "Rolle",
     "Status",
     "Submission",
