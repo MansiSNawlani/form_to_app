@@ -32,7 +32,13 @@ interface AbsendenBlockProps {
 function AbsendenBlock({ entwurfId, bereitZumAbsenden }: AbsendenBlockProps) {
   const { t } = useTranslation()
   const [fragt, setFragt] = useState(false)
-  const { watch } = useFormContext<Antworten>()
+  /* getValues, not watch. watch() with no argument subscribes this component to
+     every field in the document, and coding-standards.md chose React Hook Form
+     precisely so that a keystroke does not re-render the form around it. Nothing
+     here needs to track a change as it happens: the name and the species list
+     are read when the dialog opens and when a refusal comes back, both of which
+     re-render this component anyway. */
+  const { getValues } = useFormContext<Antworten>()
 
   const { absenden, laeuft, verstoesse, fehler } = useAbsenden({ entwurfId, bereitZumAbsenden })
 
@@ -44,7 +50,7 @@ function AbsendenBlock({ entwurfId, bereitZumAbsenden }: AbsendenBlockProps) {
   /* The protocol's own name, so the question names the thing rather than asking
      about "this protocol". A draft may not have one yet, which is what the
      second wording is for. */
-  const name = protokollTitel(watch())
+  const name = protokollTitel(getValues())
 
   const fehlertext = useFehlertext(fehler)
   const istUngespeichert = fehler instanceof NichtGespeichert
@@ -53,7 +59,7 @@ function AbsendenBlock({ entwurfId, bereitZumAbsenden }: AbsendenBlockProps) {
      be named by its fish rather than by its row number. Read only when there is
      something to name: watch() on the whole document is already how this
      component gets the protocol's title. */
-  const artnamen = artnamenAus(watch())
+  const artnamen = artnamenAus(getValues())
 
   return (
     <fieldset className="form-section">
