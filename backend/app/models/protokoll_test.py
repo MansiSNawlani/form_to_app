@@ -11,6 +11,7 @@ or by a bug in a future feature.
 
 import uuid
 from collections.abc import Awaitable, Callable
+from datetime import UTC, date, datetime, time
 
 import pytest
 from sqlalchemy import select, text
@@ -19,6 +20,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.formular.felder import formular
 from app.models.benutzer import Locale, User
+from app.models.gewaesser import Gewaesser
+from app.models.person import Person
+from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
 
 
@@ -30,6 +34,46 @@ def entwurf(besitzer: User, **felder: object) -> Submission:
         "antworten": {},
     }
     return Submission(**(vorgabe | felder))
+
+
+async def _stelle(session: AsyncSession) -> uuid.UUID:
+    """One Gewaesser and one Probestrecke on it, for a submission to point at."""
+    gewaesser = Gewaesser(id=uuid.uuid4(), name="Schussen", vorfluter=["Bodensee", "Rhein"])
+    strecke = Probestrecke(
+        id=uuid.uuid4(),
+        gewaesser_id=gewaesser.id,
+        ortsangabe="unterhalb der Bruecke",
+        gewaessertyp=13,
+        laenge_m=450,
+        untere_grenze_rechtswert=512340,
+        untere_grenze_hochwert=5398120,
+        obere_grenze_rechtswert=512890,
+        obere_grenze_hochwert=5398450,
+        regierungspraesidium=4,
+    )
+    session.add_all([gewaesser, strecke])
+    await session.flush()
+    return strecke.id
+
+
+async def _person(session: AsyncSession) -> uuid.UUID:
+    person = Person(id=uuid.uuid4(), name="Anna Weber", email="weber@ffs.de")
+    session.add(person)
+    await session.flush()
+    return person.id
+
+
+async def _umschlag(session: AsyncSession) -> dict[str, object]:
+    """Everything a submission that has left DRAFT has to carry."""
+    return {
+        "probestrecke_id": await _stelle(session),
+        "person_id": await _person(session),
+        "bearbeiter_name": "Anna Weber",
+        "anlass": "wrrl",
+        "datum": date(2026, 6, 9),
+        "uhrzeit": time(14, 30),
+        "submitted_at": datetime.now(UTC),
+    }
 
 
 async def test_ein_entwurf_bekommt_die_vorgaben(
@@ -60,7 +104,7 @@ async def test_der_status_kommt_als_status_zurueck(
     one of them without anything failing loudly.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.IN_REVIEW))
+    session.add(entwurf(besitzer, status=Status.IN_REVIEW, **await _umschlag(session)))
     await session.commit()
     session.expunge_all()
 
@@ -81,7 +125,7 @@ async def test_zwei_enumtext_spalten_kommen_sich_nicht_ins_gehege(
     assumed.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.ACCEPTED))
+    session.add(entwurf(besitzer, status=Status.ACCEPTED, **await _umschlag(session)))
     await session.commit()
     session.expunge_all()
 
@@ -193,3 +237,112 @@ async def test_das_dokument_ueberlebt_die_runde(
     gespeichert = (await session.scalars(select(Submission))).one()
 
     assert gespeichert.antworten == antworten
+
+
+# The envelope, added in feature 11b. Everything below is about the two check
+# constraints rather than about any code path: these are the guarantees that
+# still hold for a row written by hand, which is the whole reason this suite runs
+# against real Postgres.
+
+
+async def test_ein_entwurf_braucht_keinen_umschlag(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """A draft is exactly the state in which none of the eight exists yet.
+
+    This is why they are nullable columns guarded by a constraint rather than
+    NOT NULL ones: probestrecke_id on a draft would have to point at a stretch
+    with no coordinates and no water type, and that row cannot exist.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    session.add(entwurf(besitzer))
+    await session.commit()
+
+    gespeichert = (await session.scalars(select(Submission))).one()
+
+    assert gespeichert.probestrecke_id is None
+    assert gespeichert.submitted_at is None
+    assert gespeichert.locked_at is None
+
+
+@pytest.mark.parametrize(
+    "fehlend",
+    [
+        "probestrecke_id",
+        "person_id",
+        "bearbeiter_name",
+        "anlass",
+        "datum",
+        "uhrzeit",
+        "submitted_at",
+    ],
+)
+async def test_abgegeben_ohne_umschlag_wird_abgewiesen(
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    fehlend: str,
+) -> None:
+    """Nullable here means "not yet", never "optional".
+
+    One parameter per column, because a constraint written over seven values at
+    once is exactly the kind that can pass while silently ignoring one of them.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    umschlag = await _umschlag(session)
+    umschlag[fehlend] = None
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **umschlag))
+
+    with pytest.raises(IntegrityError) as fehler:
+        await session.commit()
+
+    assert "ck_submissions_umschlag_bei_abgabe" in str(fehler.value)
+
+
+async def test_abgegeben_mit_umschlag_wird_angenommen(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """The other half of the constraint: a complete envelope is let through."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **await _umschlag(session)))
+    await session.commit()
+
+    gespeichert = (await session.scalars(select(Submission))).one()
+
+    assert gespeichert.status is Status.SUBMITTED
+    assert gespeichert.datum == date(2026, 6, 9)
+    assert gespeichert.uhrzeit == time(14, 30)
+
+
+@pytest.mark.parametrize(
+    ("status", "locked_at", "erlaubt"),
+    [
+        (Status.LOCKED, True, True),
+        (Status.SUBMITTED, False, True),
+        # Locked without the moment of locking, and the moment without the lock.
+        # Both are the same fact half-recorded.
+        (Status.LOCKED, False, False),
+        (Status.SUBMITTED, True, False),
+    ],
+)
+async def test_gesperrt_und_zeitpunkt_gehoeren_zusammen(
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    status: Status,
+    locked_at: bool,
+    erlaubt: bool,
+) -> None:
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    umschlag = await _umschlag(session)
+    if locked_at:
+        umschlag["locked_at"] = datetime.now(UTC)
+    session.add(entwurf(besitzer, status=status, **umschlag))
+
+    if erlaubt:
+        await session.commit()
+        assert (await session.scalars(select(Submission))).one().status is status
+        return
+
+    with pytest.raises(IntegrityError) as fehler:
+        await session.commit()
+
+    assert "ck_submissions_gesperrt_hat_zeitpunkt" in str(fehler.value)
