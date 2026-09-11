@@ -4,7 +4,9 @@ The answers document holds everything as text, because every control on the form
 writes a string and a half-typed number is not a number. The columns added in
 feature 11b hold dates, times and integers. This module is the crossing between
 the two, and it is a plain function from a document to typed values: no session,
-no HTTP, nothing German, in keeping with coding-standards.md.
+no HTTP and no wording, in keeping with coding-standards.md. The identifiers are
+German because the domain is; what stays out is user-facing text, which belongs
+in the locale files so feature 17 can translate it.
 
 **Compare loosely, store faithfully.** Every name here is carried through exactly
 as it was typed, and compared after normalising. Defect 2 in
@@ -18,6 +20,14 @@ raises rather than being interpreted. "09.06.2026" could be the 9th of June or
 the 6th of September, and choosing on somebody's behalf puts silently wrong data
 into a state database. The form's pickers cannot produce any of these, so a
 document holding one reached us round the form.
+
+**No comparison key for the stretch lives here.** Which stretch a protocol belongs
+to is decided in dienst.py, against the same partial unique indexes the table
+carries. A second spelling of that decision did live here, and drifted from the
+first within a day of being written: this module normalised the
+Monitoringstrecken-Nr. and the query compared it raw, so MS-4711 and ms-4711 were
+one stretch to one half and two to the other. The branch review on 2026-09-11
+caught it while it was still dead code.
 
 This runs after formregeln/vollstaendigkeit.py has passed, which 11c arranges, so
 a missing required answer here is a bug rather than an unfinished protocol. It
@@ -45,6 +55,11 @@ UHRZEIT = re.compile(r"^\d{2}:\d{2}$")
 # looser sense. These four are metres and a count of metres, and a decimal point
 # in one means the value came from somewhere that was not the form.
 GANZE_ZAHL = re.compile(r"^\d+$")
+
+# What a read hands back when it could not produce a value. Never read: the
+# reader raises before anything built out of one is returned. Named rather than
+# a bare 0 so that laenge below can tell a refused read from a genuine zero.
+_PLATZHALTER_ZAHL = -1
 
 ANLASS = "anlass"
 DATUM_PFAD = "datum"
@@ -138,27 +153,6 @@ class Probestreckenangaben:
             self.obere_grenze_hochwert,
         )
 
-    @property
-    def schluessel(self) -> tuple[object, ...]:
-        """What decides whether this is a stretch already on record.
-
-        The Monitoringstrecken-Nr. when the protocol carries one, because it is
-        officially assigned and stable. Otherwise both boundaries: two ends on
-        one water are the stretch.
-
-        **The two never cross**, which is why the discriminator is in the tuple.
-        A protocol carrying a number does not attach to an identically placed
-        stretch that has none. Decided on 2026-09-11: stamping the number onto
-        the existing row would write to something already-accepted protocols
-        point at, and nothing in this feature ever does that.
-
-        Not the water. The caller pairs this with the Gewaesser it resolved,
-        which is what the unique index on the table does too.
-        """
-        if self.monitoringstrecke_nr is not None:
-            return ("nr", normalisiert(self.monitoringstrecke_nr))
-        return ("koordinaten", *self.koordinaten)
-
 
 @dataclass(frozen=True, slots=True)
 class Personenangaben:
@@ -231,19 +225,23 @@ class _Leser:
         """
         roh = self.text(pfad)
         if not roh:
-            return 0
+            return _PLATZHALTER_ZAHL
         if not GANZE_ZAHL.match(roh.strip()):
-            return self._abgelehnt(pfad)
+            return self._abgelehnt(pfad, _PLATZHALTER_ZAHL)
 
         wert = int(roh.strip())
         if erlaubt is not None and wert not in erlaubt:
-            return self._abgelehnt(pfad)
+            return self._abgelehnt(pfad, _PLATZHALTER_ZAHL)
         return wert
 
     def laenge(self, pfad: str) -> int:
-        """Metres. A stretch of no length was not fished."""
+        """Metres. A stretch of no length was not fished, so zero is refused."""
         wert = self.ganze_zahl(pfad)
-        return self._abgelehnt(pfad) if wert == 0 and pfad not in self._fehlend else wert
+        if wert == _PLATZHALTER_ZAHL:
+            return _PLATZHALTER_ZAHL
+        if wert == 0:
+            self.fehlt(pfad)
+        return wert
 
     def datum(self, pfad: str) -> date:
         roh = self.text(pfad).strip()
@@ -268,12 +266,12 @@ class _Leser:
         except ValueError:
             return self._abgelehnt(pfad, time.min)
 
-    def _abgelehnt[T](self, pfad: str, ersatz: T = 0) -> T:  # type: ignore[assignment]
+    def _abgelehnt[T](self, pfad: str, ersatz: T) -> T:
         """Record the path and hand back a placeholder.
 
-        The placeholder is never used: fertig() raises before anything built from
-        it is returned. It exists so one bad value does not stop the pass and hide
-        the other four.
+        The placeholder is never read: fertig() raises before anything built out
+        of it is returned. It exists so that one unreadable value does not stop
+        the pass and hide the other four.
         """
         self._fehlend.append(pfad)
         return ersatz

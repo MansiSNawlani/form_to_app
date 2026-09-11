@@ -187,9 +187,10 @@ def test_eine_monitoringstrecke_wird_ueber_ihre_nummer_erkannt() -> None:
 
     assert ohne_nummer.probestrecke.monitoringstrecke_nr is None
     assert mit_nummer.probestrecke.monitoringstrecke_nr == "MS-4711"
-    # The decision of 2026-09-11: the two keys never cross, so a numbered stretch
-    # and an identically placed unnumbered one are different records.
-    assert ohne_nummer.probestrecke.schluessel != mit_nummer.probestrecke.schluessel
+    # That a numbered stretch and an identically placed unnumbered one are
+    # different records is dienst.py's decision, and dienst_test.py proves it
+    # against the database rather than against a key spelled twice.
+    assert ohne_nummer.probestrecke.koordinaten == mit_nummer.probestrecke.koordinaten
 
 
 @pytest.mark.parametrize(

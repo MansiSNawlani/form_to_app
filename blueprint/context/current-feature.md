@@ -1,7 +1,7 @@
 # Feature: 11b - Gewaesser, Probestrecke and Person as real tables
 
 **From build-plan:** feature 11b
-**Status:** not started
+**Status:** built, all six steps done; awaiting review
 
 ## Goal
 
@@ -66,7 +66,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - Gewaesser and Person as models** - `app/models/gewaesser.py` and
+- [x] **Step 1 - Gewaesser and Person as models** - `app/models/gewaesser.py` and
       `app/models/person.py`, both registered in `app/models/__init__.py`. Gewaesser
       carries `name`, the `vorfluter` chain as a text array capped at five, and the
       two nullable GIS columns. Person carries the seven contact fields and the
@@ -74,7 +74,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       *Done when:* `alembic check` names both tables as present in the models and
       missing from the database, and `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 2 - Probestrecke as a model** - `app/models/probestrecke.py`: the
+- [x] **Step 2 - Probestrecke as a model** - `app/models/probestrecke.py`: the
       foreign key to Gewaesser, `monitoringstrecke_nr` unique where it is present,
       `ortsangabe`, `gewaessertyp`, `laenge_m`, the four boundary coordinates and
       `regierungspraesidium`. Check constraints for the eight known Gewaessertyp
@@ -82,7 +82,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       *Done when:* `alembic check` names all three tables as missing from the
       database, and lint and types pass.
 
-- [ ] **Step 3 - the migration that creates the three tables** - one Alembic
+- [x] **Step 3 - the migration that creates the three tables** - one Alembic
       revision, drafted with `--autogenerate` and then read and corrected by hand,
       as `AGENTS.md` requires. The constraints spelled out in SQL, not imported
       from `app/`.
@@ -90,7 +90,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       drafts, `alembic check` then reports no changes, and `alembic downgrade -1`
       removes all three tables cleanly.
 
-- [ ] **Step 4 - the envelope columns on submissions** - the eight columns, all
+- [x] **Step 4 - the envelope columns on submissions** - the eight columns, all
       nullable, plus two check constraints: everything except `locked_at` is
       required once `status` is anything but DRAFT, and `locked_at` is set exactly
       when the status is LOCKED. Model change and migration together, since neither
@@ -99,7 +99,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `pytest` includes a test proving the database itself rejects a row with
       status SUBMITTED and a null `probestrecke_id`; `alembic check` is clean.
 
-- [ ] **Step 5 - reading the answers into match keys, as plain functions** -
+- [x] **Step 5 - reading the answers into match keys, as plain functions** -
       `app/protokolle/zuordnung/regeln.py`. Takes the answers document and returns
       the typed values and the three comparison keys. No database, no session, in
       keeping with `coding-standards.md`.
@@ -110,7 +110,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       guessed at; a missing required answer raising a named error rather than
       writing a half row.
 
-- [ ] **Step 6 - find or create, against the database** -
+- [x] **Step 6 - find or create, against the database** -
       `app/protokolle/zuordnung/dienst.py`, one function taking a session, an
       answers document and the submitting account, returning the three ids. Reuse
       rules as decided below.

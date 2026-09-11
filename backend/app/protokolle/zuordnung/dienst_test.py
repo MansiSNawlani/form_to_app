@@ -312,3 +312,39 @@ async def test_gibt_die_ids_zurueck_die_wirklich_in_der_datenbank_stehen(
     assert strecke_ is not None
     assert strecke_.gewaesser_id == zuordnung.gewaesser_id
     assert isinstance(zuordnung.person_id, uuid.UUID)
+
+
+async def test_eine_treffende_nummer_legt_kein_gewaesser_an(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    """Found by the branch review on 2026-09-11.
+
+    The water used to be resolved before the stretch was looked up. When the
+    Monitoringstrecken-Nr. then matched a stretch recorded against a differently
+    spelled water, the freshly created Gewaesser row was left behind with nothing
+    pointing at it. Creating nothing that is not needed is the same rule as never
+    updating what is already there.
+
+    The stretch the number names wins, and the protocol attaches to it. The
+    number is officially assigned and the name was typed.
+    """
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    erste = await ordne_zu(session, lies_umschlag(strecke(monitoringnummer="MS-4711")), besitzer)
+    zweite = await ordne_zu(
+        session,
+        lies_umschlag(
+            mit(
+                probestrecke={
+                    **VOLLSTAENDIG["probestrecke"],  # type: ignore[dict-item]
+                    "monitoringnummer": "MS-4711",
+                    "gewaesser": {"gewaessername": "Neckar", "vorfluter1": "Rhein"},
+                }
+            )
+        ),
+        besitzer,
+    )
+
+    assert erste.probestrecke_id == zweite.probestrecke_id
+    assert zweite.gewaesser_id == erste.gewaesser_id
+    assert await _zaehle(session, Gewaesser) == 1

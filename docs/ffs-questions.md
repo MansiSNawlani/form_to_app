@@ -222,6 +222,33 @@ after.
 
 ---
 
+## 13. Should a Monitoringstrecken-Nr. that names a stretch on another Gewässer be refused?
+
+**Where:** Feature 11b, which decides at submit whether a Probestrecke is one already on record.
+
+A Monitoringstrecken-Nr. is officially assigned and stable, so the application treats it as the
+identity of a Probestrecke: a protocol carrying one attaches to the stretch that already holds that
+number. The Gewässer name, by contrast, is typed by hand.
+
+That means the two can disagree. A protocol can name the Schussen, carry `MS-4711`, and find that
+`MS-4711` is already on record against a stretch of the Neckar. The application currently attaches
+the protocol to the stretch the number names and does not create a second one, on the grounds that
+an assigned number is better evidence than a typed name. Nothing is overwritten: the protocol still
+displays the Gewässer its author wrote, because that lives in its own answers.
+
+**What we need to know:** whether that is the behaviour FFS wants, or whether such a protocol should
+be refused at submit and sent back to the surveyor. Refusing is safer for the data and costs a
+surveyor a round trip. Accepting is quieter and leaves a record whose stretch and whose typed water
+body name do not agree, which somebody reviewing it would have to notice for themselves.
+
+A related and smaller case: a stretch fished before it was taken into a monitoring programme, and
+again afterwards, becomes two Probestrecke records, because a numbered stretch and an unnumbered one
+never match. The survey history for that piece of water is then split across both. Merging them
+needs the official water body dataset and so belongs to feature 18, but it is worth confirming that
+splitting rather than rewriting the earlier record is the behaviour FFS expects.
+
+---
+
 ## What happens to the answers
 
 Anything that comes back as a requirement becomes a small change to the new application, logged the

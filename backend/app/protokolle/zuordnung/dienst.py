@@ -34,7 +34,7 @@ failed.
 import uuid
 from dataclasses import dataclass
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.benutzer import User
@@ -71,11 +71,14 @@ async def ordne_zu(session: AsyncSession, umschlag: Umschlag, konto: User) -> Zu
     it. Nothing is committed, so a failure anywhere leaves the caller's
     transaction to roll the whole set back.
     """
-    gewaesser = await _gewaesser(session, umschlag.gewaesser)
-    strecke = await _probestrecke(session, umschlag.probestrecke, gewaesser.id)
+    strecke = await _probestrecke(session, umschlag)
     person = await _person(session, umschlag.person, konto)
 
-    return Zuordnung(gewaesser_id=gewaesser.id, probestrecke_id=strecke.id, person_id=person.id)
+    return Zuordnung(
+        gewaesser_id=strecke.gewaesser_id,
+        probestrecke_id=strecke.id,
+        person_id=person.id,
+    )
 
 
 async def _gewaesser(session: AsyncSession, angaben: Gewaesserangaben) -> Gewaesser:
@@ -105,7 +108,7 @@ async def _gewaesser(session: AsyncSession, angaben: Gewaesserangaben) -> Gewaes
         .where(func.cardinality(Gewaesser.vorfluter) == len(angaben.vorfluter))
     )
     for kandidat in gleichnamige:
-        if [normalisiert(name) for name in kandidat.vorfluter] == list(angaben.schluessel[1:]):
+        if _kette(kandidat.vorfluter) == _kette(angaben.vorfluter):
             return kandidat
 
     neu = Gewaesser(id=uuid.uuid4(), name=angaben.name, vorfluter=list(angaben.vorfluter))
@@ -114,34 +117,74 @@ async def _gewaesser(session: AsyncSession, angaben: Gewaesserangaben) -> Gewaes
     return neu
 
 
-async def _probestrecke(
-    session: AsyncSession, angaben: Probestreckenangaben, gewaesser_id: uuid.UUID
-) -> Probestrecke:
+def _kette(namen: list[str] | tuple[str, ...]) -> list[str]:
+    """The Vorfluter chain reduced for comparison, order kept.
+
+    The order is part of the identity: Muehlbach into Neckar into Rhein is not
+    Muehlbach into Rhein into Neckar.
+    """
+    return [normalisiert(name) for name in namen]
+
+
+async def _probestrecke(session: AsyncSession, umschlag: Umschlag) -> Probestrecke:
     """The stretch, matched on its number where it has one and its ends where not.
 
     The two keys never cross, which the partial unique indexes on the table
     enforce and this mirrors. A protocol carrying a number never matches a
     stretch without one, even at identical coordinates.
-    """
-    if angaben.monitoringstrecke_nr is not None:
-        bedingung = Probestrecke.monitoringstrecke_nr == angaben.monitoringstrecke_nr
-    else:
-        bedingung = (
-            (Probestrecke.gewaesser_id == gewaesser_id)
-            & (Probestrecke.monitoringstrecke_nr.is_(None))
-            & (Probestrecke.untere_grenze_rechtswert == angaben.untere_grenze_rechtswert)
-            & (Probestrecke.untere_grenze_hochwert == angaben.untere_grenze_hochwert)
-            & (Probestrecke.obere_grenze_rechtswert == angaben.obere_grenze_rechtswert)
-            & (Probestrecke.obere_grenze_hochwert == angaben.obere_grenze_hochwert)
-        )
 
-    treffer = await session.scalars(select(Probestrecke).where(bedingung).limit(1))
-    if (gefunden := treffer.first()) is not None:
-        # Deliberately returned as it stands. The length and the Ortsangabe this
-        # protocol carries may differ, and the stored ones win: neither is part
-        # of the key, and both are kept per protocol in its answers anyway.
+    **The water is resolved only when a stretch actually has to be created.** A
+    Monitoringstrecken-Nr. identifies a stretch on its own, so looking one up
+    needs no water at all. Resolving the water first, as this did until the
+    branch review on 2026-09-11, left a freshly created Gewaesser row behind
+    pointing at nothing every time the number matched a stretch recorded against
+    a differently spelled water. Creating nothing that is not needed is the same
+    rule as never updating what is already there.
+
+    When the number does match a stretch on another water, that stretch wins and
+    the protocol attaches to it. The number is officially assigned and the name
+    was typed, so the number is the better authority; the protocol still displays
+    the name its author wrote, because that lives in its own answers. Whether FFS
+    would rather see that refused is question 13 in docs/ffs-questions.md.
+    """
+    angaben = umschlag.probestrecke
+
+    if angaben.monitoringstrecke_nr is not None:
+        gefunden = await _erste(
+            session, Probestrecke.monitoringstrecke_nr == angaben.monitoringstrecke_nr
+        )
+        if gefunden is not None:
+            return gefunden
+        gewaesser = await _gewaesser(session, umschlag.gewaesser)
+        return await _lege_strecke_an(session, angaben, gewaesser.id)
+
+    gewaesser = await _gewaesser(session, umschlag.gewaesser)
+    gefunden = await _erste(
+        session,
+        (Probestrecke.gewaesser_id == gewaesser.id)
+        & (Probestrecke.monitoringstrecke_nr.is_(None))
+        & (Probestrecke.untere_grenze_rechtswert == angaben.untere_grenze_rechtswert)
+        & (Probestrecke.untere_grenze_hochwert == angaben.untere_grenze_hochwert)
+        & (Probestrecke.obere_grenze_rechtswert == angaben.obere_grenze_rechtswert)
+        & (Probestrecke.obere_grenze_hochwert == angaben.obere_grenze_hochwert),
+    )
+    if gefunden is not None:
+        # Returned as it stands. The length and the Ortsangabe this protocol
+        # carries may differ, and the stored ones win: neither is part of the
+        # key, and both are kept per protocol in its own answers anyway.
         return gefunden
 
+    return await _lege_strecke_an(session, angaben, gewaesser.id)
+
+
+async def _erste(session: AsyncSession, bedingung: ColumnElement[bool]) -> Probestrecke | None:
+    treffer = await session.scalars(select(Probestrecke).where(bedingung).limit(1))
+    return treffer.first()
+
+
+async def _lege_strecke_an(
+    session: AsyncSession, angaben: Probestreckenangaben, gewaesser_id: uuid.UUID
+) -> Probestrecke:
     neu = Probestrecke(
         id=uuid.uuid4(),
         gewaesser_id=gewaesser_id,
