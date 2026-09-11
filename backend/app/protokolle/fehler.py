@@ -154,3 +154,27 @@ class AntwortenUngueltig(ProtokollFehler):
         for verstoss in self.verstoesse:
             gruppen.setdefault(verstoss.grund, []).append(verstoss.pfad)
         return {grund: sorted(pfade) for grund, pfade in gruppen.items()}
+
+
+class UmschlagUnvollstaendig(ProtokollFehler):
+    """The answers do not yield the envelope a submitted protocol needs.
+
+    Either a required answer is missing, or one is there and is not the type its
+    column holds: a date the calendar does not have, a time past midnight, a
+    length with a decimal point in it.
+
+    **Reaching this is a bug rather than an unfinished protocol.** 11c runs
+    formregeln/vollstaendigkeit.py first, which says the same thing about missing
+    answers with a message beside each field. This is the gate under it, and it
+    refuses loudly because the rows it feeds are shared between protocols and
+    half of one is worse than none.
+
+    Carries every offending path rather than the first, for the reason
+    AntwortenUngueltig does: a document missing one value is usually missing
+    several. Paths only, never values, as the note at the top of this file
+    requires.
+    """
+
+    def __init__(self, pfade: tuple[str, ...]) -> None:
+        self.pfade = pfade
+        super().__init__(f"{len(pfade)} answers missing or unreadable for the envelope")
