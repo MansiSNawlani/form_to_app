@@ -3,8 +3,6 @@ import { useState } from 'react'
 import { entwurfsKey, protokolleKey } from '../entwurf/abfragen'
 import { loescheEntwurf } from '../entwurf/api'
 import { sicherungsStore } from '../entwurf/sicherung'
-import { anlagenStore } from '../anlagen/store'
-import { raeumeBrowserAuf } from './aufraeumen'
 import type { Uebersicht } from '../entwurf/typen'
 
 /* Throwing a draft away: the question, the request, and what is left over.
@@ -29,13 +27,17 @@ export function useLoeschen() {
     mutationFn: async (zeile: Uebersicht) => {
       await loescheEntwurf(zeile.id)
 
-      /* Only after the server said yes. Clearing the browser's copies first
-         would throw away the one remaining record of unsaved answers if the
-         request then failed. */
-      await raeumeBrowserAuf(zeile.id, {
-        sicherungen: sicherungsStore,
-        anlagen: anlagenStore,
-      })
+      /* The safety copy is the only thing this browser still holds for a deleted
+         protocol. Feature 3d moved the attachments to the server, which deletes
+         them along with the protocol, so the browser cleanup this used to do is
+         the server's job now and the module that did it is gone.
+
+         Only after the server said yes, which is the part that matters: clearing
+         the copy first would throw away the one remaining record of unsaved
+         answers if the request then failed. It swallows its own failures and is
+         synchronous localStorage, so nothing here can turn a completed delete
+         into a reported one. */
+      sicherungsStore.loesche(zeile.id)
     },
     onSuccess: (_ergebnis, zeile) => {
       /* The document itself, so a stale copy cannot be handed to a page opened

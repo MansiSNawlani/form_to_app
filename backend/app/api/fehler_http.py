@@ -32,6 +32,14 @@ from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.anlagen.fehler import (
+    AnlageFehler,
+    AnlageInhaltKeinBild,
+    AnlagenartVoll,
+    AnlageNichtGefunden,
+    AnlageTypUnzulaessig,
+    AnlageZuGross,
+)
 from app.api.schemas import FehlerAntwort
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
@@ -271,6 +279,134 @@ def _zusatz(fehler: ProtokollFehler) -> str:
     return ""
 
 
+# The attachment refusals, a third table for the same reason the second one
+# exists: every one of these has to name the file it is about, which a table of
+# fixed sentences cannot do. Feature 10 set that standard on 2026-09-06, because a
+# pick can hold twenty files and the surveyor has to know which one to go back for.
+#
+# A filename is the one piece of request data this backend does put in a response.
+# It is the person's own, it is what they will look for on their own machine, and
+# app/anlagen/fehler.py takes the control characters and the excess length out of
+# it on the way through.
+ANLAGE_UEBERSETZUNG: dict[type[AnlageFehler], tuple[str, int, str]] = {
+    # 404 for an unknown attachment, one belonging to another protocol, and one
+    # whose file has gone missing from the volume. The same reasoning as
+    # ProtokollNichtGefunden: telling them apart maps out which ids are real.
+    AnlageNichtGefunden: (
+        "ANLAGE_NICHT_GEFUNDEN",
+        status.HTTP_404_NOT_FOUND,
+        "Diese Anlage gibt es nicht mehr, oder sie gehört zu einem anderen"
+        " Protokoll. Bitte laden Sie die Seite neu, um den aktuellen Stand zu"
+        " sehen.",
+    ),
+    AnlageTypUnzulaessig: (
+        "ANLAGE_TYP_UNZULAESSIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Diese Datei ist kein Bild in einem Format, das angezeigt werden kann."
+        " Angenommen werden JPG, PNG und WEBP. Bitte öffnen Sie die Datei in Ihrem"
+        " Bildprogramm und speichern oder exportieren Sie sie als JPG.",
+    ),
+    # Deliberately not written as an accusation. The common way to arrive here is
+    # a photograph that was damaged in transfer, not somebody trying something on.
+    AnlageInhaltKeinBild: (
+        "ANLAGE_INHALT_KEIN_BILD",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Der Name dieser Datei sagt Bild, ihr Inhalt ist aber keines. Das passiert"
+        " zum Beispiel, wenn beim Kopieren etwas schiefgegangen ist. Bitte öffnen"
+        " Sie die Datei einmal, prüfen Sie, ob sie sich als Bild anzeigen lässt,"
+        " und laden Sie sie danach noch einmal hoch.",
+    ),
+    AnlageZuGross: (
+        "ANLAGE_ZU_GROSS",
+        status.HTTP_413_CONTENT_TOO_LARGE,
+        "Diese Datei ist zu groß.",
+    ),
+    # 409 rather than 422. Nothing about the request is malformed: the protocol
+    # simply has no room, which is a fact about its state.
+    AnlagenartVoll: (
+        "ANLAGENART_VOLL",
+        status.HTTP_409_CONFLICT,
+        "Für dieses Protokoll ist kein Platz mehr frei.",
+    ),
+}
+
+# The whole sentence per kind, rather than nouns slotted into a shared template.
+#
+# One of the two caps is twenty and the other is one, so a shared sentence has to
+# be plural and singular at once. German does not bend that far: the same template
+# produces "bis zu 20 Fotos" and "bis zu 1 Kartenausschnitte", and the way out
+# differs as well, since a second map excerpt replaces the first rather than
+# waiting for room. Two sentences are shorter than the machinery for one.
+ART_SATZ = {
+    "FOTO": (
+        " Es sind bereits {vorhanden} Fotos vorhanden, und mehr als {hoechstens}"
+        " kann ein Protokoll nicht aufnehmen. Bitte entfernen Sie zuerst ein Foto,"
+        " das Sie nicht mehr brauchen."
+    ),
+    "KARTENAUSSCHNITT": (
+        " Ein Protokoll hat genau einen Kartenausschnitt, und für dieses ist"
+        " bereits einer hinterlegt. Bitte ersetzen Sie den vorhandenen, wenn der"
+        " neue der richtige ist."
+    ),
+}
+
+
+def _megabyte(bytes_: int) -> str:
+    """Megabytes to one decimal, with the German comma, and no pointless ",0".
+
+    Nobody can act on a byte count. The frontend rounds the same way, so the two
+    never print different numbers for the same limit.
+
+    A round number is printed as one. "10,0 MB" reads as a measurement somebody
+    took, which invites the question of whether 10,04 would have gone in; "10 MB"
+    reads as the rule it actually is.
+    """
+    zahl = round(bytes_ / 1024 / 1024, 1)
+    return f"{zahl:g}".replace(".", ",")
+
+
+def _anlagen_zusatz(fehler: AnlageFehler) -> str:
+    """The part of the message that depends on this particular file."""
+    if isinstance(fehler, AnlageZuGross):
+        # The limit only, never the file's own size. The read stops the moment
+        # the cap is passed, so what was counted is not what the file holds and
+        # naming it would be a number we made up.
+        return (
+            f" Eine Anlage darf höchstens {_megabyte(fehler.hoechstens)} MB groß"
+            " sein. Bitte exportieren oder verschicken Sie das Bild kleiner; die"
+            " meisten Handys und Bildprogramme können das, und die kleinere"
+            " Fassung reicht hier aus."
+        )
+
+    if isinstance(fehler, AnlagenartVoll):
+        return ART_SATZ[fehler.art].format(
+            vorhanden=fehler.vorhanden, hoechstens=fehler.hoechstens
+        )
+
+    return ""
+
+
+async def behandle_anlagenfehler(request: Request, fehler: Exception) -> Response:
+    """Registered for the AnlageFehler family, so every subclass arrives here.
+
+    The filename leads the message rather than being buried in it. A refused pick
+    of twenty shows twenty of these at once, and the first thing the reader needs
+    from each is which file it is about.
+    """
+    if not isinstance(fehler, AnlageFehler):
+        raise fehler
+
+    for klasse in type(fehler).__mro__:
+        if klasse in ANLAGE_UEBERSETZUNG:
+            code, status_code, nachricht = ANLAGE_UEBERSETZUNG[klasse]
+            volltext = nachricht + _anlagen_zusatz(fehler)
+            if fehler.dateiname:
+                volltext = f"{fehler.dateiname}: {volltext}"
+            return _antwort(code, status_code, volltext)
+
+    return _antwort(*UNBEKANNT)
+
+
 async def behandle_protokollfehler(request: Request, fehler: Exception) -> Response:
     """Registered for the ProtokollFehler family, so every subclass arrives here."""
     if not isinstance(fehler, ProtokollFehler):
@@ -287,4 +423,5 @@ async def behandle_protokollfehler(request: Request, fehler: Exception) -> Respo
 def registriere_fehlerbehandlung(app: FastAPI) -> None:
     app.add_exception_handler(BenutzerFehler, behandle_benutzerfehler)
     app.add_exception_handler(ProtokollFehler, behandle_protokollfehler)
+    app.add_exception_handler(AnlageFehler, behandle_anlagenfehler)
     app.add_exception_handler(RequestValidationError, behandle_anfragefehler)

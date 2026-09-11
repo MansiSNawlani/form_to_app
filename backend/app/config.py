@@ -15,6 +15,12 @@ REPO_WURZEL = Path(__file__).resolve().parents[2]
 # this one changing.
 FORMULAR_SEED = REPO_WURZEL / "database" / "seed" / "form_version_20260609"
 
+# Where attachment files go when nobody says otherwise. Right for a developer
+# running uvicorn on the host; .gitignore already keeps uploads/ out of the
+# repository. The container mounts a named volume and sets this to it, because a
+# path inside a container layer is thrown away on the next deploy.
+ANLAGEN_STANDARD = REPO_WURZEL / "uploads" / "anlagen"
+
 # Long enough that guessing the key is hopeless. token_urlsafe(48) produces 64
 # characters, so the value .env.example tells people to generate clears this with
 # room to spare and a hand typed placeholder does not.
@@ -45,6 +51,12 @@ HINWEISE = {
         "COOKIE_SECURE must be true or false. Leave it out of .env to use the"
         " default of true, which is correct everywhere the site is served over"
         " https, and over http://localhost as well."
+    ),
+    "anlagen_verzeichnis": (
+        "ANLAGEN_VERZEICHNIS must be a path to a directory the service may write"
+        " to. It holds the uploaded map excerpts and photographs, so it has to"
+        " survive a redeploy: use a mounted volume in a deployment. Leave it out"
+        " of .env to use ./uploads/anlagen in this checkout."
     ),
     "formular_seed_dir": (
         "FORMULAR_SEED_DIR must be a path to the directory holding felder.json."
@@ -134,6 +146,16 @@ class Settings(BaseSettings):
     # source tree, so a path worked out from __file__ inside the image points
     # into site-packages. The Dockerfile sets this to where it copied the seed.
     formular_seed_dir: Path = FORMULAR_SEED
+
+    # Where the uploaded map excerpts and photographs are kept. Files rather than
+    # a database column: twenty photographs at 10 MB is 200 MB for one protocol,
+    # and every backup would carry all of it. app/anlagen/speicher.py has the
+    # reasoning in full.
+    #
+    # This directory is survey evidence. A deployment must point it at storage
+    # that outlives the container, or a redeploy silently throws away every
+    # picture FFS has been sent.
+    anlagen_verzeichnis: Path = ANLAGEN_STANDARD
 
 
 def lade_settings(**overrides: Any) -> Settings:

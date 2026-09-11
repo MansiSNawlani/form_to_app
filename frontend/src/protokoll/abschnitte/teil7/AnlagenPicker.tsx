@@ -7,6 +7,12 @@ interface AnlagenPickerProps {
   beschriftung: string
   mehrere?: boolean
   onDateien: (dateien: File[]) => void
+  /* Set while a pick is still going up. Without it a slow upload looks exactly
+     like a click that did nothing, and the obvious response is to pick the same
+     files again. Both the label and the input are disabled: the label carries
+     the look and stops a click, the input is the real control and has to stop
+     accepting one. */
+  gesperrt?: boolean
   /* So a block can put focus back on this control after a removal. Without it,
      focus is left on a button that no longer exists and falls to the top of the
      document, which for a keyboard user means tabbing the section again. */
@@ -40,6 +46,7 @@ function AnlagenPicker({
   beschriftung,
   mehrere = false,
   onDateien,
+  gesperrt = false,
   ref,
 }: AnlagenPickerProps) {
   const id = useId()
@@ -51,6 +58,7 @@ function AnlagenPicker({
       variant="outlined"
       tabIndex={-1}
       className="anlagen-picker"
+      disabled={gesperrt}
     >
       {beschriftung}
       <input
@@ -58,6 +66,7 @@ function AnlagenPicker({
         ref={ref}
         type="file"
         multiple={mehrere}
+        disabled={gesperrt}
         /* A hint to the file dialog, never a check. The rules decide, because
            this attribute is trivially bypassed by choosing "all files" and
            because a browser that has never heard of a type ignores it. */

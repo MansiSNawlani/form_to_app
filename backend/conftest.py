@@ -46,6 +46,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
+from app.anlagen.speicher import Anlagenspeicher, get_speicher
 from app.benutzer.dienst import lege_benutzer_an
 from app.config import get_settings
 from app.db import get_session
@@ -267,6 +268,40 @@ async def client(session: AsyncSession) -> AsyncIterator[AsyncClient]:
             yield offener_client
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def speicher(tmp_path: Path) -> Iterator[Anlagenspeicher]:
+    """The attachment store, pointed somewhere disposable for one test.
+
+    The real Anlagenspeicher rather than a fake, so what these tests exercise is
+    the code that actually writes files: a fake would pass on a path bug that a
+    volume would not. Only its root moves.
+
+    The dependency is overridden as well, so a route test and a service test are
+    both looking at the same directory and a test can assert that a refusal left
+    nothing on disk.
+    """
+    eigener = Anlagenspeicher(tmp_path / "anlagen")
+    app.dependency_overrides[get_speicher] = lambda: eigener
+    try:
+        yield eigener
+    finally:
+        app.dependency_overrides.pop(get_speicher, None)
+
+
+@pytest.fixture
+def dateien(speicher: Anlagenspeicher) -> Callable[[], list[Path]]:
+    """Every file currently on the store's disk.
+
+    For asserting that a refusal kept nothing, which is half of what makes a
+    refusal a refusal.
+    """
+
+    def _dateien() -> list[Path]:
+        return sorted(pfad for pfad in speicher.wurzel.rglob("*") if pfad.is_file())
+
+    return _dateien
 
 
 PASSWORT = "ein gutes langes passwort"

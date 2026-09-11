@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.anlagen.speicher import Anlagenspeicher
 from app.models.benutzer import User
 from app.models.protokoll import Status
 from app.protokolle.dienst import (
@@ -242,18 +243,22 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_mehr_geaendert(
 
 
 async def test_loescht_den_eigenen_entwurf(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
 ) -> None:
     besitzer = await anlegen(email="bergmann@ffs.de")
     entwurf = await lege_entwurf_an(session, besitzer=besitzer)
 
-    await loesche_protokoll(session, protokoll_id=entwurf.id, besitzer=besitzer)
+    await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)
 
     assert await liste_protokolle(session, besitzer=besitzer) == []
 
 
 async def test_ein_einreicher_loescht_nicht_das_protokoll_eines_anderen(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
 ) -> None:
     """The permission test for deleting, and the worst of the three if it failed."""
     bergmann = await anlegen(email="bergmann@ffs.de")
@@ -261,13 +266,15 @@ async def test_ein_einreicher_loescht_nicht_das_protokoll_eines_anderen(
     fremd = await lege_entwurf_an(session, besitzer=keller)
 
     with pytest.raises(ProtokollNichtGefunden):
-        await loesche_protokoll(session, protokoll_id=fremd.id, besitzer=bergmann)
+        await loesche_protokoll(session, speicher, protokoll_id=fremd.id, besitzer=bergmann)
 
     assert [zeile.id for zeile in await liste_protokolle(session, besitzer=keller)] == [fremd.id]
 
 
 async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
 ) -> None:
     """A submitted protocol is a record somebody else is working with.
 
@@ -279,4 +286,4 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
     await session.commit()
 
     with pytest.raises(ProtokollNichtMehrEntwurf):
-        await loesche_protokoll(session, protokoll_id=entwurf.id, besitzer=besitzer)
+        await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)

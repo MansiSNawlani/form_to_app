@@ -37,6 +37,14 @@ ENV FORMULAR_SEED_DIR=/srv/seed/form_version_20260609
 # No dev extras: pytest, ruff and mypy have no business in a shipped image.
 RUN pip install --no-cache-dir .
 
+# Where docker-compose.yml mounts the attachments volume. Created here, and owned
+# by the user the service runs as, because Docker gives a fresh named volume the
+# ownership of whatever it finds at the mount point in the image. Miss this and
+# the directory arrives owned by root, the unprivileged process cannot write to
+# it, and the first upload fails with a permission error that says nothing about
+# volumes.
+RUN mkdir -p /srv/anlagen
+
 # Runs as a non-root user. A container process that does not need root should
 # not have it, so a compromise in the application is not a compromise of the
 # container.

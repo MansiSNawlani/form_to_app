@@ -70,7 +70,7 @@ These are not features and are not tracked here. They happen first.
 
   Activating and deactivating an account is a command line command here, not a screen. The
   administration UI for it is item 16, so nothing is built twice.
-- [ ] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
+- [x] 3. Draft lifecycle: create a submission, save automatically, local safety copy, "my
       submissions" list. **Deferred on 2026-09-01**, built after the form parts, and where the
       browser-only draft storage is swapped for real server saving.
   - [x] 3a. Drafts on the server: the submissions table, the draft endpoints for creating,
@@ -84,7 +84,7 @@ These are not features and are not tracked here. They happen first.
         resuming or deleting a draft. Also, by decision on 2026-09-10, a protocol is now
         created by the first thing typed into it rather than by opening the page, so
         changing your mind no longer leaves an empty draft in the list
-  - [ ] 3d. Attachments on the server: the attachments table, file storage, the upload,
+  - [x] 3d. Attachments on the server: the attachments table, file storage, the upload,
         download and delete endpoints, and the browser's IndexedDB store swapped for them
 
   Feature 10 built the attachments before this one, by decision on 2026-09-06, and left them in

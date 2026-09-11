@@ -22,7 +22,14 @@ export interface AnfrageOptionen {
      whole answers document rather than merging into it, which is a PUT, and a
      draft can be thrown away, which is a DELETE. */
   methode?: 'GET' | 'POST' | 'PUT' | 'DELETE'
-  /** Serialised as JSON. Leave it out for a request with no body. */
+  /* Serialised as JSON, unless it is a FormData, which goes as it is. Leave it
+     out for a request with no body.
+
+     FormData arrived with feature 3d, which uploads a file. It is the one case
+     where setting Content-Type by hand breaks the request: a multipart body is
+     split by a boundary string the browser invents per request, and the header
+     has to name that exact string. Writing the header ourselves would name no
+     boundary at all and the backend would find no parts. */
   koerper?: unknown
   /* Injected so the tests need no browser and no stubbed global, the same way
      the draft store takes its storage as an argument. Bound to globalThis
@@ -91,6 +98,15 @@ export async function apiAnfrage<T>(
   pfad: string,
   { methode = 'GET', koerper, fetchImpl = standardFetch() }: AnfrageOptionen = {},
 ): Promise<T> {
+  /* A FormData travels untouched and sets no header of its own here. Everything
+     else that is not undefined is JSON. */
+  const istJson = koerper !== undefined && !(koerper instanceof FormData)
+
+  const alsKoerper = (wert: unknown): BodyInit | undefined => {
+    if (wert === undefined) return undefined
+    return wert instanceof FormData ? wert : JSON.stringify(wert)
+  }
+
   let antwort: Response
   try {
     antwort = await fetchImpl(BASIS + pfad, {
@@ -99,8 +115,8 @@ export async function apiAnfrage<T>(
          makes same-origin requests. Spelled out rather than left to the default
          so that it is visible next to the URL it applies to. */
       credentials: 'same-origin',
-      headers: koerper === undefined ? undefined : { 'Content-Type': 'application/json' },
-      body: koerper === undefined ? undefined : JSON.stringify(koerper),
+      headers: istJson ? { 'Content-Type': 'application/json' } : undefined,
+      body: alsKoerper(koerper),
     })
   } catch (ursache) {
     /* fetch rejects only when nothing answered: no network, DNS failure, the

@@ -62,6 +62,43 @@ describe('apiAnfrage', () => {
     })
   })
 
+  /* A file upload, added in feature 3d. The one case where a Content-Type we
+     wrote would break the request: a multipart body is split by a boundary the
+     browser invents per request, and the header has to name that exact string.
+     A header of ours would name no boundary and the backend would find no parts
+     at all, so the FormData travels untouched and sets its own. */
+  it('sends a FormData as it is, with no Content-Type of ours', async () => {
+    const fetchImpl = fakeFetch(jsonAntwort({ id: 'b2' }))
+    const koerper = new FormData()
+    koerper.append('art', 'FOTO')
+
+    await apiAnfrage('/protokolle/abc/anlagen', { methode: 'POST', koerper, fetchImpl })
+
+    expect(fetchImpl).toHaveBeenCalledWith('/api/v1/protokolle/abc/anlagen', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: undefined,
+      body: koerper,
+    })
+  })
+
+  /* Not stringified on the way past, which is what would happen if FormData
+     were treated as an ordinary object: JSON.stringify(new FormData()) is "{}",
+     so the upload would silently become an empty JSON body and the backend
+     would refuse it for having no file rather than for anything real. */
+  it('does not serialise a FormData into JSON', async () => {
+    const fetchImpl = fakeFetch(jsonAntwort({ id: 'b2' }))
+    const koerper = new FormData()
+    koerper.append('art', 'FOTO')
+
+    await apiAnfrage('/protokolle/abc/anlagen', { methode: 'POST', koerper, fetchImpl })
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/v1/protokolle/abc/anlagen',
+      expect.objectContaining({ body: expect.any(FormData) }),
+    )
+  })
+
   it('sends a DELETE with no body at all', async () => {
     const fetchImpl = fakeFetch(new Response(null, { status: 204 }))
 

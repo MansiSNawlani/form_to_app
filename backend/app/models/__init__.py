@@ -7,8 +7,18 @@ generates a migration dropping it. Importing every model in one place is what
 makes that impossible.
 """
 
+from app.models.anlage import Anlagenart, Attachment
 from app.models.base import Base
 from app.models.benutzer import Locale, Rolle, User
 from app.models.protokoll import Status, Submission
 
-__all__ = ["Base", "Locale", "Rolle", "Status", "Submission", "User"]
+__all__ = [
+    "Anlagenart",
+    "Attachment",
+    "Base",
+    "Locale",
+    "Rolle",
+    "Status",
+    "Submission",
+    "User",
+]

@@ -1,3 +1,5 @@
+import type { Bereitsteller } from '../entwurf/bereitstellen'
+import type { Anlagenzustand } from '../entwurf/speicherzustand'
 import FotosBlock from './teil7/FotosBlock'
 import KartenausschnittBlock from './teil7/KartenausschnittBlock'
 
@@ -12,13 +14,21 @@ import KartenausschnittBlock from './teil7/KartenausschnittBlock'
  */
 interface Abschnitt7Props {
   entwurfId: string
+  bereitstellen: Bereitsteller
+  melde: (zustand: Anlagenzustand) => void
 }
 
-function Abschnitt7({ entwurfId }: Abschnitt7Props) {
+function Abschnitt7({ entwurfId, bereitstellen, melde }: Abschnitt7Props) {
   return (
     <>
-      <KartenausschnittBlock entwurfId={entwurfId} />
-      <FotosBlock entwurfId={entwurfId} />
+      {/* Both blocks report to the same indicator. In practice a person works in
+          one of them at a time, so the last report is the current one. */}
+      <KartenausschnittBlock
+        entwurfId={entwurfId}
+        bereitstellen={bereitstellen}
+        melde={melde}
+      />
+      <FotosBlock entwurfId={entwurfId} bereitstellen={bereitstellen} melde={melde} />
     </>
   )
 }
