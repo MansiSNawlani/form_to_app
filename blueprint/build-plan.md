@@ -120,7 +120,31 @@ These are not features and are not tracked here. They happen first.
 - [x] 10. Photo and map excerpt upload: one Kartenausschnitt and up to twenty Fotos, kept in
       the browser until feature 3 gives them a server. Built out of order, before items 2 and
       3, by decision on 2026-09-06
-- [ ] 11. Submit and review workflow: the state machine, rejection reasons, change requests, locking
+- [ ] 11. Submit and review workflow: the state machine, rejection reasons, change requests,
+      locking
+  - [ ] 11a. The rules in Python: every rule from features 4c to 9b ported to the backend, plus
+        the one thing no half of the app has yet, a declared list of what a finished protocol
+        must contain
+  - [ ] 11b. Gewaesser, Probestrecke and Person as real tables, and the matching that decides at
+        submit whether this stretch is one already on record
+  - [ ] 11c. Absenden: the endpoint that runs the rules and promotes the envelope, the status on
+        Meine Protokolle, the button, and the panel listing what is still missing
+  - [ ] 11d. The state machine: the workflow_events table, every transition and who may make it,
+        the Begruendung required for a rejection and a change request, and locking on acceptance
+  - [ ] 11e. Die Pruefungsseite: the reviewer screen at /protokolle/:id/pruefung, built against
+        `prototypes/pruefung-protokoll.html`, with the read-only protocol, the decision panel and
+        the Verlauf
+
+  Two decisions taken on 2026-09-11 when this was split:
+
+  - **The relational envelope is built here, not in feature 12.** `app/models/protokoll.py` said
+    so when the submissions table was written, and the reason holds: the rule is that a protocol
+    leaving DRAFT must have a real Probestrecke behind it, and a rule about a transition belongs
+    with the transition. Feature 12 then only reads columns, and feature 13 only reads
+    `regierungspraesidium`.
+  - **Accepting locks the protocol.** Annehmen writes LOCKED and sets `locked_at` in one action,
+    which is what the reviewer mockup's own button text promises. ACCEPTED stays in the enum
+    unwritten until feature 19 needs a step between the reviewer's yes and the transfer to FiaKa.
 - [ ] 12. Review queue: list, filter and search, including by species
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
