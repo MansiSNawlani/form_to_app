@@ -20,9 +20,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.formular.felder import formular
 from app.models.benutzer import Locale, User
-from app.models.gewaesser import Gewaesser
-from app.models.person import Person
-from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
 
 
@@ -34,46 +31,6 @@ def entwurf(besitzer: User, **felder: object) -> Submission:
         "antworten": {},
     }
     return Submission(**(vorgabe | felder))
-
-
-async def _stelle(session: AsyncSession) -> uuid.UUID:
-    """One Gewaesser and one Probestrecke on it, for a submission to point at."""
-    gewaesser = Gewaesser(id=uuid.uuid4(), name="Schussen", vorfluter=["Bodensee", "Rhein"])
-    strecke = Probestrecke(
-        id=uuid.uuid4(),
-        gewaesser_id=gewaesser.id,
-        ortsangabe="unterhalb der Bruecke",
-        gewaessertyp=13,
-        laenge_m=450,
-        untere_grenze_rechtswert=512340,
-        untere_grenze_hochwert=5398120,
-        obere_grenze_rechtswert=512890,
-        obere_grenze_hochwert=5398450,
-        regierungspraesidium=4,
-    )
-    session.add_all([gewaesser, strecke])
-    await session.flush()
-    return strecke.id
-
-
-async def _person(session: AsyncSession) -> uuid.UUID:
-    person = Person(id=uuid.uuid4(), name="Anna Weber", email="weber@ffs.de")
-    session.add(person)
-    await session.flush()
-    return person.id
-
-
-async def _umschlag(session: AsyncSession) -> dict[str, object]:
-    """Everything a submission that has left DRAFT has to carry."""
-    return {
-        "probestrecke_id": await _stelle(session),
-        "person_id": await _person(session),
-        "bearbeiter_name": "Anna Weber",
-        "anlass": "wrrl",
-        "datum": date(2026, 6, 9),
-        "uhrzeit": time(14, 30),
-        "submitted_at": datetime.now(UTC),
-    }
 
 
 async def test_ein_entwurf_bekommt_die_vorgaben(
@@ -95,7 +52,9 @@ async def test_ein_entwurf_bekommt_die_vorgaben(
 
 
 async def test_der_status_kommt_als_status_zurueck(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """Not as a bare string.
 
@@ -104,7 +63,7 @@ async def test_der_status_kommt_als_status_zurueck(
     one of them without anything failing loudly.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.IN_REVIEW, **await _umschlag(session)))
+    session.add(entwurf(besitzer, status=Status.IN_REVIEW, **await umschlag()))
     await session.commit()
     session.expunge_all()
 
@@ -114,7 +73,9 @@ async def test_der_status_kommt_als_status_zurueck(
 
 
 async def test_zwei_enumtext_spalten_kommen_sich_nicht_ins_gehege(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """EnumText is used for both User.locale and Submission.status.
 
@@ -125,7 +86,7 @@ async def test_zwei_enumtext_spalten_kommen_sich_nicht_ins_gehege(
     assumed.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.ACCEPTED, **await _umschlag(session)))
+    session.add(entwurf(besitzer, status=Status.ACCEPTED, **await umschlag()))
     await session.commit()
     session.expunge_all()
 
@@ -280,6 +241,7 @@ async def test_ein_entwurf_braucht_keinen_umschlag(
 async def test_abgegeben_ohne_umschlag_wird_abgewiesen(
     session: AsyncSession,
     anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
     fehlend: str,
 ) -> None:
     """Nullable here means "not yet", never "optional".
@@ -288,9 +250,9 @@ async def test_abgegeben_ohne_umschlag_wird_abgewiesen(
     once is exactly the kind that can pass while silently ignoring one of them.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    umschlag = await _umschlag(session)
-    umschlag[fehlend] = None
-    session.add(entwurf(besitzer, status=Status.SUBMITTED, **umschlag))
+    felder = await umschlag()
+    felder[fehlend] = None
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **felder))
 
     with pytest.raises(IntegrityError) as fehler:
         await session.commit()
@@ -299,11 +261,13 @@ async def test_abgegeben_ohne_umschlag_wird_abgewiesen(
 
 
 async def test_abgegeben_mit_umschlag_wird_angenommen(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """The other half of the constraint: a complete envelope is let through."""
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.SUBMITTED, **await _umschlag(session)))
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **await umschlag()))
     await session.commit()
 
     gespeichert = (await session.scalars(select(Submission))).one()
@@ -327,15 +291,16 @@ async def test_abgegeben_mit_umschlag_wird_angenommen(
 async def test_gesperrt_und_zeitpunkt_gehoeren_zusammen(
     session: AsyncSession,
     anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
     status: Status,
     locked_at: bool,
     erlaubt: bool,
 ) -> None:
     besitzer = await anlegen(email="bergmann@ffs.de")
-    umschlag = await _umschlag(session)
+    felder = await umschlag()
     if locked_at:
-        umschlag["locked_at"] = datetime.now(UTC)
-    session.add(entwurf(besitzer, status=status, **umschlag))
+        felder["locked_at"] = datetime.now(UTC)
+    session.add(entwurf(besitzer, status=status, **felder))
 
     if erlaubt:
         await session.commit()

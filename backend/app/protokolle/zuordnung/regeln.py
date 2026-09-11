@@ -77,12 +77,21 @@ def normalisiert(wert: str) -> str:
 
     For comparison only. Nothing written to the database goes through here.
 
-    casefold rather than lower, because lower leaves the German sharp s alone and
-    casefold turns it into "ss", so "Weißach" and "Weissach" compare equal. Two
-    people typing the same water body two ways is the ordinary case, not the
-    edge one.
+    **Exactly lower(btrim(x)), and deliberately no more.** The same normalisation
+    has to hold in three places: this function, the WHERE clause in dienst.py,
+    and the unique index on personen.email. Postgres is the one that cannot be
+    changed freely, because an index expression must be immutable, so Python
+    matches SQL rather than the other way round.
+
+    That rules out casefold, which would fold the German sharp s and make
+    "Weißach" and "Weissach" one water. lower() leaves it alone, so they are two.
+    Treating them as one here while the index treated them as two would be worse
+    than either answer on its own: the lookup and the constraint would disagree
+    about what a duplicate is. A sharp s spelled two ways is the same class of
+    duplicate as a typo, which this feature already accepts and feature 18
+    merges.
     """
-    return " ".join(wert.casefold().split())
+    return wert.strip().lower()
 
 
 @dataclass(frozen=True, slots=True)

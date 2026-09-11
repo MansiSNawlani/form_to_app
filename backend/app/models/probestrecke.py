@@ -103,9 +103,7 @@ class Probestrecke(Base):
     # No ON DELETE. A Gewässer with stretches on it is not something anything
     # deletes, and a cascade would make deleting one quietly take survey history
     # with it.
-    gewaesser_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("gewaesser.id"), index=True
-    )
+    gewaesser_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("gewaesser.id"), index=True)
 
     # Officially assigned and stable, which is why it outranks the coordinates as
     # an identity. Null for the great majority of stretches, which are ordinary

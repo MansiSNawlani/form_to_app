@@ -301,10 +301,10 @@ def test_die_monitoringnummer_darf_fehlen() -> None:
         ("  Schussen  ", "schussen"),
         ("SCHUSSEN", "schussen"),
         ("Weber@FFS.de", "weber@ffs.de"),
-        # Casefold rather than lower, so the German sharp s compares equal to the
-        # spelling somebody else used.
-        ("Weißach", "weissach"),
-        ("WEISSACH", "weissach"),
+        # lower, not casefold, so the sharp s is left alone. It has to match
+        # lower(btrim(x)) in SQL exactly, and an index expression must be
+        # immutable; regeln.normalisiert says why that constraint wins.
+        ("Weißach", "weißach"),
     ],
 )
 def test_normalisiert_fuer_den_vergleich(roh: str, erwartet: str) -> None:

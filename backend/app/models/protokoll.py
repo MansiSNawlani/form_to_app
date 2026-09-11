@@ -143,13 +143,9 @@ class Submission(Base):
     # No ON DELETE. Deleting an account would take its submissions with it, and a
     # survey record has to outlive the person who filed it; project-overview.md
     # deactivates accounts rather than deleting them for the same reason.
-    owner_user_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("users.id"), index=True
-    )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
 
-    status: Mapped[Status] = mapped_column(
-        EnumText(Status), server_default=Status.DRAFT.value
-    )
+    status: Mapped[Status] = mapped_column(EnumText(Status), server_default=Status.DRAFT.value)
 
     # e.g. "20260609". Never migrated: ADR 0004 freezes a submission to the
     # version it was filled in under, so an old protocol stays renderable exactly
@@ -214,22 +210,16 @@ class Submission(Base):
     datum: Mapped[date | None] = mapped_column(Date, nullable=True)
     uhrzeit: Mapped[time | None] = mapped_column(Time, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # When it was handed in. Set once, by the transition feature 11d owns, and
     # not moved by a later resubmission after a change request: NEEDS_CHANGES
     # keeps the original hand-in, which is what a deadline is measured against.
-    submitted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # When a reviewer accepted it and fixed it. Set in the same action as the
     # LOCKED status, which is what the reviewer mockup's button promises.
-    locked_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # onupdate as well as a default, so automatic saving moves it. Without that a
     # draft edited all afternoon would still claim it was last touched at the
