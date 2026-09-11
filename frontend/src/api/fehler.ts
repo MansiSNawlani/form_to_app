@@ -8,6 +8,7 @@
  */
 
 import type { ParseKeys } from 'i18next'
+import type { Verstoss } from './typen'
 
 /** The server could not be reached at all. Ours, not the backend's. */
 export const NETZWERK_FEHLER = 'NETZWERK_FEHLER'
@@ -43,18 +44,34 @@ export const PROTOKOLL_VERAENDERT = 'PROTOKOLL_VERAENDERT'
  * above.
  */
 
+/* The protocol was not sent, because something is missing or wrong in it.
+ *
+ * The one refusal in this API that carries structured detail rather than only a
+ * sentence, and the reason ApiFehler has a verstoesse field at all: the form
+ * draws this as a panel listing each problem beside the field it concerns, which
+ * a sentence cannot do. Branched on in protokoll/absenden/, which is why it has
+ * a constant where the attachment refusals below deliberately do not.
+ */
+export const PROTOKOLL_UNVOLLSTAENDIG = 'PROTOKOLL_UNVOLLSTAENDIG'
+
 export interface FehlerOptionen {
   /** The HTTP status, or null when nothing ever answered. */
   status?: number
   /** The backend's own German sentence, when it sent one. */
   nachricht?: string
   ursache?: unknown
+  /* What is missing or wrong, when the backend said. Empty for every refusal but
+     a refused submit. */
+  verstoesse?: readonly Verstoss[]
 }
 
 export class ApiFehler extends Error {
   readonly code: string
   readonly status: number | null
   readonly nachricht: string | null
+  /* Always an array, never undefined, so a caller can map over it without
+     asking first. A refusal that carried no list is simply an empty one. */
+  readonly verstoesse: readonly Verstoss[]
 
   constructor(code: string, optionen: FehlerOptionen = {}) {
     /* The Error message is for a stack trace and a console, never for a person.
@@ -65,6 +82,7 @@ export class ApiFehler extends Error {
     this.code = code
     this.status = optionen.status ?? null
     this.nachricht = optionen.nachricht ?? null
+    this.verstoesse = optionen.verstoesse ?? []
   }
 }
 

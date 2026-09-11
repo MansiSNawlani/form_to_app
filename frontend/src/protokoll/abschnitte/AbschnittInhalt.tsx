@@ -18,6 +18,9 @@ interface AbschnittInhaltProps {
      cheaper than a second path through this component. */
   bereitstellen: Bereitsteller
   melde: (zustand: Anlagenzustand) => void
+  /* Section 7's too, for the Absenden button at its foot. Travels the same way
+     and for the same reason as the two above it. */
+  bereitZumAbsenden: () => Promise<number | null>
 }
 
 /* The one place a section number becomes a section body.
@@ -31,6 +34,7 @@ function AbschnittInhalt({
   entwurfId,
   bereitstellen,
   melde,
+  bereitZumAbsenden,
 }: AbschnittInhaltProps) {
   switch (abschnitt.nr) {
     case 1:
@@ -47,7 +51,12 @@ function AbschnittInhalt({
       return <Abschnitt6 />
     case 7:
       return (
-        <Abschnitt7 entwurfId={entwurfId} bereitstellen={bereitstellen} melde={melde} />
+        <Abschnitt7
+          entwurfId={entwurfId}
+          bereitstellen={bereitstellen}
+          melde={melde}
+          bereitZumAbsenden={bereitZumAbsenden}
+        />
       )
   }
 }

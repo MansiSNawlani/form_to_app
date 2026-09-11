@@ -68,7 +68,7 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
     [onAngelegt],
   )
 
-  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form, {
+  const { zustand: saveState, jetztSpeichern, bereitZumAbsenden } = useAutoSave(entwurf, form, {
     onAngelegt: beiAnlage,
   })
   useHydrologieAbgleich(form)
@@ -166,6 +166,7 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
             entwurfId={entwurfId}
             bereitstellen={bereitstellen}
             melde={setAnlagenZustand}
+            bereitZumAbsenden={bereitZumAbsenden}
           />
         </form>
 

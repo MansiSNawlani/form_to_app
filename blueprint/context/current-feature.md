@@ -1,7 +1,7 @@
 # Feature: Absenden
 
 **From build-plan:** feature 11c
-**Status:** not started
+**Status:** built, all eight steps done
 
 ## Goal
 
@@ -149,7 +149,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       anything 11c introduced. Raised rather than fixed here: adding it means
       deciding where it lives and what keeps it current, which is a `/ci` question.
 
-- [ ] **Step 4 - The browser's call and its typed error** - `absendeProtokoll` in
+- [x] **Step 4 - The browser's call and its typed error** - `absendeProtokoll` in
       `protokoll/entwurf/api.ts`, the `Verstoss` and `AbsendeAntwort` types in
       `entwurf/typen.ts`, and `PROTOKOLL_UNVOLLSTAENDIG` in `api/fehler.ts`. `ApiFehler`
       gains the violation list, which is the first refusal in this app carrying structured
@@ -159,7 +159,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       and version; and that a refusal with no `verstoesse` field at all still produces a
       usable error rather than a crash.
 
-- [ ] **Step 5 - Where a violation points** - `protokoll/absenden/verortung.ts`, a plain
+- [x] **Step 5 - Where a violation points** - `protokoll/absenden/verortung.ts`, a plain
       function from a violation's path to the section number it lives in and the label key
       it carries on screen. It has to cover every path the rules can emit, not only the
       required ones: a wrong percentage in `umland`, a catch cell at `arten.art7.klasse_3`,
@@ -172,7 +172,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       all resolve to a section and to a label key that exists in `de.json`, and that an
       invented path comes back unlocated rather than throwing.
 
-- [ ] **Step 6 - The button** - the Absenden button at the foot of section 7, a confirmation
+- [x] **Step 6 - The button** - the Absenden button at the foot of section 7, a confirmation
       through the existing `BestaetigungsDialog`, a pending state while the call is in
       flight, and on success a move to Meine Protokolle with the list query invalidated. The
       automatic save is flushed before the call, so a protocol is never submitted from a
@@ -189,7 +189,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       already been sent and offers the list rather than showing a bare conflict; screenshots
       in both themes.
 
-- [ ] **Step 7 - The panel** - `protokoll/absenden/AbsendeProbleme.tsx`, replacing the plain
+- [x] **Step 7 - The panel** - `protokoll/absenden/AbsendeProbleme.tsx`, replacing the plain
       sentence from step 6. Grouped by section in section order, each entry naming the
       field, printing the German message from `de.json`, and linking to
       `/protokolle/:id/abschnitt/N#<pfad>`, which works because every field's DOM id is
@@ -201,7 +201,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       required field at once, still lays out across the full width without the list wrapping
       into a second column or pushing the page sideways.
 
-- [ ] **Step 8 - A submitted protocol is read-only** - `ProtokollSeite` refuses to open the
+- [x] **Step 8 - A submitted protocol is read-only** - `ProtokollSeite` refuses to open the
       form for anything that is not a DRAFT, showing a notice that says what the status is
       and offering a way back to Meine Protokolle. The automatic save never starts, so
       nothing races a 409 it cannot recover from.

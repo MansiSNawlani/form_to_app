@@ -655,6 +655,36 @@
         "nichtGesendet": "«{{dateiname}}» konnte nicht hochgeladen werden. Der Server war nicht erreichbar, und die Datei ist nicht gespeichert. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es noch einmal.",
         "listeNichtGeladen": "Die Anlagen dieses Protokolls konnten nicht geladen werden. Was bereits hinterlegt ist, ist unverändert vorhanden, wird hier aber gerade nicht angezeigt. Bitte laden Sie die Seite neu; besteht das Problem weiter, melden Sie sich bitte noch einmal an."
       }
+    },
+    "absenden": {
+      "legend": "Protokoll absenden",
+      "hinweis": "Beim Absenden wird das Protokoll geprüft. Danach können Sie es nicht mehr ändern, und die Fischereiforschungsstelle übernimmt es zur Prüfung.",
+      "aktion": "Protokoll absenden",
+      "laeuft": "Wird abgesendet",
+      "nichtGespeichert": "Es sind noch nicht alle Eingaben gespeichert, deshalb wurde nichts abgesendet. Bitte laden Sie die Seite neu und versuchen Sie es dann noch einmal.",
+      "nochNichtAngelegt": "Dieses Protokoll ist noch leer. Bitte füllen Sie es zuerst aus; absenden können Sie es, sobald etwas darin steht.",
+      "frage": {
+        "titel": "Protokoll absenden?",
+        "text": "«{{name}}» wird an die Fischereiforschungsstelle übermittelt. Danach können Sie das Protokoll nicht mehr ändern. Änderungen sind erst wieder möglich, wenn die Prüfung sie anfordert.",
+        "textOhneNamen": "Dieses Protokoll wird an die Fischereiforschungsstelle übermittelt. Danach können Sie es nicht mehr ändern. Änderungen sind erst wieder möglich, wenn die Prüfung sie anfordert.",
+        "abbrechen": "Abbrechen",
+        "bestaetigen": "Jetzt absenden"
+      },
+      "probleme": {
+        "titel": "Das Protokoll wurde noch nicht abgesendet",
+        "einleitung_one": "In {{count}} Angabe fehlt noch etwas oder stimmt noch nicht. Sie können sie hier direkt aufrufen.",
+        "einleitung_other": "Bei {{count}} Angaben fehlt noch etwas oder stimmt noch nicht. Sie können sie hier direkt aufrufen.",
+        "abschnitt": "Abschnitt {{nr}}: {{titel}}",
+        "artZeile": "Artentabelle, Zeile {{nr}}",
+        "ohneOrt": "Diese Angabe gehört zu keinem Feld dieses Formulars. Bitte melden Sie das.",
+        "entwurfBleibt": "Ihr Entwurf ist unverändert gespeichert. Nichts geht verloren, während Sie das nachtragen.",
+        "unbekannteRegel": "Diese Angabe wurde beanstandet. Der Grund lässt sich hier nicht anzeigen; bitte melden Sie das."
+      }
+    },
+    "abgesendet": {
+      "titel": "Dieses Protokoll ist abgesendet",
+      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden.",
+      "zurUebersicht": "Zu meinen Protokollen"
     }
   }
 }

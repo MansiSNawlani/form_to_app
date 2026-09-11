@@ -39,6 +39,16 @@ export interface AutoSave {
   zustand: SaveState
   /** Save now rather than at the end of the debounce. The restore banner's. */
   jetztSpeichern: () => void
+  /* Everything typed is on the server, and here is the version it is now at.
+   *
+   * Absenden's. A submit sends no answers of its own: whatever is stored is what
+   * gets submitted, so anything still sitting in the debounce would be left
+   * behind, and somebody who types into the last field and presses the button
+   * immediately would submit the protocol as it was a keystroke ago.
+   *
+   * null when the last save failed, so the caller refuses to submit rather than
+   * sending a version it knows is wrong. */
+  bereitZumAbsenden: () => Promise<number | null>
 }
 
 export interface AutoSaveOptionen {
@@ -126,6 +136,10 @@ export function useAutoSave(
   /* Set by the effect below, so the banner can ask for a save without the
      debounce, and reset on unmount so a late click cannot reach a dead closure. */
   const anstossen = useRef<() => void>(() => {})
+
+  /* Set by the same effect, for the same reason. Returns null before the effect
+     has run, which is a render nothing can have clicked a button in. */
+  const einholen = useRef<() => Promise<number | null>>(() => Promise.resolve(null))
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -236,10 +250,33 @@ export function useAutoSave(
       void save(true)
     }
 
+    /* Waits for the saving to come to rest, then says what version the protocol
+       is at. Loops rather than awaiting one save, because save() re-fires itself
+       when something was typed while a request was open, and a submit has to
+       follow the last of those rather than the first. */
+    einholen.current = async () => {
+      if (aufgegeben) return null
+
+      clearTimeout(timer)
+      while (pending || laeuft) {
+        if (laeuft) {
+          // Nothing to await directly: save() owns its own promise and re-fires
+          // in its finally. One turn of the event loop is enough to let it.
+          await new Promise((fertig) => setTimeout(fertig, 0))
+          continue
+        }
+        setState(SPEICHERT)
+        await save(true)
+      }
+
+      return aufgegeben ? null : version.current
+    }
+
     return () => {
       subscription.unsubscribe()
       clearTimeout(timer)
       anstossen.current = () => {}
+      einholen.current = () => Promise.resolve(null)
 
       /* Leaving the page inside the debounce window must not lose the last
          change. Reporting state on the way out would be a write to a component
@@ -263,6 +300,7 @@ export function useAutoSave(
   }, [form])
 
   const jetztSpeichern = useCallback(() => anstossen.current(), [])
+  const bereitZumAbsenden = useCallback(() => einholen.current(), [])
 
-  return { zustand: state, jetztSpeichern }
+  return { zustand: state, jetztSpeichern, bereitZumAbsenden }
 }

@@ -795,3 +795,34 @@
     transition: none;
   }
 }
+
+/* The panel listing what still stops a protocol being sent, feature 11c.
+
+   Full width of the card rather than capped at a reading measure, unlike the
+   hints above. This is a list of links somebody works down, not prose, and an
+   untouched protocol puts more than thirty of them here: narrowing it would
+   turn one column into a long scroll for no gain in legibility. */
+.absende-probleme {
+  margin-bottom: 1.25rem;
+}
+
+.absende-probleme p {
+  margin: 0.5rem 0;
+  max-width: 75ch;
+}
+
+/* The section heading inside the panel. Small, because the panel's own title is
+   the heading of this block and these are subdivisions of it. */
+.absende-probleme__abschnitt {
+  margin: 1rem 0 0.25rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+/* One problem per line, wrapping within the line rather than into a second
+   column, so the eye goes straight down the list of field names. */
+.absende-probleme li {
+  display: block;
+  padding: 0.125rem 0;
+  font-size: var(--step--1);
+}

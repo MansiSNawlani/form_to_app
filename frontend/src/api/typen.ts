@@ -49,6 +49,28 @@ export interface BenutzerAntwort {
 export interface FehlerAntwort {
   code: string
   nachricht: string
+  /* Only a refused submit fills this in, so it is absent from every other
+     refusal and the two-field shape above still describes them. */
+  verstoesse?: Verstoss[] | null
+}
+
+/* One thing wrong with a protocol somebody tried to submit.
+ *
+ * A path and a key, never a sentence. The German for all 29 of these already
+ * lives under protokoll.regeln in our own locale file, put there by the form's
+ * own rules, so the backend sends the key and the panel looks it up. That is
+ * what keeps one wording rather than two, and what lets feature 17 translate
+ * them once.
+ *
+ * pfad is a dotted path into the answers document, such as
+ * probestrecke.gewaesser.name, or one of the four pseudo-paths the rules use
+ * where the wrong thing is a combination rather than a single field. Every field
+ * on the form carries its path as its DOM id, which is what lets the panel link
+ * straight to the control.
+ */
+export interface Verstoss {
+  pfad: string
+  schluessel: string
 }
 
 /** The sign-in request body. */

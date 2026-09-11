@@ -16,6 +16,8 @@
 
 import { apiAnfrage } from '../../api/client'
 import type {
+  AbsendeAntwort,
+  AbsendenAnfrage,
   Antworten,
   AntwortenSpeichern,
   Entwurf,
@@ -105,6 +107,33 @@ export function speichereAntworten({
 export function loescheEntwurf(id: string, { fetchImpl }: MitFetch = {}): Promise<void> {
   return apiAnfrage<void>(`${PFAD}/${encodeURIComponent(id)}`, {
     methode: 'DELETE',
+    fetchImpl,
+  })
+}
+
+/* Send a finished protocol to FFS.
+ *
+ * POST to a sub-path rather than a PATCH setting the status, because this is an
+ * action and not an edit: the rules run, the Probestrecke and the Person are
+ * matched or created, seven columns are promoted out of the answers, and the
+ * protocol stops being editable.
+ *
+ * Rejects with PROTOKOLL_UNVOLLSTAENDIG, carrying every unfinished or broken
+ * answer on the error's verstoesse, when the protocol is not ready. That is the
+ * one refusal a surveyor can put right by typing, and it is what the panel on
+ * the form draws. PROTOKOLL_VERAENDERT and PROTOKOLL_NICHT_MEHR_ENTWURF are
+ * conflicts, exactly as they are for a save.
+ */
+export function absendeProtokoll({
+  id,
+  version,
+  fetchImpl,
+}: AbsendenAnfrage & MitFetch & { id: string }): Promise<AbsendeAntwort> {
+  const koerper: AbsendenAnfrage = { version }
+
+  return apiAnfrage<AbsendeAntwort>(`${PFAD}/${encodeURIComponent(id)}/absenden`, {
+    methode: 'POST',
+    koerper,
     fetchImpl,
   })
 }

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import NotFound from '../components/NotFound'
+import NichtMehrEntwurf from './absenden/NichtMehrEntwurf'
 import ProtokollFormular from './ProtokollFormular'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
@@ -168,6 +169,16 @@ function ProtokollSeite() {
         </Button>
       </Alert>
     )
+  }
+
+  /* Sent already, so there is nothing here to fill in.
+   *
+   * Before the section check below, because a submitted protocol is not a draft
+   * whichever section the URL names, and redirecting it to section 1 first would
+   * only put a wrong address in the history on the way to the same notice.
+   */
+  if (entwurf.status !== 'DRAFT') {
+    return <NichtMehrEntwurf status={entwurf.status} />
   }
 
   // The draft exists and only the section number is wrong, so send the user to
