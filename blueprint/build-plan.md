@@ -125,7 +125,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 11a. The rules in Python: every rule from features 4c to 9b ported to the backend, plus
         the one thing no half of the app has yet, a declared list of what a finished protocol
         must contain
-  - [ ] 11b. Gewaesser, Probestrecke and Person as real tables, and the matching that decides at
+  - [x] 11b. Gewaesser, Probestrecke and Person as real tables, and the matching that decides at
         submit whether this stretch is one already on record
   - [ ] 11c. Absenden: the endpoint that runs the rules and promotes the envelope, the status on
         Meine Protokolle, the button, and the panel listing what is still missing
