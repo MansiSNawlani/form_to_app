@@ -32,8 +32,9 @@ guarded this way in the attachments migration: two submissions arriving together
 both look, both find nothing, and both insert. Only the database can lose that
 race on purpose.
 
-No table here has a created_at. project-overview.md gives timestamps to User,
-Submission and Attachment and gives these three none.
+Each table carries a created_at. project-overview.md's sketch of these three
+entities gives them none, but every other table in this schema has one and a
+record with no age is the odd one out. Added on 2026-09-11 by decision.
 
 Revision ID: 40d694d2ad20
 Revises: 7d3b7f21a552
@@ -64,6 +65,12 @@ def upgrade() -> None:
         # duplicate that backfill goes looking for.
         sa.Column("amtliche_id", sa.Text(), nullable=True),
         sa.Column("gis_dataset_version", sa.Text(), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.CheckConstraint(
             "array_position(vorfluter, NULL) IS NULL",
             name=op.f("ck_gewaesser_vorfluter_ohne_luecke"),
@@ -85,6 +92,12 @@ def upgrade() -> None:
         sa.Column("ort", sa.Text(), nullable=True),
         sa.Column("telefon", sa.Text(), nullable=True),
         sa.Column("user_id", sa.Uuid(), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], name=op.f("fk_personen_user_id_users")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_personen")),
     )
@@ -113,6 +126,12 @@ def upgrade() -> None:
         sa.Column("obere_grenze_rechtswert", sa.Integer(), nullable=False),
         sa.Column("obere_grenze_hochwert", sa.Integer(), nullable=False),
         sa.Column("regierungspraesidium", sa.Integer(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         # The eight codes the field actually exports. 31 and 32 are absent on
         # purpose: the legacy form's JavaScript tests for them and the field
         # never produces them, which is defect 9.

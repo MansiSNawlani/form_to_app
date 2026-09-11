@@ -22,8 +22,9 @@ stale row is a deliberate administrative action for a later feature.
 """
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import ForeignKey, Index, Text, Uuid, text
+from sqlalchemy import DateTime, ForeignKey, Index, Text, Uuid, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -80,6 +81,15 @@ class Person(Base):
     # deleted.
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         Uuid, ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    # When this record first appeared. Not on project-overview.md's sketch for
+    # this entity, added on 2026-09-11 because every other table here has one and
+    # a record with no age is the odd one out. func.now() rather than the
+    # clock_timestamp() attachments uses: nothing orders by this column, so rows
+    # written in one transaction sharing a timestamp costs nothing.
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )
 
     def __repr__(self) -> str:

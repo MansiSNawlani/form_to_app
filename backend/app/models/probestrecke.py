@@ -19,8 +19,19 @@ rather than merely intended.
 """
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, Integer, Text, Uuid, text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Text,
+    Uuid,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -146,6 +157,15 @@ class Probestrecke(Base):
     # place, which is what lets feature 13 scope a regional account by joining
     # here instead of re-reading every protocol's answers.
     regierungspraesidium: Mapped[int] = mapped_column(Integer, index=True)
+
+    # When this record first appeared. Not on project-overview.md's sketch for
+    # this entity, added on 2026-09-11 because every other table here has one and
+    # a place record with no age is the odd one out. func.now() rather than the
+    # clock_timestamp() attachments uses: nothing orders by this column, so rows
+    # written in one transaction sharing a timestamp costs nothing.
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     def __repr__(self) -> str:
         kennung = self.monitoringstrecke_nr or "ohne Nr."

@@ -348,3 +348,16 @@ async def test_eine_treffende_nummer_legt_kein_gewaesser_an(
     assert erste.probestrecke_id == zweite.probestrecke_id
     assert zweite.gewaesser_id == erste.gewaesser_id
     assert await _zaehle(session, Gewaesser) == 1
+
+
+async def test_die_drei_saetze_wissen_wann_sie_entstanden_sind(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    """created_at comes from the database's own default, not from Python."""
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    await ordne_zu(session, lies_umschlag(VOLLSTAENDIG), besitzer)
+
+    assert (await session.scalars(select(Gewaesser))).one().created_at is not None
+    assert (await session.scalars(select(Probestrecke))).one().created_at is not None
+    assert (await session.scalars(select(Person))).one().created_at is not None

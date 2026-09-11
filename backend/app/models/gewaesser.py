@@ -11,15 +11,12 @@ available, and app/protokolle/zuordnung/ is where that is spelled out.
 reasoning is in zuordnung/dienst.py and it is the rule that governs all three of
 these tables: a protocol is an official record on its way to FiaKa, and anything
 an accepted one points at has to be as fixed as the protocol itself.
-
-No created_at, unlike every other table here. project-overview.md gives User,
-Submission and Attachment timestamps and gives these three none, and a column
-nothing reads is a promise the table would have to keep for no one.
 """
 
 import uuid
+from datetime import datetime
 
-from sqlalchemy import ARRAY, CheckConstraint, Text, Uuid, text
+from sqlalchemy import ARRAY, CheckConstraint, DateTime, Text, Uuid, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -85,6 +82,15 @@ class Gewaesser(Base):
 
     #: Which GIS dataset amtliche_id was read from. Empty until feature 18.
     gis_dataset_version: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # When this record first appeared. Not on project-overview.md's sketch for
+    # this entity, added on 2026-09-11 because every other table here has one and
+    # a place record with no age is the odd one out. func.now() rather than the
+    # clock_timestamp() attachments uses: nothing orders by this column, so rows
+    # written in one transaction sharing a timestamp costs nothing.
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     def __repr__(self) -> str:
         return f"<Gewaesser {self.id} {self.name!r}>"
