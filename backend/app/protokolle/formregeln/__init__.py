@@ -16,14 +16,14 @@ would stop saving.
 from collections.abc import Mapping
 from typing import Any
 
-from app.protokolle.formregeln.artenliste import erste_je_pfad, pruefe_arten
+from app.protokolle.formregeln.artenliste import pruefe_arten
 from app.protokolle.formregeln.ausruestung import pruefe_ausruestung
 from app.protokolle.formregeln.einfluesse import pruefe_einfluesse
 from app.protokolle.formregeln.hydrologie import pruefe_hydrologie
 from app.protokolle.formregeln.koordinaten import pruefe_koordinaten
 from app.protokolle.formregeln.monitoring import pruefe_monitoringnummer
 from app.protokolle.formregeln.prozent import pruefe_prozentgruppen
-from app.protokolle.formregeln.regel import Formverstoss
+from app.protokolle.formregeln.regel import Formverstoss, erste_je_pfad
 from app.protokolle.formregeln.schaetzwert import pruefe_schaetzwerte
 from app.protokolle.formregeln.vollstaendigkeit import pruefe_vollstaendigkeit
 from app.protokolle.formregeln.vorfluter import pruefe_vorfluterkette
@@ -36,7 +36,7 @@ def pruefe_protokoll(antworten: Mapping[str, Any]) -> list[Formverstoss]:
 
     An empty list means it may be submitted.
 
-    ## The order
+    The order
 
     What is missing first, then what is wrong, and within that, part 1 through
     part 6. Somebody repairing a protocol fills the gaps before they argue with
@@ -46,7 +46,7 @@ def pruefe_protokoll(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     answer, which is what lets the same rules run over a half-finished draft, so
     a field that is missing is never also wrong.
 
-    ## Why the whole list is deduplicated by path
+    Why the whole list is deduplicated by path
 
     One field really can break two rules at once. A pond carrying a width
     estimate trips hydrologie.py, because the section does not apply to standing

@@ -8,7 +8,7 @@ Part 6's assembled check also lives here rather than in arten.py, because it has
 to see both halves and this is the half that can import the other.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from typing import Any
 
 from app.protokolle.formregeln.arten import (
@@ -22,6 +22,7 @@ from app.protokolle.formregeln.regel import (
     ARTEN_TABELLE,
     Formverstoss,
     als_zahl,
+    erste_je_pfad,
     ist_leer,
     wert_aus,
 )
@@ -179,26 +180,6 @@ def pruefe_fang_ohne_nachweis_code(antworten: Mapping[str, Any]) -> list[Formver
         return []
 
     return [Formverstoss(ARTEN_TABELLE, FANG_OHNE_NACHWEIS_CODE)]
-
-
-def erste_je_pfad(verstoesse: Sequence[Formverstoss]) -> list[Formverstoss]:
-    """One message per cell, the first raised winning.
-
-    A cell can break more than one rule at once: an OFAN row named twice beside
-    a real species is both a duplicate and a contradiction. The browser can show
-    only one message per field anyway, so which one that is gets decided here
-    rather than left to whichever order a caller happens to keep.
-    """
-    gesehen: set[str] = set()
-    behalten: list[Formverstoss] = []
-
-    for verstoss in verstoesse:
-        if verstoss.pfad in gesehen:
-            continue
-        gesehen.add(verstoss.pfad)
-        behalten.append(verstoss)
-
-    return behalten
 
 
 def pruefe_arten(antworten: Mapping[str, Any]) -> list[Formverstoss]:

@@ -177,9 +177,17 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       `protokoll.regeln.fehlt`.
       *Done when:* the required list was agreed rather than assumed, and `pytest`
       shows an empty document naming every missing required field, a complete one
-      naming none, a WRRL occasion requiring the monitoring number, a standing water
-      not requiring hydrology, and a flowing water requiring it. The list of required
-      paths sits in one place and reads top to bottom.
+      naming none, a WRRL occasion requiring the monitoring number, and a standing
+      water not requiring any real hydrology answer. The list of required paths sits
+      in one place and reads top to bottom.
+
+      **The hydrology criterion was reworded during the build**, from "a standing
+      water not requiring hydrology, and a flowing water requiring it". The nine
+      pickers turn out to be required on every water, because on a standing one the
+      only answer they may hold is the marking that says the section does not apply,
+      and `hydrologie.py` is what enforces that. The intent is met, since no real
+      hydrology answer is ever demanded of a pond, but the original wording described
+      a split that the two modules do not actually make.
 
 - [x] **Step 10 - One check over the whole document** - `pruefe_protokoll(antworten)`
       running every rule in section order and returning one flat list. Add two

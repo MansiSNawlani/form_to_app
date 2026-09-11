@@ -62,6 +62,15 @@ class TestSummeAusWerten:
         assert summe_aus_werten([]) == 0
         assert summe_aus_werten(["", "  "]) == 0
 
+    def test_zaehlt_negative_zahlen_mit_statt_sie_zu_verschweigen(self) -> None:
+        # pruefe_anzahlen objects to the sign. The total still has to describe
+        # what was typed, or the message and the number would tell different
+        # stories.
+        assert summe_aus_werten(["-4", "10"]) == 6
+
+    def test_nimmt_grosse_ganze_zahlen_an(self) -> None:
+        assert summe_aus_werten(["1200", "800"]) == 2000
+
     def test_eine_unlesbare_zelle_macht_die_summe_unbekannt(self) -> None:
         # Reporting the sum of the readable cells would put a confident wrong
         # number under a column.

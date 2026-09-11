@@ -116,6 +116,13 @@ class TestDieDreiPaare:
             )
         ) == [BEFISCHTE_LAENGE_NULL]
 
+    def test_ignoriert_antworten_die_zu_keinem_paar_gehoeren(self) -> None:
+        andere = {
+            "ausruestung": {"egeraet": "FEG 3000", "spannung": "0", "leistung": "0"},
+            "anodenfuehrer": {"vorname": "Anna"},
+        }
+        assert pruefe_ausruestung(andere) == []
+
 
 class TestDasVorzeichen:
     @pytest.mark.parametrize("pfad", ZAHLENFELDER)
@@ -134,6 +141,24 @@ class TestDasVorzeichen:
     def test_nimmt_null_und_positive_mengen(self) -> None:
         assert pruefe_ausruestung(dokument(ausruestung__spannung="300")) == []
         assert pruefe_ausruestung(dokument(ausruestung__spannung="0")) == []
+
+    def test_meldet_ein_minus_neben_der_paarmeldung_nicht_statt_ihrer(self) -> None:
+        # -2 is not zero, so the pair is satisfied and only the sign is wrong.
+        # The two rules judge different things about the same box and neither
+        # suppresses the other.
+        verstoesse = pruefe_ausruestung(
+            dokument(ausruestung__ringanoden="-2", ausruestung__streifenanoden="0")
+        )
+        assert [(v.pfad, v.schluessel) for v in verstoesse] == [
+            ("ausruestung.ringanoden", ZAHL_NEGATIV)
+        ]
+
+    def test_liest_ein_negatives_komma_dezimal_wie_ein_punkt_dezimal(self) -> None:
+        assert schluessel(dokument(befischte_bereiche__ufer_breite="-0,5")) == [ZAHL_NEGATIV]
+
+    @pytest.mark.parametrize("wert", ["0", "1", "0,5", "12.75", "4000"])
+    def test_laesst_null_und_positive_werte_zu(self, wert: str) -> None:
+        assert ZAHL_NEGATIV not in schluessel(dokument(ausruestung__spannung=wert))
 
     def test_sagt_nichts_zu_einer_unlesbaren_menge(self) -> None:
         # Only the sign is judged here. A word in a voltage box is the shape

@@ -15,12 +15,17 @@ enforced nowhere. This module is the enforcing half, and 11c is where the panel
 listing what is still missing starts reading this answer instead of the
 asterisks, so that the two stop being separate truths.
 
+The list below is those 32 markers and nothing besides. Anywhere it looks
+thinner than expected, the asterisk is what is missing, and widening the gate
+quietly is how the two halves would start disagreeing about what a finished
+protocol is.
+
 Written as a rule rather than a table of flags because requiredness here depends
 on other answers. The Monitoringstrecken-Nr. is needed only for a monitoring
 occasion, and the hydrology block only on flowing water. A flat list of paths
 could express neither.
 
-## What parts 3, 4 and 6 require
+What parts 3, 4 and 6 require
 
 Nothing marks them in the browser, so this was decided rather than read off, on
 2026-09-11:
@@ -69,13 +74,17 @@ TEIL_1 = (
     "probestrecke.laenge",
     "probestrecke.ortsangabe",
     "probestrecke.gewaesser.vorfluter1",
-    "probestrecke.untere",
     "probestrecke.utm_rw_unten",
     "probestrecke.utm_hw_unten",
-    "probestrecke.obere",
     "probestrecke.utm_rw_oben",
     "probestrecke.utm_hw_oben",
 )
+
+# Deliberately absent: probestrecke.untere and probestrecke.obere, the landmark
+# each boundary is described by. They carry no asterisk, so requiring them would
+# widen the gate past what the form promises. Worth asking FFS, since a landmark
+# is what somebody uses to find the same stretch next year and a coordinate
+# alone is harder to stand in front of.
 
 # Part 2's measurements, which are taken on any water.
 TEIL_2_MESSDATEN = (
@@ -101,9 +110,9 @@ TEIL_2_HYDROLOGIE = tuple(
 )
 
 # Part 5. The device, what it was run at, and how it was built.
+# Deliberately without ausruestung.leistung, which carries no asterisk either.
 TEIL_5 = (
     "ausruestung.egeraet",
-    "ausruestung.leistung",
     "ausruestung.bauweise",
 )
 

@@ -15,7 +15,8 @@ single HTTP request.
 """
 
 import math
-from collections.abc import Mapping
+import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -45,6 +46,11 @@ LAENGE_PAAR = "paar.befischte_laenge"
 BREITE_PAAR = "paar.befischte_breite"
 
 ARTEN_TABELLE = "tabelle.arten"
+
+# What als_zahl below will read: an optional sign, digits with an optional
+# decimal part, and an optional exponent. Deliberately narrower than float(),
+# which also accepts underscores between digits.
+ZAHL = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$")
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,15 +120,45 @@ def als_zahl(wert: str | None) -> float | None:
     blank cell as nothing and refuses to total a column holding a word. Each asks
     ist_leer first when it needs the difference.
 
-    Infinity is refused deliberately. Python reads it out of "Infinity" and
-    JavaScript's Number does the same, and it would then satisfy every upper
-    bound any rule sets. The browser half guards it with Number.isFinite.
+    What counts as a number is spelled out rather than left to float(), because
+    float() and JavaScript's Number() disagree and this half is the gate. float()
+    reads "1_000" as 1000 and Number() does not, so without the pattern below a
+    catch cell of 1_000 would be a thousand fish to the backend and an unreadable
+    cell in the browser: the authoritative check would be the looser of the two,
+    which is exactly backwards. They disagree the other way about "0x10", which
+    Number() reads as 16, and the pattern refuses that too.
+
+    Infinity is refused for the same reason, and would otherwise satisfy every
+    upper bound any rule sets. The pattern turns it away, and isfinite still
+    catches what survives it, such as "1e400".
     """
     roh = (wert or "").strip().replace(",", ".")
-    if roh == "":
+    if not ZAHL.match(roh):
         return None
-    try:
-        zahl = float(roh)
-    except ValueError:
-        return None
+    zahl = float(roh)
     return zahl if math.isfinite(zahl) else None
+
+
+def erste_je_pfad(verstoesse: Sequence[Formverstoss]) -> list[Formverstoss]:
+    """One message per field, the first raised winning.
+
+    A field can break two rules at once. A pond carrying a width estimate trips
+    hydrologie.py, because the section does not apply to standing water, and
+    schaetzwert.py, because the estimate sits under a band marked as not
+    applying. Both are true and only one is worth saying, so the order the
+    caller lists its rules in is what decides.
+
+    The browser needs no equivalent: React Hook Form holds one error per field,
+    so it does this by itself and only part 6, which reports several rules
+    against one cell, has to be explicit about it.
+    """
+    gesehen: set[str] = set()
+    behalten: list[Formverstoss] = []
+
+    for verstoss in verstoesse:
+        if verstoss.pfad in gesehen:
+            continue
+        gesehen.add(verstoss.pfad)
+        behalten.append(verstoss)
+
+    return behalten

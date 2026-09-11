@@ -14,7 +14,7 @@ import pytest
 
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
-from app.protokolle.formregeln.hydrologie import NICHT_ZUTREFFEND
+from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER, NICHT_ZUTREFFEND
 from app.protokolle.formregeln.vollstaendigkeit import PFLICHTFELDER
 
 # The browser's German locale, which is the authority on what a valid key is.
@@ -41,22 +41,7 @@ class TestEinEchtesProtokoll:
         # applying, which is what the browser writes by itself.
         see: dict[str, Any] = json.loads(json.dumps(VOLLSTAENDIG))
         see["probestrecke"]["gewaessertyp"] = "21"
-        see["hydrologie"] = {
-            feld: NICHT_ZUTREFFEND
-            for feld in (
-                "breite",
-                "breite_schaetzwert",
-                "tiefe",
-                "tiefe_schaetzwert",
-                "tiefenvarianz",
-                "linienfuehrung",
-                "stroemung",
-                "fliessgeschwindigkeit",
-                "wasserfuehrung",
-                "stillwasserbereich",
-                "gesamtprofil",
-            )
-        }
+        see["hydrologie"] = {feld: NICHT_ZUTREFFEND for feld in MARKIERTE_FELDER}
         assert pruefe_protokoll(see) == []
 
 

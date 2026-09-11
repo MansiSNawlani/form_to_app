@@ -96,6 +96,10 @@ class TestDieSummeVonHundert:
         verstoesse = pruefe_prozentgruppen(gefuellt(UMLAND, "50"))
         assert [v.pfad for v in verstoesse] == ["summe.umland"]
 
+    def test_ignoriert_leerzeichen_um_einen_anteil(self) -> None:
+        # Whitespace survives a paste.
+        assert pruefe_prozentgruppen(gefuellt(UMLAND, " 100 ")) == []
+
     def test_eine_null_ist_eine_antwort(self) -> None:
         # Zero is not blank. A run answered as all zeroes totals 0, which is
         # not 100, and saying nothing about it would let it through.

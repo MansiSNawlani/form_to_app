@@ -11,14 +11,14 @@ table, and marks the results read-only. So they are derived here too and never
 stored: a total in the document would be a second, disagreeing answer to a
 question the cells already answer.
 
-## Why 0+ is not in either total
+Why 0+ is not in either total
 
 The printed form heads that column "davon", which is "of which". Young-of-year
 individuals are already counted in the size classes beside them, so adding the
 column would count them twice. The legacy form's own gesamtsumme sums only the
 row sums and never the 0+ fields, which is the same decision made the same way.
 
-## Why an unreadable cell makes the total undefined
+Why an unreadable cell makes the total undefined
 
 A blank cell is nothing and counts as zero, which is what an unfilled table
 means. A cell holding a word is different: the total is then unknowable, and
@@ -71,7 +71,7 @@ def zaehl_pfade(nr: int) -> list[str]:
 def summe_aus_werten(werte: Sequence[str]) -> int | None:
     """Counts added up, or None when one of them cannot be read.
 
-    ## Whole fish only
+    Whole fish only
 
     A count is a number of individuals, so 2.5 is not a smaller answer than 3,
     it is not an answer. Rejecting it also settles what "1.200" means, which is
@@ -138,10 +138,11 @@ def _zeile_ueberzaehlt(antworten: Mapping[str, Any], nr: int) -> bool:
     if summe is None:
         return False
 
-    # The cell is not blank and passed the check above, so it is a whole number.
+    # The cell is not blank and passed the check above, so it is a whole
+    # number. Written as a comparison rather than an assert because assert is
+    # stripped under python -O, and this one is load-bearing.
     gezaehlt = als_zahl(null_plus)
-    assert gezaehlt is not None
-    return gezaehlt > summe
+    return gezaehlt is not None and gezaehlt > summe
 
 
 def pruefe_anzahlen(antworten: Mapping[str, Any]) -> list[Formverstoss]:

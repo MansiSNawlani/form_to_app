@@ -56,6 +56,21 @@ class TestGegenDasSeed:
         # listing it here too would put two messages on one empty box.
         assert "probestrecke.monitoringnummer" not in PFLICHTFELDER
 
+    def test_so_viele_felder_wie_sterne_im_formular(self) -> None:
+        # 32 pflicht markers in the block components, minus the
+        # Monitoringstrecken-Nr., which monitoring.py owns.
+        assert len(PFLICHTFELDER) == 31
+
+    @pytest.mark.parametrize(
+        "pfad", ["probestrecke.untere", "probestrecke.obere", "ausruestung.leistung"]
+    )
+    def test_ein_feld_ohne_stern_wird_nicht_verlangt(self, pfad: str) -> None:
+        # These three look like they belong and carry no asterisk. Requiring
+        # them would widen the gate past what the form promises, which is how
+        # the two halves would start disagreeing about what a finished protocol
+        # is. Worth asking FFS rather than deciding here.
+        assert pfad not in PFLICHTFELDER
+
     def test_die_schaetzwerte_stehen_nicht_in_der_liste(self) -> None:
         # An estimate only ever refines a band.
         assert not [pfad for pfad in PFLICHTFELDER if pfad.endswith("_schaetzwert")]

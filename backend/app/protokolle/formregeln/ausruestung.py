@@ -2,7 +2,7 @@
 
 The Python half of frontend/src/protokoll/regeln/ausruestung.ts.
 
-## The three pair checks
+The three pair checks
 
 All the same shape: two numbers, at least one of which has to say something.
 The legacy form writes them as sums:
@@ -30,7 +30,7 @@ fished area needs both numbers is question 5 in docs/ffs-questions.md.
 The message goes under the pair rather than on a box, because neither box is the
 wrong one and only the surveyor knows which number they meant.
 
-## The sign check
+The sign check
 
 None of part 5's nine quantities can be negative. The legacy form permits all of
 them: no keystroke handler, no format check and no range check anywhere in part

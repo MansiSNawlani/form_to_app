@@ -1,10 +1,36 @@
+import pytest
+
+from app.formular.felder import formular
 from app.protokolle.formregeln.regel import (
+    ANODEN_PAAR,
     ARTEN_TABELLE,
+    BREITE_PAAR,
     EINFLUSS_WIDERSPRUCH,
+    LAENGE_PAAR,
+    SUMME_BEWUCHS,
+    SUMME_NEIGUNG,
+    SUMME_SOHLVERBAU,
+    SUMME_SUBSTRAT,
+    SUMME_UFERVERBAU,
+    SUMME_UMLAND,
     Formverstoss,
     als_zahl,
     ist_leer,
     wert_aus,
+)
+
+PSEUDOPFADE = (
+    SUMME_UMLAND,
+    SUMME_NEIGUNG,
+    SUMME_BEWUCHS,
+    SUMME_UFERVERBAU,
+    SUMME_SUBSTRAT,
+    SUMME_SOHLVERBAU,
+    EINFLUSS_WIDERSPRUCH,
+    ANODEN_PAAR,
+    LAENGE_PAAR,
+    BREITE_PAAR,
+    ARTEN_TABELLE,
 )
 
 
@@ -81,6 +107,20 @@ class TestAlsZahl:
         assert als_zahl("Infinity") is None
         assert als_zahl("-Infinity") is None
         assert als_zahl("nan") is None
+        assert als_zahl("1e400") is None
+
+    @pytest.mark.parametrize("eingabe", ["1_000", "1_0", "0x10", "0b11", "1__0"])
+    def test_liest_nichts_das_javascript_anders_liest(self, eingabe: str) -> None:
+        # The one place the two halves could disagree in the dangerous
+        # direction. float() reads "1_000" as 1000 and Number() reads it as NaN,
+        # so without the pattern the authoritative gate would be the looser of
+        # the two. Number() reads "0x10" as 16, which is a disagreement the
+        # other way round, and this refuses that too.
+        assert als_zahl(eingabe) is None
+
+    @pytest.mark.parametrize("eingabe", ["1e3", "-0,5", "+12", ".5", "5."])
+    def test_liest_was_javascript_auch_liest(self, eingabe: str) -> None:
+        assert als_zahl(eingabe) is not None
 
 
 class TestFormverstoss:
@@ -94,8 +134,11 @@ class TestFormverstoss:
         # saying the same thing must count as equal.
         assert Formverstoss("a", "b") == Formverstoss("a", "b")
 
-    def test_pseudopfade_sind_keine_feldpfade(self) -> None:
-        # A pseudo-path must never collide with a real answer path, or a
-        # violation about a group would light up an unrelated box.
-        assert ARTEN_TABELLE == "tabelle.arten"
-        assert EINFLUSS_WIDERSPRUCH == "widerspruch.einfluesse"
+    def test_kein_pseudopfad_ist_ein_echter_feldpfad(self) -> None:
+        # The claim is a collision, so the form's own field list is what has to
+        # be asked. ufer.neigung is a real field, the slope of a built-up dam in
+        # degrees, which is why the percentage run about bank slopes could not
+        # be named after itself.
+        pfade = formular().pfade
+        for pseudo in PSEUDOPFADE:
+            assert pseudo not in pfade, pseudo
