@@ -30,6 +30,19 @@ export const PROTOKOLL_NICHT_GEFUNDEN = 'PROTOKOLL_NICHT_GEFUNDEN'
  * one save failure where trying again cannot help. */
 export const PROTOKOLL_VERAENDERT = 'PROTOKOLL_VERAENDERT'
 
+/* No constants for the attachment refusals, deliberately, added in feature 3d.
+ *
+ * The backend publishes ANLAGE_TYP_UNZULAESSIG, ANLAGE_INHALT_KEIN_BILD,
+ * ANLAGE_ZU_GROSS, ANLAGENART_VOLL and ANLAGE_NICHT_GEFUNDEN, and every one of
+ * them arrives with a German sentence that already names the file, says why in
+ * ordinary words and says what to do about it. Nothing in the browser has to
+ * tell them apart to show them, so naming them here would be five exports
+ * nothing imports.
+ *
+ * The moment something does branch on one, it gets its constant, like the two
+ * above.
+ */
+
 export interface FehlerOptionen {
   /** The HTTP status, or null when nothing ever answered. */
   status?: number

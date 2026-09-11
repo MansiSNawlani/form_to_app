@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import AbschnittNav from './AbschnittNav'
@@ -9,6 +9,9 @@ import AbschnittInhalt from './abschnitte/AbschnittInhalt'
 import type { Abschnitt } from './abschnitte'
 import SpeicherProblem from './SpeicherProblem'
 import SicherungAngebot from './entwurf/SicherungAngebot'
+import { erstelleBereitsteller } from './entwurf/bereitstellen'
+import { anzeigeZustand, type Anlagenzustand } from './entwurf/speicherzustand'
+import { legeEntwurfAn } from './entwurf/api'
 import { useAutoSave } from './entwurf/useAutoSave'
 import type { Antworten, Entwurf } from './entwurf/typen'
 import { antwortenSchema } from './regeln/schema'
@@ -43,8 +46,55 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
     mode: 'onTouched',
     resolver: zodResolver(antwortenSchema),
   })
-  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form, { onAngelegt })
+  /* The id this protocol really has, which is not always the one it was handed.
+   *
+   * A protocol opened from "Neues Protokoll" has no record until something is
+   * put into it, and the page deliberately keeps this component mounted when
+   * that happens, so nothing is torn down mid-keystroke. The consequence is that
+   * the entwurf prop goes on carrying the placeholder id for the rest of the
+   * visit, and anything addressed by protocol id, which since feature 3d means
+   * the attachments, has to be told the real one.
+   *
+   * State rather than a ref, because the blocks below have to re-render and
+   * fetch their list once there is a protocol to fetch it from. */
+  const [angelegteId, setAngelegteId] = useState<string | null>(null)
+  const entwurfId = angelegteId ?? entwurf.id
+
+  const beiAnlage = useCallback(
+    (angelegt: Entwurf) => {
+      setAngelegteId(angelegt.id)
+      onAngelegt?.(angelegt)
+    },
+    [onAngelegt],
+  )
+
+  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form, {
+    onAngelegt: beiAnlage,
+  })
   useHydrologieAbgleich(form)
+
+  /* Built once for the life of the form, so both blocks in section 7 share one
+     in-flight request. Two of them each checking and then creating would leave a
+     surveyor with two empty protocols and their pictures split between them.
+
+     The id is handed in at the moment of the call rather than captured here, so
+     the same provider keeps working after the automatic save has created the
+     record. */
+  const bereitstellen = useMemo(
+    () => erstelleBereitsteller({ anlegen: () => legeEntwurfAn(), onAngelegt: beiAnlage }),
+    [beiAnlage],
+  )
+
+  /* What section 7 has to say about saving, which the header has to show as
+     well: there is one indicator and it speaks for the whole protocol. A
+     photograph on the server is work that is safe, and an indicator that only
+     ever watched the answers would leave a surveyor who went straight to the
+     attachments looking at "noch nicht gespeichert". Found on 2026-09-11.
+
+     entwurf/speicherzustand.ts decides which of the two the header shows when
+     both have something to say. */
+  const [anlagenZustand, setAnlagenZustand] = useState<Anlagenzustand>(null)
+  const saveAnzeige = anzeigeZustand(saveState, anlagenZustand)
 
   /* An answer that was wrong when the draft was put down is still wrong when it
      is picked up again, so the saved answers are checked once on opening.
@@ -98,26 +148,31 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
     /* The provider wraps the head as well as the card, because the heading is
        the draft's own name and reads it out of the answers. */
     <FormProvider {...form}>
-      <ProtokollKopf entwurf={entwurf} saveState={saveState} />
+      <ProtokollKopf entwurf={entwurf} saveState={saveAnzeige} />
       <AbschnittNav entwurfId={entwurf.id} aktuelleNr={abschnitt.nr} />
 
       {/* Above the section rather than inside it: the offer is about the whole
           protocol, and it has to be seen whichever section the URL opened on. */}
       <SicherungAngebot entwurf={entwurf} form={form} jetztSpeichern={jetztSpeichern} />
-      <SpeicherProblem saveState={saveState} />
+      <SpeicherProblem saveState={saveAnzeige} />
 
       <section className="card" ref={card} tabIndex={-1} aria-label={titel}>
         {/* No onSubmit: there is nothing to submit until feature 11, and saving
             is automatic. The form element is here for the semantics and so that
             the fields sit inside one. */}
         <form>
-          <AbschnittInhalt abschnitt={abschnitt} entwurfId={entwurf.id} />
+          <AbschnittInhalt
+            abschnitt={abschnitt}
+            entwurfId={entwurfId}
+            bereitstellen={bereitstellen}
+            melde={setAnlagenZustand}
+          />
         </form>
 
         <AbschnittWechsel
           entwurfId={entwurf.id}
           aktuelleNr={abschnitt.nr}
-          saveState={saveState}
+          saveState={saveAnzeige}
         />
       </section>
     </FormProvider>

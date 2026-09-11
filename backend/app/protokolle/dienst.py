@@ -29,6 +29,7 @@ from typing import Any
 from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.anlagen.speicher import Anlagenspeicher
 from app.formular.felder import formular
 from app.models.benutzer import User
 from app.models.protokoll import Status, Submission
@@ -107,6 +108,38 @@ async def lege_entwurf_an(session: AsyncSession, *, besitzer: User) -> Submissio
     return entwurf
 
 
+def beruehre(protokoll: Submission) -> None:
+    """Record that somebody has just worked on this protocol.
+
+    Meine Protokolle heads each row with "Zuletzt bearbeitet" and sorts on it, so
+    this decides what counts as working on a protocol. Saving an answer stamps it
+    by itself, because the row is what changes; anything that changes something
+    hanging off the protocol has to say so here.
+
+    Added on 2026-09-11, after trying feature 3d and finding that adding twenty
+    photographs left a protocol claiming it had last been touched that morning,
+    and sunk below protocols nobody had opened in days. An attachment is a row in
+    another table, so nothing about writing one touches this one.
+
+    **It deliberately does not raise `version`.** That number exists so two open
+    tabs cannot overwrite each other's answers, and an attachment changes no
+    answer. Raising it would make the form open in another tab fail its next save
+    with a conflict that is not real.
+
+    The database's clock rather than this process's, so one table is not stamped
+    by two clocks that can disagree.
+
+    clock_timestamp() rather than now(), for the same reason attachments.created_at
+    uses it: now() is the moment the transaction began, so everything written in
+    one transaction shares a timestamp to the microsecond. That is invisible in
+    production, where every request is its own transaction, and it is exactly
+    what a test cannot see, since the suite runs each test inside one transaction
+    it rolls back. A stamp that cannot be observed to move is a stamp no test can
+    hold to its promise.
+    """
+    protokoll.updated_at = func.clock_timestamp()
+
+
 async def hole_protokoll(
     session: AsyncSession, *, protokoll_id: uuid.UUID, besitzer: User
 ) -> Submission:
@@ -172,23 +205,34 @@ async def speichere_antworten(
 
 
 async def loesche_protokoll(
-    session: AsyncSession, *, protokoll_id: uuid.UUID, besitzer: User
+    session: AsyncSession,
+    speicher: Anlagenspeicher,
+    *,
+    protokoll_id: uuid.UUID,
+    besitzer: User,
 ) -> None:
-    """Remove a draft belonging to this account.
+    """Remove a draft belonging to this account, and its attachments' files.
 
     Only a draft. Once a protocol has been submitted it is a record somebody else
     is working with, and withdrawing it is a workflow step for feature 11 rather
     than a delete.
 
-    Nothing cleans up attachments, because there are none on the server yet.
-    Feature 3d gives them one, and it has to delete them here as well or the
-    files stay behind with nothing pointing at them.
+    The attachment rows go with it through ON DELETE CASCADE, but a cascade knows
+    nothing about the volume, so the pictures would stay there forever with
+    nothing pointing at them. Feature 3d added the second half, which this
+    function carried a note asking for from the day it was written.
+
+    Files after the commit, and by directory rather than row by row. The rows are
+    gone by then, so there is nothing left to walk; the directory is named after
+    the protocol precisely so it does not have to be.
     """
     protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
     pruefe_aenderbar(protokoll.status)
 
     await session.delete(protokoll)
     await session.commit()
+
+    await speicher.loesche_protokoll(protokoll_id)
 
 
 async def liste_protokolle(session: AsyncSession, *, besitzer: User) -> list[Protokollzeile]:

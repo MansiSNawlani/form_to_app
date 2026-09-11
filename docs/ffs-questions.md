@@ -184,6 +184,42 @@ rather than about the page.
 **If four was deliberate:** we lower one constant. Worth knowing whether the number carries any
 meaning downstream, in particular whether FiaKa or the eventual PDF expects a fixed four.
 
+## 12. Should uploaded files be scanned for malware?
+
+**Where:** The attachments, which since feature 3d are stored on the server rather than in the
+browser they were picked in.
+
+Protocols are filed by external consultants, engineering firms and angling associations, not only by
+FFS staff. That means files arrive on an FFS server from machines FFS does not administer, which is
+the situation virus scanning exists for. A picture that carries something unpleasant would sit in
+the attachment store until a reviewer opens it.
+
+**What the application does already,** so that the question is about what is left rather than about
+everything:
+
+- Only JPG, PNG and WEBP are accepted, and the decision is made from the file's own first bytes
+  rather than from its name or from what the upload claimed. A document renamed to `karte.jpg` is
+  refused.
+- Each file is capped at 10 MB, a protocol at one map excerpt and twenty photographs.
+- A stored file is served back with the type recorded from its contents, with `nosniff` so a browser
+  cannot decide for itself that it is really a web page, and as a download rather than something the
+  browser renders in place. Together those mean a file cannot execute in the context of the
+  application.
+
+**What that does not cover:** a file that really is a valid image and also carries something aimed
+at whatever opens it next, which is the reviewer's own computer rather than the application.
+
+**What we assume meanwhile:** no scanning, decided on 2026-09-11. It is a piece of infrastructure
+and a policy decision rather than application code, and a half measure written here would read as
+protection without being any. If FFS wants it, the usual shape is a scanner running beside the
+service that checks a file after it is stored and quarantines it, which is a small feature here plus
+something for whoever runs the servers.
+
+**What we need to know:** whether FFS already scans files arriving by email today, and whether the
+eventual hosting has a scanner available. If email attachments are scanned now, this application
+would be a step backwards without it, and that is worth knowing before it is deployed rather than
+after.
+
 ---
 
 ## What happens to the answers

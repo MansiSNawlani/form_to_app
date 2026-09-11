@@ -6,10 +6,18 @@ import AnlagenPicker from './AnlagenPicker'
 import AnlagenVorschau from './AnlagenVorschau'
 import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
+import type { Bereitsteller } from '../../entwurf/bereitstellen'
+import type { Anlagenzustand } from '../../entwurf/speicherzustand'
 import { useAnlagen } from '../../anlagen/useAnlagen'
 
 interface KartenausschnittBlockProps {
   entwurfId: string
+  /* Turns a protocol nobody has typed into yet into a real record, because an
+     attachment cannot be addressed until there is one to address it through. */
+  bereitstellen: Bereitsteller
+  /* Reports this block's work to the header, which speaks for the whole
+     protocol: an upload is saving, so it has to reach the one indicator. */
+  melde: (zustand: Anlagenzustand) => void
 }
 
 /* The map excerpt showing where the stretch is.
@@ -22,11 +30,13 @@ interface KartenausschnittBlockProps {
  * part 1 are the whole of what version 1 knows about where a survey happened.
  * docs/decisions.md pulled attachments forward for exactly that reason.
  */
-function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
+function KartenausschnittBlock({ entwurfId, bereitstellen, melde }: KartenausschnittBlockProps) {
   const { t } = useTranslation()
-  const { status, anlagen, meldungen, ersetzen, entfernen } = useAnlagen(
+  const { status, anlagen, meldungen, laeuft, ersetzen, entfernen } = useAnlagen(
     entwurfId,
     'KARTENAUSSCHNITT',
+    bereitstellen,
+    melde,
   )
 
   const karte = anlagen[0]
@@ -47,6 +57,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
 
       {status === 'loaded' && karte === undefined && (
         <AnlagenPicker
+              gesperrt={laeuft}
           ref={picker}
           beschriftung={t('protokoll.abschnitt7.kartenausschnitt.waehlen')}
           onDateien={(dateien) => void ersetzen(dateien[0])}
@@ -65,6 +76,7 @@ function KartenausschnittBlock({ entwurfId }: KartenausschnittBlockProps) {
               the picker that opens is a second chance to change your mind.
               Removing does ask, because nothing takes the file's place. */}
           <AnlagenPicker
+              gesperrt={laeuft}
             beschriftung={t('protokoll.abschnitt7.ersetzen')}
             onDateien={(dateien) => void ersetzen(dateien[0])}
           />

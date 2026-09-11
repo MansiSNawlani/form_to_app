@@ -25,6 +25,10 @@ dependencies = [
     # Email syntax checking and normalisation. Pydantic uses the same library
     # behind EmailStr, so the browser side and this agree on what an address is.
     "email-validator>=2.2",
+    # Reads multipart/form-data, which is how a file reaches an endpoint. FastAPI
+    # refuses to start a route declaring UploadFile without it, with a message
+    # naming this package, so it is a hard requirement rather than a nicety.
+    "python-multipart>=0.0.20",
     # The command line. By the author of FastAPI and the conventional choice
     # here; gives help text, option validation and exit codes for free.
     "typer>=0.15",

@@ -646,10 +646,10 @@
         "groesse": "«{{dateiname}}» ist {{groesseMb, number}} MB groß, möglich sind bis zu {{maxMb, number}} MB. Die meisten Handys und Foto-Apps erzeugen beim Teilen oder Exportieren eine kleinere Fassung.",
         "kartenausschnittBelegt": "«{{dateiname}}» wurde nicht hinzugefügt: Es ist bereits ein Kartenausschnitt hinterlegt. Bitte ersetzen Sie ihn oder entfernen Sie ihn zuerst.",
         "fotosVoll": "«{{dateiname}}» wurde nicht hinzugefügt: Es sind bereits {{vorhanden}} Fotos hinterlegt, mehr als {{max}} sind nicht möglich. Bitte entfernen Sie zuerst ein Foto.",
-        "speicherVoll": "«{{dateiname}}» konnte nicht gespeichert werden: Der Browser hat für dieses Protokoll keinen Platz mehr. Alles bereits Hinterlegte ist unverändert erhalten. Bitte schaffen Sie auf dem Gerät Speicherplatz oder hinterlegen Sie weniger oder kleinere Bilder.",
-        "dateiNichtGespeichert": "«{{dateiname}}» wurde nicht gespeichert: In diesem Fenster lassen sich keine Anlagen ablegen. Das kommt im privaten Modus und bei eingeschränkten Browser-Einstellungen vor. Bitte verwenden Sie ein normales Fenster oder einen anderen Browser.",
-        "nichtEntfernt": "«{{dateiname}}» konnte nicht entfernt werden. Die Datei ist noch da. Bitte versuchen Sie es noch einmal; hilft das nicht, laden Sie die Seite neu.",
-        "speicherNichtVerfuegbar": "In diesem Fenster lassen sich keine Anlagen speichern. Das kommt im privaten Modus und bei eingeschränkten Browser-Einstellungen vor. Bitte verwenden Sie ein normales Fenster oder einen anderen Browser."
+        "nichtEntfernt": "«{{dateiname}}» konnte nicht entfernt werden. Die Anlage ist noch da. Bitte versuchen Sie es noch einmal; hilft das nicht, laden Sie die Seite neu.",
+        "groesseServer": "«{{dateiname}}» ist zu groß und wurde nicht hochgeladen. Bitte exportieren oder verschicken Sie das Bild kleiner; die meisten Handys und Foto-Apps können das, und die kleinere Fassung reicht hier aus.",
+        "nichtGesendet": "«{{dateiname}}» konnte nicht hochgeladen werden. Der Server war nicht erreichbar, und die Datei ist nicht gespeichert. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es noch einmal.",
+        "listeNichtGeladen": "Die Anlagen dieses Protokolls konnten nicht geladen werden. Was bereits hinterlegt ist, ist unverändert vorhanden, wird hier aber gerade nicht angezeigt. Bitte laden Sie die Seite neu; besteht das Problem weiter, melden Sie sich bitte noch einmal an."
       }
     }
   }

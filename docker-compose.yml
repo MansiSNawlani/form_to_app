@@ -47,6 +47,12 @@ services:
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env, see .env.example}
       SITZUNGSDAUER_STUNDEN: ${SITZUNGSDAUER_STUNDEN:-8}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      # Inside the container, where the anlagen volume is mounted. Not the host
+      # default in .env.example: a path in a container layer is thrown away on
+      # the next deploy, and this holds survey evidence.
+      ANLAGEN_VERZEICHNIS: /srv/anlagen
+    volumes:
+      - anlagen:/srv/anlagen
     ports:
       - "8000:8000"
     depends_on:
@@ -73,3 +79,8 @@ volumes:
   # Named, so survey data survives "docker compose down". project-overview.md
   # requires the database to be persistent and never ephemeral.
   pgdata:
+  # The uploaded map excerpts and photographs, which are survey evidence exactly
+  # as the answers are. Named for the same reason as pgdata: an anonymous volume
+  # would be a fresh empty directory on every "up", and the pictures would be
+  # gone with nothing reporting it. "docker compose down -v" deletes this too.
+  anlagen:

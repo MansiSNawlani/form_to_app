@@ -19,8 +19,10 @@ interface AnlagenZustandProps {
  * protocol has no attachments", which is a different and wrong statement.
  *
  * The unavailable case is not the surveyor's mistake and must not be worded as
- * though it were. It reuses the message the picker would have shown, because
- * the situation is identical: this browser will not store anything at all.
+ * though it were. Since feature 3d it means the list could not be fetched, which
+ * is a session that ran out or a backend that cannot be reached, so the message
+ * has to make clear that nothing has been lost: the attachments are on the
+ * server, they are simply not on this screen at the moment.
  */
 function AnlagenZustand({ status, nurLaden = false }: AnlagenZustandProps) {
   const { t } = useTranslation()
@@ -38,7 +40,7 @@ function AnlagenZustand({ status, nurLaden = false }: AnlagenZustandProps) {
   if (status === 'unavailable' && !nurLaden) {
     return (
       <Alert severity="error">
-        {t('protokoll.anlagen.fehler.speicherNichtVerfuegbar')}
+        {t('protokoll.anlagen.fehler.listeNichtGeladen')}
       </Alert>
     )
   }

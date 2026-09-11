@@ -8,10 +8,18 @@ import AnlagenVorschau from './AnlagenVorschau'
 import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
 import { MAX_FOTOS } from '../../anlagen/regeln'
+import type { Bereitsteller } from '../../entwurf/bereitstellen'
+import type { Anlagenzustand } from '../../entwurf/speicherzustand'
 import { useAnlagen } from '../../anlagen/useAnlagen'
 
 interface FotosBlockProps {
   entwurfId: string
+  /* Turns a protocol nobody has typed into yet into a real record, because an
+     attachment cannot be addressed until there is one to address it through. */
+  bereitstellen: Bereitsteller
+  /* Reports this block's work to the header, which speaks for the whole
+     protocol: an upload is saving, so it has to reach the one indicator. */
+  melde: (zustand: Anlagenzustand) => void
 }
 
 /* Photographs of the stretch.
@@ -25,11 +33,13 @@ interface FotosBlockProps {
  * file dialogs. A pick that only partly fits stores what fits and reports the
  * rest by name; useAnlagen owns that order.
  */
-function FotosBlock({ entwurfId }: FotosBlockProps) {
+function FotosBlock({ entwurfId, bereitstellen, melde }: FotosBlockProps) {
   const { t } = useTranslation()
-  const { status, anlagen, meldungen, hinzufuegen, entfernen } = useAnlagen(
+  const { status, anlagen, meldungen, laeuft, hinzufuegen, entfernen } = useAnlagen(
     entwurfId,
     'FOTO',
+    bereitstellen,
+    melde,
   )
 
   // Which photograph the question is about. null means no question is open.
@@ -57,6 +67,7 @@ function FotosBlock({ entwurfId }: FotosBlockProps) {
         <>
           <div className="anlagen__kopf">
             <AnlagenPicker
+              gesperrt={laeuft}
               ref={picker}
               beschriftung={t('protokoll.abschnitt7.fotos.waehlen')}
               mehrere

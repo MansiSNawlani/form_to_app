@@ -17,6 +17,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.models.anlage import Anlagenart
 from app.models.benutzer import Locale, Rolle
 from app.models.protokoll import Status
 
@@ -154,6 +155,32 @@ class ProtokollUebersicht(BaseModel):
     #: The day of the survey. updated_at is the day the draft was last touched.
     datum: str | None
     anlass: str | None
+
+
+class AnlageAntwort(BaseModel):
+    """One attachment, without its bytes.
+
+    Mirrors the Anlage record in frontend/src/protokoll/anlagen/typen.ts, which
+    feature 10 shaped against the Attachment model for exactly this moment, so
+    the swap in step 6 is plumbing rather than a reshape.
+
+    **storage_key is deliberately absent, and must stay absent.** It is a path. A
+    client has no use for one, and a path a client knows is a path a client will
+    eventually try to bend. Listing the fields explicitly rather than dumping the
+    row is what makes that a guarantee instead of a habit.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    submission_id: uuid.UUID
+    art: Anlagenart
+    dateiname: str
+    #: What the bytes proved to be, not what the upload claimed.
+    mime_type: str
+    #: Bytes, as counted while the upload was read.
+    groesse: int
+    created_at: datetime
 
 
 class FehlerAntwort(BaseModel):

@@ -22,6 +22,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.anlagen.speicher import Anlagenspeicher, get_speicher
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
 from app.api.schemas import (
     AntwortenSpeichern,
@@ -147,6 +148,7 @@ async def loeschen(
     protokoll_id: uuid.UUID,
     benutzer: AngemeldeterBenutzer,
     session: Annotated[AsyncSession, Depends(get_session)],
+    speicher: Annotated[Anlagenspeicher, Depends(get_speicher)],
 ) -> None:
     """Delete a draft.
 
@@ -156,5 +158,10 @@ async def loeschen(
     No confirmation here. Asking twice is the screen's job, and an API that
     needed a second call to mean it would be one more thing for a client to get
     wrong.
+
+    Takes the attachment store because deleting a protocol deletes its pictures
+    too. The rows go with it through ON DELETE CASCADE, but a cascade knows
+    nothing about the volume, so without this the files would stay there forever
+    with nothing pointing at them.
     """
-    await loesche_protokoll(session, protokoll_id=protokoll_id, besitzer=benutzer)
+    await loesche_protokoll(session, speicher, protokoll_id=protokoll_id, besitzer=benutzer)
