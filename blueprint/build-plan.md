@@ -122,7 +122,7 @@ These are not features and are not tracked here. They happen first.
       3, by decision on 2026-09-06
 - [ ] 11. Submit and review workflow: the state machine, rejection reasons, change requests,
       locking
-  - [ ] 11a. The rules in Python: every rule from features 4c to 9b ported to the backend, plus
+  - [x] 11a. The rules in Python: every rule from features 4c to 9b ported to the backend, plus
         the one thing no half of the app has yet, a declared list of what a finished protocol
         must contain
   - [ ] 11b. Gewaesser, Probestrecke and Person as real tables, and the matching that decides at
