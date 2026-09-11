@@ -565,6 +565,8 @@
       "koordinateKeineGanzeZahl": "Bitte eine ganze Zahl in Metern eintragen, ohne Trennzeichen.",
       "koordinateRechtswertAusserhalb": "Der Rechtswert liegt außerhalb Baden-Württembergs. Erwartet werden {{rechtswertMin}} bis {{rechtswertMax}}.",
       "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}.",
+      "hydrologieBeiStillgewaesser": "Bei einem stehenden Gewässer wird die Hydrologie nicht erhoben. Bitte leeren Sie die Angabe, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
+      "hydrologieNichtZutreffendBeiFliessgewaesser": "Die Angabe ist als «nicht zutreffend» gespeichert, obwohl es sich um ein Fließgewässer handelt. Bitte beantworten Sie sie, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
       "schaetzwertOhneBand": "Bitte zuerst oben die Bandbreite auswählen.",
       "schaetzwertKeineZahl": "Bitte eine Zahl in Metern eintragen, zum Beispiel 1,5.",
       "schaetzwertAusserhalbBand": "Der Schätzwert liegt außerhalb der oben gewählten Bandbreite.",
@@ -582,7 +584,9 @@
       "artDoppelt": "Diese Art steht bereits in einer früheren Zeile.",
       "keinNachweisMitFang": "Diese Zeile meldet keinen Nachweis und zählt trotzdem Tiere.",
       "keinNachweisNebenArt": "\"kein Nachweis\" schließt jede andere Art in der Tabelle aus.",
-      "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag."
+      "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag.",
+      "fehlt": "Diese Angabe wird zum Absenden gebraucht. Bitte tragen Sie sie nach; speichern können Sie das Protokoll auch ohne sie.",
+      "fehltArt": "Das Protokoll nennt noch keine Art. Bitte tragen Sie mindestens eine Art ein, oder wählen Sie einen \"kein Nachweis\"-Eintrag, wenn nichts gefangen wurde."
     },
     "verwerfen": {
       "titel": "Dieses Protokoll ist noch leer",
