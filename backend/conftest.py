@@ -27,7 +27,9 @@ regardless of how this one ended.
 
 import asyncio
 import os
+import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Sequence
+from datetime import UTC, date, datetime, time
 from pathlib import Path
 
 import pytest
@@ -53,6 +55,9 @@ from app.db import get_session
 from app.main import app
 from app.models import Base
 from app.models.benutzer import Rolle, User
+from app.models.gewaesser import Gewaesser
+from app.models.person import Person
+from app.models.probestrecke import Probestrecke
 
 TESTDATENBANK = "befischung_test"
 
@@ -320,9 +325,7 @@ def anlegen(session: AsyncSession) -> Callable[..., Awaitable[User]]:
         rollen: Sequence[Rolle] = (Rolle.SUBMITTER,),
         passwort: str = PASSWORT,
     ) -> User:
-        return await lege_benutzer_an(
-            session, email=email, passwort=passwort, rollen=rollen
-        )
+        return await lege_benutzer_an(session, email=email, passwort=passwort, rollen=rollen)
 
     return _anlegen
 
@@ -336,8 +339,52 @@ def anmelden(client: AsyncClient) -> Callable[..., Awaitable[Response]]:
     """
 
     async def _anmelden(email: str = "anna@ffs.de", passwort: str = PASSWORT) -> Response:
-        return await client.post(
-            "/api/v1/anmeldung", json={"email": email, "passwort": passwort}
-        )
+        return await client.post("/api/v1/anmeldung", json={"email": email, "passwort": passwort})
 
     return _anmelden
+
+
+@pytest.fixture
+def umschlag(session: AsyncSession) -> Callable[..., Awaitable[dict[str, object]]]:
+    """Everything a submission that has left DRAFT has to carry.
+
+    Feature 11b put a check constraint on submissions requiring the whole
+    envelope the moment the status is anything but DRAFT, so every test that
+    wants a submitted protocol needs real rows for it to point at. Shared here
+    rather than restated per module, which is where three copies of it were
+    heading, for the same reason anlegen above is shared.
+
+    Creates one Gewaesser, one Probestrecke on it and one Person. Keyword
+    arguments override what is returned, so a test that cares about one column
+    can set it without rebuilding the rest.
+    """
+
+    async def _umschlag(**felder: object) -> dict[str, object]:
+        gewaesser = Gewaesser(id=uuid.uuid4(), name="Schussen", vorfluter=["Bodensee", "Rhein"])
+        strecke = Probestrecke(
+            id=uuid.uuid4(),
+            gewaesser_id=gewaesser.id,
+            ortsangabe="unterhalb der Bruecke",
+            gewaessertyp=13,
+            laenge_m=450,
+            untere_grenze_rechtswert=512340,
+            untere_grenze_hochwert=5398120,
+            obere_grenze_rechtswert=512890,
+            obere_grenze_hochwert=5398450,
+            regierungspraesidium=4,
+        )
+        person = Person(id=uuid.uuid4(), name="Anna Weber", email="weber@ffs.de")
+        session.add_all([gewaesser, strecke, person])
+        await session.flush()
+
+        return {
+            "probestrecke_id": strecke.id,
+            "person_id": person.id,
+            "bearbeiter_name": "Anna Weber",
+            "anlass": "wrrl",
+            "datum": date(2026, 6, 9),
+            "uhrzeit": time(14, 30),
+            "submitted_at": datetime.now(UTC),
+        } | felder
+
+    return _umschlag

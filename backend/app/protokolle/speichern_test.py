@@ -219,7 +219,9 @@ async def test_ein_einreicher_speichert_nicht_im_protokoll_eines_anderen(
 
 
 async def test_ein_eingereichtes_protokoll_wird_nicht_mehr_geaendert(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """Guards feature 11 rather than anything today.
 
@@ -229,6 +231,8 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_mehr_geaendert(
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
     entwurf = await lege_entwurf_an(session, besitzer=besitzer)
+    for feld, wert in (await umschlag()).items():
+        setattr(entwurf, feld, wert)
     entwurf.status = Status.SUBMITTED
     await session.commit()
 
@@ -275,6 +279,7 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
     session: AsyncSession,
     speicher: Anlagenspeicher,
     anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """A submitted protocol is a record somebody else is working with.
 
@@ -282,6 +287,8 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
     entwurf = await lege_entwurf_an(session, besitzer=besitzer)
+    for feld, wert in (await umschlag()).items():
+        setattr(entwurf, feld, wert)
     entwurf.status = Status.SUBMITTED
     await session.commit()
 

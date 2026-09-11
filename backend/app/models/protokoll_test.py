@@ -11,6 +11,7 @@ or by a bug in a future feature.
 
 import uuid
 from collections.abc import Awaitable, Callable
+from datetime import UTC, date, datetime, time
 
 import pytest
 from sqlalchemy import select, text
@@ -51,7 +52,9 @@ async def test_ein_entwurf_bekommt_die_vorgaben(
 
 
 async def test_der_status_kommt_als_status_zurueck(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """Not as a bare string.
 
@@ -60,7 +63,7 @@ async def test_der_status_kommt_als_status_zurueck(
     one of them without anything failing loudly.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.IN_REVIEW))
+    session.add(entwurf(besitzer, status=Status.IN_REVIEW, **await umschlag()))
     await session.commit()
     session.expunge_all()
 
@@ -70,7 +73,9 @@ async def test_der_status_kommt_als_status_zurueck(
 
 
 async def test_zwei_enumtext_spalten_kommen_sich_nicht_ins_gehege(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
 ) -> None:
     """EnumText is used for both User.locale and Submission.status.
 
@@ -81,7 +86,7 @@ async def test_zwei_enumtext_spalten_kommen_sich_nicht_ins_gehege(
     assumed.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
-    session.add(entwurf(besitzer, status=Status.ACCEPTED))
+    session.add(entwurf(besitzer, status=Status.ACCEPTED, **await umschlag()))
     await session.commit()
     session.expunge_all()
 
@@ -193,3 +198,116 @@ async def test_das_dokument_ueberlebt_die_runde(
     gespeichert = (await session.scalars(select(Submission))).one()
 
     assert gespeichert.antworten == antworten
+
+
+# The envelope, added in feature 11b. Everything below is about the two check
+# constraints rather than about any code path: these are the guarantees that
+# still hold for a row written by hand, which is the whole reason this suite runs
+# against real Postgres.
+
+
+async def test_ein_entwurf_braucht_keinen_umschlag(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """A draft is exactly the state in which none of the eight exists yet.
+
+    This is why they are nullable columns guarded by a constraint rather than
+    NOT NULL ones: probestrecke_id on a draft would have to point at a stretch
+    with no coordinates and no water type, and that row cannot exist.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    session.add(entwurf(besitzer))
+    await session.commit()
+
+    gespeichert = (await session.scalars(select(Submission))).one()
+
+    assert gespeichert.probestrecke_id is None
+    assert gespeichert.submitted_at is None
+    assert gespeichert.locked_at is None
+
+
+@pytest.mark.parametrize(
+    "fehlend",
+    [
+        "probestrecke_id",
+        "person_id",
+        "bearbeiter_name",
+        "anlass",
+        "datum",
+        "uhrzeit",
+        "submitted_at",
+    ],
+)
+async def test_abgegeben_ohne_umschlag_wird_abgewiesen(
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
+    fehlend: str,
+) -> None:
+    """Nullable here means "not yet", never "optional".
+
+    One parameter per column, because a constraint written over seven values at
+    once is exactly the kind that can pass while silently ignoring one of them.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    felder = await umschlag()
+    felder[fehlend] = None
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **felder))
+
+    with pytest.raises(IntegrityError) as fehler:
+        await session.commit()
+
+    assert "ck_submissions_umschlag_bei_abgabe" in str(fehler.value)
+
+
+async def test_abgegeben_mit_umschlag_wird_angenommen(
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
+) -> None:
+    """The other half of the constraint: a complete envelope is let through."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    session.add(entwurf(besitzer, status=Status.SUBMITTED, **await umschlag()))
+    await session.commit()
+
+    gespeichert = (await session.scalars(select(Submission))).one()
+
+    assert gespeichert.status is Status.SUBMITTED
+    assert gespeichert.datum == date(2026, 6, 9)
+    assert gespeichert.uhrzeit == time(14, 30)
+
+
+@pytest.mark.parametrize(
+    ("status", "locked_at", "erlaubt"),
+    [
+        (Status.LOCKED, True, True),
+        (Status.SUBMITTED, False, True),
+        # Locked without the moment of locking, and the moment without the lock.
+        # Both are the same fact half-recorded.
+        (Status.LOCKED, False, False),
+        (Status.SUBMITTED, True, False),
+    ],
+)
+async def test_gesperrt_und_zeitpunkt_gehoeren_zusammen(
+    session: AsyncSession,
+    anlegen: Callable[..., Awaitable[User]],
+    umschlag: Callable[..., Awaitable[dict[str, object]]],
+    status: Status,
+    locked_at: bool,
+    erlaubt: bool,
+) -> None:
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    felder = await umschlag()
+    if locked_at:
+        felder["locked_at"] = datetime.now(UTC)
+    session.add(entwurf(besitzer, status=status, **felder))
+
+    if erlaubt:
+        await session.commit()
+        assert (await session.scalars(select(Submission))).one().status is status
+        return
+
+    with pytest.raises(IntegrityError) as fehler:
+        await session.commit()
+
+    assert "ck_submissions_gesperrt_hat_zeitpunkt" in str(fehler.value)

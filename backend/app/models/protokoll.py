@@ -11,26 +11,32 @@ lives in the antworten document. That is why status and owner are columns while
 the roughly 338 answers are one JSON value, and why the document is still
 schema-validated on write, in app/protokolle/regeln.py.
 
-**Most of the envelope is not here yet, and that is deliberate.**
-project-overview.md also puts probestrecke_id, person_id, bearbeiter_name,
-anlass, datum, uhrzeit, submitted_at and locked_at on this entity. Every one of
-them describes a protocol that has been filled in and checked. A draft has none:
-probestrecke_id would have to point at a Probestrecke row with no coordinates and
-no water type, which the model says cannot exist. Feature 11 adds them in its own
-migration, beside the tables they point at and the constraint that makes them
-required the moment a submission leaves DRAFT.
+**The envelope arrived in feature 11b.** project-overview.md also puts
+probestrecke_id, person_id, bearbeiter_name, anlass, datum, uhrzeit, submitted_at
+and locked_at on this entity, and every one of them describes a protocol that has
+been filled in and checked rather than one being written. A draft has none of
+them, which is why all eight are nullable columns guarded by a check constraint
+instead of required ones: probestrecke_id on a draft would have to point at a
+Probestrecke row with no coordinates and no water type, and that row cannot
+exist.
+
+So nullability here does not mean optional. It means "not yet". The moment a
+submission is anything but DRAFT the constraint below requires the lot, which is
+the real rule and the reason the columns could not simply be declared NOT NULL.
 """
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime, time
 from enum import StrEnum
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     Integer,
     Text,
+    Time,
     Uuid,
     func,
     text,
@@ -92,6 +98,37 @@ class Submission(Base):
         # something useful about them; the database only insists it is an object
         # and not an array or a bare number.
         CheckConstraint(text("jsonb_typeof(antworten) = 'object'"), name="antworten_objekt"),
+        # **What a protocol that has left DRAFT must carry.**
+        #
+        # The eight envelope columns are nullable so a draft can exist without
+        # them, and this is what stops that nullability from meaning optional.
+        # Written as one constraint over the whole set rather than seven, because
+        # the rule is genuinely one rule: these arrive together, at submit, or
+        # the row is not a submitted protocol.
+        #
+        # locked_at is not in the list. It is not part of being submitted, it is
+        # part of being locked, and it has its own constraint below.
+        CheckConstraint(
+            text(
+                "status = 'DRAFT' OR ("
+                "probestrecke_id IS NOT NULL"
+                " AND person_id IS NOT NULL"
+                " AND bearbeiter_name IS NOT NULL"
+                " AND anlass IS NOT NULL"
+                " AND datum IS NOT NULL"
+                " AND uhrzeit IS NOT NULL"
+                " AND submitted_at IS NOT NULL)"
+            ),
+            name="umschlag_bei_abgabe",
+        ),
+        # Locked and the moment of locking are the same fact, so neither may
+        # appear without the other. Feature 11d owns the transition that writes
+        # them and may want to relax this if an unlock is ever added; there is no
+        # unlock in the build plan today.
+        CheckConstraint(
+            text("(status = 'LOCKED') = (locked_at IS NOT NULL)"),
+            name="gesperrt_hat_zeitpunkt",
+        ),
     )
 
     # Generated in Python rather than by the database, so an object has its id
@@ -106,13 +143,9 @@ class Submission(Base):
     # No ON DELETE. Deleting an account would take its submissions with it, and a
     # survey record has to outlive the person who filed it; project-overview.md
     # deactivates accounts rather than deleting them for the same reason.
-    owner_user_id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, ForeignKey("users.id"), index=True
-    )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("users.id"), index=True)
 
-    status: Mapped[Status] = mapped_column(
-        EnumText(Status), server_default=Status.DRAFT.value
-    )
+    status: Mapped[Status] = mapped_column(EnumText(Status), server_default=Status.DRAFT.value)
 
     # e.g. "20260609". Never migrated: ADR 0004 freezes a submission to the
     # version it was filled in under, so an old protocol stays renderable exactly
@@ -135,9 +168,58 @@ class Submission(Base):
     # store already records that the same protocol open twice is ordinary here.
     version: Mapped[int] = mapped_column(Integer, server_default=text("1"))
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+    # **The envelope.** Null while the protocol is a draft, required from the
+    # moment it is not, which umschlag_bei_abgabe above enforces.
+    #
+    # These are promotions, not the only copy. Every one of them is also an
+    # answer inside the antworten document, which is what keeps a protocol
+    # displaying exactly what it was filed with even though the rows it points at
+    # are shared. ADR 0003 is the rule being applied: a value the application
+    # queries, sorts or authorises on is a column, and feature 12 sorts the
+    # review queue on datum and filters it on anlass.
+
+    # The place. Shared with every other protocol surveyed on the same stretch,
+    # which is the entire point of ADR 0001 and the reason feature 12 can ask for
+    # a stretch's history at all. app/protokolle/zuordnung/ decides which row
+    # this points at, and never rewrites the row it lands on.
+    probestrecke_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("probestrecken.id"), nullable=True, index=True
     )
+
+    # The Bearbeiter, as an identity. Not the account that filed the protocol,
+    # which is owner_user_id above and is often a different person entirely.
+    person_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("personen.id"), nullable=True, index=True
+    )
+
+    # The Bearbeiter's name as it stood at submit, frozen. project-overview.md
+    # asks for this explicitly so a historical record still reads correctly if
+    # the Person row ever changes. It is belt and braces now that the matching
+    # never updates a Person, and it stays because a later administrative feature
+    # will correct these rows deliberately.
+    bearbeiter_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # The coded Anlass, e.g. "wrrl", not its label. Drives which fields were
+    # mandatory, and feature 12 filters on it.
+    anlass: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # The day and time of the Befischung, as a real date and a real time rather
+    # than the strings the answers document holds. created_at is when the draft
+    # was started and updated_at when it was last touched; neither is when
+    # somebody stood in the water.
+    datum: Mapped[date | None] = mapped_column(Date, nullable=True)
+    uhrzeit: Mapped[time | None] = mapped_column(Time, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    # When it was handed in. Set once, by the transition feature 11d owns, and
+    # not moved by a later resubmission after a change request: NEEDS_CHANGES
+    # keeps the original hand-in, which is what a deadline is measured against.
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # When a reviewer accepted it and fixed it. Set in the same action as the
+    # LOCKED status, which is what the reviewer mockup's button promises.
+    locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # onupdate as well as a default, so automatic saving moves it. Without that a
     # draft edited all afternoon would still claim it was last touched at the
