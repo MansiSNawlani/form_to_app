@@ -111,15 +111,15 @@ async def test_eine_ablehnung_laesst_den_entwurf_stehen(angemeldet: AsyncClient)
 
 
 async def test_andere_ablehnungen_tragen_keine_liste(angemeldet: AsyncClient) -> None:
-    """verstoesse is absent everywhere else, so the widened shape breaks nothing.
+    """verstoesse is left out everywhere else, so the widened shape breaks nothing.
 
-    A client reading the old two-field body still finds exactly what it expects
-    from every refusal but this one.
+    Absent, not null. A client reading the old two-field body finds exactly the
+    body it has always had from every refusal but a refused submit.
     """
     antwort = await angemeldet.get(f"/api/v1/protokolle/{uuid.uuid4()}")
 
     assert antwort.status_code == 404
-    assert antwort.json()["verstoesse"] is None
+    assert set(antwort.json()) == {"code", "nachricht"}
 
 
 async def test_ein_fremdes_protokoll_ist_nicht_zu_finden(

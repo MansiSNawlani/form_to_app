@@ -163,19 +163,11 @@ async def absenden(
     """Send a finished protocol to FFS.
 
     POST to a sub-path rather than a PATCH setting the status, because this is an
-    action and not an edit. Its outcome is not "the status field now reads
-    SUBMITTED": the rules run, the Probestrecke and the Person are matched or
-    created, seven columns are promoted out of the answers, and the protocol stops
-    being editable. A client that could set status directly could also set it to
-    ACCEPTED.
-
-    No answers in the body, only the version. Whatever is stored is what gets
-    submitted, so the automatic save has to have landed first; sending a document
-    here would be a save and a submit in one request with two ways to disagree.
+    action and not an edit: a client that could set the status directly could
+    also set it to ACCEPTED. What it actually does is in app/protokolle/absenden.py.
 
     Answers 422 when the protocol is not finished, carrying every unfinished or
-    broken answer as a path and a message key. That is the one refusal a surveyor
-    can put right by typing, and it is the list the panel on the form draws.
+    broken answer as a path and a message key.
     """
     protokoll = await sende_ab(
         session,

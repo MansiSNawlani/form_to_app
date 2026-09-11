@@ -1,10 +1,12 @@
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import Link from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
+import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
 import { useEffect, useRef } from 'react'
-import { Link } from 'react-router'
+import { Link as RouterLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { abschnittPfad } from '../abschnitte'
 import { optionen } from '../optionen'
@@ -65,20 +67,25 @@ function AbsendeProbleme({ entwurfId, verstoesse, artnamen }: AbsendeProblemePro
          thing the person has just arrived in and can be read at their pace. */
     >
       <AlertTitle>{t('protokoll.absenden.probleme.titel')}</AlertTitle>
-      <p>{t('protokoll.absenden.probleme.einleitung', { count: anzahl })}</p>
+      <Typography variant="body2">
+        {t('protokoll.absenden.probleme.einleitung', { count: anzahl })}
+      </Typography>
 
       {gruppen.map((gruppe) => (
         <section key={gruppe.nr}>
-          <h3 className="absende-probleme__abschnitt">
+          <Typography variant="subtitle2" component="h3" className="absende-probleme__abschnitt">
             {t('protokoll.absenden.probleme.abschnitt', {
               nr: gruppe.nr,
               titel: t(gruppe.titelKey),
             })}
-          </h3>
+          </Typography>
           <List dense disablePadding>
             {gruppe.probleme.map((problem) => (
               <ListItem key={problem.pfad} disableGutters>
-                <Link to={`${abschnittPfad(entwurfId, gruppe.nr)}#${problem.pfad}`}>
+                <Link
+                  component={RouterLink}
+                  to={`${abschnittPfad(entwurfId, gruppe.nr)}#${problem.pfad}`}
+                >
                   {benenne(problem, artnamen, t)}
                 </Link>
                 {': '}
@@ -99,7 +106,9 @@ function AbsendeProbleme({ entwurfId, verstoesse, artnamen }: AbsendeProblemePro
         </List>
       )}
 
-      <p>{t('protokoll.absenden.probleme.entwurfBleibt')}</p>
+      <Typography variant="body2">
+        {t('protokoll.absenden.probleme.entwurfBleibt')}
+      </Typography>
     </Alert>
   )
 }
@@ -127,8 +136,10 @@ function benenne(
     )
   }
 
-  // Nothing we can name. The path is not shown: it would mean nothing to a
-  // surveyor, and the message underneath still says what is wrong.
+  /* Unreachable as the rules stand: verorte only withholds a label for a catch
+     cell, which the branch above names. Kept as a last resort rather than an
+     assertion, because a rule added to the backend could reach it, and a path is
+     at least something to quote when reporting the gap. */
   return problem.pfad
 }
 

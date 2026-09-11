@@ -568,13 +568,14 @@ export interface AbsendenAnfrage {
   version: number
 }
 
-/* Where the protocol ended up: backend/app/api/schemas.py's AbsendenAntwort.
+/* Where the protocol ended up: backend/app/api/schemas.py's AbsendenAntwort,
+ * under the same name, so one payload is not called two things.
  *
  * Not the whole protocol. The browser is leaving the form for Meine Protokolle,
  * which fetches its own rows, so the answers it already holds are of no further
  * use to it.
  */
-export interface AbsendeAntwort {
+export interface AbsendenAntwort {
   id: string
   status: Status
   version: number

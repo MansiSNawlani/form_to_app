@@ -294,7 +294,6 @@ const KOMBINATIONEN: Record<string, { abschnitt: Abschnittsnummer; labelKey: Par
   [LAENGE_PAAR]: { abschnitt: 5, labelKey: 'protokoll.abschnitt5.bereiche.legend' },
   [BREITE_PAAR]: { abschnitt: 5, labelKey: 'protokoll.abschnitt5.bereiche.legend' },
   'tabelle.arten': { abschnitt: 6, labelKey: 'protokoll.abschnitt6.tabelle.legend' },
-
 }
 
 const DEKLARIERT = ausDeklarationen()

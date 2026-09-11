@@ -16,7 +16,7 @@
 
 import { apiAnfrage } from '../../api/client'
 import type {
-  AbsendeAntwort,
+  AbsendenAntwort,
   AbsendenAnfrage,
   Antworten,
   AntwortenSpeichern,
@@ -128,10 +128,10 @@ export function absendeProtokoll({
   id,
   version,
   fetchImpl,
-}: AbsendenAnfrage & MitFetch & { id: string }): Promise<AbsendeAntwort> {
+}: AbsendenAnfrage & MitFetch & { id: string }): Promise<AbsendenAntwort> {
   const koerper: AbsendenAnfrage = { version }
 
-  return apiAnfrage<AbsendeAntwort>(`${PFAD}/${encodeURIComponent(id)}/absenden`, {
+  return apiAnfrage<AbsendenAntwort>(`${PFAD}/${encodeURIComponent(id)}/absenden`, {
     methode: 'POST',
     koerper,
     fetchImpl,

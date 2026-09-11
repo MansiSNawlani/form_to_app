@@ -209,6 +209,52 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       the browser's network panel shows no save request; `npm test`, `npm run lint` and
       `npm run build` pass, and `pytest`, `ruff check .` and `mypy .` still pass.
 
+## What the branch review changed
+
+Two axes were run against the branch on 2026-09-11. Six findings were real and were
+fixed on the branch; two were scope questions, recorded here rather than changed.
+
+**Fixed**
+
+- **A protocol submitted twice showed the wrong message.** Pressing the button twice, or
+  losing the first answer on the way back, produced the backend's save-oriented sentence
+  telling the surveyor to reload the page. Nothing had gone wrong for them: it was sent.
+  `PROTOKOLL_NICHT_MEHR_ENTWURF` is now branched on and answered with the good news and a
+  link to Meine Protokolle. This was step 6's own done-when and it had not been met.
+- **Every refusal was carrying `"verstoesse": null`.** The contract above says the field is
+  left out of anything but a refused submit. `exclude_none` restores the two-field body.
+- **A comment said the opposite of its code**, in the panel's fallback name.
+- **A raw `<h3>` and a bare router `<Link>`** where MUI has `Typography` and `Link`. The
+  standards rule has no carve-out for components that only supply styling.
+- **The same rationale was written out four times** across the module docstring, the route,
+  the schema and the browser's call. Over-commenting is the tell `coding-standards.md`
+  names; the reasoning now lives in one place and the others point at it.
+- **One shared empty result object** was handed out by identity from `gruppiere`, with
+  mutable arrays inside it. A fresh one each time.
+- **The response type was called two things**, `AbsendenAntwort` on the server and
+  `AbsendeAntwort` in the browser. One payload, one name.
+- **The lookup test checked only the section** for the nineteen non-required paths, not that
+  each has a label key that exists.
+
+**Recorded, not changed**
+
+- **Naming a catch cell by its species** goes slightly past step 7's "each entry naming the
+  field". Kept: 312 cells share twelve column headings, so "Zeile 7" would send somebody
+  counting rows, and the species standing in the row is the only name that means anything.
+- **11a's fixture was edited.** `bemerkungen` was a bare string and the form has
+  `bemerkungen.sonstige_bemerkungen`; no rule looks at free text, so nothing had caught it
+  until this feature saved the fixture through the real endpoint. A fixture is not a rule,
+  so this is not the "no new validation rule" line being crossed, but it is a change to 11a's
+  work and is named here rather than folded in quietly.
+
+**Left standing, and worth knowing**
+
+`verortung.ts` holds a second copy of the label keys for parts 1, 2 and 6, because those
+sections carry their labels inline in the components rather than in a declared list the way
+parts 3 to 5 do. A test pins every key to the locale file, so a key that never existed
+fails; a key changed in the component and not here would not. Declaring those three sections
+the way the others are declared would close it and is a refactor of its own.
+
 ## Files / areas
 
 **Backend, new**

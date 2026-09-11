@@ -39,10 +39,12 @@ export interface Problemliste {
   anzahl: number
 }
 
-const LEER: Problemliste = { gruppen: [], unverortet: [], anzahl: 0 }
-
 export function gruppiere(verstoesse: readonly Verstoss[]): Problemliste {
-  if (verstoesse.length === 0) return LEER
+  /* A fresh object each time rather than a shared empty one. The arrays in it
+     are mutable, so a single shared instance handed out repeatedly is one
+     accidental push away from every later empty result carrying somebody else's
+     problems. */
+  if (verstoesse.length === 0) return { gruppen: [], unverortet: [], anzahl: 0 }
 
   const gruppen = new Map<Abschnittsnummer, Abschnittsgruppe>()
   const unverortet: Problem[] = []

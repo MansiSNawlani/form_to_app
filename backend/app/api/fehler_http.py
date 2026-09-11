@@ -134,9 +134,12 @@ def _antwort(
 ) -> JSONResponse:
     """One refusal, in the shape every refusal from this API takes.
 
-    verstoesse stays absent unless a submit filled it in. mode="json" because the
-    body goes out as it stands, and a model holding anything but plain JSON types
-    would otherwise reach JSONResponse unserialised.
+    exclude_none, so a refusal that carries no violations is the same two-field
+    body it has always been rather than one with an empty third field. Only a
+    refused submit fills that in.
+
+    mode="json" because the body goes out as it stands, and a model holding
+    anything but plain JSON types would reach JSONResponse unserialised.
     """
     koerper = FehlerAntwort(
         code=code,
@@ -147,7 +150,10 @@ def _antwort(
             else [VerstossAntwort.model_validate(v) for v in verstoesse]
         ),
     )
-    return JSONResponse(status_code=status_code, content=koerper.model_dump(mode="json"))
+    return JSONResponse(
+        status_code=status_code,
+        content=koerper.model_dump(mode="json", exclude_none=True),
+    )
 
 
 async def behandle_benutzerfehler(request: Request, fehler: Exception) -> Response:
@@ -443,19 +449,22 @@ async def behandle_protokollfehler(request: Request, fehler: Exception) -> Respo
     if not isinstance(fehler, ProtokollFehler):
         raise fehler
 
-    # The one refusal that carries structured detail rather than only a sentence.
-    # The panel in the browser draws this list; the sentence is what somebody
-    # sees if anything ever shows the message on its own.
-    if isinstance(fehler, ProtokollUnvollstaendig):
-        code, status_code, nachricht = PROTOKOLL_UEBERSETZUNG[ProtokollUnvollstaendig]
-        return _antwort(code, status_code, nachricht, fehler.verstoesse)
-
     for klasse in type(fehler).__mro__:
         if klasse in PROTOKOLL_UEBERSETZUNG:
             code, status_code, nachricht = PROTOKOLL_UEBERSETZUNG[klasse]
-            return _antwort(code, status_code, nachricht + _zusatz(fehler))
+            return _antwort(code, status_code, nachricht + _zusatz(fehler), _verstoesse(fehler))
 
     return _antwort(*UNBEKANNT)
+
+
+def _verstoesse(fehler: ProtokollFehler) -> tuple[Formverstoss, ...] | None:
+    """The structured detail, for the one refusal that has any.
+
+    A refused submit is the only thing here the screen draws rather than prints,
+    because the panel puts each problem beside the field it concerns. Everything
+    else says what it has to say in its sentence.
+    """
+    return fehler.verstoesse if isinstance(fehler, ProtokollUnvollstaendig) else None
 
 
 def registriere_fehlerbehandlung(app: FastAPI) -> None:

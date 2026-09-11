@@ -14,7 +14,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ApiFehler, PROTOKOLL_UNVOLLSTAENDIG } from '../../api/fehler'
+import {
+  ApiFehler,
+  PROTOKOLL_NICHT_MEHR_ENTWURF,
+  PROTOKOLL_UNVOLLSTAENDIG,
+} from '../../api/fehler'
 import type { Verstoss } from '../../api/typen'
 import { absendeProtokoll } from '../entwurf/api'
 import { protokolleKey } from '../entwurf/abfragen'
@@ -40,6 +44,10 @@ export interface Absenden {
   /* A refusal that is not about the contents: a conflict, a lost session, an
      unreachable server. Null when there is none. */
   fehler: unknown
+  /* The protocol was already submitted, which is what pressing the button twice
+     looks like, and what a lost answer on the way back looks like. Nothing went
+     wrong for the person: it is sent. */
+  bereitsAbgesendet: boolean
 }
 
 export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen): Absenden {
@@ -47,6 +55,7 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
   const queryClient = useQueryClient()
   const [verstoesse, setVerstoesse] = useState<readonly Verstoss[]>([])
   const [fehler, setFehler] = useState<unknown>(null)
+  const [bereitsAbgesendet, setBereitsAbgesendet] = useState(false)
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -62,12 +71,28 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
       void navigate(UEBERSICHT)
     },
     onError: (grund: unknown) => {
-      if (grund instanceof ApiFehler && grund.code === PROTOKOLL_UNVOLLSTAENDIG) {
-        setVerstoesse(grund.verstoesse)
-        setFehler(null)
+      setVerstoesse([])
+      setFehler(null)
+      setBereitsAbgesendet(false)
+
+      if (!(grund instanceof ApiFehler)) {
+        setFehler(grund)
         return
       }
-      setVerstoesse([])
+
+      if (grund.code === PROTOKOLL_UNVOLLSTAENDIG) {
+        setVerstoesse(grund.verstoesse)
+        return
+      }
+
+      /* Already sent. The backend's own sentence is written for a save arriving
+         late and tells the person to reload the page, which is the wrong errand:
+         the protocol went through, and what they want is the list. */
+      if (grund.code === PROTOKOLL_NICHT_MEHR_ENTWURF) {
+        setBereitsAbgesendet(true)
+        return
+      }
+
       setFehler(grund)
     },
   })
@@ -80,10 +105,11 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
        reads as though the repair did not take. */
     setVerstoesse([])
     setFehler(null)
+    setBereitsAbgesendet(false)
     mutate()
   }, [mutate])
 
-  return { absenden, laeuft: isPending, verstoesse, fehler }
+  return { absenden, laeuft: isPending, verstoesse, fehler, bereitsAbgesendet }
 }
 
 /* The one failure this hook raises itself: the protocol is not on the server as

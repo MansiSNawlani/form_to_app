@@ -31,6 +31,14 @@ export const PROTOKOLL_NICHT_GEFUNDEN = 'PROTOKOLL_NICHT_GEFUNDEN'
  * one save failure where trying again cannot help. */
 export const PROTOKOLL_VERAENDERT = 'PROTOKOLL_VERAENDERT'
 
+/* The protocol has already left the surveyor's hands, so it cannot be sent, saved
+ * or deleted. Branched on by Absenden, which answers it with a way onward to the
+ * list rather than with the backend's save-oriented sentence: somebody who
+ * pressed the button twice, or whose first answer was lost on the way back, has
+ * not made a mistake and has nothing to repair.
+ */
+export const PROTOKOLL_NICHT_MEHR_ENTWURF = 'PROTOKOLL_NICHT_MEHR_ENTWURF'
+
 /* No constants for the attachment refusals, deliberately, added in feature 3d.
  *
  * The backend publishes ANLAGE_TYP_UNZULAESSIG, ANLAGE_INHALT_KEIN_BILD,
@@ -69,8 +77,7 @@ export class ApiFehler extends Error {
   readonly code: string
   readonly status: number | null
   readonly nachricht: string | null
-  /* Always an array, never undefined, so a caller can map over it without
-     asking first. A refusal that carried no list is simply an empty one. */
+  /** Empty for every refusal but a refused submit. */
   readonly verstoesse: readonly Verstoss[]
 
   constructor(code: string, optionen: FehlerOptionen = {}) {

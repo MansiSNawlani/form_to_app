@@ -2,6 +2,7 @@ import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import BestaetigungsDialog from '../../components/BestaetigungsDialog'
 import { useFehlertext } from '../../api/useFehlertext'
@@ -40,7 +41,10 @@ function AbsendenBlock({ entwurfId, bereitZumAbsenden }: AbsendenBlockProps) {
      re-render this component anyway. */
   const { getValues } = useFormContext<Antworten>()
 
-  const { absenden, laeuft, verstoesse, fehler } = useAbsenden({ entwurfId, bereitZumAbsenden })
+  const { absenden, laeuft, verstoesse, fehler, bereitsAbgesendet } = useAbsenden({
+    entwurfId,
+    bereitZumAbsenden,
+  })
 
   /* A protocol with no record behind it is empty by definition, since the first
      thing typed is what creates one. Sending it could only be refused, and it
@@ -69,6 +73,22 @@ function AbsendenBlock({ entwurfId, bereitZumAbsenden }: AbsendenBlockProps) {
       {nochLeer && <Alert severity="info">{t('protokoll.absenden.nochNichtAngelegt')}</Alert>}
 
       <AbsendeProbleme entwurfId={entwurfId} verstoesse={verstoesse} artnamen={artnamen} />
+
+      {/* Pressed twice, or the first answer was lost on the way back. Nothing
+          went wrong for the person, so this reads as good news with the way
+          onward rather than as a conflict they have to do something about. */}
+      {bereitsAbgesendet && (
+        <Alert
+          severity="success"
+          action={
+            <Button component={Link} to="/protokolle" size="small" color="inherit">
+              {t('protokoll.absenden.bereitsAbgesendet.zurUebersicht')}
+            </Button>
+          }
+        >
+          {t('protokoll.absenden.bereitsAbgesendet.text')}
+        </Alert>
+      )}
 
       {fehler !== null && (
         <Alert severity="error">

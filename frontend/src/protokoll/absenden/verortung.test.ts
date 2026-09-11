@@ -134,7 +134,20 @@ describe('verorte', () => {
   it.each(AUS_JEDER_GRUPPE)('findet %s, das keine Pflichtangabe ist', (pfad) => {
     // A rule can complain about any answer, not only a required one: a wrong
     // percentage and an unreadable catch cell are both violations.
-    expect(verorte(pfad).abschnitt).not.toBeNull()
+    const { abschnitt, labelKey } = verorte(pfad)
+
+    expect(abschnitt).not.toBeNull()
+
+    /* A catch cell is the one thing with no label of its own, because 312 of
+       them share twelve column headings; the panel names it by the species in
+       its row instead. Everything else has to be nameable. */
+    if (artnummerAus(pfad) !== null) {
+      expect(labelKey).toBeNull()
+      return
+    }
+
+    expect(labelKey).not.toBeNull()
+    expect(istText(labelKey as string)).toBe(true)
   })
 
   /* The catch table's 312 paths are recognised by shape rather than listed, so
