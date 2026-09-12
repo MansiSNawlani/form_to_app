@@ -586,6 +586,7 @@
       "keinNachweisNebenArt": "\"kein Nachweis\" schließt jede andere Art in der Tabelle aus.",
       "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag.",
       "fehlt": "Diese Angabe wird zum Absenden gebraucht. Bitte tragen Sie sie nach; speichern können Sie das Protokoll auch ohne sie.",
+      "fehltProzentgruppe": "Dieser Block ist noch nicht ausgefüllt. Bitte verteilen Sie die Anteile so, dass sie zusammen genau 100 % ergeben; besteht die Strecke nur aus einem, tragen Sie dort 100 ein und lassen den Rest leer.",
       "fehltArt": "Das Protokoll nennt noch keine Art. Bitte tragen Sie mindestens eine Art ein, oder wählen Sie einen \"kein Nachweis\"-Eintrag, wenn nichts gefangen wurde."
     },
     "verwerfen": {

@@ -294,7 +294,7 @@ steps below are grouped by the kind of rule rather than by how many fields they 
       the eight carry an asterisk on screen without any component being edited, which is
       step 9's promise being kept; the count test moves from 31 to 39 deliberately.
 
-- [ ] **Step 11 - Part 3, where nothing is required today** - the six percentage blocks
+- [x] **Step 11 - Part 3, where nothing is required today** - the six percentage blocks
       become compulsory rather than "correct if touched", which is a new rule: `prozent.py`
       currently says nothing at all about an untouched block. Plus Randstreifen, the dam's
       share of the stretch, and the share of bank with roots in the water. And the first

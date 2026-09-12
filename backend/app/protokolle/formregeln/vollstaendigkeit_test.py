@@ -11,9 +11,12 @@ import pytest
 from app.formular.felder import formular
 from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln.hydrologie import NICHT_ZUTREFFEND
+from app.protokolle.formregeln.prozent import PROZENTGRUPPEN
 from app.protokolle.formregeln.vollstaendigkeit import (
+    DAMM_NEIGUNG,
     FEHLT,
     FEHLT_ART,
+    FEHLT_PROZENTGRUPPE,
     pruefe_vollstaendigkeit,
 )
 
@@ -38,10 +41,22 @@ def setze(antworten: dict[str, Any], pfad: str, wert: str) -> None:
 
 
 def vollstaendig(**abweichungen: str) -> dict[str, Any]:
-    """A protocol with every required answer given, plus one named species."""
+    """A protocol with every required answer given, plus one named species.
+
+    The six percentage blocks are answered as well, each with a single share of
+    100. They are not in the required list, because what they need is a set of
+    numbers totalling 100 rather than a value in a named field, so they are a rule
+    of their own; a protocol without them is not complete either way.
+    """
     antworten: dict[str, Any] = {}
     for pfad in PFLICHTFELDER_:
         setze(antworten, pfad, "1")
+    for gruppe in PROZENTGRUPPEN:
+        setze(antworten, gruppe.felder[0], "100")
+    # The loop above puts a 1 in the dam's share, so this stretch has a dam and
+    # owes a slope. Given here rather than zeroing the share, so the helper
+    # exercises the conditional rather than stepping around it.
+    setze(antworten, DAMM_NEIGUNG, "45")
     setze(antworten, "arten.art1.name", "SATR")
     for pfad, wert in abweichungen.items():
         setze(antworten, pfad.replace("__", "."), wert)
@@ -74,7 +89,7 @@ class TestGegenDasSeed:
         blueprint/context/pflichtfelder-vorschlag.md says it moves, and this test
         is what makes that a decision rather than a drift.
         """
-        assert len(PFLICHTFELDER_) == 39
+        assert len(PFLICHTFELDER_) == 42
 
     @pytest.mark.parametrize(
         "pfad", ["probestrecke.untere", "probestrecke.obere", "ausruestung.leistung"]
@@ -127,7 +142,14 @@ class TestEinVollstaendigesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld(self) -> None:
         gemeldet = fehlende_pfade({})
-        assert gemeldet == [*PFLICHTFELDER_, "tabelle.arten"]
+        # The flat list first, then the six percentage blocks, then the catch
+        # table. The dam's slope is absent: its share is unanswered too, and one
+        # unanswered question earns one message.
+        assert gemeldet == [
+            *PFLICHTFELDER_,
+            *(gruppe.id for gruppe in PROZENTGRUPPEN),
+            "tabelle.arten",
+        ]
 
     def test_meldet_in_formularreihenfolge(self) -> None:
         # The panel in 11c lists these, so they come in the order somebody
@@ -138,7 +160,7 @@ class TestEinLeeresProtokoll:
 
     def test_jede_meldung_traegt_denselben_schluessel(self) -> None:
         verstoesse = pruefe_vollstaendigkeit({})
-        assert {v.schluessel for v in verstoesse} == {FEHLT, FEHLT_ART}
+        assert {v.schluessel for v in verstoesse} == {FEHLT, FEHLT_ART, FEHLT_PROZENTGRUPPE}
 
 
 class TestEinzelneFehlendeAntworten:
@@ -201,11 +223,26 @@ class TestDieFangtabelle:
 
 
 class TestWasNichtVerlangtWird:
-    def test_verlangt_nichts_aus_teil_3(self) -> None:
-        # Decided on 2026-09-11: requiring the habitat blocks would be new
-        # policy FFS never asked for.
-        assert not [pfad for pfad in PFLICHTFELDER_ if pfad.startswith(("umland.", "ufer."))]
-        assert not [pfad for pfad in PFLICHTFELDER_ if pfad.startswith("gewaessersohle.")]
+    def test_verlangt_aus_teil_3_nur_was_vereinbart_ist(self) -> None:
+        """Part 3's shares are a rule, not list entries.
+
+        Reversed on 2026-09-12: part 3 used to require nothing at all. It now
+        requires all six percentage blocks, but through pruefe_vollstaendigkeit's
+        own group rule rather than through this list, because what a block needs
+        is a set of numbers totalling 100 and not a value in one named field.
+        Only the three standalone answers are listed.
+        """
+        aus_teil_3 = [
+            pfad
+            for pfad in PFLICHTFELDER_
+            if pfad.startswith(("umland.", "ufer.", "gewaessersohle."))
+        ]
+
+        assert aus_teil_3 == [
+            "ufer.randstreifen",
+            "ufer.streckenanteil_geschuetteter_damm",
+            "ufer.wurzeln",
+        ]
 
     def test_verlangt_nichts_aus_teil_4(self) -> None:
         assert not [
@@ -216,3 +253,87 @@ class TestWasNichtVerlangtWird:
 
     def test_verlangt_keine_bemerkungen(self) -> None:
         assert not [pfad for pfad in PFLICHTFELDER_ if "bemerkung" in pfad]
+
+
+class TestTeil3:
+    """Part 3 required nothing at all until 2026-09-12.
+
+    A protocol could be submitted describing a stretch's surroundings, its bank
+    and its bed not at all, which is most of what a habitat survey is for.
+    """
+
+    def test_ein_leeres_protokoll_meldet_alle_sechs_bloecke(self) -> None:
+        gemeldet = [
+            verstoss.pfad
+            for verstoss in pruefe_vollstaendigkeit({})
+            if verstoss.schluessel == FEHLT_PROZENTGRUPPE
+        ]
+
+        assert gemeldet == [
+            "summe.umland",
+            "summe.neigung",
+            "summe.bewuchs",
+            "summe.uferverbau",
+            "summe.substrat",
+            "summe.sohlverbau",
+        ]
+
+    def test_ein_angefasster_block_gilt_als_beantwortet(self) -> None:
+        """Touched is enough here; totalling 100 is prozent.py's half.
+
+        The two rules are deliberately separate. This one insists the block was
+        started, that one insists it adds up, and neither could do the other's job
+        without saying the same thing twice on one screen.
+        """
+        antworten: dict[str, Any] = {}
+        setze(antworten, "umland.wiese", "100")
+
+        gemeldet = [
+            verstoss.pfad
+            for verstoss in pruefe_vollstaendigkeit(antworten)
+            if verstoss.schluessel == FEHLT_PROZENTGRUPPE
+        ]
+
+        assert "summe.umland" not in gemeldet
+
+    def test_eine_einzige_null_zaehlt_als_angefasst(self) -> None:
+        # A share of 0 is an answer: "none of this stretch is that". The block
+        # will still be told to reach 100 by the other rule.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "umland.siedlungsgebiet", "0")
+
+        gemeldet = [
+            verstoss.pfad
+            for verstoss in pruefe_vollstaendigkeit(antworten)
+            if verstoss.schluessel == FEHLT_PROZENTGRUPPE
+        ]
+
+        assert "summe.umland" not in gemeldet
+
+
+class TestDammneigung:
+    """The one conditional in part 3: a slope exists only where there is a dam."""
+
+    def test_ohne_damm_wird_keine_neigung_verlangt(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "ufer.streckenanteil_geschuetteter_damm", "0")
+
+        assert DAMM_NEIGUNG not in fehlende_pfade(antworten)
+
+    def test_ein_leerer_anteil_verlangt_noch_keine_neigung(self) -> None:
+        # The share itself is required and will be reported as missing. Demanding
+        # the slope as well would put two messages on one unanswered question.
+        assert DAMM_NEIGUNG not in fehlende_pfade({})
+
+    def test_mit_damm_wird_die_neigung_verlangt(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "ufer.streckenanteil_geschuetteter_damm", "30")
+
+        assert DAMM_NEIGUNG in fehlende_pfade(antworten)
+
+    def test_mit_damm_und_neigung_ist_nichts_offen(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "ufer.streckenanteil_geschuetteter_damm", "30")
+        setze(antworten, DAMM_NEIGUNG, "45")
+
+        assert DAMM_NEIGUNG not in fehlende_pfade(antworten)

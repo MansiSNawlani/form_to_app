@@ -70,6 +70,34 @@ VOLLSTAENDIG: dict[str, Any] = {
         "gesamtprofil": "2",
         "mit_gumpen": "Ja",
     },
+    # Part 3, required in full from 2026-09-12. Each of the six blocks totals
+    # exactly 100; a stretch that is entirely one thing is answered with a single
+    # 100 and blanks beside it, which is how the bank slope reads here.
+    "umland": {"mischwald": "40", "wiese": "35", "kulturland_acker": "25"},
+    "ufer": {
+        "randstreifen": "2",
+        # No dam, so no slope is demanded of it. The share is required and 0 is
+        # the answer; leaving it blank is not.
+        "streckenanteil_geschuetteter_damm": "0",
+        "wurzeln": "15",
+        # Neigung, totalling 100
+        "flachufer": "60",
+        "schraegufer": "40",
+        # Bewuchs, totalling 100
+        "weiden": "30",
+        "erlen": "20",
+        "andere_baeume": "25",
+        "straeucher": "25",
+        # Uferverbau: an unreinforced bank is one share of 100
+        "uferverbau_keiner": "100",
+    },
+    "gewaessersohle": {
+        "kies": "45",
+        "grobkies": "30",
+        "sand": "15",
+        "steine": "10",
+        "keine_sohlverbauung": "100",
+    },
     "ausruestung": {
         "egeraet": "EFKO FEG 8000",
         "spannung": "350",

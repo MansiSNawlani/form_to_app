@@ -16,6 +16,7 @@ from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
 from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER, NICHT_ZUTREFFEND
+from app.protokolle.formregeln.prozent import PROZENTGRUPPEN
 from app.protokolle.regeln import pruefe_antworten
 
 #: The required list as the application reads it, out of the seed file the browser
@@ -53,19 +54,30 @@ class TestEinEchtesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld_und_die_tabelle(self) -> None:
         gemeldet = [verstoss.pfad for verstoss in pruefe_protokoll({})]
-        assert gemeldet == [*PFLICHTFELDER_, "tabelle.arten"]
+        assert gemeldet == [
+            *PFLICHTFELDER_,
+            *(gruppe.id for gruppe in PROZENTGRUPPEN),
+            "tabelle.arten",
+        ]
 
     def test_meldet_sonst_nichts(self) -> None:
         # An empty document is unfinished, not wrong. Every rule but the
         # completeness check stays quiet about a blank answer, which is what
         # lets the same rules run over a half-finished draft.
-        assert alle_schluessel({}) == {"protokoll.regeln.fehlt", "protokoll.regeln.fehltArt"}
+        assert alle_schluessel({}) == {
+            "protokoll.regeln.fehlt",
+            "protokoll.regeln.fehltArt",
+            "protokoll.regeln.fehltProzentgruppe",
+        }
 
 
 class TestEinKaputtesProtokoll:
     def test_faengt_jede_eingebaute_verletzung(self) -> None:
         assert alle_schluessel(KAPUTT) == {
-            "protokoll.regeln.fehlt",  # messdaten.schaumbildung
+            "protokoll.regeln.fehlt",  # messdaten.schaumbildung and others
+            # Five of the six blocks are untouched; the sixth was started and
+            # comes to 43, which is the other rule's complaint below.
+            "protokoll.regeln.fehltProzentgruppe",
             "protokoll.regeln.monitoringnummerPflicht",
             "protokoll.regeln.vorfluterKeinEndpunkt",
             "protokoll.regeln.koordinateRechtswertAusserhalb",
