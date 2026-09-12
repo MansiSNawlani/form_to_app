@@ -30,7 +30,7 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
   const {
     verstoesse,
     geprueftAm,
-    eingeklappt,
+    ausgeklappt,
     umschalten,
     fehler,
     bereitsAbgesendet,
@@ -80,8 +80,8 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
       artnamen={artnamenAus(getValues())}
       onErneutPruefen={absenden}
       laeuft={laeuft}
-      eingeklappt={eingeklappt}
-      onUmschalten={umschalten}
+      ausgeklappt={ausgeklappt.has(aktuelleNr)}
+      onUmschalten={() => umschalten(aktuelleNr)}
     />
   )
 }

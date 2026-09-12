@@ -34,10 +34,14 @@ interface AbsendeProblemeProps {
   /** Check again against the server, the only authority on correctness. */
   onErneutPruefen: () => void
   laeuft: boolean
-  /* Folded away, and remembered. There is deliberately no way to throw the list
-     away: closing it would destroy the one thing saying what is left, and
-     somebody who wants it out of the way wants it back afterwards. */
-  eingeklappt: boolean
+  /* Whether this section's list is open. Folded is the default: the summary line
+     above the fold already says how many this section owes, which is what
+     somebody needs before deciding to read them.
+
+     There is deliberately no way to throw the list away. Closing it would destroy
+     the one thing saying what is left, and somebody who wants it out of the way
+     wants it back afterwards. */
+  ausgeklappt: boolean
   onUmschalten: () => void
 }
 
@@ -69,7 +73,7 @@ function AbsendeProbleme({
   artnamen,
   onErneutPruefen,
   laeuft,
-  eingeklappt,
+  ausgeklappt,
   onUmschalten,
 }: AbsendeProblemeProps) {
   const { t, i18n } = useTranslation()
@@ -124,18 +128,18 @@ function AbsendeProbleme({
           size="small"
           color="inherit"
           onClick={onUmschalten}
-          aria-expanded={!eingeklappt}
+          aria-expanded={ausgeklappt}
           endIcon={
             <ChevronIcon
-              className={eingeklappt ? undefined : 'absende-probleme__pfeil--offen'}
+              className={ausgeklappt ? 'absende-probleme__pfeil--offen' : undefined}
               fontSize="small"
               aria-hidden="true"
             />
           }
         >
-          {eingeklappt
-            ? t('protokoll.absenden.probleme.ausklappen')
-            : t('protokoll.absenden.probleme.einklappen')}
+          {ausgeklappt
+            ? t('protokoll.absenden.probleme.einklappen')
+            : t('protokoll.absenden.probleme.ausklappen')}
         </Button>
       }
     >
@@ -147,7 +151,7 @@ function AbsendeProbleme({
         {woanders > 0 && ` ${t('protokoll.absenden.probleme.woanders', { count: woanders })}`}
       </Typography>
 
-      <Collapse in={!eingeklappt}>
+      <Collapse in={ausgeklappt}>
         {hier !== undefined && !hierErledigt && (
           <section>
             <List dense disablePadding>
@@ -183,26 +187,30 @@ function AbsendeProbleme({
           </List>
         )}
 
-        <Typography variant="body2">{t('protokoll.absenden.probleme.entwurfBleibt')}</Typography>
-
         {geprueftAm !== null && (
           <Typography variant="body2" className="absende-probleme__stand">
             {t('protokoll.absenden.probleme.stand', { zeitpunkt: standAnzeige(geprueftAm) })}
           </Typography>
         )}
-
-        <Stack direction="row" spacing={1} className="absende-probleme__aktionen">
-          {/* The only thing that can say a protocol is right. Ticking an entry
-              off above means a box is no longer empty, which is a smaller claim,
-              and it is why a finished section keeps this button rather than
-              disappearing and taking it along. */}
-          <Button variant="outlined" size="small" onClick={onErneutPruefen} disabled={laeuft}>
-            {laeuft
-              ? t('protokoll.absenden.probleme.prueftGerade')
-              : t('protokoll.absenden.probleme.erneutPruefen')}
-          </Button>
-        </Stack>
       </Collapse>
+
+      {/* Above the fold, both of them, because the panel now starts folded. The
+          reassurance matters most in the moment a refusal arrives, and the button
+          is the next thing to do: a fold that hid either would be hiding the
+          point of the panel rather than its detail. */}
+      <Typography variant="body2">{t('protokoll.absenden.probleme.entwurfBleibt')}</Typography>
+
+      <Stack direction="row" spacing={1} className="absende-probleme__aktionen">
+        {/* The only thing that can say a protocol is right. Ticking an entry off
+            means a box is no longer empty, which is a smaller claim, and it is
+            why a finished section keeps this button rather than disappearing and
+            taking it along. */}
+        <Button variant="outlined" size="small" onClick={onErneutPruefen} disabled={laeuft}>
+          {laeuft
+            ? t('protokoll.absenden.probleme.prueftGerade')
+            : t('protokoll.absenden.probleme.erneutPruefen')}
+        </Button>
+      </Stack>
     </Alert>
   )
 }

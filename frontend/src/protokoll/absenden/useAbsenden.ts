@@ -42,9 +42,11 @@ export interface Absenden {
      an unreachable server. It deliberately leaves the list of problems alone,
      which is a different thing and is never thrown away by a click. */
   verwerfen: () => void
-  /** Folded away by the reader, and remembered between sections and reloads. */
-  eingeklappt: boolean
-  umschalten: () => void
+  /* The sections whose list the reader has opened. Folded is the default, so a
+     section nobody has opened is simply absent. Remembered across sections and
+     reloads. */
+  ausgeklappt: ReadonlySet<number>
+  umschalten: (abschnitt: number) => void
   laeuft: boolean
   /* What the server refused, or an empty list. Always an array, so the panel can
      map over it without asking first. */
@@ -75,7 +77,9 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
   const [gemerkt] = useState(() => pruefungsStore.lies(entwurfId))
   const [verstoesse, setVerstoesse] = useState<readonly Verstoss[]>(gemerkt?.verstoesse ?? [])
   const [geprueftAm, setGeprueftAm] = useState<string | null>(gemerkt?.zeitpunkt ?? null)
-  const [eingeklappt, setEingeklappt] = useState(gemerkt?.eingeklappt ?? false)
+  const [ausgeklappt, setAusgeklappt] = useState<ReadonlySet<number>>(
+    () => new Set(gemerkt?.ausgeklappt ?? []),
+  )
   const [fehler, setFehler] = useState<unknown>(null)
   const [bereitsAbgesendet, setBereitsAbgesendet] = useState(false)
 
@@ -109,8 +113,9 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
         setVerstoesse(grund.verstoesse)
         pruefungsStore.schreib(entwurfId, grund.verstoesse)
         setGeprueftAm(new Date().toISOString())
-        // A fresh answer is worth reading, however the last one was left.
-        setEingeklappt(false)
+        // A fresh answer starts folded, like everything else; the summary line
+        // above the fold already says how many each section owes.
+        setAusgeklappt(new Set())
         return
       }
 
@@ -143,12 +148,19 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
     setBereitsAbgesendet(false)
   }, [])
 
-  const umschalten = useCallback(() => {
-    setEingeklappt((vorher) => {
-      pruefungsStore.klappe(entwurfId, !vorher)
-      return !vorher
-    })
-  }, [entwurfId])
+  const umschalten = useCallback(
+    (abschnitt: number) => {
+      setAusgeklappt((vorher) => {
+        const nachher = new Set(vorher)
+        if (nachher.has(abschnitt)) nachher.delete(abschnitt)
+        else nachher.add(abschnitt)
+
+        pruefungsStore.klappe(entwurfId, abschnitt, nachher.has(abschnitt))
+        return nachher
+      })
+    },
+    [entwurfId],
+  )
 
   return {
     absenden,
@@ -156,7 +168,7 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
     laeuft: isPending,
     verstoesse,
     geprueftAm,
-    eingeklappt,
+    ausgeklappt,
     umschalten,
     fehler,
     bereitsAbgesendet,

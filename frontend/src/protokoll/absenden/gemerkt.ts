@@ -34,17 +34,21 @@ export interface GemerktePruefung {
   /** When the server said this, so the panel can admit how old it is. */
   zeitpunkt: string
   verstoesse: Verstoss[]
-  /* Folded away by the person reading it. Kept with the list rather than in its
-     own key, so a protocol's panel comes back as they left it. */
-  eingeklappt: boolean
+  /* The sections whose list the reader has opened, kept with the list itself so a
+     protocol's panel comes back as they left it.
+     
+     The open ones rather than the folded ones, because folded is the default: a
+     section nobody has opened is simply absent, and a new section can be added to
+     the form without having to be listed here as closed. */
+  ausgeklappt: number[]
 }
 
 export interface PruefungsStore {
   lies(id: string): GemerktePruefung | null
   schreib(id: string, verstoesse: readonly Verstoss[]): void
-  /* Folding the panel away is not a new check, so this leaves the timestamp
-     alone: the list is still as old as it was. */
-  klappe(id: string, eingeklappt: boolean): void
+  /* Opening or folding one section's list is not a new check, so this leaves the
+     timestamp alone: the list is still as old as it was. */
+  klappe(id: string, abschnitt: number, ausgeklappt: boolean): void
   loesche(id: string): void
 }
 
@@ -62,6 +66,15 @@ function istVerstoss(wert: unknown): wert is Verstoss {
   if (typeof wert !== 'object' || wert === null) return false
   const k = wert as Record<string, unknown>
   return typeof k.pfad === 'string' && typeof k.schluessel === 'string'
+}
+
+/* Which sections were left open. Anything but a list of section numbers reads as
+ * "none", which is also what a value written by an older shape of this code
+ * gives, since folded is the default.
+ */
+function offeneAbschnitte(wert: unknown): number[] {
+  const roh: unknown = (wert as Record<string, unknown>).ausgeklappt
+  return Array.isArray(roh) ? roh.filter((nr): nr is number => Number.isInteger(nr)) : []
 }
 
 function istPruefung(wert: unknown): wert is GemerktePruefung {
@@ -87,9 +100,9 @@ export function createPruefungsStore({ storage, now }: StoreOptions): PruefungsS
         const verstoesse = geparst.verstoesse.filter(istVerstoss)
         if (verstoesse.length === 0) return null
 
-        // Written by an older shape of this code, before folding existed.
-        const eingeklappt = geparst.eingeklappt === true
-        return { ...geparst, verstoesse, eingeklappt }
+        /* Anything but a list of section numbers is read as "none open", which is
+           also what a value written by an older shape of this code gives. */
+        return { ...geparst, verstoesse, ausgeklappt: offeneAbschnitte(geparst) }
       } catch {
         return null
       }
@@ -104,9 +117,10 @@ export function createPruefungsStore({ storage, now }: StoreOptions): PruefungsS
           id,
           zeitpunkt: now(),
           verstoesse: [...verstoesse],
-          // A fresh answer is worth reading, so it arrives open however the last
-          // one was left.
-          eingeklappt: false,
+          /* A fresh answer starts folded, like everything else. The summary line
+             above the fold already says how many each section owes, which is what
+             somebody needs before deciding to read them. */
+          ausgeklappt: [],
         }
         storage.setItem(KEY_PREFIX + id, JSON.stringify(gemerkt))
       } catch {
@@ -114,13 +128,19 @@ export function createPruefungsStore({ storage, now }: StoreOptions): PruefungsS
       }
     },
 
-    klappe(id, eingeklappt) {
+    klappe(id, abschnitt, ausgeklappt) {
       try {
         const roh = storage.getItem(KEY_PREFIX + id)
         if (roh === null) return
         const geparst: unknown = JSON.parse(roh)
         if (!istPruefung(geparst)) return
-        storage.setItem(KEY_PREFIX + id, JSON.stringify({ ...geparst, eingeklappt }))
+
+        const vorher = offeneAbschnitte(geparst)
+        const nachher = ausgeklappt
+          ? [...new Set([...vorher, abschnitt])]
+          : vorher.filter((nr) => nr !== abschnitt)
+
+        storage.setItem(KEY_PREFIX + id, JSON.stringify({ ...geparst, ausgeklappt: nachher }))
       } catch {
         // A panel that cannot remember being folded is a small loss, and not one
         // worth failing the click over.

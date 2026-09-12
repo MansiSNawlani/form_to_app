@@ -24,7 +24,7 @@ describe('createPruefungsStore', () => {
       id: 'a1',
       zeitpunkt: JETZT,
       verstoesse: VERSTOESSE,
-      eingeklappt: false,
+      ausgeklappt: [],
     })
   })
 
@@ -147,52 +147,101 @@ describe('createPruefungsStore', () => {
     }
   })
 
-  it('merkt sich, dass die Liste eingeklappt wurde', () => {
+  it('merkt sich, welcher Abschnitt aufgeklappt wurde', () => {
     const { store: s } = store()
     s.schreib('a1', VERSTOESSE)
 
-    s.klappe('a1', true)
+    s.klappe('a1', 2, true)
 
-    expect(s.lies('a1')?.eingeklappt).toBe(true)
+    expect(s.lies('a1')?.ausgeklappt).toEqual([2])
+  })
+
+  /* Each section keeps its own. Opening part 2 to read its three entries should
+     not open part 6's twenty-six as well. */
+  it('haelt die Abschnitte auseinander', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+
+    s.klappe('a1', 2, true)
+    s.klappe('a1', 5, true)
+
+    expect(s.lies('a1')?.ausgeklappt).toEqual([2, 5])
+  })
+
+  it('klappt einen einzelnen Abschnitt wieder ein', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+    s.klappe('a1', 2, true)
+    s.klappe('a1', 5, true)
+
+    s.klappe('a1', 2, false)
+
+    expect(s.lies('a1')?.ausgeklappt).toEqual([5])
+  })
+
+  it('merkt sich einen Abschnitt nicht zweimal', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+
+    s.klappe('a1', 2, true)
+    s.klappe('a1', 2, true)
+
+    expect(s.lies('a1')?.ausgeklappt).toEqual([2])
   })
 
   /* Folding is not a new check, so the list is still as old as it was and must
      not claim otherwise. */
-  it('ruehrt den Zeitpunkt beim Einklappen nicht an', () => {
+  it('ruehrt den Zeitpunkt beim Klappen nicht an', () => {
     const { store: s } = store()
     s.schreib('a1', VERSTOESSE)
 
-    s.klappe('a1', true)
+    s.klappe('a1', 2, true)
 
     expect(s.lies('a1')?.zeitpunkt).toBe(JETZT)
   })
 
-  /* A fresh answer is worth reading, however the last one was left. */
-  it('klappt eine neue Pruefung wieder auf', () => {
+  /* A fresh answer starts folded, like everything else. */
+  it('klappt bei einer neuen Pruefung alles wieder ein', () => {
     const { store: s } = store()
     s.schreib('a1', VERSTOESSE)
-    s.klappe('a1', true)
+    s.klappe('a1', 2, true)
 
     s.schreib('a1', VERSTOESSE)
 
-    expect(s.lies('a1')?.eingeklappt).toBe(false)
+    expect(s.lies('a1')?.ausgeklappt).toEqual([])
   })
 
-  it('laesst sich fuer ein Protokoll ohne Pruefung folgenlos einklappen', () => {
+  it('laesst sich fuer ein Protokoll ohne Pruefung folgenlos klappen', () => {
     const { store: s } = store()
 
-    expect(() => s.klappe('a1', true)).not.toThrow()
+    expect(() => s.klappe('a1', 2, true)).not.toThrow()
     expect(s.lies('a1')).toBeNull()
   })
 
-  /* Written before folding existed, so the flag is simply absent. */
-  it('liest einen alten Eintrag ohne Klapp-Merkmal als aufgeklappt', () => {
+  /* Written before folding existed, so the field is simply absent, and folded is
+     the default anyway. */
+  it('liest einen alten Eintrag als vollstaendig eingeklappt', () => {
     const { speicher, store: s } = store()
     speicher.setItem(
       KEY_PREFIX + 'a1',
       JSON.stringify({ id: 'a1', zeitpunkt: JETZT, verstoesse: VERSTOESSE }),
     )
 
-    expect(s.lies('a1')?.eingeklappt).toBe(false)
+    expect(s.lies('a1')?.ausgeklappt).toEqual([])
+  })
+
+  it('ignoriert Unsinn im Klapp-Merkmal', () => {
+    const { speicher, store: s } = store()
+    speicher.setItem(
+      KEY_PREFIX + 'a1',
+      JSON.stringify({
+        id: 'a1',
+        zeitpunkt: JETZT,
+        verstoesse: VERSTOESSE,
+        ausgeklappt: ['zwei', null, 3],
+      }),
+    )
+
+    expect(s.lies('a1')?.ausgeklappt).toEqual([3])
   })
 })
