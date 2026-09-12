@@ -845,3 +845,43 @@
 .absende-probleme__aktionen {
   margin-top: 0.75rem;
 }
+
+/* How many answers a section still owes, feature 11c, 2026-09-12.
+
+   The step bar carries this so that the panel above the form can list only the
+   open section's problems: forty-seven entries at the top of every section made
+   correcting one field a scroll down past the other six and back.
+
+   A number, never only a colour. The warning tint is the glance; the digit is
+   what a colour-blind reader sees and what the sr-only text beside it says to a
+   screen reader. flex: none so the badge cannot be squeezed, and the bar keeps
+   its one line: below about 1200px the whole thing is replaced by the compact
+   menu, which is where seven cells stop fitting. */
+.steps__offen {
+  flex: none;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.25rem;
+  padding: 0 0.25rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The same fact in the compact menu, where there is room for a word. */
+.steps-kompakt__offen {
+  margin-left: auto;
+  padding: 0 0.375rem;
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: var(--step--1);
+  font-weight: 600;
+}

@@ -7,18 +7,19 @@ import ListItem from '@mui/material/ListItem'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
-import { useEffect, useMemo, useRef } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { abschnittPfad } from '../abschnitte'
 import { optionen } from '../optionen'
 import { gruppiere, type Problem } from './gruppierung'
-import type { Antworten } from '../entwurf/typen'
+import { useErledigtePfade } from './useErledigte'
 import type { Verstoss } from '../../api/typen'
 
 interface AbsendeProblemeProps {
   entwurfId: string
+  /** Which section is open. Only its problems are listed here. */
+  aktuelleNr: number
   verstoesse: readonly Verstoss[]
   /* The species codes actually in the catch table, by row, so a refused cell can
      be named by its fish rather than by its row number. */
@@ -31,17 +32,19 @@ interface AbsendeProblemeProps {
 
 /* What is still missing or wrong, and where to go and fix it.
  *
- * **Rendered above the section rather than inside one**, which is not cosmetic.
- * Every entry here is a link whose job is to send somebody to another part of the
- * protocol, and until 2026-09-12 this panel lived at the foot of section 7, so
- * following any one of its links unmounted it: the surveyor fixed one field, came
- * back, and the list of the other forty-six was gone. A list that cannot survive
- * the trip it invites is no list at all. It now sits beside the save indicator and
- * the restore offer, which are above the section for the same reason.
+ * **Only the open section's problems**, decided with Mansi on 2026-09-12. It
+ * showed all of them at the top of every section for half a day, and forty-seven
+ * entries above the form turned every correction into a scroll down past the
+ * other six sections and back up again. Where the rest are is the step bar's
+ * question now, and it answers it with a count per section.
  *
- * Grouped by section, in section order, because that is the order somebody walks
- * the protocol. The anchor is the path, unchanged, because every control on this
- * form already carries its path as its DOM id.
+ * It is still held above the section rather than inside it, which is what lets it
+ * survive the navigation its own links invite. Before that it lived at the foot
+ * of section 7, so following any link unmounted it: the surveyor fixed one field,
+ * came back, and the list was gone.
+ *
+ * The anchor is the path, unchanged, because every control on this form already
+ * carries its path as its DOM id.
  *
  * The message comes out of the same protokoll.regeln keys the form itself uses
  * beside a field while somebody types. One wording, in one place, whether a rule
@@ -49,6 +52,7 @@ interface AbsendeProblemeProps {
  */
 function AbsendeProbleme({
   entwurfId,
+  aktuelleNr,
   verstoesse,
   artnamen,
   onErneutPruefen,
@@ -56,7 +60,6 @@ function AbsendeProbleme({
   onSchliessen,
 }: AbsendeProblemeProps) {
   const { t, i18n } = useTranslation()
-  const { control } = useFormContext<Antworten>()
   const panel = useRef<HTMLDivElement>(null)
 
   /* The message key arrives from the server as a plain string, so it is checked
@@ -68,30 +71,14 @@ function AbsendeProbleme({
       ? t(schluessel as ParseKeys)
       : t('protokoll.absenden.probleme.unbekannteRegel')
 
-  /* Only the paths that name a real field.
-   *
-   * Watched by name rather than through a bare watch(), which would subscribe
-   * this panel to all 338 answers and redraw forty-seven list entries on every
-   * keystroke anywhere in the protocol. On the catch table that is the 206ms
-   * re-render useAutoSave's own comment records. */
-  const feldpfade = useMemo(
-    () => verstoesse.map((verstoss) => verstoss.pfad).filter((pfad) => !istSammelpfad(pfad)),
-    [verstoesse],
-  )
-
-  const werte = useWatch({ control, name: feldpfade as never })
-
-  const erledigt = useMemo(() => {
-    const gefuellt = new Set<string>()
-    const gelesen: unknown[] = Array.isArray(werte) ? werte : []
-    feldpfade.forEach((pfad, index) => {
-      const wert = gelesen[index]
-      if (typeof wert === 'string' && wert.trim() !== '') gefuellt.add(pfad)
-    })
-    return gefuellt
-  }, [feldpfade, werte])
+  const erledigt = useErledigtePfade(verstoesse)
 
   const { gruppen, unverortet, anzahl, offen } = gruppiere(verstoesse, erledigt)
+
+  /* This section's entries, and nothing else. The rest are still counted, so the
+     line below can say how much is left elsewhere without listing any of it. */
+  const hier = gruppen.find((gruppe) => gruppe.nr === aktuelleNr)
+  const woanders = offen - (hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0)
 
   /* Focus moves here when a refusal arrives, and only then. Without it somebody
      pressing Absenden with the keyboard is left on a button whose page has
@@ -102,7 +89,8 @@ function AbsendeProbleme({
     if (anzahl > 0) panel.current?.focus()
   }, [anzahl])
 
-  if (anzahl === 0) return null
+  // Nothing wrong here and nothing unplaceable: this section says nothing at all.
+  if (hier === undefined && unverortet.length === 0) return null
 
   return (
     <Alert severity="warning" ref={panel} tabIndex={-1} className="absende-probleme">
@@ -110,19 +98,16 @@ function AbsendeProbleme({
       <Typography variant="body2">
         {offen === 0
           ? t('protokoll.absenden.probleme.alleBearbeitet')
-          : t('protokoll.absenden.probleme.einleitung', { count: offen })}
+          : t('protokoll.absenden.probleme.inDiesemAbschnitt', {
+              count: hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0,
+            })}
+        {woanders > 0 && ` ${t('protokoll.absenden.probleme.woanders', { count: woanders })}`}
       </Typography>
 
-      {gruppen.map((gruppe) => (
-        <section key={gruppe.nr}>
-          <Typography variant="subtitle2" component="h3" className="absende-probleme__abschnitt">
-            {t('protokoll.absenden.probleme.abschnitt', {
-              nr: gruppe.nr,
-              titel: t(gruppe.titelKey),
-            })}
-          </Typography>
+      {hier !== undefined && (
+        <section>
           <List dense disablePadding>
-            {gruppe.probleme.map((problem) => (
+            {hier.probleme.map((problem) => (
               <ListItem
                 key={problem.pfad}
                 disableGutters
@@ -130,7 +115,7 @@ function AbsendeProbleme({
               >
                 <Link
                   component={RouterLink}
-                  to={`${abschnittPfad(entwurfId, gruppe.nr)}#${problem.pfad}`}
+                  to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
                 >
                   {benenne(problem, artnamen, t)}
                 </Link>
@@ -142,7 +127,7 @@ function AbsendeProbleme({
             ))}
           </List>
         </section>
-      ))}
+      )}
 
       {unverortet.length > 0 && (
         <List dense disablePadding>
@@ -169,20 +154,6 @@ function AbsendeProbleme({
         </Button>
       </Stack>
     </Alert>
-  )
-}
-
-/* Problems that name a block rather than a field: a percentage run, a tick group,
- * a fished area, the catch table as a whole. None can be ticked off by looking at
- * one box, so they stay listed until a fresh check answers them. */
-function istSammelpfad(pfad: string): boolean {
-  return (
-    pfad.startsWith('summe.') ||
-    pfad.startsWith('block.') ||
-    pfad.startsWith('bereich.') ||
-    pfad.startsWith('widerspruch.') ||
-    pfad.startsWith('paar.') ||
-    pfad.startsWith('tabelle.')
   )
 }
 

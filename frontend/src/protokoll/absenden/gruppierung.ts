@@ -117,3 +117,33 @@ function titelVon(nr: Abschnittsnummer): ParseKeys {
      system cannot check. */
   return abschnitt?.titelKey ?? 'protokoll.abschnitte.anlass'
 }
+
+
+/* How many problems are still outstanding in each section.
+ *
+ * What the step bar prints beside each section number, so somebody can see where
+ * the remaining work is without a list of every entry in front of them. A section
+ * with nothing outstanding is absent from the map rather than present with a
+ * zero, so the bar shows a marker only where there is something to mark.
+ *
+ * Counts what is still open, not what the server last found: an entry ticks off
+ * as its field is filled, and the count follows. The badge therefore says
+ * "nothing left to type here" and never "this section is correct", which only a
+ * fresh check can say. Problems naming a block rather than a field never tick
+ * off, so a section keeps its marker until the server agrees.
+ */
+export function offeneJeAbschnitt(
+  verstoesse: readonly Verstoss[],
+  erledigtePfade: ReadonlySet<string> = new Set(),
+): ReadonlyMap<Abschnittsnummer, number> {
+  const offen = new Map<Abschnittsnummer, number>()
+
+  for (const verstoss of verstoesse) {
+    if (erledigtePfade.has(verstoss.pfad)) continue
+    const { abschnitt } = verorte(verstoss.pfad)
+    if (abschnitt === null) continue
+    offen.set(abschnitt, (offen.get(abschnitt) ?? 0) + 1)
+  }
+
+  return offen
+}

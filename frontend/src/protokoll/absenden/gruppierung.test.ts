@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gruppiere } from './gruppierung'
+import { gruppiere, offeneJeAbschnitt } from './gruppierung'
 
 const fehlt = (pfad: string) => ({ pfad, schluessel: 'protokoll.regeln.fehlt' })
 
@@ -128,5 +128,56 @@ describe('gruppiere, erledigte Eintraege', () => {
 
   it('kennt fuer eine leere Liste keine offenen', () => {
     expect(gruppiere([]).offen).toBe(0)
+  })
+})
+
+describe('offeneJeAbschnitt', () => {
+  it('zaehlt je Abschnitt', () => {
+    const offen = offeneJeAbschnitt([
+      fehlt('anlass'),
+      fehlt('datum'),
+      fehlt('messdaten.temperatur'),
+    ])
+
+    expect(offen.get(1)).toBe(2)
+    expect(offen.get(2)).toBe(1)
+  })
+
+  /* Absent rather than zero, so the bar puts a marker only where there is
+     something to mark. */
+  it('nennt einen Abschnitt ohne Probleme gar nicht', () => {
+    const offen = offeneJeAbschnitt([fehlt('anlass')])
+
+    expect(offen.has(3)).toBe(false)
+    expect([...offen.keys()]).toEqual([1])
+  })
+
+  it('zaehlt erledigte nicht mit', () => {
+    const offen = offeneJeAbschnitt([fehlt('anlass'), fehlt('datum')], new Set(['anlass']))
+
+    expect(offen.get(1)).toBe(1)
+  })
+
+  it('laesst einen Abschnitt fallen, sobald alles darin ausgefuellt ist', () => {
+    const offen = offeneJeAbschnitt([fehlt('anlass')], new Set(['anlass']))
+
+    expect(offen.has(1)).toBe(false)
+  })
+
+  /* A block-level problem has no single box to fill, so it holds its section's
+     marker until the server says otherwise. */
+  it('behaelt einen Sammelpfad, auch wenn Felder ausgefuellt wurden', () => {
+    const offen = offeneJeAbschnitt(
+      [{ pfad: 'summe.umland', schluessel: 'protokoll.regeln.fehltProzentgruppe' }],
+      new Set(['umland.wiese']),
+    )
+
+    expect(offen.get(3)).toBe(1)
+  })
+
+  it('zaehlt ein Problem ohne bekannten Abschnitt nirgends mit', () => {
+    const offen = offeneJeAbschnitt([fehlt('gibt.es.nicht')])
+
+    expect(offen.size).toBe(0)
   })
 })

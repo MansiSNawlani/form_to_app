@@ -677,8 +677,6 @@
       },
       "probleme": {
         "titel": "Das Protokoll wurde noch nicht abgesendet",
-        "einleitung_one": "In {{count}} Angabe fehlt noch etwas oder stimmt noch nicht. Sie können sie hier direkt aufrufen.",
-        "einleitung_other": "Bei {{count}} Angaben fehlt noch etwas oder stimmt noch nicht. Sie können sie hier direkt aufrufen.",
         "abschnitt": "Abschnitt {{nr}}: {{titel}}",
         "artZeile": "Artentabelle, Zeile {{nr}}",
         "ohneOrt": "Diese Angabe gehört zu keinem Feld dieses Formulars. Bitte melden Sie das.",
@@ -688,7 +686,15 @@
         "ausgefuellt": "ausgefüllt",
         "erneutPruefen": "Erneut prüfen",
         "prueftGerade": "Wird geprüft",
-        "schliessen": "Liste schließen"
+        "schliessen": "Liste schließen",
+        "inDiesemAbschnitt_one": "In diesem Abschnitt fehlt noch eine Angabe oder stimmt noch nicht.",
+        "inDiesemAbschnitt_other": "In diesem Abschnitt fehlen noch {{count}} Angaben oder stimmen noch nicht.",
+        "woanders_one": "In einem anderen Abschnitt ist noch eine offen; die Schrittleiste oben zeigt, wo.",
+        "woanders_other": "In anderen Abschnitten sind noch {{count}} offen; die Schrittleiste oben zeigt, wo.",
+        "offenImAbschnitt_one": "offene Angabe in diesem Abschnitt",
+        "offenImAbschnitt_other": "offene Angaben in diesem Abschnitt",
+        "offenImMenue_one": "1 offen",
+        "offenImMenue_other": "{{count}} offen"
       },
       "bereitsAbgesendet": {
         "text": "Dieses Protokoll ist bereits abgesendet. Es ist alles angekommen; Sie müssen nichts weiter tun.",

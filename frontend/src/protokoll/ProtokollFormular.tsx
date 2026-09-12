@@ -157,7 +157,11 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
        the draft's own name and reads it out of the answers. */
     <FormProvider {...form}>
       <ProtokollKopf entwurf={entwurf} saveState={saveAnzeige} />
-      <AbschnittNav entwurfId={entwurf.id} aktuelleNr={abschnitt.nr} />
+      <AbschnittNav
+        entwurfId={entwurf.id}
+        aktuelleNr={abschnitt.nr}
+        verstoesse={absendung.verstoesse}
+      />
 
       {/* Above the section rather than inside it: the offer is about the whole
           protocol, and it has to be seen whichever section the URL opened on. */}
@@ -168,7 +172,11 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
           reason the two banners above it are: it is about the whole protocol,
           and every entry in it links to a different section, so holding it
           inside one would destroy it the moment somebody followed a link. */}
-      <AbsendeErgebnis entwurfId={entwurfId} absendung={absendung} />
+      <AbsendeErgebnis
+        entwurfId={entwurfId}
+        aktuelleNr={abschnitt.nr}
+        absendung={absendung}
+      />
 
       <section className="card" ref={card} tabIndex={-1} aria-label={titel}>
         {/* No onSubmit. Submitting is a button of its own at the foot of section

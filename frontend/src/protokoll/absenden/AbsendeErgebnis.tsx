@@ -10,6 +10,8 @@ import { NichtGespeichert, type Absenden } from './useAbsenden'
 
 interface AbsendeErgebnisProps {
   entwurfId: string
+  /** Which section is open, so the panel lists only that one's problems. */
+  aktuelleNr: number
   absendung: Absenden
 }
 
@@ -22,7 +24,7 @@ interface AbsendeErgebnisProps {
  * Rendered above the open section. The panel inside it is a list of links to
  * other sections, so anything holding it has to outlive the trip it invites.
  */
-function AbsendeErgebnis({ entwurfId, absendung }: AbsendeErgebnisProps) {
+function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisProps) {
   const { t } = useTranslation()
   const { getValues } = useFormContext<Antworten>()
   const { verstoesse, fehler, bereitsAbgesendet, absenden, verwerfen, laeuft } = absendung
@@ -59,6 +61,7 @@ function AbsendeErgebnis({ entwurfId, absendung }: AbsendeErgebnisProps) {
   return (
     <AbsendeProbleme
       entwurfId={entwurfId}
+      aktuelleNr={aktuelleNr}
       verstoesse={verstoesse}
       /* Read once per render rather than watched. The panel watches the paths it
          actually lists, which is what keeps a keystroke from redrawing it; the
