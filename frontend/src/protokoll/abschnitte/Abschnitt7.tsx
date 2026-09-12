@@ -22,14 +22,19 @@ interface Abschnitt7Props {
   entwurfId: string
   bereitstellen: Bereitsteller
   melde: (zustand: Anlagenzustand) => void
-  bereitZumAbsenden: () => Promise<number | null>
+  /* Only the action. What comes back of it is drawn above the section, because
+     the panel listing what is missing is full of links to other sections and
+     would not survive being held in one. */
+  absenden: () => void
+  absendenLaeuft: boolean
 }
 
 function Abschnitt7({
   entwurfId,
   bereitstellen,
   melde,
-  bereitZumAbsenden,
+  absenden,
+  absendenLaeuft,
 }: Abschnitt7Props) {
   return (
     <>
@@ -41,7 +46,7 @@ function Abschnitt7({
         melde={melde}
       />
       <FotosBlock entwurfId={entwurfId} bereitstellen={bereitstellen} melde={melde} />
-      <AbsendenBlock entwurfId={entwurfId} bereitZumAbsenden={bereitZumAbsenden} />
+      <AbsendenBlock entwurfId={entwurfId} absenden={absenden} laeuft={absendenLaeuft} />
     </>
   )
 }

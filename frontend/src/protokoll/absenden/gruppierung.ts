@@ -20,6 +20,17 @@ export interface Problem {
   labelKey: ParseKeys | null
   /** The catch row this sits in, for naming it. null for everything else. */
   artnummer: number | null
+  /* Something has been typed into this field since the server refused it.
+   *
+   * Deliberately not "this is now correct". The browser can see that a box is no
+   * longer empty; whether the value is right is the server's to say, because the
+   * rules live there. So this ticks an entry off as dealt with and never as
+   * passed, and only a fresh check replaces the list with the truth.
+   *
+   * Always false for a problem that names a block rather than a field, such as a
+   * percentage run or a tick group: there is no single box whose emptiness would
+   * answer the question. */
+  erledigt: boolean
 }
 
 export interface Abschnittsgruppe {
@@ -35,16 +46,26 @@ export interface Problemliste {
      silently missing, and a violation nobody can see is worse than one nobody
      can click. */
   unverortet: Problem[]
-  /** Every problem, however it was filed. What the count line says. */
+  /** Every problem, however it was filed. */
   anzahl: number
+  /** How many are still untouched. What the count line says. */
+  offen: number
 }
 
-export function gruppiere(verstoesse: readonly Verstoss[]): Problemliste {
+export function gruppiere(
+  verstoesse: readonly Verstoss[],
+  /* The paths somebody has put something into since the refusal. Passed in
+     rather than read here, so this stays a plain function over values and the
+     component decides what counts as filled in. */
+  erledigtePfade: ReadonlySet<string> = new Set(),
+): Problemliste {
   /* A fresh object each time rather than a shared empty one. The arrays in it
      are mutable, so a single shared instance handed out repeatedly is one
      accidental push away from every later empty result carrying somebody else's
      problems. */
-  if (verstoesse.length === 0) return { gruppen: [], unverortet: [], anzahl: 0 }
+  if (verstoesse.length === 0) {
+    return { gruppen: [], unverortet: [], anzahl: 0, offen: 0 }
+  }
 
   const gruppen = new Map<Abschnittsnummer, Abschnittsgruppe>()
   const unverortet: Problem[] = []
@@ -56,6 +77,7 @@ export function gruppiere(verstoesse: readonly Verstoss[]): Problemliste {
       schluessel: verstoss.schluessel,
       labelKey,
       artnummer: artnummerAus(verstoss.pfad),
+      erledigt: erledigtePfade.has(verstoss.pfad),
     }
 
     if (abschnitt === null) {
@@ -83,6 +105,7 @@ export function gruppiere(verstoesse: readonly Verstoss[]): Problemliste {
     gruppen: [...gruppen.values()].sort((eine, andere) => eine.nr - andere.nr),
     unverortet,
     anzahl: verstoesse.length,
+    offen: verstoesse.filter((verstoss) => !erledigtePfade.has(verstoss.pfad)).length,
   }
 }
 

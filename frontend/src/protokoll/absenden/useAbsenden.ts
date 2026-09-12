@@ -37,6 +37,10 @@ export interface AbsendenOptionen {
 
 export interface Absenden {
   absenden: () => void
+  /* Put the panel away. A fresh attempt brings back a fresh answer, so nothing
+     is lost by closing it; a list of forty-seven entries sitting above every
+     section is an obstacle once somebody knows what is on it. */
+  verwerfen: () => void
   laeuft: boolean
   /* What the server refused, or an empty list. Always an array, so the panel can
      map over it without asking first. */
@@ -109,7 +113,13 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
     mutate()
   }, [mutate])
 
-  return { absenden, laeuft: isPending, verstoesse, fehler, bereitsAbgesendet }
+  const verwerfen = useCallback(() => {
+    setVerstoesse([])
+    setFehler(null)
+    setBereitsAbgesendet(false)
+  }, [])
+
+  return { absenden, verwerfen, laeuft: isPending, verstoesse, fehler, bereitsAbgesendet }
 }
 
 /* The one failure this hook raises itself: the protocol is not on the server as

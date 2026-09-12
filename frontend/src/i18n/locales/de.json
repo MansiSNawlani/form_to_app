@@ -683,7 +683,12 @@
         "artZeile": "Artentabelle, Zeile {{nr}}",
         "ohneOrt": "Diese Angabe gehört zu keinem Feld dieses Formulars. Bitte melden Sie das.",
         "entwurfBleibt": "Ihr Entwurf ist unverändert gespeichert. Nichts geht verloren, während Sie das nachtragen.",
-        "unbekannteRegel": "Diese Angabe wurde beanstandet. Der Grund lässt sich hier nicht anzeigen; bitte melden Sie das."
+        "unbekannteRegel": "Diese Angabe wurde beanstandet. Der Grund lässt sich hier nicht anzeigen; bitte melden Sie das.",
+        "alleBearbeitet": "Sie haben alle aufgeführten Angaben ausgefüllt. Ob damit alles stimmt, sagt Ihnen die erneute Prüfung.",
+        "ausgefuellt": "ausgefüllt",
+        "erneutPruefen": "Erneut prüfen",
+        "prueftGerade": "Wird geprüft",
+        "schliessen": "Liste schließen"
       },
       "bereitsAbgesendet": {
         "text": "Dieses Protokoll ist bereits abgesendet. Es ist alles angekommen; Sie müssen nichts weiter tun.",

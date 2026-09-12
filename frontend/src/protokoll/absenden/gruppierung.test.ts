@@ -98,3 +98,35 @@ describe('gruppiere', () => {
     expect(liste.gruppen.map((gruppe) => gruppe.nr)).toEqual([1, 2, 5, 6])
   })
 })
+
+
+describe('gruppiere, erledigte Eintraege', () => {
+  it('zaehlt ohne erledigte alles als offen', () => {
+    const liste = gruppiere([fehlt('anlass'), fehlt('datum')])
+
+    expect(liste.offen).toBe(2)
+    expect(liste.gruppen[0].probleme.every((problem) => !problem.erledigt)).toBe(true)
+  })
+
+  it('hakt ab, was inzwischen ausgefuellt wurde', () => {
+    const liste = gruppiere([fehlt('anlass'), fehlt('datum')], new Set(['anlass']))
+
+    expect(liste.offen).toBe(1)
+    expect(liste.gruppen[0].probleme.map((problem) => problem.erledigt)).toEqual([true, false])
+  })
+
+  /* Struck through, not removed. An entry vanishing under the cursor moves
+     everything below it and loses the reader's place, and it would also claim
+     more than the browser knows: only the server can say the value is right. */
+  it('entfernt einen erledigten Eintrag nicht aus der Liste', () => {
+    const liste = gruppiere([fehlt('anlass')], new Set(['anlass']))
+
+    expect(liste.anzahl).toBe(1)
+    expect(liste.gruppen[0].probleme).toHaveLength(1)
+    expect(liste.offen).toBe(0)
+  })
+
+  it('kennt fuer eine leere Liste keine offenen', () => {
+    expect(gruppiere([]).offen).toBe(0)
+  })
+})

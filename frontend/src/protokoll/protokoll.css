@@ -826,3 +826,22 @@
   padding: 0.125rem 0;
   font-size: var(--step--1);
 }
+
+/* An entry whose field has since been filled in, feature 11c, 2026-09-12.
+
+   Struck through and muted rather than removed, so the list keeps its shape
+   while somebody works down it: entries vanishing under the cursor would move
+   everything below them and lose the reader's place. It also stays honest, since
+   the entry is still listed until the server has said the value is right. */
+.absende-probleme__erledigt {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.absende-probleme__erledigt a {
+  color: inherit;
+}
+
+.absende-probleme__aktionen {
+  margin-top: 0.75rem;
+}

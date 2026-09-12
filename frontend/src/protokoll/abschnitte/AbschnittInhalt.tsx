@@ -20,7 +20,8 @@ interface AbschnittInhaltProps {
   melde: (zustand: Anlagenzustand) => void
   /* Section 7's too, for the Absenden button at its foot. Travels the same way
      and for the same reason as the two above it. */
-  bereitZumAbsenden: () => Promise<number | null>
+  absenden: () => void
+  absendenLaeuft: boolean
 }
 
 /* The one place a section number becomes a section body.
@@ -34,7 +35,8 @@ function AbschnittInhalt({
   entwurfId,
   bereitstellen,
   melde,
-  bereitZumAbsenden,
+  absenden,
+  absendenLaeuft,
 }: AbschnittInhaltProps) {
   switch (abschnitt.nr) {
     case 1:
@@ -55,7 +57,8 @@ function AbschnittInhalt({
           entwurfId={entwurfId}
           bereitstellen={bereitstellen}
           melde={melde}
-          bereitZumAbsenden={bereitZumAbsenden}
+          absenden={absenden}
+          absendenLaeuft={absendenLaeuft}
         />
       )
   }
