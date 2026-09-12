@@ -38,10 +38,13 @@ export interface AbsendenOptionen {
 
 export interface Absenden {
   absenden: () => void
-  /* Put the panel away. A fresh attempt brings back a fresh answer, so nothing
-     is lost by closing it; a list of forty-seven entries sitting above every
-     section is an obstacle once somebody knows what is on it. */
+  /* Clear a refusal that was not about the contents: a conflict, a lost session,
+     an unreachable server. It deliberately leaves the list of problems alone,
+     which is a different thing and is never thrown away by a click. */
   verwerfen: () => void
+  /** Folded away by the reader, and remembered between sections and reloads. */
+  eingeklappt: boolean
+  umschalten: () => void
   laeuft: boolean
   /* What the server refused, or an empty list. Always an array, so the panel can
      map over it without asking first. */
@@ -72,6 +75,7 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
   const [gemerkt] = useState(() => pruefungsStore.lies(entwurfId))
   const [verstoesse, setVerstoesse] = useState<readonly Verstoss[]>(gemerkt?.verstoesse ?? [])
   const [geprueftAm, setGeprueftAm] = useState<string | null>(gemerkt?.zeitpunkt ?? null)
+  const [eingeklappt, setEingeklappt] = useState(gemerkt?.eingeklappt ?? false)
   const [fehler, setFehler] = useState<unknown>(null)
   const [bereitsAbgesendet, setBereitsAbgesendet] = useState(false)
 
@@ -105,6 +109,8 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
         setVerstoesse(grund.verstoesse)
         pruefungsStore.schreib(entwurfId, grund.verstoesse)
         setGeprueftAm(new Date().toISOString())
+        // A fresh answer is worth reading, however the last one was left.
+        setEingeklappt(false)
         return
       }
 
@@ -133,12 +139,15 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
   }, [mutate])
 
   const verwerfen = useCallback(() => {
-    setVerstoesse([])
-    setGeprueftAm(null)
     setFehler(null)
     setBereitsAbgesendet(false)
-    // Closed on purpose, so it should not come back after the next reload.
-    pruefungsStore.loesche(entwurfId)
+  }, [])
+
+  const umschalten = useCallback(() => {
+    setEingeklappt((vorher) => {
+      pruefungsStore.klappe(entwurfId, !vorher)
+      return !vorher
+    })
   }, [entwurfId])
 
   return {
@@ -147,6 +156,8 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
     laeuft: isPending,
     verstoesse,
     geprueftAm,
+    eingeklappt,
+    umschalten,
     fehler,
     bereitsAbgesendet,
   }

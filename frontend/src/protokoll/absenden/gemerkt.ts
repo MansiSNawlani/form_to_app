@@ -34,11 +34,17 @@ export interface GemerktePruefung {
   /** When the server said this, so the panel can admit how old it is. */
   zeitpunkt: string
   verstoesse: Verstoss[]
+  /* Folded away by the person reading it. Kept with the list rather than in its
+     own key, so a protocol's panel comes back as they left it. */
+  eingeklappt: boolean
 }
 
 export interface PruefungsStore {
   lies(id: string): GemerktePruefung | null
   schreib(id: string, verstoesse: readonly Verstoss[]): void
+  /* Folding the panel away is not a new check, so this leaves the timestamp
+     alone: the list is still as old as it was. */
+  klappe(id: string, eingeklappt: boolean): void
   loesche(id: string): void
 }
 
@@ -79,7 +85,11 @@ export function createPruefungsStore({ storage, now }: StoreOptions): PruefungsS
         if (!istPruefung(geparst)) return null
 
         const verstoesse = geparst.verstoesse.filter(istVerstoss)
-        return verstoesse.length > 0 ? { ...geparst, verstoesse } : null
+        if (verstoesse.length === 0) return null
+
+        // Written by an older shape of this code, before folding existed.
+        const eingeklappt = geparst.eingeklappt === true
+        return { ...geparst, verstoesse, eingeklappt }
       } catch {
         return null
       }
@@ -90,10 +100,30 @@ export function createPruefungsStore({ storage, now }: StoreOptions): PruefungsS
        it again the next time they press the button. */
     schreib(id, verstoesse) {
       try {
-        const gemerkt: GemerktePruefung = { id, zeitpunkt: now(), verstoesse: [...verstoesse] }
+        const gemerkt: GemerktePruefung = {
+          id,
+          zeitpunkt: now(),
+          verstoesse: [...verstoesse],
+          // A fresh answer is worth reading, so it arrives open however the last
+          // one was left.
+          eingeklappt: false,
+        }
         storage.setItem(KEY_PREFIX + id, JSON.stringify(gemerkt))
       } catch {
         // Nothing to do about it here, and nothing worth saying twice.
+      }
+    },
+
+    klappe(id, eingeklappt) {
+      try {
+        const roh = storage.getItem(KEY_PREFIX + id)
+        if (roh === null) return
+        const geparst: unknown = JSON.parse(roh)
+        if (!istPruefung(geparst)) return
+        storage.setItem(KEY_PREFIX + id, JSON.stringify({ ...geparst, eingeklappt }))
+      } catch {
+        // A panel that cannot remember being folded is a small loss, and not one
+        // worth failing the click over.
       }
     },
 

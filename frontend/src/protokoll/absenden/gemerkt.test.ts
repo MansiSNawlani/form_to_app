@@ -20,7 +20,12 @@ describe('createPruefungsStore', () => {
 
     s.schreib('a1', VERSTOESSE)
 
-    expect(s.lies('a1')).toEqual({ id: 'a1', zeitpunkt: JETZT, verstoesse: VERSTOESSE })
+    expect(s.lies('a1')).toEqual({
+      id: 'a1',
+      zeitpunkt: JETZT,
+      verstoesse: VERSTOESSE,
+      eingeklappt: false,
+    })
   })
 
   it('weiss von einem Protokoll nichts, bevor etwas abgelehnt wurde', () => {
@@ -140,5 +145,54 @@ describe('createPruefungsStore', () => {
     for (const eintrag of geparst.verstoesse) {
       expect(Object.keys(eintrag).sort()).toEqual(['pfad', 'schluessel'])
     }
+  })
+
+  it('merkt sich, dass die Liste eingeklappt wurde', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+
+    s.klappe('a1', true)
+
+    expect(s.lies('a1')?.eingeklappt).toBe(true)
+  })
+
+  /* Folding is not a new check, so the list is still as old as it was and must
+     not claim otherwise. */
+  it('ruehrt den Zeitpunkt beim Einklappen nicht an', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+
+    s.klappe('a1', true)
+
+    expect(s.lies('a1')?.zeitpunkt).toBe(JETZT)
+  })
+
+  /* A fresh answer is worth reading, however the last one was left. */
+  it('klappt eine neue Pruefung wieder auf', () => {
+    const { store: s } = store()
+    s.schreib('a1', VERSTOESSE)
+    s.klappe('a1', true)
+
+    s.schreib('a1', VERSTOESSE)
+
+    expect(s.lies('a1')?.eingeklappt).toBe(false)
+  })
+
+  it('laesst sich fuer ein Protokoll ohne Pruefung folgenlos einklappen', () => {
+    const { store: s } = store()
+
+    expect(() => s.klappe('a1', true)).not.toThrow()
+    expect(s.lies('a1')).toBeNull()
+  })
+
+  /* Written before folding existed, so the flag is simply absent. */
+  it('liest einen alten Eintrag ohne Klapp-Merkmal als aufgeklappt', () => {
+    const { speicher, store: s } = store()
+    speicher.setItem(
+      KEY_PREFIX + 'a1',
+      JSON.stringify({ id: 'a1', zeitpunkt: JETZT, verstoesse: VERSTOESSE }),
+    )
+
+    expect(s.lies('a1')?.eingeklappt).toBe(false)
   })
 })

@@ -682,11 +682,9 @@
         "ohneOrt": "Diese Angabe gehört zu keinem Feld dieses Formulars. Bitte melden Sie das.",
         "entwurfBleibt": "Ihr Entwurf ist unverändert gespeichert. Nichts geht verloren, während Sie das nachtragen.",
         "unbekannteRegel": "Diese Angabe wurde beanstandet. Der Grund lässt sich hier nicht anzeigen; bitte melden Sie das.",
-        "alleBearbeitet": "Sie haben alle aufgeführten Angaben ausgefüllt. Ob damit alles stimmt, sagt Ihnen die erneute Prüfung.",
         "ausgefuellt": "ausgefüllt",
         "erneutPruefen": "Erneut prüfen",
         "prueftGerade": "Wird geprüft",
-        "schliessen": "Liste schließen",
         "inDiesemAbschnitt_one": "In diesem Abschnitt fehlt noch eine Angabe oder stimmt noch nicht.",
         "inDiesemAbschnitt_other": "In diesem Abschnitt fehlen noch {{count}} Angaben oder stimmen noch nicht.",
         "woanders_one": "In einem anderen Abschnitt ist noch eine offen; die Schrittleiste oben zeigt, wo.",
@@ -695,7 +693,10 @@
         "offenImAbschnitt_other": "offene Angaben in diesem Abschnitt",
         "offenImMenue_one": "1 offen",
         "offenImMenue_other": "{{count}} offen",
-        "stand": "Stand der Prüfung: {{zeitpunkt}} Uhr."
+        "stand": "Stand der Prüfung: {{zeitpunkt}} Uhr.",
+        "einklappen": "Einklappen",
+        "ausklappen": "Ausklappen",
+        "dieserAbschnittErledigt": "In diesem Abschnitt haben Sie alles nachgetragen. Ob damit alles stimmt, sagt Ihnen die erneute Prüfung."
       },
       "bereitsAbgesendet": {
         "text": "Dieses Protokoll ist bereits abgesendet. Es ist alles angekommen; Sie müssen nichts weiter tun.",

@@ -27,8 +27,17 @@ interface AbsendeErgebnisProps {
 function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisProps) {
   const { t } = useTranslation()
   const { getValues } = useFormContext<Antworten>()
-  const { verstoesse, geprueftAm, fehler, bereitsAbgesendet, absenden, verwerfen, laeuft } =
-    absendung
+  const {
+    verstoesse,
+    geprueftAm,
+    eingeklappt,
+    umschalten,
+    fehler,
+    bereitsAbgesendet,
+    absenden,
+    verwerfen,
+    laeuft,
+  } = absendung
 
   const fehlertext = useFehlertext(fehler)
   const istUngespeichert = fehler instanceof NichtGespeichert
@@ -71,7 +80,8 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
       artnamen={artnamenAus(getValues())}
       onErneutPruefen={absenden}
       laeuft={laeuft}
-      onSchliessen={verwerfen}
+      eingeklappt={eingeklappt}
+      onUmschalten={umschalten}
     />
   )
 }

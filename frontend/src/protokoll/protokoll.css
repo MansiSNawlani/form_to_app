@@ -890,3 +890,16 @@
   font-size: var(--step--1);
   font-weight: 600;
 }
+
+/* The fold arrow, which turns to point down while the list is open. */
+.absende-probleme__pfeil--offen {
+  transform: rotate(180deg);
+}
+
+/* When the check was made. Muted and last, because it qualifies the list rather
+   than being part of it, and it only matters once somebody wonders whether what
+   they are reading is still current. */
+.absende-probleme__stand {
+  color: var(--muted);
+  font-size: var(--step--1);
+}

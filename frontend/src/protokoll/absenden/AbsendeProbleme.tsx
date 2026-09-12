@@ -1,6 +1,7 @@
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import Button from '@mui/material/Button'
+import Collapse from '@mui/material/Collapse'
 import Link from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -11,6 +12,7 @@ import type { ParseKeys } from 'i18next'
 import { useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { ChevronIcon } from '../../components/icons'
 import { abschnittPfad } from '../abschnitte'
 import { optionen } from '../optionen'
 import { gruppiere, type Problem } from './gruppierung'
@@ -32,7 +34,11 @@ interface AbsendeProblemeProps {
   /** Check again against the server, the only authority on correctness. */
   onErneutPruefen: () => void
   laeuft: boolean
-  onSchliessen: () => void
+  /* Folded away, and remembered. There is deliberately no way to throw the list
+     away: closing it would destroy the one thing saying what is left, and
+     somebody who wants it out of the way wants it back afterwards. */
+  eingeklappt: boolean
+  onUmschalten: () => void
 }
 
 /* What is still missing or wrong, and where to go and fix it.
@@ -63,7 +69,8 @@ function AbsendeProbleme({
   artnamen,
   onErneutPruefen,
   laeuft,
-  onSchliessen,
+  eingeklappt,
+  onUmschalten,
 }: AbsendeProblemeProps) {
   const { t, i18n } = useTranslation()
   const panel = useRef<HTMLDivElement>(null)
@@ -84,7 +91,15 @@ function AbsendeProbleme({
   /* This section's entries, and nothing else. The rest are still counted, so the
      line below can say how much is left elsewhere without listing any of it. */
   const hier = gruppen.find((gruppe) => gruppe.nr === aktuelleNr)
-  const woanders = offen - (hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0)
+  const offenHier = hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0
+  const woanders = offen - offenHier
+
+  /* Everything this section was pulled up on has since been filled in, so its
+     entries go: a column of struck-through lines is nothing to work from. What
+     stays is one line saying so and the button that can actually confirm it,
+     which is the whole reason a finished section does not simply vanish and take
+     that button with it. */
+  const hierErledigt = hier !== undefined && offenHier === 0
 
   /* Focus moves here when a refusal arrives, and only then. Without it somebody
      pressing Absenden with the keyboard is left on a button whose page has
@@ -99,72 +114,95 @@ function AbsendeProbleme({
   if (hier === undefined && unverortet.length === 0) return null
 
   return (
-    <Alert severity="warning" ref={panel} tabIndex={-1} className="absende-probleme">
+    <Alert
+      severity={hierErledigt ? 'success' : 'warning'}
+      ref={panel}
+      tabIndex={-1}
+      className="absende-probleme"
+      action={
+        <Button
+          size="small"
+          color="inherit"
+          onClick={onUmschalten}
+          aria-expanded={!eingeklappt}
+          endIcon={
+            <ChevronIcon
+              className={eingeklappt ? undefined : 'absende-probleme__pfeil--offen'}
+              fontSize="small"
+              aria-hidden="true"
+            />
+          }
+        >
+          {eingeklappt
+            ? t('protokoll.absenden.probleme.ausklappen')
+            : t('protokoll.absenden.probleme.einklappen')}
+        </Button>
+      }
+    >
       <AlertTitle>{t('protokoll.absenden.probleme.titel')}</AlertTitle>
       <Typography variant="body2">
-        {offen === 0
-          ? t('protokoll.absenden.probleme.alleBearbeitet')
-          : t('protokoll.absenden.probleme.inDiesemAbschnitt', {
-              count: hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0,
-            })}
+        {hierErledigt
+          ? t('protokoll.absenden.probleme.dieserAbschnittErledigt')
+          : t('protokoll.absenden.probleme.inDiesemAbschnitt', { count: offenHier })}
         {woanders > 0 && ` ${t('protokoll.absenden.probleme.woanders', { count: woanders })}`}
       </Typography>
 
-      {hier !== undefined && (
-        <section>
-          <List dense disablePadding>
-            {hier.probleme.map((problem) => (
-              <ListItem
-                key={problem.pfad}
-                disableGutters
-                className={problem.erledigt ? 'absende-probleme__erledigt' : undefined}
-              >
-                <Link
-                  component={RouterLink}
-                  to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
+      <Collapse in={!eingeklappt}>
+        {hier !== undefined && !hierErledigt && (
+          <section>
+            <List dense disablePadding>
+              {hier.probleme.map((problem) => (
+                <ListItem
+                  key={problem.pfad}
+                  disableGutters
+                  className={problem.erledigt ? 'absende-probleme__erledigt' : undefined}
                 >
-                  {benenne(problem, artnamen, t)}
-                </Link>
-                {': '}
-                {problem.erledigt
-                  ? t('protokoll.absenden.probleme.ausgefuellt')
-                  : meldung(problem.schluessel)}
+                  <Link
+                    component={RouterLink}
+                    to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
+                  >
+                    {benenne(problem, artnamen, t)}
+                  </Link>
+                  {': '}
+                  {problem.erledigt
+                    ? t('protokoll.absenden.probleme.ausgefuellt')
+                    : meldung(problem.schluessel)}
+                </ListItem>
+              ))}
+            </List>
+          </section>
+        )}
+
+        {unverortet.length > 0 && (
+          <List dense disablePadding>
+            {unverortet.map((problem) => (
+              <ListItem key={problem.pfad} disableGutters>
+                {meldung(problem.schluessel)} {t('protokoll.absenden.probleme.ohneOrt')}
               </ListItem>
             ))}
           </List>
-        </section>
-      )}
+        )}
 
-      {unverortet.length > 0 && (
-        <List dense disablePadding>
-          {unverortet.map((problem) => (
-            <ListItem key={problem.pfad} disableGutters>
-              {meldung(problem.schluessel)} {t('protokoll.absenden.probleme.ohneOrt')}
-            </ListItem>
-          ))}
-        </List>
-      )}
+        <Typography variant="body2">{t('protokoll.absenden.probleme.entwurfBleibt')}</Typography>
 
-      <Typography variant="body2">{t('protokoll.absenden.probleme.entwurfBleibt')}</Typography>
+        {geprueftAm !== null && (
+          <Typography variant="body2" className="absende-probleme__stand">
+            {t('protokoll.absenden.probleme.stand', { zeitpunkt: standAnzeige(geprueftAm) })}
+          </Typography>
+        )}
 
-      {geprueftAm !== null && (
-        <Typography variant="body2" className="absende-probleme__stand">
-          {t('protokoll.absenden.probleme.stand', { zeitpunkt: standAnzeige(geprueftAm) })}
-        </Typography>
-      )}
-
-      <Stack direction="row" spacing={1} className="absende-probleme__aktionen">
-        {/* The only thing that can say a protocol is right. Ticking an entry off
-            above means a box is no longer empty, which is a smaller claim. */}
-        <Button variant="outlined" size="small" onClick={onErneutPruefen} disabled={laeuft}>
-          {laeuft
-            ? t('protokoll.absenden.probleme.prueftGerade')
-            : t('protokoll.absenden.probleme.erneutPruefen')}
-        </Button>
-        <Button size="small" onClick={onSchliessen}>
-          {t('protokoll.absenden.probleme.schliessen')}
-        </Button>
-      </Stack>
+        <Stack direction="row" spacing={1} className="absende-probleme__aktionen">
+          {/* The only thing that can say a protocol is right. Ticking an entry
+              off above means a box is no longer empty, which is a smaller claim,
+              and it is why a finished section keeps this button rather than
+              disappearing and taking it along. */}
+          <Button variant="outlined" size="small" onClick={onErneutPruefen} disabled={laeuft}>
+            {laeuft
+              ? t('protokoll.absenden.probleme.prueftGerade')
+              : t('protokoll.absenden.probleme.erneutPruefen')}
+          </Button>
+        </Stack>
+      </Collapse>
     </Alert>
   )
 }
