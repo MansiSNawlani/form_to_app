@@ -10,12 +10,17 @@ import pytest
 
 from app.formular.felder import formular
 from app.formular.pflicht import pflichtfelder
+from app.protokolle.formregeln.einfluesse import KEINE_EINFLUESSE, UNBEKANNT_EINFLUESSE
 from app.protokolle.formregeln.hydrologie import NICHT_ZUTREFFEND
 from app.protokolle.formregeln.prozent import PROZENTGRUPPEN
 from app.protokolle.formregeln.vollstaendigkeit import (
+    BEWIRTSCHAFTUNG_BLOCK,
     DAMM_NEIGUNG,
+    EINFLUSS_BLOCK,
     FEHLT,
     FEHLT_ART,
+    FEHLT_BEWIRTSCHAFTUNG,
+    FEHLT_EINFLUSS,
     FEHLT_PROZENTGRUPPE,
     pruefe_vollstaendigkeit,
 )
@@ -57,6 +62,11 @@ def vollstaendig(**abweichungen: str) -> dict[str, Any]:
     # owes a slope. Given here rather than zeroing the share, so the helper
     # exercises the conditional rather than stepping around it.
     setze(antworten, DAMM_NEIGUNG, "45")
+    # The two tick blocks of part 4. One tick each is the whole requirement: an
+    # unticked box is already an answer, so all that can be asked is that
+    # somebody went through the block.
+    setze(antworten, KEINE_EINFLUESSE, "Ja")
+    setze(antworten, "bewirschaftung.angelfischerei", "Ja")
     setze(antworten, "arten.art1.name", "SATR")
     for pfad, wert in abweichungen.items():
         setze(antworten, pfad.replace("__", "."), wert)
@@ -89,7 +99,7 @@ class TestGegenDasSeed:
         blueprint/context/pflichtfelder-vorschlag.md says it moves, and this test
         is what makes that a decision rather than a drift.
         """
-        assert len(PFLICHTFELDER_) == 42
+        assert len(PFLICHTFELDER_) == 50
 
     @pytest.mark.parametrize(
         "pfad", ["probestrecke.untere", "probestrecke.obere", "ausruestung.leistung"]
@@ -142,12 +152,14 @@ class TestEinVollstaendigesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld(self) -> None:
         gemeldet = fehlende_pfade({})
-        # The flat list first, then the six percentage blocks, then the catch
-        # table. The dam's slope is absent: its share is unanswered too, and one
-        # unanswered question earns one message.
+        # The flat list first, then the six percentage blocks, then the two tick
+        # blocks, then the catch table. The dam's slope is absent: its share is
+        # unanswered too, and one unanswered question earns one message.
         assert gemeldet == [
             *PFLICHTFELDER_,
             *(gruppe.id for gruppe in PROZENTGRUPPEN),
+            EINFLUSS_BLOCK,
+            BEWIRTSCHAFTUNG_BLOCK,
             "tabelle.arten",
         ]
 
@@ -160,7 +172,13 @@ class TestEinLeeresProtokoll:
 
     def test_jede_meldung_traegt_denselben_schluessel(self) -> None:
         verstoesse = pruefe_vollstaendigkeit({})
-        assert {v.schluessel for v in verstoesse} == {FEHLT, FEHLT_ART, FEHLT_PROZENTGRUPPE}
+        assert {v.schluessel for v in verstoesse} == {
+            FEHLT,
+            FEHLT_ART,
+            FEHLT_PROZENTGRUPPE,
+            FEHLT_EINFLUSS,
+            FEHLT_BEWIRTSCHAFTUNG,
+        }
 
 
 class TestEinzelneFehlendeAntworten:
@@ -244,11 +262,29 @@ class TestWasNichtVerlangtWird:
             "ufer.wurzeln",
         ]
 
-    def test_verlangt_nichts_aus_teil_4(self) -> None:
-        assert not [
+    def test_verlangt_aus_teil_4_nur_was_vereinbart_ist(self) -> None:
+        """Reversed on 2026-09-12: part 4 used to require nothing at all.
+
+        The eight ratings are listed, because each is one answer in one field.
+        The two tick blocks are not, because a list cannot say "at least one of
+        these": they are rules, and so are the stocking rows, which stay optional
+        until somebody starts one.
+        """
+        aus_teil_4 = [
             pfad
             for pfad in PFLICHTFELDER_
-            if pfad.startswith(("strukturen.", "einfluesse.", "bewirschaftung.", "besatz"))
+            if pfad.startswith(("strukturen.", "einfluesse.", "bewirschaftung."))
+        ]
+
+        assert aus_teil_4 == [
+            "strukturen.totholz",
+            "strukturen.wurzeln_strukturen",
+            "strukturen.aeste",
+            "strukturen.schilf",
+            "strukturen.submerse_makrophyten",
+            "strukturen.schwimmblattpflanzen",
+            "strukturen.emerse_makrophyten",
+            "strukturen.sonstige_strukturen",
         ]
 
     def test_verlangt_keine_bemerkungen(self) -> None:
@@ -337,3 +373,107 @@ class TestDammneigung:
         setze(antworten, DAMM_NEIGUNG, "45")
 
         assert DAMM_NEIGUNG not in fehlende_pfade(antworten)
+
+
+class TestTeil4:
+    """Part 4 required nothing at all until 2026-09-12."""
+
+    def test_die_acht_strukturen_werden_verlangt(self) -> None:
+        gemeldet = fehlende_pfade({})
+
+        assert [pfad for pfad in gemeldet if pfad.startswith("strukturen.")] == [
+            "strukturen.totholz",
+            "strukturen.wurzeln_strukturen",
+            "strukturen.aeste",
+            "strukturen.schilf",
+            "strukturen.submerse_makrophyten",
+            "strukturen.schwimmblattpflanzen",
+            "strukturen.emerse_makrophyten",
+            "strukturen.sonstige_strukturen",
+        ]
+
+    def test_eine_null_ist_eine_antwort(self) -> None:
+        # The scale is 0 = keine, 1 = wenig, 2 = verbreitet, 3 = dominierend, so
+        # a stretch with no dead wood answers 0 rather than leaving it blank.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "strukturen.totholz", "0")
+
+        assert "strukturen.totholz" not in fehlende_pfade(antworten)
+
+
+class TestHakenbloecke:
+    """At least one tick, never all of them.
+
+    An unticked box is already an answer: leaving Badebetrieb alone says there is
+    no bathing here. Requiring every box would demand that every stretch carries
+    every influence at once.
+    """
+
+    def test_ein_leerer_einflussblock_wird_gemeldet(self) -> None:
+        assert EINFLUSS_BLOCK in fehlende_pfade({})
+
+    def test_eine_genannte_nutzung_reicht(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "einfluesse.wasserkraft", "Ja")
+
+        assert EINFLUSS_BLOCK not in fehlende_pfade(antworten)
+
+    def test_keine_erkennbar_ist_auch_eine_antwort(self) -> None:
+        # The whole reason that box exists. A stretch with nothing on it is
+        # answered, not skipped.
+        antworten: dict[str, Any] = {}
+        setze(antworten, KEINE_EINFLUESSE, "Ja")
+
+        assert EINFLUSS_BLOCK not in fehlende_pfade(antworten)
+
+    def test_unbekannt_ist_auch_eine_antwort(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, UNBEKANNT_EINFLUESSE, "Ja")
+
+        assert EINFLUSS_BLOCK not in fehlende_pfade(antworten)
+
+    def test_ein_leerer_bewirtschaftungsblock_wird_gemeldet(self) -> None:
+        assert BEWIRTSCHAFTUNG_BLOCK in fehlende_pfade({})
+
+    def test_ein_haken_bei_der_bewirtschaftung_reicht(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "bewirschaftung.angelfischerei", "Ja")
+
+        assert BEWIRTSCHAFTUNG_BLOCK not in fehlende_pfade(antworten)
+
+
+class TestBesatzzeilen:
+    """The rows stay optional; a row somebody started has to be finished."""
+
+    def test_leere_zeilen_werden_nicht_verlangt(self) -> None:
+        gemeldet = fehlende_pfade({})
+
+        assert not [pfad for pfad in gemeldet if "besatz" in pfad]
+
+    def test_eine_angefangene_zeile_muss_fertig_werden(self) -> None:
+        # "2024" with no species and no size class is a record nobody can use,
+        # and it reads as a complete answer to whoever receives it.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "bewirschaftung.besatz1_jahr", "2024")
+
+        gemeldet = fehlende_pfade(antworten)
+
+        assert "bewirschaftung.besatz_fischart1" in gemeldet
+        assert "bewirschaftung.besatz1_groessenklassen" in gemeldet
+        assert "bewirschaftung.besatz1_jahr" not in gemeldet
+
+    def test_eine_vollstaendige_zeile_ist_in_ordnung(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "bewirschaftung.besatz_fischart1", "BFOR")
+        setze(antworten, "bewirschaftung.besatz1_groessenklassen", "Brut")
+        setze(antworten, "bewirschaftung.besatz1_jahr", "2024")
+
+        assert not [pfad for pfad in fehlende_pfade(antworten) if "besatz" in pfad]
+
+    def test_eine_angefangene_zeile_zieht_die_anderen_nicht_mit(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "bewirschaftung.besatz1_jahr", "2024")
+
+        gemeldet = fehlende_pfade(antworten)
+
+        assert not [pfad for pfad in gemeldet if "besatz2" in pfad or "fischart2" in pfad]

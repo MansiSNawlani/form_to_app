@@ -304,7 +304,7 @@ steps below are grouped by the kind of rule rather than by how many fields they 
       totalling 100 passing, a dam share of 0 not demanding a slope, and a dam share of 30
       demanding one. The panel groups all six under section 3.
 
-- [ ] **Step 12 - Part 4, the ratings and the tick groups** - the eight Strukturen ratings
+- [x] **Step 12 - Part 4, the ratings and the tick groups** - the eight Strukturen ratings
       each need a value, and 0 means "none" so there is always an answer. Einflüsse and
       Bewirtschaftung need at least one tick each, never all of them: Einflüsse has "keine
       (erkennbar)" and "unbekannt" precisely so the block can be answered when there is

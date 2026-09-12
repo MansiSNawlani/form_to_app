@@ -57,6 +57,8 @@ class TestEinLeeresProtokoll:
         assert gemeldet == [
             *PFLICHTFELDER_,
             *(gruppe.id for gruppe in PROZENTGRUPPEN),
+            "block.einfluesse",
+            "block.bewirtschaftung",
             "tabelle.arten",
         ]
 
@@ -68,6 +70,10 @@ class TestEinLeeresProtokoll:
             "protokoll.regeln.fehlt",
             "protokoll.regeln.fehltArt",
             "protokoll.regeln.fehltProzentgruppe",
+            # The broken fixture ticks a use, so the Einfluss block is answered;
+            # the Bewirtschaftung block is not touched at all.
+            "protokoll.regeln.fehltBewirtschaftung",
+            "protokoll.regeln.fehltEinfluss",
         }
 
 
@@ -78,6 +84,9 @@ class TestEinKaputtesProtokoll:
             # Five of the six blocks are untouched; the sixth was started and
             # comes to 43, which is the other rule's complaint below.
             "protokoll.regeln.fehltProzentgruppe",
+            # The broken fixture ticks a use, so the Einfluss block is answered;
+            # the Bewirtschaftung block is not touched at all.
+            "protokoll.regeln.fehltBewirtschaftung",
             "protokoll.regeln.monitoringnummerPflicht",
             "protokoll.regeln.vorfluterKeinEndpunkt",
             "protokoll.regeln.koordinateRechtswertAusserhalb",

@@ -293,6 +293,14 @@ const KOMBINATIONEN: Record<string, { abschnitt: Abschnittsnummer; labelKey: Par
   [ANODEN_PAAR]: { abschnitt: 5, labelKey: 'protokoll.abschnitt5.ausruestung.legend' },
   [LAENGE_PAAR]: { abschnitt: 5, labelKey: 'protokoll.abschnitt5.bereiche.legend' },
   [BREITE_PAAR]: { abschnitt: 5, labelKey: 'protokoll.abschnitt5.bereiche.legend' },
+  'block.einfluesse': {
+    abschnitt: 4,
+    labelKey: 'protokoll.abschnitt4.einfluesse.legend',
+  },
+  'block.bewirtschaftung': {
+    abschnitt: 4,
+    labelKey: 'protokoll.abschnitt4.bewirtschaftung.legend',
+  },
   'tabelle.arten': { abschnitt: 6, labelKey: 'protokoll.abschnitt6.tabelle.legend' },
 }
 

@@ -98,6 +98,22 @@ VOLLSTAENDIG: dict[str, Any] = {
         "steine": "10",
         "keine_sohlverbauung": "100",
     },
+    # Part 4, required from 2026-09-12. A rating of 0 means "none of this here",
+    # so every one of the eight has an answer to give.
+    "strukturen": {
+        "totholz": "2",
+        "wurzeln_strukturen": "2",
+        "aeste": "1",
+        "schilf": "0",
+        "submerse_makrophyten": "1",
+        "schwimmblattpflanzen": "0",
+        "emerse_makrophyten": "0",
+        "sonstige_strukturen": "0",
+    },
+    # One tick is enough, and on this stretch there is one real use. The block
+    # could equally be answered with "keine (erkennbar)".
+    "einfluesse": {"wasserkraft": "Ja"},
+    "bewirschaftung": {"angelfischerei": "Ja"},
     "ausruestung": {
         "egeraet": "EFKO FEG 8000",
         "spannung": "350",
