@@ -39,7 +39,6 @@ function AnlassBlock() {
           liste="anlass"
           labelKey="protokoll.abschnitt1.anlass.feld.anlass"
           spalten={5}
-          pflicht
         />
         {/* 722 monitoring numbers, so a search rather than a dropdown. The
             marker follows the Anlass rather than standing there always, because
@@ -58,7 +57,6 @@ function AnlassBlock() {
           liste="z.rp"
           labelKey="protokoll.abschnitt1.anlass.feld.rp"
           spalten={3}
-          pflicht
         />
 
         <FeldDatum
@@ -66,14 +64,12 @@ function AnlassBlock() {
           art="datum"
           labelKey="protokoll.abschnitt1.anlass.feld.datum"
           spalten={3}
-          pflicht
         />
         <FeldDatum
           name="messdaten.uhrzeit"
           art="uhrzeit"
           labelKey="protokoll.abschnitt1.anlass.feld.uhrzeit"
           spalten={3}
-          pflicht
         />
         <FeldAuswahl
           name="z.quelle"

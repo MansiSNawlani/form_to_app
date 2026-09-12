@@ -9,43 +9,32 @@ untouched is never wrong on its own. That is right for a document somebody is
 still filling in over several sittings, and useless the moment they press
 Absenden.
 
-Requiredness in the browser is a red asterisk and nothing else. The pflicht prop
-appears 32 times across six block components, covers parts 1, 2 and 5, and is
-enforced nowhere. This module is the enforcing half, and 11c is where the panel
-listing what is still missing starts reading this answer instead of the
-asterisks, so that the two stop being separate truths.
+**Where the list lives.** Not here. It is read from pflichtfelder.json in the
+seed directory, through app/formular/pflicht.py, and the browser reads the same
+file to decide which fields carry an asterisk. Until feature 11c it lived twice,
+as a tuple here and as 32 props scattered through the form's components, and the
+two had already drifted: a field marked required on screen that nothing checked
+looks exactly like one that works. On 2026-09-12 the required set was widened to
+cover all six parts, and that was the moment to stop keeping two copies of it.
 
-The list below is those 32 markers and nothing besides. Anywhere it looks
-thinner than expected, the asterisk is what is missing, and widening the gate
-quietly is how the two halves would start disagreeing about what a finished
-protocol is.
+**What stays here** is everything a list cannot say. Requiredness on this form
+depends on other answers often enough that a flat set was never going to be the
+whole story: the Monitoringstrecken-Nr. is needed only for a monitoring
+occasion, the dam's slope only where there is a dam, the ring anodes' diameter
+only if ring anodes were used, and a "sonstige ..., welche?" box only when its
+own tick is set. Those are rules, and they live beside the other rules.
 
-Written as a rule rather than a table of flags because requiredness here depends
-on other answers. The Monitoringstrecken-Nr. is needed only for a monitoring
-occasion, and the hydrology block only on flowing water. A flat list of paths
-could express neither.
-
-What parts 3, 4 and 6 require
-
-Nothing marks them in the browser, so this was decided rather than read off, on
-2026-09-11:
-
-- **Parts 3 and 4 require nothing.** The legacy form demands neither, and
-  requiring them would be new policy FFS never asked for, which would block
-  somebody filing a protocol the paper form would have accepted. The existing
-  rules still catch a half-finished percentage run: start one and it has to
-  total 100. Worth putting to FFS rather than settling here.
-- **Part 6 requires one named species.** A protocol that names no species and no
-  "kein Nachweis" code is not a survey result: it reports neither a catch nor the
-  absence of one. project-overview.md half-states this already, and
-  artenliste.pruefe_fang_ohne_nachweis_code assumes somebody named something.
+Part 6 requires one named species. A protocol that names no species and no "kein
+Nachweis" code is not a survey result: it reports neither a catch nor the absence
+of one. project-overview.md half-states this already, and
+artenliste.pruefe_fang_ohne_nachweis_code assumes somebody named something.
 """
 
 from collections.abc import Mapping
 from typing import Any
 
+from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln.artenliste import benannte_arten
-from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER
 from app.protokolle.formregeln.regel import ARTEN_TABELLE, Formverstoss, ist_leer, wert_aus
 
 # One key for every missing field. The path already says which field it is, and
@@ -57,66 +46,6 @@ FEHLT = "protokoll.regeln.fehlt"
 # under a grid of 338 cells. What is missing there is an answer, not a value.
 FEHLT_ART = "protokoll.regeln.fehltArt"
 
-# Part 1. The occasion, who surveyed, and where.
-#
-# The Monitoringstrecken-Nr. is deliberately absent even though it carries an
-# asterisk: monitoring.py already demands it for a WRRL or FFH occasion, and
-# listing it here too would put two messages on one empty box.
-TEIL_1 = (
-    "anlass",
-    "z.rp",
-    "datum",
-    "messdaten.uhrzeit",
-    "bearbeiter.name",
-    "bearbeiter.email",
-    "probestrecke.gewaesser.gewaessername",
-    "probestrecke.gewaessertyp",
-    "probestrecke.laenge",
-    "probestrecke.ortsangabe",
-    "probestrecke.gewaesser.vorfluter1",
-    "probestrecke.utm_rw_unten",
-    "probestrecke.utm_hw_unten",
-    "probestrecke.utm_rw_oben",
-    "probestrecke.utm_hw_oben",
-)
-
-# Deliberately absent: probestrecke.untere and probestrecke.obere, the landmark
-# each boundary is described by. They carry no asterisk, so requiring them would
-# widen the gate past what the form promises. Worth asking FFS, since a landmark
-# is what somebody uses to find the same stretch next year and a coordinate
-# alone is harder to stand in front of.
-
-# Part 2's measurements, which are taken on any water.
-TEIL_2_MESSDATEN = (
-    "messdaten.temperatur",
-    "messdaten.leitfaehigkeit",
-    "messdaten.regenfaelle",
-    "messdaten.truebung",
-    "messdaten.schaumbildung",
-)
-
-# Part 2's nine hydrology pickers, required on every water including a standing
-# one. On a pond the only answer they may hold is the marking that says the
-# section does not apply, which hydrologie.py enforces and the browser writes by
-# itself; requiring them here is what makes that marking actually have to be
-# there. The two estimates underneath the width and depth bands are not
-# required: an estimate only ever refines a band.
-#
-# Read off hydrologie.py rather than listed again, minus the two estimates, so a
-# band added to the block cannot be required in one file and forgotten in the
-# other.
-TEIL_2_HYDROLOGIE = tuple(
-    f"hydrologie.{feld}" for feld in MARKIERTE_FELDER if not feld.endswith("_schaetzwert")
-)
-
-# Part 5. The device, what it was run at, and how it was built.
-# Deliberately without ausruestung.leistung, which carries no asterisk either.
-TEIL_5 = (
-    "ausruestung.egeraet",
-    "ausruestung.bauweise",
-)
-
-PFLICHTFELDER = (*TEIL_1, *TEIL_2_MESSDATEN, *TEIL_2_HYDROLOGIE, *TEIL_5)
 
 
 def pruefe_vollstaendigkeit(antworten: Mapping[str, Any]) -> list[Formverstoss]:
@@ -126,7 +55,9 @@ def pruefe_vollstaendigkeit(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     somebody walks the protocol.
     """
     fehlend = [
-        Formverstoss(pfad, FEHLT) for pfad in PFLICHTFELDER if ist_leer(wert_aus(antworten, pfad))
+        Formverstoss(pfad, FEHLT)
+        for pfad in pflichtfelder().pfade
+        if ist_leer(wert_aus(antworten, pfad))
     ]
 
     if not benannte_arten(antworten):

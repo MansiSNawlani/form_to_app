@@ -255,6 +255,84 @@ parts 3 to 5 do. A test pins every key to the locale file, so a key that never e
 fails; a key changed in the component and not here would not. Declaring those three sections
 the way the others are declared would close it and is a refactor of its own.
 
+## Steps 9 to 14 - what a finished protocol must actually contain
+
+Added on 2026-09-12, after Mansi said that all mandatory fields must be filled before a
+protocol can be submitted and that this was not the case as built. It was not: 31 fields
+were enforced out of roughly 156, and parts 3 and 4 enforced nothing at all.
+
+The agreed scope is all six parts, and the field-by-field list is in
+[pflichtfelder-vorschlag.md](pflichtfelder-vorschlag.md), approved on 2026-09-12. Read it
+before starting any step below; it carries the reasoning that these steps only reference.
+
+**Why this is not simply a longer list.** About a third of the form is tick boxes, where an
+unticked box is already an answer, and several fields are alternatives rather than
+companions. So requiredness has to be expressed as conditions, not as one flat set, and the
+steps below are grouped by the kind of rule rather than by how many fields they touch.
+
+- [x] **Step 9 - One list, read by both halves** - the root cause first. Requiredness lives
+      today as 32 `pflicht` props scattered through the section components and a separate
+      31-path tuple in `vollstaendigkeit.py`, and nothing holds the two together. Put the
+      plain required paths in
+      `database/seed/form_version_20260609/pflichtfelder.json`, which the backend already
+      reads through `FORMULAR_SEED_DIR` and the browser already reaches through its
+      `@formular` alias, so neither half needs new plumbing. `FeldRahmen` marks a field
+      required when the list says so, and `pflicht` survives only as an override for the
+      conditional cases. Update the seed README, which currently says everything in that
+      directory is generated: this file is hand-authored, because the PDF carries no
+      required flag at all.
+      *Done when:* the file starts as exactly today's 31 paths, so nothing changes yet;
+      `pytest` still reports the same 31 and its count test still passes; the form still
+      shows exactly the asterisks it shows now; and a test in each half proves it is reading
+      that file rather than a copy.
+
+- [ ] **Step 10 - The plain additions in parts 1, 2 and 5** - data, not logic, now that step
+      9 has somewhere to put it. Adds the two boundary landmarks, the estimated Sichttiefe,
+      the voltage, the power output, the cathode type and the anode leader's two names. This
+      answers all three questions feature 11a left open for FFS.
+      *Done when:* `pytest` shows a protocol missing any one of the eight named as missing;
+      the eight carry an asterisk on screen without any component being edited, which is
+      step 9's promise being kept; the count test moves from 31 to 39 deliberately.
+
+- [ ] **Step 11 - Part 3, where nothing is required today** - the six percentage blocks
+      become compulsory rather than "correct if touched", which is a new rule: `prozent.py`
+      currently says nothing at all about an untouched block. Plus Randstreifen, the dam's
+      share of the stretch, and the share of bank with roots in the water. And the first
+      conditional: the dam's slope is required only when the dam share is above 0, because
+      there is no slope where there is no dam.
+      *Done when:* `pytest` covers an untouched block being reported as missing, a block
+      totalling 100 passing, a dam share of 0 not demanding a slope, and a dam share of 30
+      demanding one. The panel groups all six under section 3.
+
+- [ ] **Step 12 - Part 4, the ratings and the tick groups** - the eight Strukturen ratings
+      each need a value, and 0 means "none" so there is always an answer. Einflüsse and
+      Bewirtschaftung need at least one tick each, never all of them: Einflüsse has "keine
+      (erkennbar)" and "unbekannt" precisely so the block can be answered when there is
+      nothing to report. The Besatz rows stay optional, but a row with anything in it must
+      be complete.
+      *Done when:* `pytest` covers a rating of 0 counting as answered, an untouched
+      Strukturen block reporting eight missing ratings, an Einflüsse block with only
+      "unbekannt" ticked passing, an empty Einflüsse block failing, and a Besatz row holding
+      a year but no species failing.
+
+- [ ] **Step 13 - Part 5's conditionals** - the ring anodes' diameter is required only when
+      ring anodes were used, and each fished-area row that carries a length needs at least
+      one direction and at least one method. A row that was not fished stays empty
+      throughout.
+      *Done when:* `pytest` covers strip anodes alone not demanding a ring diameter, three
+      ring anodes demanding one, a fished row with a length and no direction failing, and
+      the unused second row staying silent.
+
+- [ ] **Step 14 - "sonstige ..., welche?" and the final agreement** - the four free-text
+      boxes that name something become required exactly when their own tick is set, and stay
+      optional otherwise. Then the pass that closes the whole complaint: a test proving the
+      set the server enforces and the set the screen marks are the same set, conditional
+      cases included.
+      *Done when:* `pytest` covers a ticked "sonstige Nutzung" with an empty text box
+      failing and an unticked one passing; the agreement test fails if a path is added to
+      one half only; `npm test`, `npm run lint`, `npm run build`, `pytest`, `ruff check .`
+      and `mypy .` all pass.
+
 ## Files / areas
 
 **Backend, new**

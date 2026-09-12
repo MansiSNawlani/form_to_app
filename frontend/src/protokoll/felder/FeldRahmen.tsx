@@ -4,6 +4,7 @@ import FormLabel from '@mui/material/FormLabel'
 import type { ParseKeys } from 'i18next'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { istPflichtfeld } from './pflicht'
 import { fehlerId, hinweisId, labelId, type FeldRahmenProps } from './rahmen'
 
 /* What every field on the protocol has in common: a grid column, a label above
@@ -36,10 +37,18 @@ function FeldRahmen({
 }) {
   const { t } = useTranslation()
 
+  /* The asterisk comes from the shared required list unless the caller has an
+     answer of its own. A field whose requiredness depends on another answer, such
+     as the Monitoringstrecken-Nr. under a WRRL occasion, passes its own; every
+     plain one says nothing and gets the list's answer. That is what stops the
+     marker on screen and the gate at submit from drifting apart, which they had
+     already done before feature 11c read both from one file. */
+  const istPflicht = pflicht ?? istPflichtfeld(id)
+
   return (
     <FormControl
       className={`field col-${spalten}`}
-      required={pflicht}
+      required={istPflicht}
       /* Carries the error state down to the label, the control and the message
          through MUI's own FormControl context, which is why none of them needs
          telling separately. */

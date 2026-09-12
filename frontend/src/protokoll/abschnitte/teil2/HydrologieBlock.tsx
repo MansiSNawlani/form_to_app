@@ -38,7 +38,6 @@ function HydrologieBlock() {
           einheit={t('protokoll.felder.einheit.meter')}
           labelKey="protokoll.abschnitt2.hydrologie.feld.breite"
           spalten={12}
-          pflicht
         />
         {/* Under the bands rather than beside them, following the printed form.
             It refines the band, so it is a field of its own and not an option.
@@ -60,7 +59,6 @@ function HydrologieBlock() {
           einheit={t('protokoll.felder.einheit.meter')}
           labelKey="protokoll.abschnitt2.hydrologie.feld.tiefe"
           spalten={12}
-          pflicht
         />
         <FeldText
           name="hydrologie.tiefe_schaetzwert"
@@ -76,7 +74,6 @@ function HydrologieBlock() {
           liste="hydrologie.tiefenvarianz"
           labelKey="protokoll.abschnitt2.hydrologie.feld.tiefenvarianz"
           spalten={12}
-          pflicht
         >
           <FeldHaken
             name="hydrologie.mit_flachstellen"
@@ -93,7 +90,6 @@ function HydrologieBlock() {
           liste="hydrologie.linienfuehrung"
           labelKey="protokoll.abschnitt2.hydrologie.feld.linienfuehrung"
           spalten={12}
-          pflicht
         >
           <FeldHaken
             name="hydrologie.furkationen"
@@ -106,7 +102,6 @@ function HydrologieBlock() {
           liste="hydrologie.stroemung"
           labelKey="protokoll.abschnitt2.hydrologie.feld.stroemung"
           spalten={12}
-          pflicht
         >
           <FeldHaken
             name="hydrologie.rueckstroemung"
@@ -120,14 +115,12 @@ function HydrologieBlock() {
           einheit={t('protokoll.felder.einheit.meterProSekunde')}
           labelKey="protokoll.abschnitt2.hydrologie.feld.fliessgeschwindigkeit"
           spalten={12}
-          pflicht
         />
         <FeldRadio
           name="hydrologie.wasserfuehrung"
           liste="hydrologie.wasserfuehrung"
           labelKey="protokoll.abschnitt2.hydrologie.feld.wasserfuehrung"
           spalten={12}
-          pflicht
         />
         <FeldRadio
           name="hydrologie.stillwasserbereich"
@@ -135,14 +128,12 @@ function HydrologieBlock() {
           einheit={t('protokoll.felder.einheit.prozent')}
           labelKey="protokoll.abschnitt2.hydrologie.feld.stillwasserbereich"
           spalten={12}
-          pflicht
         />
         <FeldRadio
           name="hydrologie.gesamtprofil"
           liste="hydrologie.gesamtprofil"
           labelKey="protokoll.abschnitt2.hydrologie.feld.gesamtprofil"
           spalten={12}
-          pflicht
         />
       </div>
     </fieldset>

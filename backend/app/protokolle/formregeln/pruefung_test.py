@@ -12,11 +12,15 @@ from typing import Any
 
 import pytest
 
+from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
 from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER, NICHT_ZUTREFFEND
-from app.protokolle.formregeln.vollstaendigkeit import PFLICHTFELDER
 from app.protokolle.regeln import pruefe_antworten
+
+#: The required list as the application reads it, out of the seed file the browser
+#: reads too. Bound at module level so the parametrised cases below can use it.
+PFLICHTFELDER_ = pflichtfelder().pfade
 
 # The browser's German locale, which is the authority on what a valid key is.
 # Reached by path rather than by import for the obvious reason: this is the
@@ -49,7 +53,7 @@ class TestEinEchtesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld_und_die_tabelle(self) -> None:
         gemeldet = [verstoss.pfad for verstoss in pruefe_protokoll({})]
-        assert gemeldet == [*PFLICHTFELDER, "tabelle.arten"]
+        assert gemeldet == [*PFLICHTFELDER_, "tabelle.arten"]
 
     def test_meldet_sonst_nichts(self) -> None:
         # An empty document is unfinished, not wrong. Every rule but the

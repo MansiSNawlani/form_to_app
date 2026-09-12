@@ -9,13 +9,23 @@ from typing import Any
 import pytest
 
 from app.formular.felder import formular
+from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln.hydrologie import NICHT_ZUTREFFEND
 from app.protokolle.formregeln.vollstaendigkeit import (
     FEHLT,
     FEHLT_ART,
-    PFLICHTFELDER,
-    TEIL_2_HYDROLOGIE,
     pruefe_vollstaendigkeit,
+)
+
+#: The required list as the application reads it, out of the seed file the browser
+#: reads too. Bound at module level so the parametrised cases below can use it.
+PFLICHTFELDER_ = pflichtfelder().pfade
+
+#: The nine hydrology pickers among them, which several cases below work with as a
+#: group. Derived rather than listed, so a band added to the block cannot be
+#: required in one place and forgotten here.
+HYDROLOGIE_PFLICHT = tuple(
+    pfad for pfad in PFLICHTFELDER_ if pfad.startswith("hydrologie.")
 )
 
 
@@ -30,7 +40,7 @@ def setze(antworten: dict[str, Any], pfad: str, wert: str) -> None:
 def vollstaendig(**abweichungen: str) -> dict[str, Any]:
     """A protocol with every required answer given, plus one named species."""
     antworten: dict[str, Any] = {}
-    for pfad in PFLICHTFELDER:
+    for pfad in PFLICHTFELDER_:
         setze(antworten, pfad, "1")
     setze(antworten, "arten.art1.name", "SATR")
     for pfad, wert in abweichungen.items():
@@ -45,21 +55,21 @@ def fehlende_pfade(antworten: dict[str, Any]) -> list[str]:
 class TestGegenDasSeed:
     def test_jedes_pflichtfeld_gibt_es_im_formular(self) -> None:
         pfade = formular().pfade
-        for pfad in PFLICHTFELDER:
+        for pfad in PFLICHTFELDER_:
             assert pfad in pfade, pfad
 
     def test_kein_feld_steht_zweimal_in_der_liste(self) -> None:
-        assert len(set(PFLICHTFELDER)) == len(PFLICHTFELDER)
+        assert len(set(PFLICHTFELDER_)) == len(PFLICHTFELDER_)
 
     def test_die_monitoringnummer_steht_nicht_in_der_liste(self) -> None:
         # monitoring.py already demands it for a WRRL or FFH occasion, and
         # listing it here too would put two messages on one empty box.
-        assert "probestrecke.monitoringnummer" not in PFLICHTFELDER
+        assert "probestrecke.monitoringnummer" not in PFLICHTFELDER_
 
     def test_so_viele_felder_wie_sterne_im_formular(self) -> None:
         # 32 pflicht markers in the block components, minus the
         # Monitoringstrecken-Nr., which monitoring.py owns.
-        assert len(PFLICHTFELDER) == 31
+        assert len(PFLICHTFELDER_) == 31
 
     @pytest.mark.parametrize(
         "pfad", ["probestrecke.untere", "probestrecke.obere", "ausruestung.leistung"]
@@ -69,14 +79,14 @@ class TestGegenDasSeed:
         # them would widen the gate past what the form promises, which is how
         # the two halves would start disagreeing about what a finished protocol
         # is. Worth asking FFS rather than deciding here.
-        assert pfad not in PFLICHTFELDER
+        assert pfad not in PFLICHTFELDER_
 
     def test_die_schaetzwerte_stehen_nicht_in_der_liste(self) -> None:
         # An estimate only ever refines a band.
-        assert not [pfad for pfad in PFLICHTFELDER if pfad.endswith("_schaetzwert")]
+        assert not [pfad for pfad in PFLICHTFELDER_ if pfad.endswith("_schaetzwert")]
 
     def test_neun_hydrologiefelder(self) -> None:
-        assert len(TEIL_2_HYDROLOGIE) == 9
+        assert len(HYDROLOGIE_PFLICHT) == 9
 
 
 class TestEinVollstaendigesProtokoll:
@@ -87,7 +97,7 @@ class TestEinVollstaendigesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld(self) -> None:
         gemeldet = fehlende_pfade({})
-        assert gemeldet == [*PFLICHTFELDER, "tabelle.arten"]
+        assert gemeldet == [*PFLICHTFELDER_, "tabelle.arten"]
 
     def test_meldet_in_formularreihenfolge(self) -> None:
         # The panel in 11c lists these, so they come in the order somebody
@@ -102,7 +112,7 @@ class TestEinLeeresProtokoll:
 
 
 class TestEinzelneFehlendeAntworten:
-    @pytest.mark.parametrize("pfad", PFLICHTFELDER)
+    @pytest.mark.parametrize("pfad", PFLICHTFELDER_)
     def test_meldet_jedes_einzelne_geleerte_feld(self, pfad: str) -> None:
         antworten = vollstaendig()
         setze(antworten, pfad, "")
@@ -125,13 +135,13 @@ class TestDieHydrologieAmStillgewaesser:
         # The browser writes the marking by itself. Requiring the fields is
         # what makes the marking actually have to be there.
         antworten = vollstaendig(probestrecke__gewaessertyp="21")
-        for pfad in TEIL_2_HYDROLOGIE:
+        for pfad in HYDROLOGIE_PFLICHT:
             setze(antworten, pfad, "")
-        assert fehlende_pfade(antworten) == list(TEIL_2_HYDROLOGIE)
+        assert fehlende_pfade(antworten) == list(HYDROLOGIE_PFLICHT)
 
     def test_die_markierung_zaehlt_als_antwort(self) -> None:
         antworten = vollstaendig(probestrecke__gewaessertyp="26")
-        for pfad in TEIL_2_HYDROLOGIE:
+        for pfad in HYDROLOGIE_PFLICHT:
             setze(antworten, pfad, NICHT_ZUTREFFEND)
         assert pruefe_vollstaendigkeit(antworten) == []
 
@@ -164,15 +174,15 @@ class TestWasNichtVerlangtWird:
     def test_verlangt_nichts_aus_teil_3(self) -> None:
         # Decided on 2026-09-11: requiring the habitat blocks would be new
         # policy FFS never asked for.
-        assert not [pfad for pfad in PFLICHTFELDER if pfad.startswith(("umland.", "ufer."))]
-        assert not [pfad for pfad in PFLICHTFELDER if pfad.startswith("gewaessersohle.")]
+        assert not [pfad for pfad in PFLICHTFELDER_ if pfad.startswith(("umland.", "ufer."))]
+        assert not [pfad for pfad in PFLICHTFELDER_ if pfad.startswith("gewaessersohle.")]
 
     def test_verlangt_nichts_aus_teil_4(self) -> None:
         assert not [
             pfad
-            for pfad in PFLICHTFELDER
+            for pfad in PFLICHTFELDER_
             if pfad.startswith(("strukturen.", "einfluesse.", "bewirschaftung.", "besatz"))
         ]
 
     def test_verlangt_keine_bemerkungen(self) -> None:
-        assert not [pfad for pfad in PFLICHTFELDER if "bemerkung" in pfad]
+        assert not [pfad for pfad in PFLICHTFELDER_ if "bemerkung" in pfad]
