@@ -69,6 +69,9 @@ def vollstaendig(**abweichungen: str) -> dict[str, Any]:
     # The two tick blocks of part 4. One tick each is the whole requirement: an
     # unticked box is already an answer, so all that can be asked is that
     # somebody went through the block.
+    # The loop above rates "sonstige Strukturen" a 1, so the protocol asserts
+    # there are some and owes a word about what they are.
+    setze(antworten, "strukturen.sonstige_strukturen_text", "Totholzstapel")
     setze(antworten, KEINE_EINFLUESSE, "Ja")
     setze(antworten, "bewirschaftung.angelfischerei", "Ja")
     setze(antworten, "arten.art1.name", "SATR")
@@ -483,8 +486,58 @@ class TestBesatzzeilen:
         assert not [pfad for pfad in gemeldet if "besatz2" in pfad or "fischart2" in pfad]
 
 
-class TestRinganodenDurchmesser:
-    """A diameter only means something if there are ring anodes."""
+class TestBedingteFelder:
+    """One rule, six pairs: something above says this exists, so describe it."""
+
+    @pytest.mark.parametrize(
+        ("ausloeser", "feld"),
+        [
+            ("ufer.sonstiger_bewuchs", "ufer.sonstiger_bewuchs_text"),
+            ("ufer.sonstiger_uferverbau", "ufer.sonstiger_uferverbau_text"),
+            ("strukturen.sonstige_strukturen", "strukturen.sonstige_strukturen_text"),
+            ("einfluesse.sonstige_Nutzung", "einfluesse.sonstige_nutzung_text"),
+        ],
+    )
+    def test_ein_sonstiges_ohne_welches_wird_gemeldet(self, ausloeser: str, feld: str) -> None:
+        # Left alone the box is correctly empty. The moment somebody says there
+        # is some other vegetation, or some other structure, the protocol asserts
+        # a thing exists and does not say what, which reads to whoever gets it
+        # later as a complete answer.
+        antworten: dict[str, Any] = {}
+        setze(antworten, ausloeser, "1")
+
+        assert feld in fehlende_pfade(antworten)
+
+    @pytest.mark.parametrize(
+        ("ausloeser", "feld"),
+        [
+            ("ufer.sonstiger_bewuchs", "ufer.sonstiger_bewuchs_text"),
+            ("strukturen.sonstige_strukturen", "strukturen.sonstige_strukturen_text"),
+        ],
+    )
+    def test_eine_null_verlangt_nichts(self, ausloeser: str, feld: str) -> None:
+        # 0 % of the bank, or a rating of "keine". Both mean there is none of it.
+        antworten: dict[str, Any] = {}
+        setze(antworten, ausloeser, "0")
+
+        assert feld not in fehlende_pfade(antworten)
+
+    def test_ein_unangetastetes_sonstiges_verlangt_nichts(self) -> None:
+        assert "einfluesse.sonstige_nutzung_text" not in fehlende_pfade({})
+
+    def test_ein_haken_zaehlt_als_ja(self) -> None:
+        # A checkbox holds "Ja", which is neither blank nor a zero.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "einfluesse.sonstige_Nutzung", "Ja")
+
+        assert "einfluesse.sonstige_nutzung_text" in fehlende_pfade(antworten)
+
+    def test_mit_text_ist_nichts_offen(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "einfluesse.sonstige_Nutzung", "Ja")
+        setze(antworten, "einfluesse.sonstige_nutzung_text", "Viehtritt")
+
+        assert "einfluesse.sonstige_nutzung_text" not in fehlende_pfade(antworten)
 
     def test_ohne_ringanoden_wird_kein_durchmesser_verlangt(self) -> None:
         # A survey done with strip anodes has no ring diameter to give, and

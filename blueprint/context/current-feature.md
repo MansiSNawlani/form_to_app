@@ -323,7 +323,7 @@ steps below are grouped by the kind of rule rather than by how many fields they 
       ring anodes demanding one, a fished row with a length and no direction failing, and
       the unused second row staying silent.
 
-- [ ] **Step 14 - "sonstige ..., welche?" and the final agreement** - the four free-text
+- [x] **Step 14 - "sonstige ..., welche?" and the final agreement** - the four free-text
       boxes that name something become required exactly when their own tick is set, and stay
       optional otherwise. Then the pass that closes the whole complaint: a test proving the
       set the server enforces and the set the screen marks are the same set, conditional

@@ -58,8 +58,6 @@ FEHLT_ART = "protokoll.regeln.fehltArt"
 # and what is wanted is a set of numbers totalling 100 rather than a value.
 FEHLT_PROZENTGRUPPE = "protokoll.regeln.fehltProzentgruppe"
 
-# The share of the stretch carrying a built-up dam. Its slope is required only
-# where there is a dam, which is what makes this a rule rather than a list entry.
 DAMM_ANTEIL = "ufer.streckenanteil_geschuetteter_damm"
 DAMM_NEIGUNG = "ufer.neigung"
 
@@ -86,11 +84,31 @@ BEWIRTSCHAFTUNG_TICKS = (
 # The stocking rows stay optional: whoever surveys a stretch does not always know
 # what was put into it. A row somebody has started is a different matter, and this
 # is what makes it finish.
-# Part 5's two conditionals. The ring anodes' diameter only means something if
-# ring anodes were used, and a fished-area row only owes a direction and a method
-# if it was fished at all.
 RINGANODEN = "ausruestung.ringanoden"
 RINGANODEN_DURCHMESSER = "ausruestung.ringanoden_durchmesser"
+
+# Answers that are required only when another answer calls for them.
+#
+# One table rather than a function each, because the six are the same rule six
+# times: something above says this thing exists, so describe it. Written as pairs
+# of paths, trigger first.
+#
+# The trigger reads the same way whatever kind of control it is. A percentage
+# share, a rating from 0 to 3 and a tick box all say "yes, there is some of this"
+# by holding something that is neither blank nor zero, so one predicate covers a
+# dam's share of the bank, a rating of "sonstige Strukturen" and a ticked
+# "sonstige Nutzung" alike.
+#
+# None of these belongs in pflichtfelder.json. A protocol with no dam on the bank
+# has no slope to give, and demanding one would refuse a perfectly good survey.
+BEDINGTE_FELDER = (
+    (DAMM_ANTEIL, DAMM_NEIGUNG),
+    ("ufer.sonstiger_bewuchs", "ufer.sonstiger_bewuchs_text"),
+    ("ufer.sonstiger_uferverbau", "ufer.sonstiger_uferverbau_text"),
+    ("strukturen.sonstige_strukturen", "strukturen.sonstige_strukturen_text"),
+    ("einfluesse.sonstige_Nutzung", "einfluesse.sonstige_nutzung_text"),
+    (RINGANODEN, RINGANODEN_DURCHMESSER),
+)
 
 FEHLT_RICHTUNG = "protokoll.regeln.fehltRichtung"
 FEHLT_METHODE = "protokoll.regeln.fehltMethode"
@@ -160,10 +178,9 @@ def pruefe_vollstaendigkeit(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     ]
 
     fehlend += _fehlende_prozentgruppen(antworten)
-    fehlend += _fehlende_dammneigung(antworten)
+    fehlend += _fehlende_bedingte_felder(antworten)
     fehlend += _fehlende_hakenbloecke(antworten)
     fehlend += _unfertige_besatzzeilen(antworten)
-    fehlend += _fehlender_ringdurchmesser(antworten)
     fehlend += _unfertige_bereiche(antworten)
 
     if not benannte_arten(antworten):
@@ -202,22 +219,33 @@ def _fehlende_prozentgruppen(antworten: Mapping[str, Any]) -> list[Formverstoss]
     ]
 
 
-def _fehlende_dammneigung(antworten: Mapping[str, Any]) -> list[Formverstoss]:
-    """The dam's slope, which only exists where there is a dam.
+def _sagt_ja(wert: str) -> bool:
+    """Does this answer claim the thing it names is there?
 
-    A condition rather than a list entry: demanding a slope of every protocol
-    would demand one for every stretch with no dam on it, and there is no honest
-    answer to give. The share itself is required, so "no dam here" is said by
-    writing 0 rather than by leaving it blank.
+    Blank is no. A number of zero is no: a dam covering 0 % of the bank is no dam,
+    and a rating of 0 on the scale means "keine". Anything else is yes, which
+    includes the "Ja" a ticked checkbox holds.
     """
-    anteil = wert_aus(antworten, DAMM_ANTEIL).strip()
-    if ist_leer(anteil) or not anteil.isdigit() or int(anteil) == 0:
-        return []
+    sauber = wert.strip()
+    if ist_leer(sauber):
+        return False
+    return not (sauber.isdigit() and int(sauber) == 0)
 
-    if ist_leer(wert_aus(antworten, DAMM_NEIGUNG)):
-        return [Formverstoss(DAMM_NEIGUNG, FEHLT)]
 
-    return []
+def _fehlende_bedingte_felder(antworten: Mapping[str, Any]) -> list[Formverstoss]:
+    """The answers another answer has just made necessary.
+
+    A "sonstige ..., welche?" box is the clearest case. Left alone it is
+    correctly empty, but the moment somebody rates "sonstige Strukturen" above 0
+    or gives the other bank vegetation a share, the protocol asserts something
+    exists and does not say what. That is worse than silence to whoever reads it
+    later, because it reads as a complete answer.
+    """
+    return [
+        Formverstoss(feld, FEHLT)
+        for ausloeser, feld in BEDINGTE_FELDER
+        if _sagt_ja(wert_aus(antworten, ausloeser)) and ist_leer(wert_aus(antworten, feld))
+    ]
 
 
 def _irgendetwas_gesetzt(antworten: Mapping[str, Any], pfade: tuple[str, ...]) -> bool:
@@ -280,21 +308,6 @@ def _unfertige_besatzzeilen(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     return fehlend
 
 
-def _fehlender_ringdurchmesser(antworten: Mapping[str, Any]) -> list[Formverstoss]:
-    """The ring anodes' diameter, which only exists if there are ring anodes.
-
-    Not a list entry, because a survey done with strip anodes has no ring
-    diameter to give and ausruestung.py already insists on one kind or the other.
-    A count of 0 is "none of these", so it asks for nothing either.
-    """
-    anzahl = wert_aus(antworten, RINGANODEN).strip()
-    if ist_leer(anzahl) or not anzahl.isdigit() or int(anzahl) == 0:
-        return []
-
-    if ist_leer(wert_aus(antworten, RINGANODEN_DURCHMESSER)):
-        return [Formverstoss(RINGANODEN_DURCHMESSER, FEHLT)]
-
-    return []
 
 
 def _unfertige_bereiche(antworten: Mapping[str, Any]) -> list[Formverstoss]:
