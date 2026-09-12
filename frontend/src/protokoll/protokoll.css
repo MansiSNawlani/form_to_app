@@ -859,9 +859,14 @@
    menu, which is where seven cells stop fitting. */
 .steps__offen {
   flex: none;
+  /* Pushed to the cell's trailing edge, so the badges line up down the bar
+     instead of trailing a ragged label that wraps onto two or three lines. */
+  margin-left: auto;
+  /* The screen-reader text inside is absolutely positioned, so it anchors here
+     rather than somewhere up the tree. */
+  position: relative;
   min-width: 1.25rem;
   height: 1.25rem;
-  margin-left: 0.25rem;
   padding: 0 0.25rem;
   display: grid;
   place-items: center;

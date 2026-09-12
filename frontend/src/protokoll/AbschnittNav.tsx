@@ -65,7 +65,7 @@ function AbschnittNav({ entwurfId, aktuelleNr, verstoesse }: AbschnittNavProps) 
                   {offeneHier > 0 && (
                     <span className="steps__offen">
                       {offeneHier}
-                      <span className="sr-only">
+                      <span className="visually-hidden">
                         {' '}
                         {t('protokoll.absenden.probleme.offenImAbschnitt', {
                           count: offeneHier,
