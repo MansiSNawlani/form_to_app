@@ -48,6 +48,7 @@ VOLLSTAENDIG: dict[str, Any] = {
         "uhrzeit": "08:41",
         "temperatur": "14,2",
         "leitfaehigkeit": "412",
+        "sichttiefe": "0,8",
         "regenfaelle": "2",
         "truebung": "1",
         "schaumbildung": "1",
@@ -71,11 +72,14 @@ VOLLSTAENDIG: dict[str, Any] = {
     },
     "ausruestung": {
         "egeraet": "EFKO FEG 8000",
+        "spannung": "350",
         "leistung": "8000",
         "bauweise": "1",
+        "kathode": "Kupferlitze",
         "ringanoden": "2",
         "ringanoden_durchmesser": "40",
     },
+    "anodenfuehrer": {"vorname": "Jonas", "nachname": "Bergmann"},
     "befischte_bereiche": {
         "ges_gew_laenge": "110",
         "ges_gew_breite": "4",

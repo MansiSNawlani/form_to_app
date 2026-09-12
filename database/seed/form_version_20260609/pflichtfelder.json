@@ -12,6 +12,8 @@
     "probestrecke.gewaessertyp",
     "probestrecke.laenge",
     "probestrecke.ortsangabe",
+    "probestrecke.untere",
+    "probestrecke.obere",
     "probestrecke.gewaesser.vorfluter1",
     "probestrecke.utm_rw_unten",
     "probestrecke.utm_hw_unten",
@@ -22,6 +24,7 @@
     "messdaten.regenfaelle",
     "messdaten.truebung",
     "messdaten.schaumbildung",
+    "messdaten.sichttiefe",
     "hydrologie.breite",
     "hydrologie.tiefe",
     "hydrologie.tiefenvarianz",
@@ -32,6 +35,11 @@
     "hydrologie.stillwasserbereich",
     "hydrologie.gesamtprofil",
     "ausruestung.egeraet",
-    "ausruestung.bauweise"
+    "ausruestung.bauweise",
+    "ausruestung.spannung",
+    "ausruestung.leistung",
+    "ausruestung.kathode",
+    "anodenfuehrer.vorname",
+    "anodenfuehrer.nachname"
   ]
 }

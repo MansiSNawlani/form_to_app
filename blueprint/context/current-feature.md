@@ -286,7 +286,7 @@ steps below are grouped by the kind of rule rather than by how many fields they 
       shows exactly the asterisks it shows now; and a test in each half proves it is reading
       that file rather than a copy.
 
-- [ ] **Step 10 - The plain additions in parts 1, 2 and 5** - data, not logic, now that step
+- [x] **Step 10 - The plain additions in parts 1, 2 and 5** - data, not logic, now that step
       9 has somewhere to put it. Adds the two boundary landmarks, the estimated Sichttiefe,
       the voltage, the power output, the cathode type and the anode leader's two names. This
       answers all three questions feature 11a left open for FFS.

@@ -66,19 +66,49 @@ class TestGegenDasSeed:
         # listing it here too would put two messages on one empty box.
         assert "probestrecke.monitoringnummer" not in PFLICHTFELDER_
 
-    def test_so_viele_felder_wie_sterne_im_formular(self) -> None:
-        # 32 pflicht markers in the block components, minus the
-        # Monitoringstrecken-Nr., which monitoring.py owns.
-        assert len(PFLICHTFELDER_) == 31
+    def test_die_liste_hat_die_vereinbarte_laenge(self) -> None:
+        """Pinned, so widening the gate stays a deliberate act.
+
+        Was 31 until 2026-09-12, when the required set was widened to cover all
+        six parts of the protocol. The number moves when
+        blueprint/context/pflichtfelder-vorschlag.md says it moves, and this test
+        is what makes that a decision rather than a drift.
+        """
+        assert len(PFLICHTFELDER_) == 39
 
     @pytest.mark.parametrize(
         "pfad", ["probestrecke.untere", "probestrecke.obere", "ausruestung.leistung"]
     )
-    def test_ein_feld_ohne_stern_wird_nicht_verlangt(self, pfad: str) -> None:
-        # These three look like they belong and carry no asterisk. Requiring
-        # them would widen the gate past what the form promises, which is how
-        # the two halves would start disagreeing about what a finished protocol
-        # is. Worth asking FFS rather than deciding here.
+    def test_die_drei_offenen_fragen_sind_jetzt_pflicht(self, pfad: str) -> None:
+        # Feature 11a left these three out and recorded them as questions for
+        # FFS: the two landmarks describing each end of the stretch, and the
+        # device's power output. Answered on 2026-09-12: all three are required.
+        # A landmark is what somebody uses to stand in the right place next year,
+        # and a coordinate alone is harder to stand in front of.
+        assert pfad in PFLICHTFELDER_
+
+    @pytest.mark.parametrize(
+        "pfad",
+        [
+            "bearbeiter.firma",
+            "bearbeiter.strasse",
+            "bearbeiter.plz",
+            "bearbeiter.ort",
+            "bearbeiter.telefon",
+            "z.quelle",
+            "z.ps_nummer",
+            "probestrecke.gewaesser.vorfluter2",
+        ],
+    )
+    def test_was_bewusst_freiwillig_bleibt(self, pfad: str) -> None:
+        """Decided on 2026-09-12, together with the widening.
+
+        The Bearbeiter's postal address and telephone: the e-mail is required and
+        is how the person is identified. The PS-Nummer is not always known, and
+        the Quelle is FFS's to assign. Vorfluter 2 to 5: the chain is as long as
+        it is, and vorfluter.py already demands it has no gaps and ends at the
+        Rhein or the Donau.
+        """
         assert pfad not in PFLICHTFELDER_
 
     def test_die_schaetzwerte_stehen_nicht_in_der_liste(self) -> None:
