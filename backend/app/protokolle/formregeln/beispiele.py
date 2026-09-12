@@ -48,6 +48,7 @@ VOLLSTAENDIG: dict[str, Any] = {
         "uhrzeit": "08:41",
         "temperatur": "14,2",
         "leitfaehigkeit": "412",
+        "sichttiefe": "0,8",
         "regenfaelle": "2",
         "truebung": "1",
         "schaumbildung": "1",
@@ -69,23 +70,83 @@ VOLLSTAENDIG: dict[str, Any] = {
         "gesamtprofil": "2",
         "mit_gumpen": "Ja",
     },
+    # Part 3, required in full from 2026-09-12. Each of the six blocks totals
+    # exactly 100; a stretch that is entirely one thing is answered with a single
+    # 100 and blanks beside it, which is how the bank slope reads here.
+    "umland": {"mischwald": "40", "wiese": "35", "kulturland_acker": "25"},
+    "ufer": {
+        "randstreifen": "2",
+        # No dam, so no slope is demanded of it. The share is required and 0 is
+        # the answer; leaving it blank is not.
+        "streckenanteil_geschuetteter_damm": "0",
+        "wurzeln": "15",
+        # Neigung, totalling 100
+        "flachufer": "60",
+        "schraegufer": "40",
+        # Bewuchs, totalling 100
+        "weiden": "30",
+        "erlen": "20",
+        "andere_baeume": "25",
+        "straeucher": "25",
+        # Uferverbau: an unreinforced bank is one share of 100
+        "uferverbau_keiner": "100",
+    },
+    "gewaessersohle": {
+        "kies": "45",
+        "grobkies": "30",
+        "sand": "15",
+        "steine": "10",
+        "keine_sohlverbauung": "100",
+    },
+    # Part 4, required from 2026-09-12. A rating of 0 means "none of this here",
+    # so every one of the eight has an answer to give.
+    "strukturen": {
+        "totholz": "2",
+        "wurzeln_strukturen": "2",
+        "aeste": "1",
+        "schilf": "0",
+        "submerse_makrophyten": "1",
+        "schwimmblattpflanzen": "0",
+        "emerse_makrophyten": "0",
+        "sonstige_strukturen": "0",
+    },
+    # One tick is enough, and on this stretch there is one real use. The block
+    # could equally be answered with "keine (erkennbar)".
+    "einfluesse": {"wasserkraft": "Ja"},
+    "bewirschaftung": {"angelfischerei": "Ja"},
     "ausruestung": {
         "egeraet": "EFKO FEG 8000",
+        "spannung": "350",
         "leistung": "8000",
         "bauweise": "1",
+        "kathode": "Kupferlitze",
         "ringanoden": "2",
         "ringanoden_durchmesser": "40",
     },
+    "anodenfuehrer": {"vorname": "Jonas", "nachname": "Bergmann"},
+    # The whole width was fished, wading upstream. The second row, along the
+    # bank, was not used at all and is therefore asked for nothing.
     "befischte_bereiche": {
         "ges_gew_laenge": "110",
         "ges_gew_breite": "4",
+        "ges_gew_stromauf": "Ja",
+        "ges_gew_watend": "Ja",
     },
     # Two species, each with its young-of-year count inside its own row total.
     "arten": {
         "art1": {"name": "SATR", "klasse_2": "34", "klasse_3": "18", "0plus": "41"},
         "art2": {"name": "COGO", "klasse_1": "8", "klasse_2": "21", "0plus": "19"},
     },
-    "bemerkungen": "Wasserstand nach den Regenfällen der Vorwoche leicht erhöht.",
+    # bemerkungen is a group, not a field. The legacy form has
+    # bemerkungen.sonstige_bemerkungen at the foot of the protocol and
+    # bemerkungen.bemerkung_fische above the catch table. Written as a bare string
+    # when this fixture was first created in feature 11a, which no test caught
+    # because no rule looks at free text: feature 11c found it the moment the
+    # fixture was saved through the real endpoint, where the shape check in
+    # app/protokolle/regeln.py refused it.
+    "bemerkungen": {
+        "sonstige_bemerkungen": "Wasserstand nach den Regenfällen der Vorwoche leicht erhöht.",
+    },
 }
 
 

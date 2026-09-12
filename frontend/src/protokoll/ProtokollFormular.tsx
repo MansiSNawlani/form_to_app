@@ -9,6 +9,8 @@ import AbschnittInhalt from './abschnitte/AbschnittInhalt'
 import type { Abschnitt } from './abschnitte'
 import SpeicherProblem from './SpeicherProblem'
 import SicherungAngebot from './entwurf/SicherungAngebot'
+import AbsendeErgebnis from './absenden/AbsendeErgebnis'
+import { useAbsenden } from './absenden/useAbsenden'
 import { erstelleBereitsteller } from './entwurf/bereitstellen'
 import { anzeigeZustand, type Anlagenzustand } from './entwurf/speicherzustand'
 import { legeEntwurfAn } from './entwurf/api'
@@ -68,10 +70,16 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
     [onAngelegt],
   )
 
-  const { zustand: saveState, jetztSpeichern } = useAutoSave(entwurf, form, {
+  const { zustand: saveState, jetztSpeichern, bereitZumAbsenden } = useAutoSave(entwurf, form, {
     onAngelegt: beiAnlage,
   })
   useHydrologieAbgleich(form)
+
+  /* Held here rather than beside the button, so it survives the navigation its
+     own panel invites: every entry in that list links to another section, and a
+     list held inside section 7 was destroyed by the first link somebody
+     followed. Found by Mansi on 2026-09-12. */
+  const absendung = useAbsenden({ entwurfId, bereitZumAbsenden })
 
   /* Built once for the life of the form, so both blocks in section 7 share one
      in-flight request. Two of them each checking and then creating would leave a
@@ -149,23 +157,41 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
        the draft's own name and reads it out of the answers. */
     <FormProvider {...form}>
       <ProtokollKopf entwurf={entwurf} saveState={saveAnzeige} />
-      <AbschnittNav entwurfId={entwurf.id} aktuelleNr={abschnitt.nr} />
+      <AbschnittNav
+        entwurfId={entwurf.id}
+        aktuelleNr={abschnitt.nr}
+        verstoesse={absendung.verstoesse}
+      />
 
       {/* Above the section rather than inside it: the offer is about the whole
           protocol, and it has to be seen whichever section the URL opened on. */}
       <SicherungAngebot entwurf={entwurf} form={form} jetztSpeichern={jetztSpeichern} />
       <SpeicherProblem saveState={saveAnzeige} />
 
+      {/* What the last submit came back with. Above the section for the same
+          reason the two banners above it are: it is about the whole protocol,
+          and every entry in it links to a different section, so holding it
+          inside one would destroy it the moment somebody followed a link. */}
+      <AbsendeErgebnis
+        entwurfId={entwurfId}
+        aktuelleNr={abschnitt.nr}
+        absendung={absendung}
+      />
+
       <section className="card" ref={card} tabIndex={-1} aria-label={titel}>
-        {/* No onSubmit: there is nothing to submit until feature 11, and saving
-            is automatic. The form element is here for the semantics and so that
-            the fields sit inside one. */}
+        {/* No onSubmit. Submitting is a button of its own at the foot of section
+            7, not this form being submitted: it sends what is already stored on
+            the server rather than what is in these fields, and saving is
+            automatic. The form element is here for the semantics and so that the
+            fields sit inside one. */}
         <form>
           <AbschnittInhalt
             abschnitt={abschnitt}
             entwurfId={entwurfId}
             bereitstellen={bereitstellen}
             melde={setAnlagenZustand}
+            absenden={absendung.absenden}
+            absendenLaeuft={absendung.laeuft}
           />
         </form>
 

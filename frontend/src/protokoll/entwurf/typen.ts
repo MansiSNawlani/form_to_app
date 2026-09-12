@@ -555,3 +555,29 @@ export interface SpeicherAntwort {
   version: number
   updated_at: string
 }
+
+/* What a submit sends: the version the browser is working from, and nothing
+ * else. backend/app/api/schemas.py's AbsendenAnfrage.
+ *
+ * No answers. Whatever is stored on the server is what gets submitted, so the
+ * automatic save has to have landed first. A submit carrying its own document
+ * would be a save and a submit in one request, with two ways for them to
+ * disagree about what was sent.
+ */
+export interface AbsendenAnfrage {
+  version: number
+}
+
+/* Where the protocol ended up: backend/app/api/schemas.py's AbsendenAntwort,
+ * under the same name, so one payload is not called two things.
+ *
+ * Not the whole protocol. The browser is leaving the form for Meine Protokolle,
+ * which fetches its own rows, so the answers it already holds are of no further
+ * use to it.
+ */
+export interface AbsendenAntwort {
+  id: string
+  status: Status
+  version: number
+  submitted_at: string
+}

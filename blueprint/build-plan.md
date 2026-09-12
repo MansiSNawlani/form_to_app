@@ -127,7 +127,7 @@ These are not features and are not tracked here. They happen first.
         must contain
   - [x] 11b. Gewaesser, Probestrecke and Person as real tables, and the matching that decides at
         submit whether this stretch is one already on record
-  - [ ] 11c. Absenden: the endpoint that runs the rules and promotes the envelope, the status on
+  - [x] 11c. Absenden: the endpoint that runs the rules and promotes the envelope, the status on
         Meine Protokolle, the button, and the panel listing what is still missing
   - [ ] 11d. The state machine: the workflow_events table, every transition and who may make it,
         the Begruendung required for a rejection and a change request, and locking on acceptance

@@ -40,7 +40,7 @@ from app.anlagen.fehler import (
     AnlageTypUnzulaessig,
     AnlageZuGross,
 )
-from app.api.schemas import FehlerAntwort
+from app.api.schemas import FehlerAntwort, VerstossAntwort
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
     BenutzerFehler,
@@ -56,9 +56,11 @@ from app.protokolle.fehler import (
     ProtokollFehler,
     ProtokollNichtGefunden,
     ProtokollNichtMehrEntwurf,
+    ProtokollUnvollstaendig,
     ProtokollVeraendert,
     Verstossgrund,
 )
+from app.protokolle.formregeln.regel import Formverstoss
 
 AN_ADMINISTRATOR_WENDEN = "Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator."
 
@@ -124,10 +126,33 @@ ANFRAGE_UNGUELTIG = (
 HERKUNFT = frozenset({"body", "query", "path", "cookie", "header"})
 
 
-def _antwort(code: str, status_code: int, nachricht: str) -> JSONResponse:
+def _antwort(
+    code: str,
+    status_code: int,
+    nachricht: str,
+    verstoesse: tuple[Formverstoss, ...] | None = None,
+) -> JSONResponse:
+    """One refusal, in the shape every refusal from this API takes.
+
+    exclude_none, so a refusal that carries no violations is the same two-field
+    body it has always been rather than one with an empty third field. Only a
+    refused submit fills that in.
+
+    mode="json" because the body goes out as it stands, and a model holding
+    anything but plain JSON types would reach JSONResponse unserialised.
+    """
+    koerper = FehlerAntwort(
+        code=code,
+        nachricht=nachricht,
+        verstoesse=(
+            None
+            if verstoesse is None
+            else [VerstossAntwort.model_validate(v) for v in verstoesse]
+        ),
+    )
     return JSONResponse(
         status_code=status_code,
-        content=FehlerAntwort(code=code, nachricht=nachricht).model_dump(),
+        content=koerper.model_dump(mode="json", exclude_none=True),
     )
 
 
@@ -236,6 +261,18 @@ PROTOKOLL_UEBERSETZUNG: dict[type[ProtokollFehler], tuple[str, int, str]] = {
         "Einige Angaben konnten nicht gespeichert werden. Das ist ein Fehler in"
         " der Anwendung und nicht in Ihren Eingaben. Der Rest des Protokolls ist"
         " unverändert; bitte melden Sie den Fehler mit den genannten Feldern.",
+    ),
+    # The one refusal here a surveyor can put right by typing, so the sentence
+    # says where to look and that nothing was lost. The list of fields travels
+    # beside it in verstoesse rather than inside this text: the screen draws it
+    # next to the fields concerned, which a sentence cannot do.
+    ProtokollUnvollstaendig: (
+        "PROTOKOLL_UNVOLLSTAENDIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Das Protokoll wurde nicht abgesendet, weil noch etwas fehlt oder nicht"
+        " stimmt. Die betroffenen Angaben sind unten aufgeführt. Bitte ergänzen"
+        " oder berichtigen Sie sie und senden Sie das Protokoll dann noch einmal"
+        " ab. Ihr Entwurf ist unverändert gespeichert.",
     ),
 }
 
@@ -415,9 +452,19 @@ async def behandle_protokollfehler(request: Request, fehler: Exception) -> Respo
     for klasse in type(fehler).__mro__:
         if klasse in PROTOKOLL_UEBERSETZUNG:
             code, status_code, nachricht = PROTOKOLL_UEBERSETZUNG[klasse]
-            return _antwort(code, status_code, nachricht + _zusatz(fehler))
+            return _antwort(code, status_code, nachricht + _zusatz(fehler), _verstoesse(fehler))
 
     return _antwort(*UNBEKANNT)
+
+
+def _verstoesse(fehler: ProtokollFehler) -> tuple[Formverstoss, ...] | None:
+    """The structured detail, for the one refusal that has any.
+
+    A refused submit is the only thing here the screen draws rather than prints,
+    because the panel puts each problem beside the field it concerns. Everything
+    else says what it has to say in its sentence.
+    """
+    return fehler.verstoesse if isinstance(fehler, ProtokollUnvollstaendig) else None
 
 
 def registriere_fehlerbehandlung(app: FastAPI) -> None:

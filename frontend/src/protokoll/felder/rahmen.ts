@@ -1,4 +1,5 @@
 import type { ParseKeys } from 'i18next'
+import { istPflichtfeld } from './pflicht'
 
 /* The shared shape of a field, kept apart from FeldRahmen.tsx so that file
    exports only its component. */
@@ -61,7 +62,12 @@ export function feldAria(
   fehlerKey?: ParseKeys,
 ) {
   return {
-    'aria-required': pflicht,
+    /* Defaulted from the shared required list exactly as the visible asterisk is
+       in FeldRahmen, so the two say the same thing. A required field that
+       announced itself as optional would be worse than one with no marker at
+       all: the marker is decoration a screen reader never sees, and this is the
+       part it does. */
+    'aria-required': pflicht ?? istPflichtfeld(name),
     // The red border is not a signal on its own, and aria-invalid is what says
     // "this one" to somebody who is not looking at the colour.
     'aria-invalid': fehlerKey ? true : undefined,

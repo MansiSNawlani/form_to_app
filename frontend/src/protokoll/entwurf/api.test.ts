@@ -3,9 +3,11 @@ import {
   ApiFehler,
   NICHT_ANGEMELDET,
   PROTOKOLL_NICHT_GEFUNDEN,
+  PROTOKOLL_UNVOLLSTAENDIG,
   PROTOKOLL_VERAENDERT,
 } from '../../api/fehler'
 import {
+  absendeProtokoll,
   holeEntwurf,
   legeEntwurfAn,
   listeProtokolle,
@@ -216,5 +218,85 @@ describe('speichereAntworten', () => {
     }).catch((f: unknown) => f)
 
     expect(fehler).toMatchObject({ code: PROTOKOLL_VERAENDERT, status: 409 })
+  })
+})
+
+describe('absendeProtokoll', () => {
+  const ABGESENDET = {
+    id: 'a1',
+    status: 'SUBMITTED',
+    version: 8,
+    submitted_at: '2026-09-11T14:32:00Z',
+  }
+
+  it('postet die Version an den Absende-Pfad', async () => {
+    const fetchImpl = fakeFetch(ABGESENDET)
+
+    const antwort = await absendeProtokoll({ id: 'a1', version: 7, fetchImpl })
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/v1/protokolle/a1/absenden',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ version: 7 }) }),
+    )
+    expect(antwort).toEqual(ABGESENDET)
+  })
+
+  /* The refusal the panel draws. Order is the server's, which is section order,
+     so somebody repairing a protocol walks the form from the top. */
+  it('traegt die Verstoesse in der gesendeten Reihenfolge', async () => {
+    const verstoesse = [
+      { pfad: 'probestrecke.gewaesser.gewaessername', schluessel: 'protokoll.regeln.fehlt' },
+      { pfad: 'umland', schluessel: 'protokoll.regeln.prozentsummeNichtHundert' },
+    ]
+    const fetchImpl = fakeFetch(
+      { code: 'PROTOKOLL_UNVOLLSTAENDIG', nachricht: 'Nicht abgesendet.', verstoesse },
+      422,
+    )
+
+    const fehler = await absendeProtokoll({ id: 'a1', version: 7, fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect(fehler).toBeInstanceOf(ApiFehler)
+    expect((fehler as ApiFehler).code).toBe(PROTOKOLL_UNVOLLSTAENDIG)
+    expect((fehler as ApiFehler).verstoesse).toEqual(verstoesse)
+  })
+
+  /* Every other refusal leaves the field out, and reading it must not crash the
+     screen that was about to draw a list. */
+  it('kommt ohne Verstossliste zurecht', async () => {
+    const fetchImpl = fakeFetch(
+      { code: 'PROTOKOLL_VERAENDERT', nachricht: 'Zwischendurch geaendert.' },
+      409,
+    )
+
+    const fehler = await absendeProtokoll({ id: 'a1', version: 7, fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect((fehler as ApiFehler).code).toBe(PROTOKOLL_VERAENDERT)
+    expect((fehler as ApiFehler).verstoesse).toEqual([])
+  })
+
+  /* A malformed entry is dropped rather than drawn as an empty row with nowhere
+     to go. The sentence is still there, so the person is not left with nothing. */
+  it('verwirft Eintraege, die kein Pfad und kein Schluessel sind', async () => {
+    const fetchImpl = fakeFetch(
+      {
+        code: 'PROTOKOLL_UNVOLLSTAENDIG',
+        nachricht: 'Nicht abgesendet.',
+        verstoesse: [{ pfad: 'anlass' }, null, { pfad: 'datum', schluessel: 'protokoll.regeln.fehlt' }],
+      },
+      422,
+    )
+
+    const fehler = await absendeProtokoll({ id: 'a1', version: 7, fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect((fehler as ApiFehler).verstoesse).toEqual([
+      { pfad: 'datum', schluessel: 'protokoll.regeln.fehlt' },
+    ])
+    expect((fehler as ApiFehler).nachricht).toBe('Nicht abgesendet.')
   })
 })

@@ -15,6 +15,8 @@ import uuid
 from dataclasses import dataclass
 from enum import StrEnum
 
+from app.protokolle.formregeln.regel import Formverstoss
+
 
 class Verstossgrund(StrEnum):
     """Why one answer could not be stored.
@@ -154,6 +156,30 @@ class AntwortenUngueltig(ProtokollFehler):
         for verstoss in self.verstoesse:
             gruppen.setdefault(verstoss.grund, []).append(verstoss.pfad)
         return {grund: sorted(pfade) for grund, pfade in gruppen.items()}
+
+
+class ProtokollUnvollstaendig(ProtokollFehler):
+    """The protocol is not finished, or breaks a rule, so it was not sent.
+
+    The ordinary refusal of a submit, and the only one here that a surveyor can
+    do something about by typing. Everything else in this module is a conflict, a
+    permission or a bug.
+
+    Carries every violation rather than the first, and for a stronger reason than
+    AntwortenUngueltig above has: this list is what the screen draws. A protocol
+    missing one answer is nearly always missing several, and a panel revealing
+    them one submit at a time would turn a five minute repair into an afternoon
+    of round trips.
+
+    A Formverstoss is a path and an i18n key, never a sentence, decided in
+    feature 11a. The German for all 29 of them already sits under protokoll.regeln
+    in the browser's locale file, so the wording travels no further than the
+    screen that shows it and feature 17 translates it once.
+    """
+
+    def __init__(self, verstoesse: tuple[Formverstoss, ...]) -> None:
+        self.verstoesse = verstoesse
+        super().__init__(f"{len(verstoesse)} rule violations refuse this protocol")
 
 
 class UmschlagUnvollstaendig(ProtokollFehler):

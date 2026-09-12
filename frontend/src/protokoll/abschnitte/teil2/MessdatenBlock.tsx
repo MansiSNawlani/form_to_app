@@ -28,7 +28,6 @@ function MessdatenBlock() {
           einheit={t('protokoll.felder.einheit.grad')}
           labelKey="protokoll.abschnitt2.messdaten.feld.temperatur"
           spalten={4}
-          pflicht
         />
         <FeldText
           name="messdaten.leitfaehigkeit"
@@ -36,7 +35,6 @@ function MessdatenBlock() {
           einheit={t('protokoll.felder.einheit.mikrosiemens')}
           labelKey="protokoll.abschnitt2.messdaten.feld.leitfaehigkeit"
           spalten={4}
-          pflicht
         />
         {/* The hint is the legacy form's own, printed beside this field: with a
             clear view of the bed the whole way, the maximum depth is what goes
@@ -60,21 +58,18 @@ function MessdatenBlock() {
           liste="messdaten.regenfaelle"
           labelKey="protokoll.abschnitt2.messdaten.feld.regenfaelle"
           spalten={12}
-          pflicht
         />
         <FeldRadio
           name="messdaten.truebung"
           liste="messdaten.truebung"
           labelKey="protokoll.abschnitt2.messdaten.feld.truebung"
           spalten={12}
-          pflicht
         />
         <FeldRadio
           name="messdaten.schaumbildung"
           liste="messdaten.schaumbildung"
           labelKey="protokoll.abschnitt2.messdaten.feld.schaumbildung"
           spalten={12}
-          pflicht
         />
       </div>
     </fieldset>

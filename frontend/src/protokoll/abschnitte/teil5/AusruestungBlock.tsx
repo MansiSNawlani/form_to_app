@@ -42,7 +42,6 @@ function AusruestungBlock() {
           liste="ausruestung.egeraet"
           labelKey="protokoll.abschnitt5.ausruestung.feld.egeraet"
           spalten={6}
-          pflicht
         />
         <FeldText
           name="ausruestung.spannung"
@@ -65,7 +64,6 @@ function AusruestungBlock() {
           liste="ausruestung.bauweise"
           labelKey="protokoll.abschnitt5.ausruestung.feld.bauweise"
           spalten={12}
-          pflicht
         />
       </div>
 

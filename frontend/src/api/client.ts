@@ -13,7 +13,7 @@
  */
 
 import { ANTWORT_UNLESBAR, ApiFehler, NETZWERK_FEHLER } from './fehler'
-import type { FehlerAntwort } from './typen'
+import type { FehlerAntwort, Verstoss } from './typen'
 
 const BASIS = '/api/v1'
 
@@ -76,6 +76,7 @@ async function ablehnung(antwort: Response): Promise<ApiFehler> {
   return new ApiFehler(koerper.code, {
     status: antwort.status,
     nachricht: koerper.nachricht,
+    verstoesse: verstoesseAus(koerper),
   })
 }
 
@@ -83,6 +84,28 @@ function istFehlerAntwort(wert: unknown): wert is FehlerAntwort {
   if (typeof wert !== 'object' || wert === null) return false
   const kandidat = wert as Record<string, unknown>
   return typeof kandidat.code === 'string' && typeof kandidat.nachricht === 'string'
+}
+
+/* The violation list, when the refusal carried one.
+ *
+ * Read as defensively as the body above it, and for the same reason: this is the
+ * one refusal whose detail the screen draws rather than prints, so an entry
+ * missing its path would render an empty row with nowhere to go. Anything that
+ * is not a path and a key is dropped, and a refusal with nothing left is simply
+ * one with no list, which the panel handles by falling back to the sentence.
+ */
+function verstoesseAus(koerper: FehlerAntwort): Verstoss[] | undefined {
+  if (!Array.isArray(koerper.verstoesse)) return undefined
+
+  const brauchbar = koerper.verstoesse.filter(
+    (eintrag: unknown): eintrag is Verstoss =>
+      typeof eintrag === 'object' &&
+      eintrag !== null &&
+      typeof (eintrag as Verstoss).pfad === 'string' &&
+      typeof (eintrag as Verstoss).schluessel === 'string',
+  )
+
+  return brauchbar.length > 0 ? brauchbar : undefined
 }
 
 /* One API call.

@@ -586,6 +586,11 @@
       "keinNachweisNebenArt": "\"kein Nachweis\" schließt jede andere Art in der Tabelle aus.",
       "fangOhneNachweisCode": "Wenn nichts gefangen wurde, wählen Sie bitte statt einer Art einen \"kein Nachweis\"-Eintrag.",
       "fehlt": "Diese Angabe wird zum Absenden gebraucht. Bitte tragen Sie sie nach; speichern können Sie das Protokoll auch ohne sie.",
+      "fehltProzentgruppe": "Dieser Block ist noch nicht ausgefüllt. Bitte verteilen Sie die Anteile so, dass sie zusammen genau 100 % ergeben; besteht die Strecke nur aus einem, tragen Sie dort 100 ein und lassen den Rest leer.",
+      "fehltEinfluss": "In diesem Block ist noch nichts angekreuzt. Bitte kreuzen Sie die zutreffenden Nutzungen an; ist nichts davon erkennbar, kreuzen Sie «keine (erkennbar)» an, und wenn es sich nicht beurteilen lässt, «unbekannt».",
+      "fehltBewirtschaftung": "In diesem Block ist noch nichts angekreuzt. Bitte kreuzen Sie an, wie die Strecke bewirtschaftet wird.",
+      "fehltRichtung": "Für diesen Bereich ist eine befischte Länge angegeben, aber keine Richtung. Bitte kreuzen Sie an, ob stromauf oder stromab gefischt wurde.",
+      "fehltMethode": "Für diesen Bereich ist eine befischte Länge angegeben, aber keine Methode. Bitte kreuzen Sie an, ob watend, vom Boot oder vom Ufer aus gefischt wurde.",
       "fehltArt": "Das Protokoll nennt noch keine Art. Bitte tragen Sie mindestens eine Art ein, oder wählen Sie einen \"kein Nachweis\"-Eintrag, wenn nichts gefangen wurde."
     },
     "verwerfen": {
@@ -655,6 +660,53 @@
         "nichtGesendet": "«{{dateiname}}» konnte nicht hochgeladen werden. Der Server war nicht erreichbar, und die Datei ist nicht gespeichert. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es noch einmal.",
         "listeNichtGeladen": "Die Anlagen dieses Protokolls konnten nicht geladen werden. Was bereits hinterlegt ist, ist unverändert vorhanden, wird hier aber gerade nicht angezeigt. Bitte laden Sie die Seite neu; besteht das Problem weiter, melden Sie sich bitte noch einmal an."
       }
+    },
+    "absenden": {
+      "legend": "Protokoll absenden",
+      "hinweis": "Beim Absenden wird das Protokoll geprüft. Danach können Sie es nicht mehr ändern, und die Fischereiforschungsstelle übernimmt es zur Prüfung.",
+      "aktion": "Protokoll absenden",
+      "laeuft": "Wird abgesendet",
+      "nichtGespeichert": "Es sind noch nicht alle Eingaben gespeichert, deshalb wurde nichts abgesendet. Bitte laden Sie die Seite neu und versuchen Sie es dann noch einmal.",
+      "nochNichtAngelegt": "Dieses Protokoll ist noch leer. Bitte füllen Sie es zuerst aus; absenden können Sie es, sobald etwas darin steht.",
+      "frage": {
+        "titel": "Protokoll absenden?",
+        "text": "«{{name}}» wird an die Fischereiforschungsstelle übermittelt. Danach können Sie das Protokoll nicht mehr ändern. Änderungen sind erst wieder möglich, wenn die Prüfung sie anfordert.",
+        "textOhneNamen": "Dieses Protokoll wird an die Fischereiforschungsstelle übermittelt. Danach können Sie es nicht mehr ändern. Änderungen sind erst wieder möglich, wenn die Prüfung sie anfordert.",
+        "abbrechen": "Abbrechen",
+        "bestaetigen": "Jetzt absenden"
+      },
+      "probleme": {
+        "titel": "Das Protokoll wurde noch nicht abgesendet",
+        "abschnitt": "Abschnitt {{nr}}: {{titel}}",
+        "artZeile": "Artentabelle, Zeile {{nr}}",
+        "ohneOrt": "Diese Angabe gehört zu keinem Feld dieses Formulars. Bitte melden Sie das.",
+        "entwurfBleibt": "Ihr Entwurf ist unverändert gespeichert. Nichts geht verloren, während Sie das nachtragen.",
+        "unbekannteRegel": "Diese Angabe wurde beanstandet. Der Grund lässt sich hier nicht anzeigen; bitte melden Sie das.",
+        "ausgefuellt": "ausgefüllt",
+        "erneutPruefen": "Erneut prüfen",
+        "prueftGerade": "Wird geprüft",
+        "inDiesemAbschnitt_one": "In diesem Abschnitt fehlt noch eine Angabe oder stimmt noch nicht.",
+        "inDiesemAbschnitt_other": "In diesem Abschnitt fehlen noch {{count}} Angaben oder stimmen noch nicht.",
+        "woanders_one": "In einem anderen Abschnitt ist noch eine offen; die Schrittleiste oben zeigt, wo.",
+        "woanders_other": "In anderen Abschnitten sind noch {{count}} offen; die Schrittleiste oben zeigt, wo.",
+        "offenImAbschnitt_one": "offene Angabe in diesem Abschnitt",
+        "offenImAbschnitt_other": "offene Angaben in diesem Abschnitt",
+        "offenImMenue_one": "1 offen",
+        "offenImMenue_other": "{{count}} offen",
+        "stand": "Stand der Prüfung: {{zeitpunkt}} Uhr.",
+        "einklappen": "Einklappen",
+        "ausklappen": "Ausklappen",
+        "dieserAbschnittErledigt": "In diesem Abschnitt haben Sie alles nachgetragen. Ob damit alles stimmt, sagt Ihnen die erneute Prüfung."
+      },
+      "bereitsAbgesendet": {
+        "text": "Dieses Protokoll ist bereits abgesendet. Es ist alles angekommen; Sie müssen nichts weiter tun.",
+        "zurUebersicht": "Zu meinen Protokollen"
+      }
+    },
+    "abgesendet": {
+      "titel": "Dieses Protokoll ist abgesendet",
+      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden.",
+      "zurUebersicht": "Zu meinen Protokollen"
     }
   }
 }

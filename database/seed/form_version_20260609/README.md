@@ -1,8 +1,19 @@
 # Form definition, version 20260609
 
 Extracted from `Resources/Fiaka_Resources/Formular_Protokoll_E-Befischung_V20260609.pdf` by
-`backend/scripts/extract_form_definition.py`. Generated files: re-run the script rather than
-editing them.
+`backend/scripts/extract_form_definition.py`. `optionslisten.json` and `felder.json` are
+generated files: re-run the script rather than editing them.
+
+**`pflichtfelder.json` is the exception. It is hand-authored and is edited by hand.** The
+PDF's field definition carries no required flag at all, only a name, a type and an option
+list, so which answers a finished protocol must carry is a decision this project took rather
+than a fact read out of the form. It lives here because requiredness belongs to a form
+version exactly as the option lists do, and because both halves of the application already
+read this directory: the backend through `FORMULAR_SEED_DIR`, the browser through its
+`@formular` alias. One file means the asterisk on screen and the gate at submit cannot
+disagree. The reasoning behind each entry is in
+`blueprint/context/pflichtfelder-vorschlag.md`. The extraction script only writes its own two
+files and never deletes, so re-running it leaves this one alone.
 
 These are the dropdown contents the build plan lists as a pre-build task. They exist nowhere but
 inside the PDF, so they are read out of it rather than retyped.
@@ -42,6 +53,11 @@ FiaKa receives today.
 Lists repeated across numbered fields are stored once. The 26 species pickers
 (`arten.art1.name` to `arten.art26.name`) share `arten`, and the four stocking rows share
 `besatz_fischart`.
+
+**`pflichtfelder.json`** - the answers a protocol must carry before it can be submitted, as
+plain dotted paths. Conditional requirements are not here, because a list cannot express
+them: they live as rules in `backend/app/protokolle/formregeln/`, which is also where the
+sum-to-100 blocks and the tick-group rules are enforced.
 
 **`felder.json`** - all 540 terminal fields with their legacy dotted paths and PDF types (`Tx`
 text, `Ch` dropdown, `Btn` radio or checkbox). Radio groups carry their export values. This is

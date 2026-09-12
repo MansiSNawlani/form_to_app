@@ -22,7 +22,6 @@ function BearbeiterBlock() {
           name="bearbeiter.name"
           labelKey="protokoll.abschnitt1.bearbeiter.feld.name"
           spalten={5}
-          pflicht
         />
         <FeldText
           name="bearbeiter.firma"
@@ -62,7 +61,6 @@ function BearbeiterBlock() {
           typ="email"
           labelKey="protokoll.abschnitt1.bearbeiter.feld.email"
           spalten={8}
-          pflicht
         />
       </div>
     </fieldset>

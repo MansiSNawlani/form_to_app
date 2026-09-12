@@ -37,7 +37,6 @@ function ProbestreckeBlock() {
           name="probestrecke.gewaesser.gewaessername"
           labelKey="protokoll.abschnitt1.probestrecke.feld.gewaessername"
           spalten={5}
-          pflicht
         />
         {/* A radio group in the PDF, a dropdown here, following the mockup:
             eight options with labels this long do not fit the row as radios.
@@ -50,7 +49,6 @@ function ProbestreckeBlock() {
           labelKey="protokoll.abschnitt1.probestrecke.feld.gewaessertyp"
           hinweisKey="protokoll.abschnitt1.probestrecke.feld.gewaessertypHinweis"
           spalten={4}
-          pflicht
         />
         <FeldText
           name="probestrecke.laenge"
@@ -58,14 +56,12 @@ function ProbestreckeBlock() {
           einheit={t('protokoll.felder.einheit.meter')}
           labelKey="protokoll.abschnitt1.probestrecke.feld.laenge"
           spalten={3}
-          pflicht
         />
 
         <FeldText
           name="probestrecke.ortsangabe"
           labelKey="protokoll.abschnitt1.probestrecke.feld.ortsangabe"
           spalten={12}
-          pflicht
         />
       </div>
 
@@ -87,7 +83,6 @@ function ProbestreckeBlock() {
           name="probestrecke.gewaesser.vorfluter1"
           labelKey="protokoll.abschnitt1.probestrecke.feld.vorfluter1"
           spalten={4}
-          pflicht
         />
         <FeldText
           name="probestrecke.gewaesser.vorfluter2"
@@ -135,14 +130,12 @@ function ProbestreckeBlock() {
           typ="number"
           labelKey="protokoll.abschnitt1.probestrecke.feld.utmRwUnten"
           spalten={3}
-          pflicht
         />
         <FeldText
           name="probestrecke.utm_hw_unten"
           typ="number"
           labelKey="protokoll.abschnitt1.probestrecke.feld.utmHwUnten"
           spalten={3}
-          pflicht
         />
 
         <FeldText
@@ -155,14 +148,12 @@ function ProbestreckeBlock() {
           typ="number"
           labelKey="protokoll.abschnitt1.probestrecke.feld.utmRwOben"
           spalten={3}
-          pflicht
         />
         <FeldText
           name="probestrecke.utm_hw_oben"
           typ="number"
           labelKey="protokoll.abschnitt1.probestrecke.feld.utmHwOben"
           spalten={3}
-          pflicht
         />
 
         <p className="col-12 form-section__hint">

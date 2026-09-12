@@ -25,6 +25,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.anlagen.speicher import Anlagenspeicher, get_speicher
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
 from app.api.schemas import (
+    AbsendenAnfrage,
+    AbsendenAntwort,
     AntwortenSpeichern,
     FehlerAntwort,
     ProtokollAntwort,
@@ -32,6 +34,7 @@ from app.api.schemas import (
     SpeicherAntwort,
 )
 from app.db import get_session
+from app.protokolle.absenden import sende_ab
 from app.protokolle.dienst import (
     hole_protokoll,
     lege_entwurf_an,
@@ -58,6 +61,13 @@ MIT_PROTOKOLL: dict[int | str, dict[str, Any]] = {
 BEIM_AENDERN: dict[int | str, dict[str, Any]] = {
     **MIT_PROTOKOLL,
     status.HTTP_409_CONFLICT: {"model": FehlerAntwort},
+}
+
+# Submitting can collide the same way and can additionally be refused for what is
+# in the document, which a save never is: a draft is half-finished by definition.
+BEIM_ABSENDEN: dict[int | str, dict[str, Any]] = {
+    **BEIM_AENDERN,
+    status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": FehlerAntwort},
 }
 
 
@@ -141,6 +151,31 @@ async def speichern(
         version=anfrage.version,
     )
     return SpeicherAntwort.model_validate(protokoll)
+
+
+@router.post("/{protokoll_id}/absenden", responses=BEIM_ABSENDEN)
+async def absenden(
+    protokoll_id: uuid.UUID,
+    anfrage: AbsendenAnfrage,
+    benutzer: AngemeldeterBenutzer,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AbsendenAntwort:
+    """Send a finished protocol to FFS.
+
+    POST to a sub-path rather than a PATCH setting the status, because this is an
+    action and not an edit: a client that could set the status directly could
+    also set it to ACCEPTED. What it actually does is in app/protokolle/absenden.py.
+
+    Answers 422 when the protocol is not finished, carrying every unfinished or
+    broken answer as a path and a message key.
+    """
+    protokoll = await sende_ab(
+        session,
+        protokoll_id=protokoll_id,
+        besitzer=benutzer,
+        version=anfrage.version,
+    )
+    return AbsendenAntwort.model_validate(protokoll)
 
 
 @router.delete("/{protokoll_id}", status_code=status.HTTP_204_NO_CONTENT, responses=BEIM_AENDERN)

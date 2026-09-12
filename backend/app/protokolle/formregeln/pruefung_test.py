@@ -12,10 +12,16 @@ from typing import Any
 
 import pytest
 
+from app.formular.pflicht import pflichtfelder
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
 from app.protokolle.formregeln.hydrologie import MARKIERTE_FELDER, NICHT_ZUTREFFEND
-from app.protokolle.formregeln.vollstaendigkeit import PFLICHTFELDER
+from app.protokolle.formregeln.prozent import PROZENTGRUPPEN
+from app.protokolle.regeln import pruefe_antworten
+
+#: The required list as the application reads it, out of the seed file the browser
+#: reads too. Bound at module level so the parametrised cases below can use it.
+PFLICHTFELDER_ = pflichtfelder().pfade
 
 # The browser's German locale, which is the authority on what a valid key is.
 # Reached by path rather than by import for the obvious reason: this is the
@@ -48,19 +54,39 @@ class TestEinEchtesProtokoll:
 class TestEinLeeresProtokoll:
     def test_meldet_jedes_pflichtfeld_und_die_tabelle(self) -> None:
         gemeldet = [verstoss.pfad for verstoss in pruefe_protokoll({})]
-        assert gemeldet == [*PFLICHTFELDER, "tabelle.arten"]
+        assert gemeldet == [
+            *PFLICHTFELDER_,
+            *(gruppe.id for gruppe in PROZENTGRUPPEN),
+            "block.einfluesse",
+            "block.bewirtschaftung",
+            "tabelle.arten",
+        ]
 
     def test_meldet_sonst_nichts(self) -> None:
         # An empty document is unfinished, not wrong. Every rule but the
         # completeness check stays quiet about a blank answer, which is what
         # lets the same rules run over a half-finished draft.
-        assert alle_schluessel({}) == {"protokoll.regeln.fehlt", "protokoll.regeln.fehltArt"}
+        assert alle_schluessel({}) == {
+            "protokoll.regeln.fehlt",
+            "protokoll.regeln.fehltArt",
+            "protokoll.regeln.fehltProzentgruppe",
+            # The broken fixture ticks a use, so the Einfluss block is answered;
+            # the Bewirtschaftung block is not touched at all.
+            "protokoll.regeln.fehltBewirtschaftung",
+            "protokoll.regeln.fehltEinfluss",
+        }
 
 
 class TestEinKaputtesProtokoll:
     def test_faengt_jede_eingebaute_verletzung(self) -> None:
         assert alle_schluessel(KAPUTT) == {
-            "protokoll.regeln.fehlt",  # messdaten.schaumbildung
+            "protokoll.regeln.fehlt",  # messdaten.schaumbildung and others
+            # Five of the six blocks are untouched; the sixth was started and
+            # comes to 43, which is the other rule's complaint below.
+            "protokoll.regeln.fehltProzentgruppe",
+            # The broken fixture ticks a use, so the Einfluss block is answered;
+            # the Bewirtschaftung block is not touched at all.
+            "protokoll.regeln.fehltBewirtschaftung",
             "protokoll.regeln.monitoringnummerPflicht",
             "protokoll.regeln.vorfluterKeinEndpunkt",
             "protokoll.regeln.koordinateRechtswertAusserhalb",
@@ -139,3 +165,21 @@ class TestJederSchluesselHatEinenText:
 
         assert deklariert, "no rule keys found, so this test is proving nothing"
         assert deklariert <= regel_schluessel()
+
+
+@pytest.mark.parametrize("dokument", [VOLLSTAENDIG, KAPUTT], ids=["vollstaendig", "kaputt"])
+def test_die_beispiele_sind_dokumente_die_wirklich_gespeichert_werden_koennen(
+    dokument: dict[str, Any],
+) -> None:
+    """Both fixtures have to be documents the form could really hold.
+
+    They are not, automatically. Nothing in this package looks at a path the rules
+    do not judge, so a group written as a bare string sits there unnoticed: this
+    is exactly how bemerkungen was wrong from feature 11a until feature 11c saved
+    the fixture through the real endpoint and app/protokolle/regeln.py refused it.
+
+    Deliberately true of the broken fixture too. KAPUTT is meant to break rules,
+    not to be a document this form cannot store, or it would be testing two
+    different failures at once.
+    """
+    pruefe_antworten(dokument)

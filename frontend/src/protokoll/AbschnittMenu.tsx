@@ -6,10 +6,14 @@ import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ChevronIcon } from '../components/icons'
 import { ABSCHNITTE, abschnittPfad } from './abschnitte'
+import type { Abschnittsnummer } from './absenden/verortung'
 
 interface AbschnittMenuProps {
   entwurfId: string
   aktuelleNr: number
+  /* How many problems each section still has, worked out once in AbschnittNav
+     and handed down, so the two shapes of this navigation cannot disagree. */
+  offeneProbleme: ReadonlyMap<Abschnittsnummer, number>
 }
 
 /* The section navigation on a narrow screen, where the seven-cell bar does not
@@ -31,7 +35,7 @@ interface AbschnittMenuProps {
  * the accessibility tree as well as off the screen, so there is never a second
  * copy of these links for a screen reader to find.
  */
-function AbschnittMenu({ entwurfId, aktuelleNr }: AbschnittMenuProps) {
+function AbschnittMenu({ entwurfId, aktuelleNr, offeneProbleme }: AbschnittMenuProps) {
   const { t } = useTranslation()
   const menuId = useId()
   const [anker, setAnker] = useState<HTMLElement | null>(null)
@@ -90,6 +94,15 @@ function AbschnittMenu({ entwurfId, aktuelleNr }: AbschnittMenuProps) {
           >
             <span className="steps-kompakt__num">{abschnitt.nr}</span>
             {t(abschnitt.titelKey)}
+            {/* Spelled out rather than shown as a bare number, because a menu
+                item is read as a sentence and there is room here for one. */}
+            {(offeneProbleme.get(abschnitt.nr) ?? 0) > 0 && (
+              <span className="steps-kompakt__offen">
+                {t('protokoll.absenden.probleme.offenImMenue', {
+                  count: offeneProbleme.get(abschnitt.nr) ?? 0,
+                })}
+              </span>
+            )}
           </MenuItem>
         ))}
       </Menu>
