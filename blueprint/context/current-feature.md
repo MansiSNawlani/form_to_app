@@ -315,7 +315,7 @@ steps below are grouped by the kind of rule rather than by how many fields they 
       "unbekannt" ticked passing, an empty Einflüsse block failing, and a Besatz row holding
       a year but no species failing.
 
-- [ ] **Step 13 - Part 5's conditionals** - the ring anodes' diameter is required only when
+- [x] **Step 13 - Part 5's conditionals** - the ring anodes' diameter is required only when
       ring anodes were used, and each fished-area row that carries a length needs at least
       one direction and at least one method. A row that was not fished stays empty
       throughout.

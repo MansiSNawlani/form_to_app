@@ -31,6 +31,7 @@ artenliste.pruefe_fang_ohne_nachweis_code assumes somebody named something.
 """
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Any
 
 from app.formular.pflicht import pflichtfelder
@@ -85,6 +86,56 @@ BEWIRTSCHAFTUNG_TICKS = (
 # The stocking rows stay optional: whoever surveys a stretch does not always know
 # what was put into it. A row somebody has started is a different matter, and this
 # is what makes it finish.
+# Part 5's two conditionals. The ring anodes' diameter only means something if
+# ring anodes were used, and a fished-area row only owes a direction and a method
+# if it was fished at all.
+RINGANODEN = "ausruestung.ringanoden"
+RINGANODEN_DURCHMESSER = "ausruestung.ringanoden_durchmesser"
+
+FEHLT_RICHTUNG = "protokoll.regeln.fehltRichtung"
+FEHLT_METHODE = "protokoll.regeln.fehltMethode"
+
+
+@dataclass(frozen=True)
+class BefischterBereich:
+    """One of the two rows: whether it was fished, and how."""
+
+    #: The row's own pseudo-path, for a violation that belongs to no single tick.
+    id: str
+    laenge: str
+    richtungen: tuple[str, ...]
+    methoden: tuple[str, ...]
+
+
+BEFISCHTE_BEREICHE = (
+    BefischterBereich(
+        id="bereich.gesamte_breite",
+        laenge="befischte_bereiche.ges_gew_laenge",
+        richtungen=(
+            "befischte_bereiche.ges_gew_stromauf",
+            "befischte_bereiche.ges_gew_stromab",
+        ),
+        methoden=(
+            "befischte_bereiche.ges_gew_watend",
+            "befischte_bereiche.ges_gew_vom_boot",
+            "befischte_bereiche.ges_gew_vom_ufer",
+        ),
+    ),
+    BefischterBereich(
+        id="bereich.entlang_ufer",
+        laenge="befischte_bereiche.ufer_laenge",
+        richtungen=(
+            "befischte_bereiche.ufer_stromauf",
+            "befischte_bereiche.ufer_stromab",
+        ),
+        methoden=(
+            "befischte_bereiche.ufer_watend",
+            "befischte_bereiche.ufer_vom_boot",
+            "befischte_bereiche.ufer_vom_ufer",
+        ),
+    ),
+)
+
 BESATZ_ZEILEN = tuple(
     (
         f"bewirschaftung.besatz_fischart{nr}",
@@ -112,6 +163,8 @@ def pruefe_vollstaendigkeit(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     fehlend += _fehlende_dammneigung(antworten)
     fehlend += _fehlende_hakenbloecke(antworten)
     fehlend += _unfertige_besatzzeilen(antworten)
+    fehlend += _fehlender_ringdurchmesser(antworten)
+    fehlend += _unfertige_bereiche(antworten)
 
     if not benannte_arten(antworten):
         fehlend.append(Formverstoss(ARTEN_TABELLE, FEHLT_ART))
@@ -223,5 +276,49 @@ def _unfertige_besatzzeilen(antworten: Mapping[str, Any]) -> list[Formverstoss]:
             for pfad, wert in zip(zeile, werte, strict=True)
             if ist_leer(wert)
         ]
+
+    return fehlend
+
+
+def _fehlender_ringdurchmesser(antworten: Mapping[str, Any]) -> list[Formverstoss]:
+    """The ring anodes' diameter, which only exists if there are ring anodes.
+
+    Not a list entry, because a survey done with strip anodes has no ring
+    diameter to give and ausruestung.py already insists on one kind or the other.
+    A count of 0 is "none of these", so it asks for nothing either.
+    """
+    anzahl = wert_aus(antworten, RINGANODEN).strip()
+    if ist_leer(anzahl) or not anzahl.isdigit() or int(anzahl) == 0:
+        return []
+
+    if ist_leer(wert_aus(antworten, RINGANODEN_DURCHMESSER)):
+        return [Formverstoss(RINGANODEN_DURCHMESSER, FEHLT)]
+
+    return []
+
+
+def _unfertige_bereiche(antworten: Mapping[str, Any]) -> list[Formverstoss]:
+    """How each fished stretch was actually fished.
+
+    A row is fished when it carries a length, which ausruestung.py already
+    insists at least one of the two rows does. A row that was not fished stays
+    empty throughout and is asked for nothing: a survey may well cover the whole
+    width and never work along the bank.
+
+    A row that was fished owes a direction and a method, because a catch with no
+    record of how it was taken cannot be compared with the next one. Pointed at
+    the row rather than at a tick, since no single box is the missing one.
+    """
+    fehlend: list[Formverstoss] = []
+
+    for bereich in BEFISCHTE_BEREICHE:
+        laenge = wert_aus(antworten, bereich.laenge).strip()
+        if ist_leer(laenge) or (laenge.isdigit() and int(laenge) == 0):
+            continue
+
+        if not _irgendetwas_gesetzt(antworten, bereich.richtungen):
+            fehlend.append(Formverstoss(bereich.id, FEHLT_RICHTUNG))
+        if not _irgendetwas_gesetzt(antworten, bereich.methoden):
+            fehlend.append(Formverstoss(bereich.id, FEHLT_METHODE))
 
     return fehlend

@@ -21,7 +21,11 @@ from app.protokolle.formregeln.vollstaendigkeit import (
     FEHLT_ART,
     FEHLT_BEWIRTSCHAFTUNG,
     FEHLT_EINFLUSS,
+    FEHLT_METHODE,
     FEHLT_PROZENTGRUPPE,
+    FEHLT_RICHTUNG,
+    RINGANODEN,
+    RINGANODEN_DURCHMESSER,
     pruefe_vollstaendigkeit,
 )
 
@@ -477,3 +481,75 @@ class TestBesatzzeilen:
         gemeldet = fehlende_pfade(antworten)
 
         assert not [pfad for pfad in gemeldet if "besatz2" in pfad or "fischart2" in pfad]
+
+
+class TestRinganodenDurchmesser:
+    """A diameter only means something if there are ring anodes."""
+
+    def test_ohne_ringanoden_wird_kein_durchmesser_verlangt(self) -> None:
+        # A survey done with strip anodes has no ring diameter to give, and
+        # ausruestung.py already insists on one kind or the other.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "ausruestung.streifenanoden", "2")
+
+        assert RINGANODEN_DURCHMESSER not in fehlende_pfade(antworten)
+
+    def test_null_ringanoden_verlangen_keinen_durchmesser(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, RINGANODEN, "0")
+
+        assert RINGANODEN_DURCHMESSER not in fehlende_pfade(antworten)
+
+    def test_mit_ringanoden_wird_der_durchmesser_verlangt(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, RINGANODEN, "2")
+
+        assert RINGANODEN_DURCHMESSER in fehlende_pfade(antworten)
+
+
+class TestBefischteBereiche:
+    """A row that was fished owes a direction and a method; one that was not owes
+    nothing. A survey may well cover the whole width and never work the bank."""
+
+    def test_ein_unbenutzter_bereich_verlangt_nichts(self) -> None:
+        gemeldet = fehlende_pfade({})
+
+        assert not [pfad for pfad in gemeldet if pfad.startswith("bereich.")]
+
+    def test_eine_laenge_ohne_richtung_und_methode_wird_gemeldet(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "befischte_bereiche.ges_gew_laenge", "110")
+
+        schluessel = {
+            verstoss.schluessel
+            for verstoss in pruefe_vollstaendigkeit(antworten)
+            if verstoss.pfad == "bereich.gesamte_breite"
+        }
+
+        assert schluessel == {FEHLT_RICHTUNG, FEHLT_METHODE}
+
+    def test_richtung_und_methode_reichen(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "befischte_bereiche.ges_gew_laenge", "110")
+        setze(antworten, "befischte_bereiche.ges_gew_stromauf", "Ja")
+        setze(antworten, "befischte_bereiche.ges_gew_watend", "Ja")
+
+        assert not [
+            pfad for pfad in fehlende_pfade(antworten) if pfad == "bereich.gesamte_breite"
+        ]
+
+    def test_der_zweite_bereich_wird_getrennt_beurteilt(self) -> None:
+        # The whole width fished properly, the bank row untouched. Only the
+        # first row is judged, and it passes.
+        antworten: dict[str, Any] = {}
+        setze(antworten, "befischte_bereiche.ges_gew_laenge", "110")
+        setze(antworten, "befischte_bereiche.ges_gew_stromauf", "Ja")
+        setze(antworten, "befischte_bereiche.ges_gew_watend", "Ja")
+
+        assert not [pfad for pfad in fehlende_pfade(antworten) if pfad.startswith("bereich.")]
+
+    def test_eine_laenge_von_null_gilt_als_nicht_befischt(self) -> None:
+        antworten: dict[str, Any] = {}
+        setze(antworten, "befischte_bereiche.ufer_laenge", "0")
+
+        assert "bereich.entlang_ufer" not in fehlende_pfade(antworten)

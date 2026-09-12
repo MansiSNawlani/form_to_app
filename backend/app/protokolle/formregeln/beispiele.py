@@ -124,9 +124,13 @@ VOLLSTAENDIG: dict[str, Any] = {
         "ringanoden_durchmesser": "40",
     },
     "anodenfuehrer": {"vorname": "Jonas", "nachname": "Bergmann"},
+    # The whole width was fished, wading upstream. The second row, along the
+    # bank, was not used at all and is therefore asked for nothing.
     "befischte_bereiche": {
         "ges_gew_laenge": "110",
         "ges_gew_breite": "4",
+        "ges_gew_stromauf": "Ja",
+        "ges_gew_watend": "Ja",
     },
     # Two species, each with its young-of-year count inside its own row total.
     "arten": {
