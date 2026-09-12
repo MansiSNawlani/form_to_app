@@ -22,6 +22,7 @@ import {
 import type { Verstoss } from '../../api/typen'
 import { absendeProtokoll } from '../entwurf/api'
 import { protokolleKey } from '../entwurf/abfragen'
+import { pruefungsStore } from './gemerkt'
 
 /** Where the list of a person's own protocols lives. */
 const UEBERSICHT = '/protokolle'
@@ -45,6 +46,10 @@ export interface Absenden {
   /* What the server refused, or an empty list. Always an array, so the panel can
      map over it without asking first. */
   verstoesse: readonly Verstoss[]
+  /* When the server said it. Null when nothing has been refused, and older than
+     this page when the list was read back after a reload, which is exactly why
+     the panel prints it. */
+  geprueftAm: string | null
   /* A refusal that is not about the contents: a conflict, a lost session, an
      unreachable server. Null when there is none. */
   fehler: unknown
@@ -57,7 +62,16 @@ export interface Absenden {
 export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen): Absenden {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [verstoesse, setVerstoesse] = useState<readonly Verstoss[]>([])
+  /* Read once, on the way in, so a reload lands on the list somebody was working
+     through rather than on a blank page and a button. Lazily, because reaching
+     for storage is not free and this runs on every render otherwise.
+
+     Only the list comes back. A refusal that was a conflict or a lost session is
+     not worth restoring: it described a moment rather than the document, and
+     trying again is the answer to both. */
+  const [gemerkt] = useState(() => pruefungsStore.lies(entwurfId))
+  const [verstoesse, setVerstoesse] = useState<readonly Verstoss[]>(gemerkt?.verstoesse ?? [])
+  const [geprueftAm, setGeprueftAm] = useState<string | null>(gemerkt?.zeitpunkt ?? null)
   const [fehler, setFehler] = useState<unknown>(null)
   const [bereitsAbgesendet, setBereitsAbgesendet] = useState(false)
 
@@ -68,6 +82,9 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
       return absendeProtokoll({ id: entwurfId, version })
     },
     onSuccess: () => {
+      // Submitted, so there is nothing left to put right and nothing to keep.
+      pruefungsStore.loesche(entwurfId)
+
       /* The list is fetched fresh rather than patched, because the row that
          changed is not the only thing that moved: the count line above the table
          reads "davon 2 Entwürfe" and this protocol has just stopped being one. */
@@ -86,6 +103,8 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
 
       if (grund.code === PROTOKOLL_UNVOLLSTAENDIG) {
         setVerstoesse(grund.verstoesse)
+        pruefungsStore.schreib(entwurfId, grund.verstoesse)
+        setGeprueftAm(new Date().toISOString())
         return
       }
 
@@ -115,11 +134,22 @@ export function useAbsenden({ entwurfId, bereitZumAbsenden }: AbsendenOptionen):
 
   const verwerfen = useCallback(() => {
     setVerstoesse([])
+    setGeprueftAm(null)
     setFehler(null)
     setBereitsAbgesendet(false)
-  }, [])
+    // Closed on purpose, so it should not come back after the next reload.
+    pruefungsStore.loesche(entwurfId)
+  }, [entwurfId])
 
-  return { absenden, verwerfen, laeuft: isPending, verstoesse, fehler, bereitsAbgesendet }
+  return {
+    absenden,
+    verwerfen,
+    laeuft: isPending,
+    verstoesse,
+    geprueftAm,
+    fehler,
+    bereitsAbgesendet,
+  }
 }
 
 /* The one failure this hook raises itself: the protocol is not on the server as

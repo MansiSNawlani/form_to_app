@@ -694,7 +694,8 @@
         "offenImAbschnitt_one": "offene Angabe in diesem Abschnitt",
         "offenImAbschnitt_other": "offene Angaben in diesem Abschnitt",
         "offenImMenue_one": "1 offen",
-        "offenImMenue_other": "{{count}} offen"
+        "offenImMenue_other": "{{count}} offen",
+        "stand": "Stand der Prüfung: {{zeitpunkt}} Uhr."
       },
       "bereitsAbgesendet": {
         "text": "Dieses Protokoll ist bereits abgesendet. Es ist alles angekommen; Sie müssen nichts weiter tun.",

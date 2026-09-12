@@ -6,6 +6,7 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import dayjs from 'dayjs'
 import type { ParseKeys } from 'i18next'
 import { useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router'
@@ -18,6 +19,10 @@ import type { Verstoss } from '../../api/typen'
 
 interface AbsendeProblemeProps {
   entwurfId: string
+  /* When the server said this. Printed because the list now outlives the page it
+     was fetched on: after a reload it can be an hour old, and a list that does
+     not admit its age invites somebody to trust it as current. */
+  geprueftAm: string | null
   /** Which section is open. Only its problems are listed here. */
   aktuelleNr: number
   verstoesse: readonly Verstoss[]
@@ -52,6 +57,7 @@ interface AbsendeProblemeProps {
  */
 function AbsendeProbleme({
   entwurfId,
+  geprueftAm,
   aktuelleNr,
   verstoesse,
   artnamen,
@@ -141,6 +147,12 @@ function AbsendeProbleme({
 
       <Typography variant="body2">{t('protokoll.absenden.probleme.entwurfBleibt')}</Typography>
 
+      {geprueftAm !== null && (
+        <Typography variant="body2" className="absende-probleme__stand">
+          {t('protokoll.absenden.probleme.stand', { zeitpunkt: standAnzeige(geprueftAm) })}
+        </Typography>
+      )}
+
       <Stack direction="row" spacing={1} className="absende-probleme__aktionen">
         {/* The only thing that can say a protocol is right. Ticking an entry off
             above means a box is no longer empty, which is a smaller claim. */}
@@ -155,6 +167,14 @@ function AbsendeProbleme({
       </Stack>
     </Alert>
   )
+}
+
+/* When the list was fetched, written out in full rather than as "vor 20
+ * Minuten": the question it answers is whether to trust the list, and a reader
+ * deciding that wants the time, not an approximation of it. */
+function standAnzeige(zeitpunkt: string): string {
+  const moment = dayjs(zeitpunkt)
+  return moment.isValid() ? moment.format('DD.MM.YYYY, HH:mm') : zeitpunkt
 }
 
 /* What to call the field this problem is about.

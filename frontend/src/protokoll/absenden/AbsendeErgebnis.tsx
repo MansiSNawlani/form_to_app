@@ -27,7 +27,8 @@ interface AbsendeErgebnisProps {
 function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisProps) {
   const { t } = useTranslation()
   const { getValues } = useFormContext<Antworten>()
-  const { verstoesse, fehler, bereitsAbgesendet, absenden, verwerfen, laeuft } = absendung
+  const { verstoesse, geprueftAm, fehler, bereitsAbgesendet, absenden, verwerfen, laeuft } =
+    absendung
 
   const fehlertext = useFehlertext(fehler)
   const istUngespeichert = fehler instanceof NichtGespeichert
@@ -61,6 +62,7 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
   return (
     <AbsendeProbleme
       entwurfId={entwurfId}
+      geprueftAm={geprueftAm}
       aktuelleNr={aktuelleNr}
       verstoesse={verstoesse}
       /* Read once per render rather than watched. The panel watches the paths it
