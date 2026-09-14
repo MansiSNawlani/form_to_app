@@ -34,7 +34,12 @@ from app.formular.felder import formular
 from app.models.benutzer import Rolle, User
 from app.models.protokoll import Status, Submission
 from app.protokolle.fehler import ProtokollNichtGefunden
-from app.protokolle.regeln import pruefe_aenderbar, pruefe_antworten, pruefe_version
+from app.protokolle.regeln import (
+    pruefe_aenderbar,
+    pruefe_antworten,
+    pruefe_loeschbar,
+    pruefe_version,
+)
 
 
 @dataclass(frozen=True)
@@ -270,9 +275,10 @@ async def loesche_protokoll(
 ) -> None:
     """Remove a draft belonging to this account, and its attachments' files.
 
-    Only a draft. Once a protocol has been submitted it is a record somebody else
-    is working with, and withdrawing it is a workflow step for feature 11 rather
-    than a delete.
+    Only a draft, and that stayed true when feature 11d let the owner edit a
+    protocol again after a change request. Editing one is the point of sending it
+    back; deleting it would take a reviewer's decisions with it, and FFS has
+    already seen it. pruefe_loeschbar is where the two rules part company.
 
     The attachment rows go with it through ON DELETE CASCADE, but a cascade knows
     nothing about the volume, so the pictures would stay there forever with
@@ -284,7 +290,7 @@ async def loesche_protokoll(
     the protocol precisely so it does not have to be.
     """
     protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
-    pruefe_aenderbar(protokoll.status)
+    pruefe_loeschbar(protokoll.status)
 
     await session.delete(protokoll)
     await session.commit()

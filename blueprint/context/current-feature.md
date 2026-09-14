@@ -206,7 +206,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       arriving at once on two connections end with one winner, one refusal and exactly one
       event.
 
-- [ ] **Step 4 - Absenden joins the history** - `app/protokolle/absenden.py` writes its own
+- [x] **Step 4 - Absenden joins the history** - `app/protokolle/absenden.py` writes its own
       `workflow_events` row through step 3's writer, and accepts NEEDS_CHANGES as well as
       DRAFT. `submitted_at` is set only when it is still null, so a re-submission keeps the
       original hand-in. `pruefe_aenderbar` widens to DRAFT and NEEDS_CHANGES, which is the

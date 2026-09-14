@@ -9,6 +9,7 @@ database mid-request, so it is asked of the service directly.
 
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
+from datetime import UTC, date, datetime, time
 
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
@@ -19,9 +20,47 @@ from app.anlagen.speicher import Anlagenspeicher
 from app.formular.felder import formular
 from app.models.anlage import Anlagenart
 from app.models.benutzer import User
-from app.models.protokoll import Submission
+from app.models.gewaesser import Gewaesser
+from app.models.person import Person
+from app.models.probestrecke import Probestrecke
+from app.models.protokoll import Status, Submission
 
 JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01" + b"\x00" * 64
+
+
+async def umschlag_fuer(session: AsyncSession) -> dict[str, object]:
+    """The columns feature 11b requires of anything that is not a draft.
+
+    Built here rather than taken from the shared conftest fixture, because that
+    one is a fixture and this is wanted inside a test that has already had its
+    protocol from another one.
+    """
+    gewaesser = Gewaesser(id=uuid.uuid4(), name="Schussen", vorfluter=["Rhein"])
+    strecke = Probestrecke(
+        id=uuid.uuid4(),
+        gewaesser_id=gewaesser.id,
+        ortsangabe="unterhalb der Bruecke",
+        gewaessertyp=13,
+        laenge_m=450,
+        untere_grenze_rechtswert=512340,
+        untere_grenze_hochwert=5398120,
+        obere_grenze_rechtswert=512890,
+        obere_grenze_hochwert=5398450,
+        regierungspraesidium=4,
+    )
+    person = Person(id=uuid.uuid4(), name="Anna Weber", email="weber@ffs.de")
+    session.add_all([gewaesser, strecke, person])
+    await session.flush()
+
+    return {
+        "probestrecke_id": strecke.id,
+        "person_id": person.id,
+        "bearbeiter_name": "Anna Weber",
+        "anlass": "wrrl",
+        "datum": date(2026, 6, 9),
+        "uhrzeit": time(14, 30),
+        "submitted_at": datetime.now(UTC),
+    }
 
 
 async def bloecke(inhalt: bytes) -> AsyncIterator[bytes]:
@@ -120,3 +159,38 @@ async def test_der_speicherschluessel_kommt_aus_den_beiden_ids(
     # look for on their own machine. It is data, and it never became a path.
     assert anlage.dateiname == "../../boom.jpg"
     assert (speicher.wurzel / str(protokoll.id) / str(anlage.id)).is_file()
+
+
+async def test_ein_zurueckgegebenes_protokoll_nimmt_noch_fotos_an(
+    session: AsyncSession,
+    speicher: Anlagenspeicher,
+    protokoll: Submission,
+    besitzer_von: Callable[[Submission], Awaitable[User]],
+) -> None:
+    """A change request often is "please add the photograph you left out".
+
+    Attachments ask pruefe_aenderbar, the same question saving asks, so the day
+    feature 11d let a returned protocol be edited they became changeable with it.
+    This is that shared rule being held to, since nothing in this module mentions
+    a status at all.
+    """
+    # The envelope first, then the status, and both before anything is written.
+    # umschlag_bei_abgabe requires the whole envelope the moment a protocol is
+    # not a draft, so a flush between the two halves fails on the constraint
+    # rather than on anything this test is about.
+    felder = await umschlag_fuer(session)
+    for spalte, wert in felder.items():
+        setattr(protokoll, spalte, wert)
+    protokoll.status = Status.NEEDS_CHANGES
+    await session.commit()
+
+    anlage = await lege_anlage_an(
+        session,
+        speicher,
+        protokoll_id=protokoll.id,
+        besitzer=await besitzer_von(protokoll),
+        art=Anlagenart.FOTO,
+        datei=hochgeladen(),
+    )
+
+    assert anlage.id is not None
