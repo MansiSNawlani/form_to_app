@@ -172,7 +172,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       real database that a row with an unknown status is refused, that a row with an empty
       comment is refused, and that deleting a protocol deletes its events.
 
-- [ ] **Step 2 - The state machine, as a plain function** - `app/protokolle/uebergang/regeln.py`.
+- [x] **Step 2 - The state machine, as a plain function** - `app/protokolle/uebergang/regeln.py`.
       An `Entscheidung` enum with the mockup's three decisions, and one declared table of
       transitions: from which states, to which state, which roles, Begruendung required or
       not. `pruefe_uebergang(...)` reads that table and raises `UebergangNichtMoeglich`,

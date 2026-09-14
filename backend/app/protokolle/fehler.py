@@ -204,3 +204,58 @@ class UmschlagUnvollstaendig(ProtokollFehler):
     def __init__(self, pfade: tuple[str, ...]) -> None:
         self.pfade = pfade
         super().__init__(f"{len(pfade)} answers missing or unreadable for the envelope")
+
+
+class UebergangNichtMoeglich(ProtokollFehler):
+    """This protocol is not in a state this action can be taken from.
+
+    A reviewer accepting a protocol somebody has already accepted, a decision on
+    one that is back with its surveyor, a second Absenden from a tab left open
+    across the first. All of them are the same thing: the protocol moved on, and
+    the person is looking at a state it is no longer in.
+
+    A conflict rather than a bad request, for the reason ProtokollVeraendert is
+    one. Nothing about the request is malformed.
+
+    Carries both the action and the state for a log. The message says what to do,
+    because "SUBMITTED, expected IN_REVIEW" means nothing to anybody.
+    """
+
+    def __init__(self, aktion: str, status: str) -> None:
+        self.aktion = aktion
+        self.status = status
+        super().__init__(f"{aktion} is not possible on a protocol that is {status}")
+
+
+class BegruendungFehlt(ProtokollFehler):
+    """A rejection or a change request arrived without a reason.
+
+    The surveyor is being told to do something, so the one thing they need is
+    what. The reviewer mockup marks the field required for exactly these two
+    decisions and says underneath that the submitter reads the text.
+
+    Blank counts as missing. A Begruendung of spaces would reach the surveyor as
+    an empty quotation under an instruction to fix something.
+    """
+
+    def __init__(self, aktion: str) -> None:
+        self.aktion = aktion
+        super().__init__(f"{aktion} needs a reason")
+
+
+class EigenesProtokoll(ProtokollFehler):
+    """Somebody tried to decide on a protocol they filed themselves.
+
+    Chosen with the user on 2026-09-14: whoever holds the Reviewer role, a
+    decision on your own work is not yours to make. There is no override, and
+    building one would be a second way to decide that goes round the rule the
+    first way exists to enforce.
+
+    The consequence, recorded in the 11d spec: where FFS has exactly one reviewer,
+    that reviewer's own protocols cannot be accepted by anybody. FFS has to know
+    that before this goes live.
+    """
+
+    def __init__(self, aktion: str) -> None:
+        self.aktion = aktion
+        super().__init__(f"{aktion} on your own protocol is not allowed")
