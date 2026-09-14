@@ -14,6 +14,7 @@ from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
+from app.models.workflow_event import WorkflowEvent
 
 __all__ = [
     "Anlagenart",
@@ -27,4 +28,5 @@ __all__ = [
     "Status",
     "Submission",
     "User",
+    "WorkflowEvent",
 ]
