@@ -22,6 +22,10 @@ from app.protokolle.formregeln.beispiele import VOLLSTAENDIG
 
 BEGRUENDUNG = "Bitte die Leitfaehigkeit nachtragen, das Feld ist leer geblieben."
 
+# Enough of a JPEG for the attachment route to reach its ownership check. Written
+# from hex rather than as escapes so the header stays readable as a signature.
+JPEG = bytes.fromhex("ffd8ffe00010") + b"JFIF" + bytes.fromhex("0001") + bytes(64)
+
 EINREICHER = "bergmann@ffs.de"
 PRUEFERIN = "lehmann@ffs.de"
 
@@ -432,3 +436,63 @@ async def test_ein_zurueckgegebenes_protokoll_sagt_beim_loeschen_die_wahrheit(
     koerper = antwort.json()
     assert koerper["code"] == "PROTOKOLL_NICHT_LOESCHBAR"
     assert "weiter bearbeiten" in koerper["nachricht"]
+
+
+async def test_ein_pruefer_darf_an_ein_fremdes_protokoll_nichts_anhaengen(
+    protokoll: str, als: Callable[[str], Awaitable[AsyncClient]]
+) -> None:
+    """The third of the three write routes, and the one most easily forgotten.
+
+    Attachments reach a protocol through hole_protokoll, the owner-only loader, so
+    widening who may read one did not widen this. That is worth a test rather than
+    an assumption: it is a different module, and the next person to widen
+    something will look for the proof here.
+    """
+    pruefer = await als(PRUEFERIN)
+
+    antwort = await pruefer.post(
+        f"/api/v1/protokolle/{protokoll}/anlagen",
+        data={"art": "FOTO"},
+        files={"datei": ("schussen.jpg", JPEG, "image/jpeg")},
+    )
+
+    assert antwort.status_code == 404
+
+
+@pytest.mark.parametrize("rollen", [(Rolle.SUBMITTER,), (Rolle.DATA_STEWARD,)])
+async def test_wer_nicht_pruefen_darf_nimmt_auch_nichts_in_pruefung(
+    protokoll: str,
+    konten: Callable[..., Awaitable[User]],
+    als: Callable[[str], Awaitable[AsyncClient]],
+    rollen: tuple[Rolle, ...],
+) -> None:
+    """Both reviewer routes carry the same requirement, and both are tested for
+    it. One of them having been left open would be the quiet kind of hole."""
+    await konten(email="kern@ffs.de", rollen=rollen)
+    fremder = await als("kern@ffs.de")
+
+    antwort = await fremder.post(f"/api/v1/protokolle/{protokoll}/pruefung")
+
+    assert antwort.status_code == 403
+    assert antwort.json()["code"] == "ROLLE_FEHLT"
+
+
+@pytest.mark.parametrize("weg", ["pruefung", "entscheidung"])
+async def test_ein_super_admin_kommt_durch_beide_tueren(
+    protokoll: str,
+    konten: Callable[..., Awaitable[User]],
+    als: Callable[[str], Awaitable[AsyncClient]],
+    weg: str,
+) -> None:
+    """The role that is meant to be able to do everything, over HTTP.
+
+    The table says so and regeln_test.py proves the table; this proves the routes
+    were given the table's answer rather than a hand-typed Rolle.REVIEWER.
+    """
+    await konten(email="chefin@ffs.de", rollen=(Rolle.SUPER_ADMIN,))
+    admin = await als("chefin@ffs.de")
+
+    koerper = {"entscheidung": "ANNEHMEN"} if weg == "entscheidung" else None
+    antwort = await admin.post(f"/api/v1/protokolle/{protokoll}/{weg}", json=koerper)
+
+    assert antwort.status_code == 200

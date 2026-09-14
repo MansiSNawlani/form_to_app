@@ -712,6 +712,7 @@
     "aenderung": {
       "titel": "Die Prüfung bittet um eine Änderung",
       "von": "Angefordert von {{person}} am {{zeitpunkt}} Uhr.",
+      "vonOhneZeit": "Angefordert von {{person}}.",
       "hinweis": "Bitte ändern Sie das Genannte und senden Sie das Protokoll danach am Ende von Abschnitt 7 noch einmal ab. Bis dahin bleibt es bearbeitbar; gelöscht werden kann es nicht mehr."
     }
   }

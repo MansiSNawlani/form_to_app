@@ -249,7 +249,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       session; 404 for an unknown id; and the Verlauf coming back newest first for the
       owner and for a reviewer, and 404 for a stranger. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 7 - The browser's side of the three calls** - the types and the calls in
+- [x] **Step 7 - The browser's side of the three calls** - the types and the calls in
       `protokoll/pruefung/`, the new error codes in `api/fehler.ts`, and a `verlauf` query.
       Pure plumbing, tested the way 11c tested `absendeProtokoll`.
       *Done when:* `npm test` proves each refusal body becomes an `ApiFehler` carrying its
@@ -279,7 +279,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       a REJECTED row still does not; the count line prints the same number it printed
       before; screenshots in both themes.
 
-- [ ] **Step 10 - The words, and what FFS has to be told** - `CONTEXT.md` gains the
+- [x] **Step 10 - The words, and what FFS has to be told** - `CONTEXT.md` gains the
       workflow vocabulary this feature settles: In Pruefung, Verlauf, Begruendung, and what
       a change request is, each with the word to avoid. `docs/ffs-questions.md` gains the
       lone-reviewer consequence from the section above. German strings for everything
@@ -288,6 +288,54 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       *Done when:* `npm test`, `npm run lint`, `npm run build` pass from `frontend/`, and
       `pytest`, `ruff check .` and `mypy .` pass from `backend/`; no German string added in
       steps 8 and 9 is left hard-coded in a component.
+
+## What the branch review changed
+
+Two axes were run against the branch on 2026-09-14. Neither found a hard standards
+violation. Five judgement calls and three gaps were real and were fixed on the branch; six
+deviations from the spec above were deliberate and are recorded rather than undone.
+
+**Fixed**
+
+- **The writer was called `entscheide`**, and it is the entry point for In Pruefung nehmen
+  as well, which `regeln.py` says in its own words is not a decision. Now
+  `fuehre_uebergang_aus`. The browser had it right from the start, with `nimmInPruefung`
+  separate from `entscheide`.
+- **The same rationale was copied into three and four places**, across both halves of the
+  app. This is the finding 11c's own review made, reintroduced. One canonical statement
+  now, with the others pointing at it.
+- **A timestamp format written twice.** `AbsendeProbleme.tsx` already had one. Both now use
+  `zeitpunktAnzeige` beside the other display helpers.
+- **A gap where a date belongs.** An unparseable timestamp printed "Angefordert von X am
+  Uhr", which reads as a fault in the application rather than a missing detail. The whole
+  sentence is dropped instead.
+- **`BEGRUENDUNG_NOETIG` was exported and unused**, written for 11e. Deleted, with a note
+  saying why the browser should not hold a second copy of a rule the server owns.
+- **Three permission tests the spec asked for were missing**: an attachment upload by a
+  reviewer on somebody else's protocol, a role refusal on the Pruefung route as well as on
+  the decision route, and a Super Admin over HTTP rather than only in the unit tests.
+
+**Deliberate, and recorded rather than undone**
+
+- **The enum is `Aktion` with five members**, not `Entscheidung` with three. All five moves
+  have to be in one table for the completeness test to mean anything, and `ENTSCHEIDUNGEN`
+  names the three the reviewer screen offers. The wire contract is unchanged: the decision
+  route takes exactly the three.
+- **`pruefe_uebergang` raises a fourth error**, `RolleFehlt`, rather than one of its own for
+  a missing role. One code for "your account may not do this" across the whole application
+  beats a second that means the same thing.
+- **A third check constraint**, `uebergang_bewegt_sich`. A move from a state to itself would
+  print in the Verlauf as a line saying nothing happened, and only a bug can write one.
+- **A fourth error type**, `ProtokollNichtLoeschbar`. Found by running the real thing: the
+  delete refusal was reusing the save message and telling somebody their protocol could no
+  longer be changed while they were typing into it.
+- **Step 9 did slightly more than the link.** The delete button is hidden on a returned
+  protocol, since deleting one is refused, and the link says "Ueberarbeiten" rather than
+  "Weiter", because that row is not a draft to carry on with.
+- **No screenshots.** Playwright is not installed and `coding-standards.md` says not to add
+  it mid-feature, so steps 8 and 9 rest on the build, the tests and a full round trip driven
+  against the running stack. The visual check in both themes is still owed and is the first
+  thing `/check` or a manual pass should cover.
 
 ## Files / areas
 

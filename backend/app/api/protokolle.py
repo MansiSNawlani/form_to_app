@@ -46,7 +46,7 @@ from app.protokolle.dienst import (
     loesche_protokoll,
     speichere_antworten,
 )
-from app.protokolle.uebergang.dienst import entscheide, lies_verlauf
+from app.protokolle.uebergang.dienst import fuehre_uebergang_aus, lies_verlauf
 from app.protokolle.uebergang.regeln import PRUEFERROLLEN, Aktion
 
 router = APIRouter(prefix="/api/v1/protokolle", tags=["Protokolle"])
@@ -211,13 +211,11 @@ async def in_pruefung_nehmen(
 ) -> UebergangAntwort:
     """Take a submitted protocol into Pruefung.
 
-    A courtesy to colleagues rather than a lock: nothing reserves a protocol to
-    the reviewer who took it, and a decision can be made straight from SUBMITTED
-    without this step. Feature 12's queue is where it starts to carry weight.
-
-    No request body. There is nothing to say beyond that you have picked it up.
+    No request body. There is nothing to say beyond that you have picked it up,
+    and app/protokolle/uebergang/regeln.py says what picking it up does and does
+    not mean.
     """
-    protokoll = await entscheide(
+    protokoll = await fuehre_uebergang_aus(
         session, protokoll_id=protokoll_id, aktion=Aktion.IN_PRUEFUNG_NEHMEN, akteur=benutzer
     )
     return UebergangAntwort.model_validate(protokoll)
@@ -240,7 +238,7 @@ async def entscheiden(
     from, and 403 when the account may not decide at all or filed the protocol
     itself.
     """
-    protokoll = await entscheide(
+    protokoll = await fuehre_uebergang_aus(
         session,
         protokoll_id=protokoll_id,
         aktion=anfrage.entscheidung,

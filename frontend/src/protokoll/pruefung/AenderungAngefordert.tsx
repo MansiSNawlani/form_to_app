@@ -2,17 +2,14 @@ import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
-import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
+import { zeitpunktAnzeige } from '../liste/anzeige'
 import { verlaufsAbfrage } from './abfragen'
 import { letzteAenderungsbitte } from './aenderungsbitte'
 
 interface AenderungAngefordertProps {
   entwurfId: string
 }
-
-/** How the rest of this app prints a moment: 12.07.2026, 16:20. */
-const ZEITPUNKT = 'DD.MM.YYYY, HH:mm'
 
 /* What the reviewer asked for, above the form while it is being put right.
  *
@@ -33,16 +30,18 @@ function AenderungAngefordert({ entwurfId }: AenderungAngefordertProps) {
   const bitte = verlauf === undefined ? undefined : letzteAenderungsbitte(verlauf)
   if (bitte === undefined) return null
 
-  const wann = dayjs(bitte.created_at)
+  const wann = zeitpunktAnzeige(bitte.created_at)
 
   return (
     <Alert severity="warning" className="protokoll-fehler">
       <AlertTitle>{t('protokoll.aenderung.titel')}</AlertTitle>
+      {/* The whole sentence or none of it. A timestamp that will not parse used
+          to leave "angefordert von X am  Uhr", and a gap where a date belongs
+          reads as a fault in the application rather than as a missing detail. */}
       <Typography variant="body2" className="hinweis__text">
-        {t('protokoll.aenderung.von', {
-          person: bitte.akteur_name,
-          zeitpunkt: wann.isValid() ? wann.format(ZEITPUNKT) : '',
-        })}
+        {wann === null
+          ? t('protokoll.aenderung.vonOhneZeit', { person: bitte.akteur_name })
+          : t('protokoll.aenderung.von', { person: bitte.akteur_name, zeitpunkt: wann })}
       </Typography>
       {/* The reviewer's own words, quoted rather than paraphrased. Nothing here
           reformats them: this is the one piece of free text in the application

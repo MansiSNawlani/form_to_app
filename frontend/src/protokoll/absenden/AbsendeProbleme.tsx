@@ -7,13 +7,13 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import dayjs from 'dayjs'
 import type { ParseKeys } from 'i18next'
 import { useEffect, useRef } from 'react'
 import { Link as RouterLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ChevronIcon } from '../../components/icons'
 import { abschnittPfad } from '../abschnitte'
+import { zeitpunktAnzeige } from '../liste/anzeige'
 import { optionen } from '../optionen'
 import { gruppiere, type Problem } from './gruppierung'
 import { useErledigtePfade } from './useErledigte'
@@ -189,7 +189,9 @@ function AbsendeProbleme({
 
         {geprueftAm !== null && (
           <Typography variant="body2" className="absende-probleme__stand">
-            {t('protokoll.absenden.probleme.stand', { zeitpunkt: standAnzeige(geprueftAm) })}
+            {t('protokoll.absenden.probleme.stand', {
+              zeitpunkt: zeitpunktAnzeige(geprueftAm) ?? geprueftAm,
+            })}
           </Typography>
         )}
       </Collapse>
@@ -215,13 +217,6 @@ function AbsendeProbleme({
   )
 }
 
-/* When the list was fetched, written out in full rather than as "vor 20
- * Minuten": the question it answers is whether to trust the list, and a reader
- * deciding that wants the time, not an approximation of it. */
-function standAnzeige(zeitpunkt: string): string {
-  const moment = dayjs(zeitpunkt)
-  return moment.isValid() ? moment.format('DD.MM.YYYY, HH:mm') : zeitpunkt
-}
 
 /* What to call the field this problem is about.
  *

@@ -33,7 +33,7 @@ from app.protokolle.fehler import (
 )
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
-from app.protokolle.uebergang.dienst import entscheide
+from app.protokolle.uebergang.dienst import fuehre_uebergang_aus
 from app.protokolle.uebergang.regeln import Aktion
 from app.protokolle.zuordnung.dienst import Zuordnung, ordne_zu
 from app.protokolle.zuordnung.regeln import Umschlag
@@ -75,9 +75,7 @@ async def test_ein_unvollstaendiges_protokoll_wird_abgelehnt(
     entwurf = await _entwurf(session, besitzer)
 
     with pytest.raises(ProtokollUnvollstaendig) as erhoben:
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     # An empty document is missing every required answer, so this is the whole
     # required list arriving at once, which is also the longest the panel in the
@@ -100,9 +98,7 @@ async def test_die_verstoesse_kommen_in_abschnittsreihenfolge(
     entwurf = await _entwurf(session, besitzer, dict(KAPUTT))
 
     with pytest.raises(ProtokollUnvollstaendig) as erhoben:
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     assert list(erhoben.value.verstoesse) == pruefe_protokoll(KAPUTT)
 
@@ -228,9 +224,7 @@ async def test_absenden_hebt_die_version(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
     vorher = entwurf.version
 
-    protokoll = await sende_ab(
-        session, protokoll_id=entwurf.id, besitzer=besitzer, version=vorher
-    )
+    protokoll = await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=vorher)
 
     assert protokoll.version == vorher + 1
 
@@ -253,18 +247,14 @@ async def test_ein_fehler_in_der_zuordnung_hinterlaesst_nichts(
     # context fails talking about greenlets rather than about anything here.
     entwurf_id = entwurf.id
 
-    async def bricht_ab(
-        offene: AsyncSession, umschlag: Umschlag, konto: User
-    ) -> Zuordnung:
+    async def bricht_ab(offene: AsyncSession, umschlag: Umschlag, konto: User) -> Zuordnung:
         await ordne_zu(offene, umschlag, konto)
         raise RuntimeError("connection lost")
 
     monkeypatch.setattr("app.protokolle.absenden.ordne_zu", bricht_ab)
 
     with pytest.raises(RuntimeError):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     await session.rollback()
 
@@ -291,9 +281,7 @@ async def test_die_regeln_und_der_umschlag_sind_sich_einig(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     assert pruefe_protokoll(VOLLSTAENDIG) == []
-    await sende_ab(
-        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-    )
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
 
 async def test_ein_fremdes_protokoll_ist_nicht_zu_finden(
@@ -310,9 +298,7 @@ async def test_ein_fremdes_protokoll_ist_nicht_zu_finden(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     with pytest.raises(ProtokollNichtGefunden):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=fremder, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=fremder, version=entwurf.version)
 
 
 async def test_ein_unbekanntes_protokoll_ist_nicht_zu_finden(
@@ -348,9 +334,7 @@ async def test_ein_bereits_abgesendetes_protokoll_geht_nicht_noch_einmal(
     await session.flush()
 
     with pytest.raises(ProtokollNichtMehrEntwurf):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
 
 async def test_ein_veralteter_stand_wird_abgelehnt(
@@ -418,7 +402,7 @@ async def test_ein_zurueckgegebenes_protokoll_geht_wieder_raus(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=entwurf.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -446,7 +430,7 @@ async def test_ein_zweites_absenden_verschiebt_den_ersten_eingang_nicht(
     await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
     zuerst = entwurf.submitted_at
 
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=entwurf.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -470,7 +454,7 @@ async def test_die_geschichte_haelt_beide_eingaenge_fest(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=entwurf.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -511,7 +495,7 @@ async def test_ein_zurueckgegebenes_protokoll_wird_neu_gelesen(
     await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
     erste_person = entwurf.person_id
 
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=entwurf.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -555,7 +539,7 @@ async def test_ein_zurueckgegebenes_protokoll_darf_nicht_geloescht_werden(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=entwurf.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -564,6 +548,4 @@ async def test_ein_zurueckgegebenes_protokoll_darf_nicht_geloescht_werden(
     )
 
     with pytest.raises(ProtokollNichtLoeschbar):
-        await loesche_protokoll(
-            session, speicher, protokoll_id=entwurf.id, besitzer=besitzer
-        )
+        await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)

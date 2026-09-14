@@ -34,7 +34,7 @@ from app.protokolle.fehler import (
     ProtokollNichtGefunden,
     UebergangNichtMoeglich,
 )
-from app.protokolle.uebergang.dienst import entscheide, vermerke
+from app.protokolle.uebergang.dienst import fuehre_uebergang_aus, vermerke
 from app.protokolle.uebergang.regeln import Aktion
 
 BEGRUENDUNG = "Bitte die Leitfaehigkeit nachtragen, das Feld ist leer geblieben."
@@ -104,7 +104,7 @@ async def test_jede_aktion_schreibt_ihren_status_und_genau_ein_ereignis(
 ) -> None:
     protokoll = await eingereicht(besitzer)
 
-    ergebnis = await entscheide(
+    ergebnis = await fuehre_uebergang_aus(
         session,
         protokoll_id=protokoll.id,
         aktion=aktion,
@@ -131,7 +131,7 @@ async def test_annehmen_sperrt_das_protokoll(
     button text promises."""
     protokoll = await eingereicht(besitzer)
 
-    ergebnis = await entscheide(
+    ergebnis = await fuehre_uebergang_aus(
         session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=pruefer
     )
 
@@ -151,7 +151,7 @@ async def test_alles_andere_laesst_den_sperrzeitpunkt_leer(
 ) -> None:
     protokoll = await eingereicht(besitzer)
 
-    ergebnis = await entscheide(
+    ergebnis = await fuehre_uebergang_aus(
         session,
         protokoll_id=protokoll.id,
         aktion=aktion,
@@ -171,7 +171,7 @@ async def test_die_begruendung_wird_mitgeschrieben(
     """The surveyor reads this text, so it is stored as it was written."""
     protokoll = await eingereicht(besitzer)
 
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=protokoll.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -191,7 +191,7 @@ async def test_ohne_begruendung_bleibt_der_kommentar_leer(
     """Null rather than an empty string, which the database refuses anyway."""
     protokoll = await eingereicht(besitzer)
 
-    await entscheide(
+    await fuehre_uebergang_aus(
         session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=pruefer, kommentar="  "
     )
 
@@ -212,7 +212,7 @@ async def test_eine_abgewiesene_entscheidung_schreibt_gar_nichts(
     protokoll = await eingereicht(besitzer)
 
     with pytest.raises(BegruendungFehlt):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session,
             protokoll_id=protokoll.id,
             aktion=Aktion.ABLEHNEN,
@@ -234,10 +234,12 @@ async def test_ein_zweites_mal_entscheiden_wird_abgewiesen(
     """A locked protocol is final, and a second press of the button must not move
     it on again."""
     protokoll = await eingereicht(besitzer)
-    await entscheide(session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=pruefer)
+    await fuehre_uebergang_aus(
+        session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=pruefer
+    )
 
     with pytest.raises(UebergangNichtMoeglich):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session, protokoll_id=protokoll.id, aktion=Aktion.ABLEHNEN, akteur=pruefer
         )
 
@@ -254,7 +256,7 @@ async def test_der_einreicher_entscheidet_nicht_ueber_sein_eigenes(
     protokoll = await eingereicht(beides)
 
     with pytest.raises(EigenesProtokoll):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=beides
         )
 
@@ -271,7 +273,7 @@ async def test_ein_datensteward_entscheidet_nicht(
     protokoll = await eingereicht(besitzer)
 
     with pytest.raises(RolleFehlt):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session, protokoll_id=protokoll.id, aktion=Aktion.ANNEHMEN, akteur=steward
         )
 
@@ -282,7 +284,7 @@ async def test_ein_unbekanntes_protokoll_ist_nicht_gefunden(
     session: AsyncSession, pruefer: User
 ) -> None:
     with pytest.raises(ProtokollNichtGefunden):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session, protokoll_id=uuid.uuid4(), aktion=Aktion.ANNEHMEN, akteur=pruefer
         )
 
@@ -302,7 +304,7 @@ async def test_ein_entwurf_ist_fuer_einen_pruefer_nicht_da(
     await session.commit()
 
     with pytest.raises(ProtokollNichtGefunden):
-        await entscheide(
+        await fuehre_uebergang_aus(
             session, protokoll_id=entwurf.id, aktion=Aktion.ANNEHMEN, akteur=pruefer
         )
 
@@ -317,10 +319,10 @@ async def test_die_geschichte_sammelt_sich_an(
     both in the order they happened."""
     protokoll = await eingereicht(besitzer)
 
-    await entscheide(
+    await fuehre_uebergang_aus(
         session, protokoll_id=protokoll.id, aktion=Aktion.IN_PRUEFUNG_NEHMEN, akteur=pruefer
     )
-    await entscheide(
+    await fuehre_uebergang_aus(
         session,
         protokoll_id=protokoll.id,
         aktion=Aktion.AENDERUNG_ANFORDERN,
@@ -414,7 +416,7 @@ async def test_zwei_entscheidungen_zur_gleichen_zeit_ergeben_eine(
                 zweite_akteur = await zweite_sitzung.get(User, zweite.id)
                 assert zweite_akteur is not None
                 try:
-                    await entscheide(
+                    await fuehre_uebergang_aus(
                         zweite_sitzung,
                         protokoll_id=protokoll_id,
                         aktion=Aktion.ABLEHNEN,
@@ -432,9 +434,7 @@ async def test_zwei_entscheidungen_zur_gleichen_zeit_ergeben_eine(
         # already read SUBMITTED, passed the rules and written by now.
         assert not wartende.done()
 
-        vermerke(
-            erste_sitzung, protokoll=protokoll, aktion=Aktion.ANNEHMEN, akteur=erste_akteur
-        )
+        vermerke(erste_sitzung, protokoll=protokoll, aktion=Aktion.ANNEHMEN, akteur=erste_akteur)
         await erste_sitzung.commit()
 
         assert await wartende == "abgewiesen"

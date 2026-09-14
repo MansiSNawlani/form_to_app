@@ -20,9 +20,9 @@ interface MitFetch {
 
 /* Take a submitted protocol into Pruefung.
  *
- * A courtesy to colleagues rather than a lock. Nothing reserves a protocol to the
- * reviewer who took it, and a decision can be made straight from SUBMITTED
- * without this step at all.
+ * Optional: a decision can be made straight from SUBMITTED without it.
+ * backend/app/protokolle/uebergang/regeln.py says why it is a courtesy rather
+ * than a claim.
  */
 export function nimmInPruefung(
   id: string,

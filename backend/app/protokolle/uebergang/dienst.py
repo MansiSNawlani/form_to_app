@@ -12,8 +12,13 @@ being created, and it is the same place that adds the WorkflowEvent.
 Two functions, for the reason app/protokolle/zuordnung/dienst.py has none that
 commit: vermerke is half of somebody else's action, and Absenden uses it in the
 middle of writing the envelope, so committing there would leave a protocol
-SUBMITTED with no Probestrecke behind it. entscheide is a whole action by itself
-and commits at the end of it.
+SUBMITTED with no Probestrecke behind it. fuehre_uebergang_aus is a whole action
+by itself and commits at the end of it.
+
+The name is deliberately not "entscheide". Three of the five actions are
+decisions and two are not: regeln.py keeps ENTSCHEIDUNGEN as its own tuple
+precisely because In Pruefung nehmen and Absenden are moves that nobody decides
+anything by.
 """
 
 import uuid
@@ -81,7 +86,7 @@ def vermerke(
     return ereignis
 
 
-async def entscheide(
+async def fuehre_uebergang_aus(
     session: AsyncSession,
     *,
     protokoll_id: uuid.UUID,
@@ -89,7 +94,7 @@ async def entscheide(
     akteur: User,
     kommentar: str | None = None,
 ) -> Submission:
-    """A reviewer's move, from loading the protocol to committing it.
+    """One move on a protocol this account did not file, start to finish.
 
     The row is locked while the decision is made. Two reviewers pressing a button
     at the same moment would otherwise both read SUBMITTED, both pass the rules and

@@ -13,22 +13,22 @@
 import type { Status } from '../entwurf/typen'
 
 /* The three decisions a reviewer can make, exactly as
- * backend/app/protokolle/uebergang/regeln.py spells them.
- *
- * Named for what the person does rather than for the state it produces. A client
- * that spoke in target states could ask for any of them, and the first one it
- * would ask for is LOCKED.
+ * backend/app/protokolle/uebergang/regeln.py spells them, where the reason they
+ * are named for the action rather than for the state is written down.
  */
 export type Entscheidung = 'ANNEHMEN' | 'AENDERUNG_ANFORDERN' | 'ABLEHNEN'
 
-/** The two that cannot be made without saying why. */
-export const BEGRUENDUNG_NOETIG: readonly Entscheidung[] = ['AENDERUNG_ANFORDERN', 'ABLEHNEN']
+/* There is deliberately no list here of which decisions need a Begruendung.
+ * The server owns that, in UEBERGAENGE, and a second copy in the browser would be
+ * a rule with two homes. Feature 11e's panel needs one to grey out a button, and
+ * that is the moment to decide whether it is read from the server or restated
+ * with a test pinning it to the server's answer.
+ */
 
 /* What a decision sends.
  *
- * No version, unlike a save. A save carries one because two tabs editing the
- * same answers overwrite each other; a decision writes no answer, and two
- * reviewers deciding at once are handled by a row lock on the server.
+ * No version, unlike a save. backend/app/api/schemas.py's EntscheidungAnfrage
+ * says why.
  */
 export interface EntscheidungAnfrage {
   entscheidung: Entscheidung

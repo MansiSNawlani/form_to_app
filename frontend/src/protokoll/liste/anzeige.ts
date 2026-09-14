@@ -183,6 +183,25 @@ export function statusAnzeige(status: Status): Statusanzeige {
   return { schluessel: `protokolle.list.status.${status}`, farbe: FARBEN[status] }
 }
 
+/** A day and a time together: 12.07.2026, 16:20. */
+const ZEITPUNKT = 'DD.MM.YYYY, HH:mm'
+
+/* A stored moment, written out in full rather than as "vor 20 Minuten".
+ *
+ * Shared by the problem panel, which prints when the check was made, and by the
+ * change-request notice, which prints when the reviewer asked. Both answer the
+ * same question, which is whether what is on screen is still current, and a
+ * reader deciding that wants the time rather than an approximation of it.
+ *
+ * null for anything unreadable, so a caller can leave the sentence out rather
+ * than print one with a hole where the date belongs. datumAnzeige above answers
+ * the same way and for the same reason.
+ */
+export function zeitpunktAnzeige(zeitpunkt: string): string | null {
+  const moment = dayjs(zeitpunkt)
+  return moment.isValid() ? moment.format(ZEITPUNKT) : null
+}
+
 export interface Zaehlungen {
   gesamt: number
   entwuerfe: number
