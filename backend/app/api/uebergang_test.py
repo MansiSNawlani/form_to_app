@@ -408,3 +408,27 @@ async def test_ein_zurueckgegebenes_protokoll_geht_wieder_raus(
 
     assert wieder.status_code == 200
     assert wieder.json()["status"] == "SUBMITTED"
+
+
+async def test_ein_zurueckgegebenes_protokoll_sagt_beim_loeschen_die_wahrheit(
+    protokoll: str, als: Callable[[str], Awaitable[AsyncClient]]
+) -> None:
+    """The message has to match the screen it appears on.
+
+    A protocol sent back for correction may be changed and may not be deleted, so
+    the old "can no longer be changed or deleted" would have contradicted the form
+    the surveyor was typing into when they saw it.
+    """
+    pruefer = await als(PRUEFERIN)
+    await pruefer.post(
+        f"/api/v1/protokolle/{protokoll}/entscheidung",
+        json={"entscheidung": "AENDERUNG_ANFORDERN", "kommentar": BEGRUENDUNG},
+    )
+
+    einreicher = await als(EINREICHER)
+    antwort = await einreicher.delete(f"/api/v1/protokolle/{protokoll}")
+
+    assert antwort.status_code == 409
+    koerper = antwort.json()
+    assert koerper["code"] == "PROTOKOLL_NICHT_LOESCHBAR"
+    assert "weiter bearbeiten" in koerper["nachricht"]

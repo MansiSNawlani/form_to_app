@@ -74,11 +74,18 @@ function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
       </TableCell>
 
       <TableCell className="zeile-aktion">
-        {/* Only a draft has anywhere to go. Nothing can leave DRAFT until
-            feature 11 adds the workflow, which is also what gives the other
-            states a screen to open; until then their rows carry the badge and
-            no action rather than a link to a page that does not exist. */}
-        {zeile.status === 'DRAFT' && (
+        {/* Two kinds of protocol have somewhere to go, and they are not the
+            same two things to do.
+
+            A draft can be opened and thrown away. One sent back for correction
+            can only be opened: FFS has seen it, a reviewer is waiting for it,
+            and deleting it would take their decisions with it, which is why
+            pruefe_loeschbar on the server refuses one. Offering a button that
+            can only fail would be worse than offering none.
+
+            The remaining states still carry the badge and no action. Their
+            screen is the reviewer's, which is feature 11e. */}
+        {(zeile.status === 'DRAFT' || zeile.status === 'NEEDS_CHANGES') && (
           <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
             <Button
               component={Link}
@@ -86,14 +93,20 @@ function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
               size="small"
               variant="outlined"
             >
-              {t('protokolle.list.weiter')}
+              {t(
+                zeile.status === 'NEEDS_CHANGES'
+                  ? 'protokolle.list.ueberarbeiten'
+                  : 'protokolle.list.weiter',
+              )}
             </Button>
             {/* Text rather than outlined, so the two buttons in a row do not
                 read as equally likely things to do, and red because this one
                 cannot be taken back. The dialog is what actually guards it. */}
-            <Button size="small" color="error" onClick={() => onLoeschen(zeile)}>
-              {t('protokolle.list.loeschen.aktion')}
-            </Button>
+            {zeile.status === 'DRAFT' && (
+              <Button size="small" color="error" onClick={() => onLoeschen(zeile)}>
+                {t('protokolle.list.loeschen.aktion')}
+              </Button>
+            )}
           </Stack>
         )}
       </TableCell>

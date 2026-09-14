@@ -111,6 +111,21 @@ class ProtokollNichtMehrEntwurf(ProtokollFehler):
         super().__init__(f"Protocol is {status}, not a draft")
 
 
+class ProtokollNichtLoeschbar(ProtokollFehler):
+    """The protocol has been handed in, so it can no longer be thrown away.
+
+    Its own error rather than ProtokollNichtMehrEntwurf, because since feature 11d
+    the two say different things. A protocol sent back for correction may be
+    changed and may not be deleted, and telling its owner it "can no longer be
+    changed or deleted" while they are in the middle of changing it is a message
+    that contradicts the screen it appears on.
+    """
+
+    def __init__(self, status: str) -> None:
+        self.status = status
+        super().__init__(f"Protocol is {status}, which cannot be deleted")
+
+
 class AntwortenNichtLesbar(ProtokollFehler):
     """The answers are not a document at all.
 

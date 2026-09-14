@@ -903,3 +903,16 @@
   color: var(--muted);
   font-size: var(--step--1);
 }
+
+/* The reviewer's own words, quoted rather than paraphrased.
+
+   Marked with a rule down the side rather than with quotation marks, because it
+   runs to several sentences and German quotation marks at that length read as
+   though the app is being arch about somebody's criticism. The indent and the
+   rule are what separate their voice from ours above and below it. */
+.aenderung__begruendung {
+  margin: 0 0 1rem;
+  padding: 0.25rem 0 0.25rem 0.75rem;
+  border-left: 3px solid var(--warn);
+  white-space: pre-wrap;
+}

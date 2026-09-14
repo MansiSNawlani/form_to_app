@@ -256,7 +256,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       code, that a decision returns the protocol's new status, and that a Verlauf with no
       entries is an empty list rather than a crash.
 
-- [ ] **Step 8 - A protocol that came back** - `ProtokollSeite` opens the form for
+- [x] **Step 8 - A protocol that came back** - `ProtokollSeite` opens the form for
       NEEDS_CHANGES instead of showing `NichtMehrEntwurf`, and a new notice above the form
       prints what the reviewer wrote, with who wrote it and when. It prints the most recent
       change request in the Verlauf, not the whole history: a protocol sent back twice
@@ -269,7 +269,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       does not appear on an ordinary draft; screenshots in both themes; the notice reads
       correctly at the narrow width the form already supports.
 
-- [ ] **Step 9 - Meine Protokolle** - a NEEDS_CHANGES row gets the same link into the form
+- [x] **Step 9 - Meine Protokolle** - a NEEDS_CHANGES row gets the same link into the form
       that a draft gets, since it is the other kind of protocol with something left to do.
       The badge and its colour already exist for all seven states, so this is the link and
       nothing else. The count line is left alone: "davon 2 Entwuerfe" counts drafts, a

@@ -26,6 +26,7 @@ from app.protokolle.absenden import sende_ab
 from app.protokolle.dienst import loesche_protokoll, speichere_antworten
 from app.protokolle.fehler import (
     ProtokollNichtGefunden,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollUnvollstaendig,
     ProtokollVeraendert,
@@ -562,7 +563,7 @@ async def test_ein_zurueckgegebenes_protokoll_darf_nicht_geloescht_werden(
         kommentar="Bitte die Leitfaehigkeit nachtragen.",
     )
 
-    with pytest.raises(ProtokollNichtMehrEntwurf):
+    with pytest.raises(ProtokollNichtLoeschbar):
         await loesche_protokoll(
             session, speicher, protokoll_id=entwurf.id, besitzer=besitzer
         )

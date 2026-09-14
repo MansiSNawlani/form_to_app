@@ -39,6 +39,7 @@ from app.protokolle.fehler import (
     AntwortenNichtLesbar,
     AntwortenUngueltig,
     AntwortenZuGross,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollVeraendert,
     Verstoss,
@@ -199,7 +200,7 @@ def pruefe_loeschbar(status: Status) -> None:
     app/protokolle/dienst.py has said in words since feature 3.
     """
     if status is not Status.DRAFT:
-        raise ProtokollNichtMehrEntwurf(status.value)
+        raise ProtokollNichtLoeschbar(status.value)
 
 
 def pruefe_version(erwartet: int, tatsaechlich: int) -> None:

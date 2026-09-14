@@ -57,6 +57,7 @@ from app.protokolle.fehler import (
     EigenesProtokoll,
     ProtokollFehler,
     ProtokollNichtGefunden,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollUnvollstaendig,
     ProtokollVeraendert,
@@ -276,6 +277,20 @@ PROTOKOLL_UEBERSETZUNG: dict[type[ProtokollFehler], tuple[str, int, str]] = {
         " stimmt. Die betroffenen Angaben sind unten aufgeführt. Bitte ergänzen"
         " oder berichtigen Sie sie und senden Sie das Protokoll dann noch einmal"
         " ab. Ihr Entwurf ist unverändert gespeichert.",
+    ),
+    # Its own sentence rather than the one above, because since feature 11d the
+    # two say different things: a protocol sent back for correction may be
+    # changed and may not be deleted. Telling somebody it can no longer be
+    # changed, while they are in the middle of changing it, contradicts the
+    # screen the message appears on.
+    ProtokollNichtLoeschbar: (
+        "PROTOKOLL_NICHT_LOESCHBAR",
+        status.HTTP_409_CONFLICT,
+        "Dieses Protokoll wurde bereits eingereicht und kann deshalb nicht mehr"
+        " gelöscht werden; die Fischereiforschungsstelle hat es schon gesehen."
+        " Wenn es zur Überarbeitung zurückgegeben wurde, können Sie es weiter"
+        " bearbeiten und noch einmal absenden. Wenn es ganz zurückgezogen werden"
+        " soll, wenden Sie sich bitte an die Fischereiforschungsstelle.",
     ),
     # 409 rather than 422, the same reasoning ProtokollVeraendert follows: the
     # request is perfectly well formed, the protocol has simply moved on. The
