@@ -220,7 +220,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       writes a second event and re-runs the matching; and a protocol in SUBMITTED still
       refuses all four.
 
-- [ ] **Step 5 - Who may see a protocol that is not theirs** - `app/protokolle/dienst.py`
+- [x] **Step 5 - Who may see a protocol that is not theirs** - `app/protokolle/dienst.py`
       gains the visibility rule it has carried a note about since feature 3: the owner sees
       their own whatever state it is in, and a Reviewer, Data Steward or Super Admin sees
       anything that is not a DRAFT. A draft stays private to its owner, which is what
@@ -234,7 +234,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       not theirs; the owner still reads their own draft; and the save, delete and
       attachment routes still refuse a Reviewer on somebody else's protocol.
 
-- [ ] **Step 6 - The endpoints** - three routes in `app/api/protokolle.py`:
+- [x] **Step 6 - The endpoints** - three routes in `app/api/protokolle.py`:
       `POST /{id}/pruefung`, `POST /{id}/entscheidung` taking `{entscheidung, kommentar}`,
       and `GET /{id}/verlauf`. The role requirement on the first two comes from step 2's
       table rather than being typed again at the route. New refusal codes in

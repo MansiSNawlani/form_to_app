@@ -23,25 +23,31 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.speicher import Anlagenspeicher, get_speicher
-from app.api.abhaengigkeiten import AngemeldeterBenutzer
+from app.api.abhaengigkeiten import AngemeldeterBenutzer, erfordert_rollen
 from app.api.schemas import (
     AbsendenAnfrage,
     AbsendenAntwort,
     AntwortenSpeichern,
+    EntscheidungAnfrage,
     FehlerAntwort,
     ProtokollAntwort,
     ProtokollUebersicht,
     SpeicherAntwort,
+    UebergangAntwort,
+    VerlaufEintrag,
 )
 from app.db import get_session
+from app.models.benutzer import User
 from app.protokolle.absenden import sende_ab
 from app.protokolle.dienst import (
-    hole_protokoll,
+    hole_sichtbares_protokoll,
     lege_entwurf_an,
     liste_protokolle,
     loesche_protokoll,
     speichere_antworten,
 )
+from app.protokolle.uebergang.dienst import entscheide, lies_verlauf
+from app.protokolle.uebergang.regeln import PRUEFERROLLEN, Aktion
 
 router = APIRouter(prefix="/api/v1/protokolle", tags=["Protokolle"])
 
@@ -69,6 +75,18 @@ BEIM_ABSENDEN: dict[int | str, dict[str, Any]] = {
     **BEIM_AENDERN,
     status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": FehlerAntwort},
 }
+
+# A reviewer's move can be refused for a fourth reason the owner's actions cannot
+# be: the account has no business deciding anything, or is deciding on its own
+# protocol.
+BEIM_ENTSCHEIDEN: dict[int | str, dict[str, Any]] = {
+    **BEIM_ABSENDEN,
+    status.HTTP_403_FORBIDDEN: {"model": FehlerAntwort},
+}
+
+# Every route a reviewer reaches declares the roles from the transition table
+# rather than naming them again here. One answer to who may decide.
+PRUEFER = Depends(erfordert_rollen(*PRUEFERROLLEN))
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, responses=ANGEMELDET)
@@ -118,11 +136,18 @@ async def lesen(
 ) -> ProtokollAntwort:
     """One protocol in full, answers included.
 
-    Answers 404 for a protocol belonging to somebody else, exactly as it does for
+    Answers 404 for a protocol this account may not see, exactly as it does for
     one that does not exist. A 403 would confirm the id is real, which is a fact
     about another surveyor's work that a stranger has no business collecting.
+
+    Since feature 11d, FFS staff may open a protocol they did not file, because a
+    reviewer cannot decide on something they cannot read. **A draft is still
+    private to its owner**: it is somebody's unfinished work, which is what
+    CONTEXT.md says a draft is. app/protokolle/dienst.py holds that rule.
     """
-    protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=benutzer)
+    protokoll = await hole_sichtbares_protokoll(
+        session, protokoll_id=protokoll_id, benutzer=benutzer
+    )
     return ProtokollAntwort.model_validate(protokoll)
 
 
@@ -176,6 +201,68 @@ async def absenden(
         version=anfrage.version,
     )
     return AbsendenAntwort.model_validate(protokoll)
+
+
+@router.post("/{protokoll_id}/pruefung", responses=BEIM_ENTSCHEIDEN)
+async def in_pruefung_nehmen(
+    protokoll_id: uuid.UUID,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    benutzer: Annotated[User, PRUEFER],
+) -> UebergangAntwort:
+    """Take a submitted protocol into Pruefung.
+
+    A courtesy to colleagues rather than a lock: nothing reserves a protocol to
+    the reviewer who took it, and a decision can be made straight from SUBMITTED
+    without this step. Feature 12's queue is where it starts to carry weight.
+
+    No request body. There is nothing to say beyond that you have picked it up.
+    """
+    protokoll = await entscheide(
+        session, protokoll_id=protokoll_id, aktion=Aktion.IN_PRUEFUNG_NEHMEN, akteur=benutzer
+    )
+    return UebergangAntwort.model_validate(protokoll)
+
+
+@router.post("/{protokoll_id}/entscheidung", responses=BEIM_ENTSCHEIDEN)
+async def entscheiden(
+    protokoll_id: uuid.UUID,
+    anfrage: EntscheidungAnfrage,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    benutzer: Annotated[User, PRUEFER],
+) -> UebergangAntwort:
+    """Accept a protocol, send it back for correction, or reject it.
+
+    One route for the three, because the reviewer screen is one radio group and
+    one button. What each of them does is app/protokolle/uebergang/regeln.py.
+
+    Answers 422 when a rejection or a change request arrives without a
+    Begruendung, 409 when the protocol is not in a state the decision can be made
+    from, and 403 when the account may not decide at all or filed the protocol
+    itself.
+    """
+    protokoll = await entscheide(
+        session,
+        protokoll_id=protokoll_id,
+        aktion=anfrage.entscheidung,
+        akteur=benutzer,
+        kommentar=anfrage.kommentar,
+    )
+    return UebergangAntwort.model_validate(protokoll)
+
+
+@router.get("/{protokoll_id}/verlauf", responses=MIT_PROTOKOLL)
+async def verlauf(
+    protokoll_id: uuid.UUID,
+    benutzer: AngemeldeterBenutzer,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[VerlaufEintrag]:
+    """Everything that has happened to one protocol, newest first.
+
+    Not a reviewer route. The surveyor needs it more than anybody: it is where
+    they read what a reviewer asked them to correct.
+    """
+    eintraege = await lies_verlauf(session, protokoll_id=protokoll_id, benutzer=benutzer)
+    return [VerlaufEintrag.model_validate(eintrag) for eintrag in eintraege]
 
 
 @router.delete("/{protokoll_id}", status_code=status.HTTP_204_NO_CONTENT, responses=BEIM_AENDERN)

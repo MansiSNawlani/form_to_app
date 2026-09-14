@@ -17,8 +17,10 @@ and commits at the end of it.
 """
 
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.benutzer import User
@@ -108,3 +110,70 @@ async def entscheide(
 
     await session.commit()
     return protokoll
+
+
+@dataclass(frozen=True, slots=True)
+class Verlaufseintrag:
+    """One line of a protocol's history, with the actor already resolved.
+
+    A dataclass rather than the WorkflowEvent row, because the row holds an id
+    where the screen needs a name, and resolving that per row in the response
+    model would be a lazy load with nowhere to run.
+    """
+
+    id: uuid.UUID
+    von_status: Status | None
+    nach_status: Status
+    kommentar: str | None
+    akteur_name: str
+    created_at: datetime
+
+
+async def lies_verlauf(
+    session: AsyncSession, *, protokoll_id: uuid.UUID, benutzer: User
+) -> list[Verlaufseintrag]:
+    """The history of one protocol, newest first.
+
+    Newest first because that is the order the reviewer mockup prints it in and
+    the order anybody reads a history: what happened last is what you need.
+
+    The protocol is loaded through the visible-protocol rule before the events are
+    read, so asking for the history is exactly as revealing as asking for the
+    protocol. Without that, an unknown id and somebody else's draft would be told
+    apart by an empty list against a refusal.
+
+    **The owner sees the whole of it**, reviewers' names included. An external
+    consultant therefore learns which member of FFS staff sent their protocol
+    back, which is ordinary in official correspondence and is the point of a
+    reasoned decision.
+    """
+    await hole_sichtbares_protokoll(session, protokoll_id=protokoll_id, benutzer=benutzer)
+
+    zeilen = await session.execute(
+        select(
+            WorkflowEvent.id,
+            WorkflowEvent.von_status,
+            WorkflowEvent.nach_status,
+            WorkflowEvent.kommentar,
+            User.email,
+            WorkflowEvent.created_at,
+        )
+        .join(User, User.id == WorkflowEvent.actor_user_id)
+        .where(WorkflowEvent.submission_id == protokoll_id)
+        # The id breaks a tie. Two events written in one transaction are
+        # microseconds apart at most, and without a second key their order is
+        # whatever the database felt like, which a test cannot hold to anything.
+        .order_by(WorkflowEvent.created_at.desc(), WorkflowEvent.id.desc())
+    )
+
+    return [
+        Verlaufseintrag(
+            id=zeile[0],
+            von_status=zeile[1],
+            nach_status=zeile[2],
+            kommentar=zeile[3],
+            akteur_name=zeile[4],
+            created_at=zeile[5],
+        )
+        for zeile in zeilen
+    ]

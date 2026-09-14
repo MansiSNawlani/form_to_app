@@ -53,11 +53,14 @@ from app.protokolle.fehler import (
     AntwortenNichtLesbar,
     AntwortenUngueltig,
     AntwortenZuGross,
+    BegruendungFehlt,
+    EigenesProtokoll,
     ProtokollFehler,
     ProtokollNichtGefunden,
     ProtokollNichtMehrEntwurf,
     ProtokollUnvollstaendig,
     ProtokollVeraendert,
+    UebergangNichtMoeglich,
     Verstossgrund,
 )
 from app.protokolle.formregeln.regel import Formverstoss
@@ -273,6 +276,37 @@ PROTOKOLL_UEBERSETZUNG: dict[type[ProtokollFehler], tuple[str, int, str]] = {
         " stimmt. Die betroffenen Angaben sind unten aufgeführt. Bitte ergänzen"
         " oder berichtigen Sie sie und senden Sie das Protokoll dann noch einmal"
         " ab. Ihr Entwurf ist unverändert gespeichert.",
+    ),
+    # 409 rather than 422, the same reasoning ProtokollVeraendert follows: the
+    # request is perfectly well formed, the protocol has simply moved on. The
+    # common way here is two reviewers with the same protocol open.
+    UebergangNichtMoeglich: (
+        "UEBERGANG_NICHT_MOEGLICH",
+        status.HTTP_409_CONFLICT,
+        "Dieses Protokoll ist nicht mehr in dem Stand, in dem dieser Schritt"
+        " möglich wäre. Meist hat es jemand anderes zwischendurch bearbeitet."
+        " Bitte laden Sie die Seite neu, um den aktuellen Stand zu sehen, und"
+        " entscheiden Sie dann noch einmal.",
+    ),
+    # 422: the request really is incomplete. A field that is required was empty,
+    # which is the one thing in this family the reviewer fixes by typing.
+    BegruendungFehlt: (
+        "BEGRUENDUNG_FEHLT",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Zu dieser Entscheidung gehört eine Begründung. Die Person, die das"
+        " Protokoll eingereicht hat, liest diesen Text und erfährt nur daraus,"
+        " was zu tun ist. Bitte tragen Sie ein, was geändert werden soll, und"
+        " speichern Sie die Entscheidung dann noch einmal.",
+    ),
+    # 403 rather than 404. The protocol is one this account may perfectly well
+    # read, so pretending it does not exist would be a riddle rather than a
+    # refusal; what may not happen is this particular action on it.
+    EigenesProtokoll: (
+        "EIGENES_PROTOKOLL",
+        status.HTTP_403_FORBIDDEN,
+        "Über ein Protokoll, das Sie selbst eingereicht haben, können Sie nicht"
+        " entscheiden. Bitte bitten Sie eine andere prüfende Person darum; sie"
+        " findet das Protokoll in der Übersicht.",
     ),
 }
 

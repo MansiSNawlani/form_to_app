@@ -13,13 +13,15 @@ habit, because a model built from the whole row would gain any column added late
 
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.anlage import Anlagenart
 from app.models.benutzer import Locale, Rolle
 from app.models.protokoll import Status
+from app.protokolle.regeln import MAX_ZEICHEN_PRO_ANTWORT
+from app.protokolle.uebergang.regeln import Aktion
 
 # Far above any address anybody has, and far below a payload worth hashing. It
 # exists so a request cannot be arbitrarily large before anything looks at it.
@@ -161,6 +163,72 @@ class AbsendenAntwort(BaseModel):
     status: Status
     version: int
     submitted_at: datetime
+
+
+class EntscheidungAnfrage(BaseModel):
+    """A reviewer's decision, and why.
+
+    One route for all three rather than three routes, because the reviewer screen
+    is one radio group and one button: prototypes/pruefung-protokoll.html offers
+    Annehmen, Aenderung anfordern and Ablehnen as a single choice with a single
+    Begruendung under it.
+
+    Typed as the three decisions rather than as Aktion, so ABSENDEN and
+    IN_PRUEFUNG_NEHMEN cannot arrive here. Neither is a decision, and both have
+    their own way in.
+
+    No version. A save carries one because two tabs editing the same answers
+    overwrite each other; a decision writes no answer, and two reviewers deciding
+    at once are handled by the row lock in app/protokolle/uebergang/dienst.py.
+
+    The cap is the one app/protokolle/regeln.py already puts on a single answer.
+    A Begruendung is a few sentences; anything approaching four thousand
+    characters is a pasted document, and the column has no business storing one.
+    """
+
+    entscheidung: Literal[Aktion.ANNEHMEN, Aktion.AENDERUNG_ANFORDERN, Aktion.ABLEHNEN]
+    kommentar: str | None = Field(default=None, max_length=MAX_ZEICHEN_PRO_ANTWORT)
+
+
+class UebergangAntwort(BaseModel):
+    """Where the protocol ended up after a transition.
+
+    Not the whole protocol, for the reason AbsendenAntwort is not: the reviewer
+    screen refetches what it needs, and the answers travelled to it already.
+
+    No version. Nothing here changes the answers document, so the number that
+    guards it has not moved and echoing it back would suggest it had.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    status: Status
+    locked_at: datetime | None
+
+
+class VerlaufEintrag(BaseModel):
+    """One line of a protocol's history.
+
+    Mirrors prototypes/pruefung-protokoll.html's Verlauf panel, which prints what
+    happened, who did it, when, and the comment underneath.
+
+    akteur_name is the account's email address, because User has no display name:
+    project-overview.md gives it email, rollen and locale and nothing else to call
+    a person by. The mockup prints "Dr. S. Lehmann", which no table can supply
+    today. It is named for what it is meant to be rather than for what it
+    currently holds, so feature 16 can put a real name behind it without every
+    caller changing.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    von_status: Status | None
+    nach_status: Status
+    kommentar: str | None
+    akteur_name: str
+    created_at: datetime
 
 
 class ProtokollUebersicht(BaseModel):
