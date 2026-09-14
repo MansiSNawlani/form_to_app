@@ -187,7 +187,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
       Admin allowed. Also a test that walks the enum and fails if a status is ever added
       without the table saying what may happen to it.
 
-- [ ] **Step 3 - Writing a transition** - `app/protokolle/uebergang/dienst.py`. One
+- [x] **Step 3 - Writing a transition** - `app/protokolle/uebergang/dienst.py`. One
       function that checks the rules, moves the status, writes the `workflow_events` row
       and commits once, so no status can move without its history entry. Locking is here:
       Annehmen sets LOCKED and `locked_at` together, which is what the
