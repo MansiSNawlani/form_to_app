@@ -68,6 +68,7 @@
       "entwuerfe_other": "davon {{count}} Entwürfe",
       "ohneGewaesser": "Ohne Gewässername",
       "weiter": "Weiter ausfüllen",
+      "ueberarbeiten": "Überarbeiten",
       "tabelle": {
         "beschriftung": "Ihre Protokolle, zuletzt bearbeitete zuerst",
         "gewaesser": "Gewässer und Probestrecke",
@@ -707,6 +708,12 @@
       "titel": "Dieses Protokoll ist abgesendet",
       "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden.",
       "zurUebersicht": "Zu meinen Protokollen"
+    },
+    "aenderung": {
+      "titel": "Die Prüfung bittet um eine Änderung",
+      "von": "Angefordert von {{person}} am {{zeitpunkt}} Uhr.",
+      "vonOhneZeit": "Angefordert von {{person}}.",
+      "hinweis": "Bitte ändern Sie das Genannte und senden Sie das Protokoll danach am Ende von Abschnitt 7 noch einmal ab. Bis dahin bleibt es bearbeitbar; gelöscht werden kann es nicht mehr."
     }
   }
 }

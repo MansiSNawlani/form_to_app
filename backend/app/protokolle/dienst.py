@@ -26,15 +26,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import ColumnElement, func, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.speicher import Anlagenspeicher
 from app.formular.felder import formular
-from app.models.benutzer import User
+from app.models.benutzer import Rolle, User
 from app.models.protokoll import Status, Submission
 from app.protokolle.fehler import ProtokollNichtGefunden
-from app.protokolle.regeln import pruefe_aenderbar, pruefe_antworten, pruefe_version
+from app.protokolle.regeln import (
+    pruefe_aenderbar,
+    pruefe_antworten,
+    pruefe_loeschbar,
+    pruefe_version,
+)
 
 
 @dataclass(frozen=True)
@@ -159,6 +164,63 @@ async def hole_protokoll(
     return treffer
 
 
+#: The accounts whose job is other people's protocols.
+#:
+#: A Reviewer decides, a Data Steward corrects and quality-checks, and a Super
+#: Admin sees everything. All three therefore have to be able to open a protocol
+#: they did not file. A Regierungspraesidium account is deliberately not here: it
+#: sees its own region only, which is feature 13, and giving it everything now and
+#: narrowing it later would be a leak with a date on it.
+FFS_ROLLEN = (Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN)
+
+
+def _sichtbar(benutzer: User) -> ColumnElement[bool]:
+    """Which protocols this account is allowed to look at, as a WHERE clause.
+
+    **A draft is private to its owner**, which is what CONTEXT.md says a draft is:
+    somebody's unfinished work, seen and changed by nobody else. So FFS staff see
+    everything that has been handed in and nothing that has not, and the owner
+    sees their own whatever state it is in.
+
+    Feature 13 widens this once more, for a Regierungspraesidium account, and the
+    widening belongs here for the reason this whole module gives at the top:
+    ownership and visibility go in the query, never in a check afterwards.
+    """
+    eigene = Submission.owner_user_id == benutzer.id
+    if not any(rolle in benutzer.rollen for rolle in FFS_ROLLEN):
+        return eigene
+    return or_(eigene, Submission.status != Status.DRAFT)
+
+
+async def hole_sichtbares_protokoll(
+    session: AsyncSession, *, protokoll_id: uuid.UUID, benutzer: User, sperren: bool = False
+) -> Submission:
+    """One protocol this account may look at, or a refusal.
+
+    **Deliberately not hole_protokoll with a wider clause.** Saving, deleting and
+    attaching all reach a protocol through that one, so widening it would widen who
+    may write as well as who may read, in one edit and with nothing to catch it.
+    Two functions means the wider rule can only be used where it was asked for.
+
+    sperren takes the row lock a decision needs. Two reviewers pressing a button at
+    the same moment would otherwise both read the same status, both pass the rules
+    and both write; a decision carries no version number, so this is the only thing
+    that can make them queue.
+
+    The same refusal whether the id is unknown, belongs to somebody else, or is a
+    draft this account may not see. See ProtokollNichtGefunden for why those must
+    stay indistinguishable.
+    """
+    anfrage = select(Submission).where(Submission.id == protokoll_id, _sichtbar(benutzer))
+    if sperren:
+        anfrage = anfrage.with_for_update()
+
+    treffer = await session.scalar(anfrage)
+    if treffer is None:
+        raise ProtokollNichtGefunden(protokoll_id)
+    return treffer
+
+
 async def speichere_antworten(
     session: AsyncSession,
     *,
@@ -213,9 +275,10 @@ async def loesche_protokoll(
 ) -> None:
     """Remove a draft belonging to this account, and its attachments' files.
 
-    Only a draft. Once a protocol has been submitted it is a record somebody else
-    is working with, and withdrawing it is a workflow step for feature 11 rather
-    than a delete.
+    Only a draft, and that stayed true when feature 11d let the owner edit a
+    protocol again after a change request. Editing one is the point of sending it
+    back; deleting it would take a reviewer's decisions with it, and FFS has
+    already seen it. pruefe_loeschbar is where the two rules part company.
 
     The attachment rows go with it through ON DELETE CASCADE, but a cascade knows
     nothing about the volume, so the pictures would stay there forever with
@@ -227,7 +290,7 @@ async def loesche_protokoll(
     the protocol precisely so it does not have to be.
     """
     protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
-    pruefe_aenderbar(protokoll.status)
+    pruefe_loeschbar(protokoll.status)
 
     await session.delete(protokoll)
     await session.commit()

@@ -249,6 +249,27 @@ splitting rather than rewriting the earlier record is the behaviour FFS expects.
 
 ---
 
+## 14. How many people will review protocols?
+
+**This one is not a question about the form. It is a consequence you need to know about.**
+
+The application does not let anybody decide on a protocol they filed themselves. Somebody who holds
+the Reviewer role and also goes out and fishes cannot accept, reject, or request changes on their
+own protocol: another reviewer has to. There is no override, and there is deliberately not going to
+be one, because a second way to decide would be a way around the rule the first way exists to
+enforce.
+
+The cost is real. If FFS has exactly one person reviewing, that person's own protocols cannot be
+accepted by anybody, and they sit there.
+
+So: **how many people will review?** If the answer is permanently one, say so and the rule changes,
+most likely so that a Super Admin may decide on a reviewer's protocol. That is one line in the
+transition table, not a rebuild.
+
+What we are building in the meantime: nobody decides on their own, whatever roles they hold.
+
+---
+
 ## What happens to the answers
 
 Anything that comes back as a requirement becomes a small change to the new application, logged the

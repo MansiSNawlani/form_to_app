@@ -8,15 +8,22 @@ import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import NotFound from '../components/NotFound'
 import NichtMehrEntwurf from './absenden/NichtMehrEntwurf'
+import AenderungAngefordert from './pruefung/AenderungAngefordert'
 import ProtokollFormular from './ProtokollFormular'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
 import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
 import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
-import type { Entwurf } from './entwurf/typen'
+import type { Entwurf, Status } from './entwurf/typen'
 import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../api/fehler'
 import { useFehlertext } from '../api/useFehlertext'
 import './protokoll.css'
+
+/* The states whose owner may still fill the form in, mirroring AENDERBAR in
+   backend/app/protokolle/regeln.py. NEEDS_CHANGES joined DRAFT in feature 11d,
+   and the server is the authority: this list only decides whether the form is
+   drawn, while every save is checked again there. */
+const AENDERBAR: readonly Status[] = ['DRAFT', 'NEEDS_CHANGES']
 
 /* Resolves the URL into a draft and a section, and nothing else. The form
  * itself is a separate component so that this one can decide the dead-end cases
@@ -173,11 +180,16 @@ function ProtokollSeite() {
 
   /* Sent already, so there is nothing here to fill in.
    *
-   * Before the section check below, because a submitted protocol is not a draft
+   * NEEDS_CHANGES is the exception, added in feature 11d: a reviewer has asked
+   * for a correction, and a protocol that cannot be corrected makes the request
+   * pointless. It opens in the form exactly as a draft does, with what was asked
+   * for printed above it.
+   *
+   * Before the section check below, because a submitted protocol is not editable
    * whichever section the URL names, and redirecting it to section 1 first would
    * only put a wrong address in the history on the way to the same notice.
    */
-  if (entwurf.status !== 'DRAFT') {
+  if (!AENDERBAR.includes(entwurf.status)) {
     return <NichtMehrEntwurf status={entwurf.status} />
   }
 
@@ -190,8 +202,17 @@ function ProtokollSeite() {
 
   /* Keyed by the draft, so opening a different protocol builds a fresh form
      rather than carrying the previous one's values into it. Switching drafts by
-     URL keeps this component mounted; only the key forces the reset. */
-  return <ProtokollFormular key={entwurf.id} entwurf={entwurf} abschnitt={abschnitt} />
+     URL keeps this component mounted; only the key forces the reset.
+
+     The change request sits outside the form and above it, so it survives moving
+     between sections the way the problem list does: the correction it asks for is
+     rarely in the section the surveyor happens to land on. */
+  return (
+    <>
+      {entwurf.status === 'NEEDS_CHANGES' && <AenderungAngefordert entwurfId={entwurf.id} />}
+      <ProtokollFormular key={entwurf.id} entwurf={entwurf} abschnitt={abschnitt} />
+    </>
+  )
 }
 
 export default ProtokollSeite

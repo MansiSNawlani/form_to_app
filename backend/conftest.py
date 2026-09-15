@@ -211,6 +211,32 @@ async def _empty_tables(url: str) -> None:
         await engine_.dispose()
 
 
+@pytest_asyncio.fixture
+async def nebenlaeufige_sessions(
+    testdatenbank: URL,
+) -> AsyncIterator[async_sessionmaker[AsyncSession]]:
+    """Real sessions on their own connections, inside the test's own event loop.
+
+    For the one thing the rolled-back connection above cannot show: two requests
+    arriving at the same moment. That connection is a single transaction, so
+    everything written through it is invisible to anybody else and nothing can
+    contend for a row; a test about a row lock needs two committed writers.
+
+    Rows written here really are committed, so the tables are emptied afterwards
+    instead of rolled back, exactly as eigene_sessions does it.
+    """
+    engine_ = create_async_engine(_connection_string(testdatenbank))
+    try:
+        # expire_on_commit=False, so a row built here can still be read after the
+        # commit that stored it. The default expires every attribute, and reading
+        # one back would be a lazy load with no async context to run in, which
+        # arrives as a MissingGreenlet rather than as anything to do with the test.
+        yield async_sessionmaker(engine_, expire_on_commit=False)
+    finally:
+        await _empty_tables(_connection_string(testdatenbank))
+        await engine_.dispose()
+
+
 @pytest.fixture
 def eigene_sessions(testdatenbank: URL) -> Iterator[async_sessionmaker[AsyncSession]]:
     """A session factory for code that runs its own event loop.

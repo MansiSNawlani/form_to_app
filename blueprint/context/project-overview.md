@@ -66,6 +66,13 @@ everything else exists to support them. Item 9 carries the most risk.
 10. **Attachments** - photo and map excerpt upload.
 11. **Review workflow** - the state machine, rejection reasons, change requests, locking.
 12. **Review queue** - list, filter and search, including by species.
+23. **Import a filled PDF** - read a completed protocol out of the legacy Acrobat form and open
+    it as a draft with the answers already in place, checked by exactly the same rules as
+    anything typed in. Added on 2026-09-15 and numbered 23 because numbering follows what is
+    next unused, never where an item sits. **Built here, after 12 and before 13**, because its
+    first job is to produce realistic protocols to test the review workflow with. An imported
+    protocol is never trusted: the legacy form has known validation bugs, so an import lands as
+    a draft with its problems listed, never as a submission.
 13. **Regional access** - the Regierungspräsidium read-only role.
 14. **Notifications** - email on submission and status change, plus a weekly digest, via a
     background worker.
@@ -337,9 +344,11 @@ Ordered by how much they could still change.
    building, but the `Person` and `Submission` split already assumes personal details can be
    anonymised independently of the survey record. If FFS decides otherwise, revisit.
 
-4. **`project-plan.md` §3 does not list user administration** among the MVP features, though §2
-   gives Super Admins that job and `build-plan.md` has it as item 16. Minor, but the plan's feature
-   list should gain a line.
+4. **`project-plan.md` §3 is now two features behind `build-plan.md`.** It does not list user
+   administration, though §2 gives Super Admins that job and the build plan has it as item 16, and
+   it does not list the PDF import added as item 23 on 2026-09-15. Neither changes what is being
+   built, since `build-plan.md` is what `/feature` reads, but the plan's own feature list should
+   gain both lines.
 
 Not a plan conflict, but worth restating: the original requirements document makes the mapping
 features mandatory for the first release. Both plans deliberately defer them to feature 18, with

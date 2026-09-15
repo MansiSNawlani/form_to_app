@@ -39,6 +39,7 @@ from app.protokolle.fehler import (
     AntwortenNichtLesbar,
     AntwortenUngueltig,
     AntwortenZuGross,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollVeraendert,
     Verstoss,
@@ -168,16 +169,38 @@ def zaehle_zeichen(dokument: Mapping[str, Any]) -> int:
     return gesamt
 
 
+#: The states whose owner may still change the answers, and the attachments with
+#: them. NEEDS_CHANGES joined DRAFT in feature 11d, which is the widening this
+#: function was written in one place to make possible: a reviewer asking for a
+#: correction is only worth anything if the correction can then be made.
+AENDERBAR = frozenset({Status.DRAFT, Status.NEEDS_CHANGES})
+
+
 def pruefe_aenderbar(status: Status) -> None:
     """Refuse a protocol its owner may no longer change.
 
-    One function rather than a comparison at each call site, because feature 11
-    widens this: NEEDS_CHANGES will almost certainly join DRAFT once a reviewer
-    can ask for a correction. Widening it there means editing this, not hunting
-    for every place that compared against DRAFT.
+    One function rather than a comparison at each call site. Saving, deleting an
+    attachment and uploading one all ask this, so the day NEEDS_CHANGES became
+    editable, all of them became editable together.
+    """
+    if status not in AENDERBAR:
+        raise ProtokollNichtMehrEntwurf(status.value)
+
+
+def pruefe_loeschbar(status: Status) -> None:
+    """Refuse a protocol that may no longer be deleted.
+
+    **Deliberately not pruefe_aenderbar.** The two were the same rule until
+    feature 11d and are not the same rule any more: a protocol sent back for
+    correction may be edited, and may not be deleted. FFS has seen it, there is a
+    reviewer waiting for it, and its history is a record of decisions that were
+    made about it.
+
+    So a draft is the only thing that can go, which is what
+    app/protokolle/dienst.py has said in words since feature 3.
     """
     if status is not Status.DRAFT:
-        raise ProtokollNichtMehrEntwurf(status.value)
+        raise ProtokollNichtLoeschbar(status.value)
 
 
 def pruefe_version(erwartet: int, tatsaechlich: int) -> None:

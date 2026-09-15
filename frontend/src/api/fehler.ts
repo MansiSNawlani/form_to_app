@@ -62,6 +62,30 @@ export const PROTOKOLL_NICHT_MEHR_ENTWURF = 'PROTOKOLL_NICHT_MEHR_ENTWURF'
  */
 export const PROTOKOLL_UNVOLLSTAENDIG = 'PROTOKOLL_UNVOLLSTAENDIG'
 
+/* The protocol is not in a state this step is possible from, added in feature
+ * 11d. Usually two reviewers with the same protocol open, or one who left the
+ * page sitting since yesterday. Nothing the person did wrong, and nothing that
+ * trying again can fix: the screen has to fetch the protocol afresh.
+ */
+export const UEBERGANG_NICHT_MOEGLICH = 'UEBERGANG_NICHT_MOEGLICH'
+
+/* A rejection or a change request arrived without a reason.
+ *
+ * The one refusal in the workflow a reviewer puts right by typing, so the screen
+ * branches on it to put the message beside the Begruendung box rather than at the
+ * top of the page. The others are about the protocol; this one is about the form
+ * in front of them.
+ */
+export const BEGRUENDUNG_FEHLT = 'BEGRUENDUNG_FEHLT'
+
+/* Somebody tried to decide on a protocol they filed themselves.
+ *
+ * Chosen with the user on 2026-09-14. Branched on because the way out is a person
+ * rather than an action: somebody else has to decide, and the screen says so
+ * instead of offering a button that cannot work.
+ */
+export const EIGENES_PROTOKOLL = 'EIGENES_PROTOKOLL'
+
 export interface FehlerOptionen {
   /** The HTTP status, or null when nothing ever answered. */
   status?: number

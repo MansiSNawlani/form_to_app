@@ -25,6 +25,7 @@ from app.protokolle.dienst import (
 from app.protokolle.fehler import (
     AntwortenUngueltig,
     ProtokollNichtGefunden,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollVeraendert,
 )
@@ -283,7 +284,9 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
 ) -> None:
     """A submitted protocol is a record somebody else is working with.
 
-    Taking it back is a workflow step for feature 11, not a delete.
+    Taking it back is a workflow step, not a delete. Its own refusal since
+    feature 11d, because a protocol sent back for correction may be changed and
+    may not be deleted, and one sentence cannot say both.
     """
     besitzer = await anlegen(email="bergmann@ffs.de")
     entwurf = await lege_entwurf_an(session, besitzer=besitzer)
@@ -292,5 +295,5 @@ async def test_ein_eingereichtes_protokoll_wird_nicht_geloescht(
     entwurf.status = Status.SUBMITTED
     await session.commit()
 
-    with pytest.raises(ProtokollNichtMehrEntwurf):
+    with pytest.raises(ProtokollNichtLoeschbar):
         await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)

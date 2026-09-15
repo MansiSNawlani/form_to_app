@@ -131,3 +131,34 @@ _Avoid_: finalised, closed, archived
 **Data Steward**:
 FFS staff who correct and quality-check submitted data. Distinct from a Reviewer, who decides whether
 a Submission is accepted, and from a Super Admin, who manages accounts.
+
+**In Prüfung**:
+A Submission a Reviewer has picked up. It is a courtesy to colleagues rather than a claim on the
+Submission: nothing reserves it to the person who took it, and a decision can be made without this
+step at all.
+_Avoid_: assigned, checked out, in progress
+
+**Entscheidung**:
+One of the three things a Reviewer can do with a submitted Protokoll: annehmen, Änderung anfordern,
+ablehnen. Nobody may take one about a Protokoll they filed themselves, whatever roles they hold.
+_Avoid_: approval, sign-off, verdict
+
+**Änderung anfordern**:
+Sending a Submission back to the person who filed it, with a Begründung saying what to put right. It
+becomes editable again and keeps its original submission date; sending it in again is the same
+Submission, not a new one. It is also the only way back once something has been submitted, since a
+surveyor cannot withdraw one.
+_Avoid_: reject with comment, return, bounce
+
+**Begründung**:
+What a Reviewer writes when asking for a change or rejecting a Submission, and what the person who
+filed it reads. Required for those two decisions and optional for accepting. Stored as
+`workflow_events.kommentar`, which is the column name project-overview.md fixes; Begründung is what
+it is called everywhere a person sees it.
+_Avoid_: comment, note, feedback
+
+**Verlauf**:
+Everything that has happened to one Submission: who moved it from which state to which, when, and
+what they wrote. Its own record, separate from the audit trail of feature 15, which is about who
+changed which answer.
+_Avoid_: log, timeline, audit trail

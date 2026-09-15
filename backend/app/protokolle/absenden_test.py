@@ -15,20 +15,26 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.benutzer import User
+from app.anlagen.speicher import Anlagenspeicher
+from app.models.benutzer import Rolle, User
 from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
+from app.models.workflow_event import WorkflowEvent
 from app.protokolle.absenden import sende_ab
+from app.protokolle.dienst import loesche_protokoll, speichere_antworten
 from app.protokolle.fehler import (
     ProtokollNichtGefunden,
+    ProtokollNichtLoeschbar,
     ProtokollNichtMehrEntwurf,
     ProtokollUnvollstaendig,
     ProtokollVeraendert,
 )
 from app.protokolle.formregeln import pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
+from app.protokolle.uebergang.dienst import fuehre_uebergang_aus
+from app.protokolle.uebergang.regeln import Aktion
 from app.protokolle.zuordnung.dienst import Zuordnung, ordne_zu
 from app.protokolle.zuordnung.regeln import Umschlag
 
@@ -69,9 +75,7 @@ async def test_ein_unvollstaendiges_protokoll_wird_abgelehnt(
     entwurf = await _entwurf(session, besitzer)
 
     with pytest.raises(ProtokollUnvollstaendig) as erhoben:
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     # An empty document is missing every required answer, so this is the whole
     # required list arriving at once, which is also the longest the panel in the
@@ -94,9 +98,7 @@ async def test_die_verstoesse_kommen_in_abschnittsreihenfolge(
     entwurf = await _entwurf(session, besitzer, dict(KAPUTT))
 
     with pytest.raises(ProtokollUnvollstaendig) as erhoben:
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     assert list(erhoben.value.verstoesse) == pruefe_protokoll(KAPUTT)
 
@@ -222,9 +224,7 @@ async def test_absenden_hebt_die_version(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
     vorher = entwurf.version
 
-    protokoll = await sende_ab(
-        session, protokoll_id=entwurf.id, besitzer=besitzer, version=vorher
-    )
+    protokoll = await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=vorher)
 
     assert protokoll.version == vorher + 1
 
@@ -247,18 +247,14 @@ async def test_ein_fehler_in_der_zuordnung_hinterlaesst_nichts(
     # context fails talking about greenlets rather than about anything here.
     entwurf_id = entwurf.id
 
-    async def bricht_ab(
-        offene: AsyncSession, umschlag: Umschlag, konto: User
-    ) -> Zuordnung:
+    async def bricht_ab(offene: AsyncSession, umschlag: Umschlag, konto: User) -> Zuordnung:
         await ordne_zu(offene, umschlag, konto)
         raise RuntimeError("connection lost")
 
     monkeypatch.setattr("app.protokolle.absenden.ordne_zu", bricht_ab)
 
     with pytest.raises(RuntimeError):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
     await session.rollback()
 
@@ -285,9 +281,7 @@ async def test_die_regeln_und_der_umschlag_sind_sich_einig(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     assert pruefe_protokoll(VOLLSTAENDIG) == []
-    await sende_ab(
-        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-    )
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
 
 async def test_ein_fremdes_protokoll_ist_nicht_zu_finden(
@@ -304,9 +298,7 @@ async def test_ein_fremdes_protokoll_ist_nicht_zu_finden(
     entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
 
     with pytest.raises(ProtokollNichtGefunden):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=fremder, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=fremder, version=entwurf.version)
 
 
 async def test_ein_unbekanntes_protokoll_ist_nicht_zu_finden(
@@ -342,9 +334,7 @@ async def test_ein_bereits_abgesendetes_protokoll_geht_nicht_noch_einmal(
     await session.flush()
 
     with pytest.raises(ProtokollNichtMehrEntwurf):
-        await sende_ab(
-            session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
-        )
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
 
 
 async def test_ein_veralteter_stand_wird_abgelehnt(
@@ -380,3 +370,182 @@ async def test_ein_veralteter_stand_schlaegt_die_regeln(
 
     with pytest.raises(ProtokollVeraendert):
         await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=4)
+
+
+async def test_ein_erstes_absenden_schreibt_sein_ereignis(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """The history starts where the protocol leaves its owner.
+
+    Nothing records the draft being created: created_at already says when that
+    was, and a second record of one fact is a record that can disagree with
+    itself.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+
+    ereignis = (await session.scalars(select(WorkflowEvent))).one()
+    assert ereignis.von_status is Status.DRAFT
+    assert ereignis.nach_status is Status.SUBMITTED
+    assert ereignis.actor_user_id == besitzer.id
+    assert ereignis.kommentar is None
+
+
+async def test_ein_zurueckgegebenes_protokoll_geht_wieder_raus(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """The whole point of a change request: it can be corrected and sent again."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    pruefer = await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+    await fuehre_uebergang_aus(
+        session,
+        protokoll_id=entwurf.id,
+        aktion=Aktion.AENDERUNG_ANFORDERN,
+        akteur=pruefer,
+        kommentar="Bitte die Leitfaehigkeit nachtragen.",
+    )
+    assert entwurf.status is Status.NEEDS_CHANGES
+
+    wieder = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    assert wieder.status is Status.SUBMITTED
+
+
+async def test_ein_zweites_absenden_verschiebt_den_ersten_eingang_nicht(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """submitted_at is when the protocol was first handed in, which is what any
+    deadline is measured against. The second hand-in is in the Verlauf."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    pruefer = await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+    zuerst = entwurf.submitted_at
+
+    await fuehre_uebergang_aus(
+        session,
+        protokoll_id=entwurf.id,
+        aktion=Aktion.AENDERUNG_ANFORDERN,
+        akteur=pruefer,
+        kommentar="Bitte die Leitfaehigkeit nachtragen.",
+    )
+    wieder = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    assert wieder.submitted_at == zuerst
+
+
+async def test_die_geschichte_haelt_beide_eingaenge_fest(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """Two SUBMITTED events with a NEEDS_CHANGES between them is the correct and
+    readable account of what happened."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    pruefer = await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+    await fuehre_uebergang_aus(
+        session,
+        protokoll_id=entwurf.id,
+        aktion=Aktion.AENDERUNG_ANFORDERN,
+        akteur=pruefer,
+        kommentar="Bitte die Leitfaehigkeit nachtragen.",
+    )
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+
+    ereignisse = (
+        await session.scalars(select(WorkflowEvent).order_by(WorkflowEvent.created_at))
+    ).all()
+
+    assert [(e.von_status, e.nach_status) for e in ereignisse] == [
+        (Status.DRAFT, Status.SUBMITTED),
+        (Status.SUBMITTED, Status.NEEDS_CHANGES),
+        (Status.NEEDS_CHANGES, Status.SUBMITTED),
+    ]
+
+
+async def test_ein_zurueckgegebenes_protokoll_wird_neu_gelesen(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """The envelope is read again from what the protocol says now.
+
+    A reviewer who asks for a correction usually asks for one of these, so a
+    second submit that kept July's values would store the very thing that was
+    sent back.
+
+    The Probestrecke deliberately does not move with it. This protocol carries a
+    Monitoringstrecken-Nr., which is the stretch's natural key, and feature 11b
+    matches on that and never rewrites the row it lands on: two records for one
+    monitoring site would be worse than a name that is corrected in the answers.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    pruefer = await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+    erste_person = entwurf.person_id
+
+    await fuehre_uebergang_aus(
+        session,
+        protokoll_id=entwurf.id,
+        aktion=Aktion.AENDERUNG_ANFORDERN,
+        akteur=pruefer,
+        kommentar="Der Bearbeiter ist falsch eingetragen.",
+    )
+
+    korrigiert = dict(VOLLSTAENDIG)
+    korrigiert["bearbeiter"] = dict(korrigiert["bearbeiter"]) | {"name": "Dr. Ute Mayer"}
+    await speichere_antworten(
+        session,
+        protokoll_id=entwurf.id,
+        besitzer=besitzer,
+        antworten=korrigiert,
+        version=entwurf.version,
+    )
+
+    wieder = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    assert wieder.bearbeiter_name == "Dr. Ute Mayer"
+
+    # The Person does not move either, and for a different reason: feature 11b
+    # matches a Person on the email address, so a corrected spelling of a name is
+    # the same person rather than a new one. The frozen bearbeiter_name above is
+    # what makes this protocol still read as it was filed.
+    assert wieder.person_id == erste_person
+
+
+async def test_ein_zurueckgegebenes_protokoll_darf_nicht_geloescht_werden(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]], speicher: Anlagenspeicher
+) -> None:
+    """Editable and deletable parted company in feature 11d.
+
+    FFS has seen this protocol and a reviewer is waiting for it, so deleting it
+    would take their decisions with it.
+    """
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    pruefer = await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+    entwurf = await _entwurf(session, besitzer, dict(VOLLSTAENDIG))
+
+    await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+    await fuehre_uebergang_aus(
+        session,
+        protokoll_id=entwurf.id,
+        aktion=Aktion.AENDERUNG_ANFORDERN,
+        akteur=pruefer,
+        kommentar="Bitte die Leitfaehigkeit nachtragen.",
+    )
+
+    with pytest.raises(ProtokollNichtLoeschbar):
+        await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)
