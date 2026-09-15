@@ -146,6 +146,9 @@
       "zurueck": "Zurück",
       "weiter": "Weiter: {{abschnitt}}"
     },
+    "nurlesen": {
+      "leer": "Nicht angegeben"
+    },
     "abschnitt1": {
       "anlass": {
         "legend": "Anlass der Befischung",

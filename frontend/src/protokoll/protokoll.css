@@ -916,3 +916,84 @@
   border-left: 3px solid var(--warn);
   white-space: pre-wrap;
 }
+
+/* ---------- reading a protocol instead of filling it in, feature 11e ---------- */
+
+/* One answer, printed. Ported from prototypes/pruefung-protokoll.html, where the
+   surface-sunken ground and the hairline border are what separate a value being
+   read from the white card behind it without making it look like a control
+   somebody has been locked out of.
+
+   min-height matches --field-h, the form's own control height, so a read-only
+   section keeps the rhythm of the section it mirrors rather than collapsing into
+   a denser block that no longer lines up with the labels beside it. */
+.readonly-value {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  padding: 0.55rem 0.7rem;
+  min-height: var(--field-h);
+  color: var(--text);
+  /* The Bemerkungen boxes hold several lines and the surveyor's own paragraph
+     breaks are part of what the reviewer is reading. */
+  white-space: pre-wrap;
+}
+
+/* Nothing was answered. Muted rather than hidden, because a missing answer is
+   usually exactly what a reviewer is looking for, and italic so it reads as the
+   application speaking rather than as something somebody typed. */
+.readonly-value--leer {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Coordinates, counts and percentages sit under one another and are compared by
+   eye, which only works when every digit is the same width. */
+.readonly-value--ziffern {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The reviewer's page: the protocol on the left, the rail on the right.
+
+   The rail is empty until feature 11f fills it with the decision panel and the
+   Verlauf. A grid with one child renders one column, so nothing here is rebuilt
+   when the second arrives.
+
+   The single column below 950px is the mockup's own breakpoint, and it is where
+   a 22rem rail stops leaving the protocol enough width to read. */
+.review {
+  display: grid;
+  grid-template-columns: 1fr 22rem;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 950px) {
+  .review {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The envelope, across the head of the protocol: who filed it, when, and under
+   what occasion. A definition list because that is what it is, and it wraps
+   rather than scrolls because these are five short facts and not a table. */
+.summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-radius: var(--radius) var(--radius) 0 0;
+  margin: 0;
+}
+
+.summary-bar dt {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.summary-bar dd {
+  margin: 0.1rem 0 0;
+  font-weight: 600;
+}

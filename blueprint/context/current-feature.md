@@ -198,7 +198,7 @@ unit test.
       else's submitted protocol gets the same fields; and that reading one protocol issues
       no extra query per relationship. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 2 - The mode, and what one answer looks like** - `NurLesenContext`,
+- [x] **Step 2 - The mode, and what one answer looks like** - `NurLesenContext`,
       `useNurLesen()`, and `Feldwert`, which draws the `.readonly-value` block. The styles
       for it, for `.summary-bar` and for `.review` ported from `prototypes/mockup.css` into
       `protokoll.css` against our own tokens, never a hard-coded colour. The `.review` grid
@@ -333,7 +333,8 @@ unit test.
 
 **Frontend, new**
 
-- `frontend/src/protokoll/nurlesen/NurLesenContext.tsx` and `useNurLesen.ts`
+- `frontend/src/protokoll/nurlesen/kontext.ts` - the context and `useNurLesen()`, one
+  file rather than the two this spec first named, since neither needs JSX
 - `frontend/src/protokoll/nurlesen/Feldwert.tsx`
 - `frontend/src/protokoll/nurlesen/wert.ts` and `wert.test.ts` - the placeholder decision
   and the option-label lookup, as plain functions
