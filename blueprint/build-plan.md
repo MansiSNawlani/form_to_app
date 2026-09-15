@@ -129,7 +129,7 @@ These are not features and are not tracked here. They happen first.
         submit whether this stretch is one already on record
   - [x] 11c. Absenden: the endpoint that runs the rules and promotes the envelope, the status on
         Meine Protokolle, the button, and the panel listing what is still missing
-  - [ ] 11d. The state machine: the workflow_events table, every transition and who may make it,
+  - [x] 11d. The state machine: the workflow_events table, every transition and who may make it,
         the Begruendung required for a rejection and a change request, and locking on acceptance
   - [ ] 11e. Die Pruefungsseite: the reviewer screen at /protokolle/:id/pruefung, built against
         `prototypes/pruefung-protokoll.html`, with the read-only protocol, the decision panel and
