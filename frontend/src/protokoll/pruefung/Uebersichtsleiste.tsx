@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { anlassLabel, zeitpunktAnzeige } from '../liste/anzeige'
-import { optionen } from '../optionen'
+import { optionLabel } from '../optionen'
 import { angezeigterWert } from '../nurlesen/wert'
 import type { Entwurf } from '../entwurf/typen'
 
@@ -17,16 +17,11 @@ import type { Entwurf } from '../entwurf/typen'
  * data on the way to the screen, and the next regeneration could change the
  * wording underneath it.
  *
- * An unknown number falls back to the number, the same way anlassLabel falls back
- * to its code, for the reason ADR 0004 gives: a protocol is never migrated to a
- * later form version, so a value this version's list no longer offers has to stay
- * readable.
+ * An unknown number falls back to the number itself, which is optionLabel's rule
+ * for every picker on this page and is explained there.
  */
 function regierungspraesidiumLabel(nummer: number | null): string | null {
-  if (nummer === null) return null
-
-  const wert = String(nummer)
-  return optionen('z.rp').find((option) => option.wert === wert)?.label ?? wert
+  return nummer === null ? null : optionLabel('z.rp', String(nummer))
 }
 
 interface EintragProps {

@@ -1,9 +1,12 @@
+import { useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
 import Suche from './Suche'
 import { useFeldFehler } from './fehler'
+import Feldwert from '../nurlesen/Feldwert'
+import { useNurLesen } from '../nurlesen/kontext'
+import { optionLabel, type ListenName } from '../optionen'
 import { feldAria, type FeldRahmenProps } from './rahmen'
-import type { ListenName } from '../optionen'
-import type { AntwortPfad } from '../entwurf/typen'
+import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* The same thing as FeldAuswahl, for a list too long to scroll.
 
@@ -31,6 +34,25 @@ function FeldSuche({
   hinweisKey,
 }: FeldSucheProps) {
   const fehlerKey = useFeldFehler(name)
+  const { getValues } = useFormContext<Antworten>()
+  const nurLesen = useNurLesen()
+
+  /* Same as FeldAuswahl: the stored export value turned back into its label.
+     That a list is too long to scroll matters to somebody choosing from it and
+     not at all to somebody reading one answer out of it. */
+  if (nurLesen) {
+    return (
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
+        <Feldwert wert={optionLabel(liste, getValues(name))} />
+      </FeldRahmen>
+    )
+  }
 
   return (
     <FeldRahmen

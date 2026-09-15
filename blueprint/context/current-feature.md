@@ -262,7 +262,7 @@ unit test.
       components still render as inputs inside the form, proven by the existing suite
       staying green; `npm test`, `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 6 - The pickers become their labels** - the read-only branch on `FeldAuswahl`,
+- [x] **Step 6 - The pickers become their labels** - the read-only branch on `FeldAuswahl`,
       `FeldRadio` and `FeldSuche`. All three store a code and show a label, so all three
       look the stored value up in `optionen.ts` and print the label. A code that is not in
       the list prints the code itself rather than nothing: a protocol filed under an older
@@ -343,6 +343,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | 3 | The head, the badge and the summary bar, in both themes and at narrow width |
 | 4 | The six sections stacked, their card titles, and section 2 on a standing water |
 | 5 | Text, numbers, percentages, dates and checkboxes as text rather than controls |
+| 6 | Dropdowns, radio groups and search fields printing one label each |
 
 ## Files / areas
 
