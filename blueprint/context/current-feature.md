@@ -317,7 +317,7 @@ unit test.
       editable form with the change request above it; a draft still opens as a form;
       screenshots in both themes.
 
-- [ ] **Step 10 - The words and the final pass** - every German string added in steps 2 to
+- [x] **Step 10 - The words and the final pass** - every German string added in steps 2 to
       9 under `protokoll.*` in `de.json`, none left hard-coded in a component. A read
       through the page with a keyboard and against the tokens: the read-only blocks are not
       focusable, since there is nothing to do in them, but the page's own headings and
@@ -354,6 +354,11 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | 7 | The catch table: the filled rows, the totals, and the sideways scroll |
 | 8 | The map excerpt and the photographs, with no buttons on them |
 | 9 | A submitter opening their own sent protocol, and NEEDS_CHANGES still editable |
+
+**Checked without a browser in step 10.** The muted placeholder's contrast was
+computed from the tokens rather than judged by eye: 6.31:1 in light and 7.06:1 in
+dark against `--surface-sunken`, both past AA's 4.5:1. No German string added in
+this feature is hard-coded; every one reads from `de.json`.
 
 ## Files / areas
 

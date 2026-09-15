@@ -134,7 +134,21 @@ function ArtenNurLesen() {
 
   return (
     <Block>
-      <TableContainer>
+      {/* Focusable, and this is not optional here.
+       *
+       * Fourteen columns do not fit, so the table scrolls sideways. In the form
+       * that costs nothing: every cell is an input, so tabbing through the row
+       * scrolls it along. Read-only there is not one focusable thing inside it,
+       * and a scrollable region a keyboard user cannot reach is a region whose
+       * right-hand half they can never see. So the container takes the focus
+       * instead, and is named as a region so it announces what it is rather than
+       * appearing as an unexplained tab stop. The focus ring is the global one
+       * defined in muiTheme.ts. */}
+      <TableContainer
+        tabIndex={0}
+        role="region"
+        aria-label={t('protokoll.abschnitt6.tabelle.beschriftung')}
+      >
         <Table className="arten-tabelle">
           {/* MUI has no caption component, and a table needs one: it is what
               names the table to a screen reader listing the page's tables. */}
