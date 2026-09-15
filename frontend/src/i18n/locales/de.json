@@ -723,9 +723,7 @@
       }
     },
     "abgesendet": {
-      "titel": "Dieses Protokoll ist abgesendet",
-      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden.",
-      "zurUebersicht": "Zu meinen Protokollen"
+      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden."
     },
     "aenderung": {
       "titel": "Die Prüfung bittet um eine Änderung",

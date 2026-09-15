@@ -2,9 +2,7 @@ import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import Kopfzeile from './Kopfzeile'
-import Uebersichtsleiste from './Uebersichtsleiste'
-import ProtokollNurLesen from '../nurlesen/ProtokollNurLesen'
+import ProtokollAnsicht from '../nurlesen/ProtokollAnsicht'
 import ProtokollLadefehler from '../ProtokollLadefehler'
 import ProtokollNichtGefunden from '../ProtokollNichtGefunden'
 import { abschnittPfad } from '../abschnitte'
@@ -87,30 +85,17 @@ function PruefungsSeite() {
   }
 
   return (
-    <>
-      <Kopfzeile protokoll={protokoll} />
-
-      {/* Two columns, the protocol and a rail. The rail is empty until feature
-          11f fills it; a grid with one child renders one column, so nothing here
-          is rebuilt when the second arrives. */}
-      <div className="review">
-        <div className="review__protokoll">
-          <section className="card">
-            <Uebersichtsleiste protokoll={protokoll} />
-            {/* Said once for the whole protocol rather than per section, and
-                without naming a way to change it: asking for a correction is the
-                reviewer's move and is feature 11f's, while from step 9 the person
-                reading this may be the surveyor, for whom that sentence would be
-                simply wrong. */}
-            <p className="form-section__hint review__hinweis">
-              {t('protokoll.pruefung.gesperrt')}
-            </p>
-          </section>
-
-          <ProtokollNurLesen antworten={protokoll.antworten} entwurfId={protokoll.id} />
-        </div>
-      </div>
-    </>
+    <ProtokollAnsicht
+      protokoll={protokoll}
+      /* Said once for the whole protocol rather than per section. It does not
+         name the way to change it: asking for a correction is the reviewer's own
+         move and arrives with the decision panel in feature 11f. */
+      hinweis={
+        <p className="form-section__hint review__hinweis">
+          {t('protokoll.pruefung.gesperrt')}
+        </p>
+      }
+    />
   )
 }
 

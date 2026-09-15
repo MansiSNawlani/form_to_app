@@ -306,7 +306,7 @@ unit test.
       protocol has no photographs when the request merely failed is the one wrong answer
       this step can give; `npm test`, `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 9 - The surveyor reads their own** - `ProtokollSeite` shows the same view
+- [x] **Step 9 - The surveyor reads their own** - `ProtokollSeite` shows the same view
       instead of `NichtMehrEntwurf` for a protocol that is no longer editable. The grey
       notice does not disappear entirely: its sentence about what the status means moves to
       the top of the read-only view, since "you cannot change this, it is In Pruefung" is
@@ -353,6 +353,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | 6 | Dropdowns, radio groups and search fields printing one label each |
 | 7 | The catch table: the filled rows, the totals, and the sideways scroll |
 | 8 | The map excerpt and the photographs, with no buttons on them |
+| 9 | A submitter opening their own sent protocol, and NEEDS_CHANGES still editable |
 
 ## Files / areas
 

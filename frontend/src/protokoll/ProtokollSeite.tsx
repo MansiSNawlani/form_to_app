@@ -3,13 +3,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import NichtMehrEntwurf from './absenden/NichtMehrEntwurf'
 import AenderungAngefordert from './pruefung/AenderungAngefordert'
+import ProtokollAnsicht from './nurlesen/ProtokollAnsicht'
 import ProtokollFormular from './ProtokollFormular'
 import ProtokollLadefehler from './ProtokollLadefehler'
 import ProtokollNichtGefunden from './ProtokollNichtGefunden'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
+import { statusAnzeige } from './liste/anzeige'
 import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
 import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
 import type { Entwurf, Status } from './entwurf/typen'
@@ -156,7 +157,12 @@ function ProtokollSeite() {
     )
   }
 
-  /* Sent already, so there is nothing here to fill in.
+  /* Sent already, so there is nothing here to fill in. It is shown instead.
+   *
+   * Until feature 11e this was a grey notice saying the protocol had been sent,
+   * and that was the whole of it: somebody who filed a protocol in July could
+   * never see a single answer of it again. They now get the same view a reviewer
+   * gets, without the decision panel, so they can look up what they wrote.
    *
    * NEEDS_CHANGES is the exception, added in feature 11d: a reviewer has asked
    * for a correction, and a protocol that cannot be corrected makes the request
@@ -165,10 +171,25 @@ function ProtokollSeite() {
    *
    * Before the section check below, because a submitted protocol is not editable
    * whichever section the URL names, and redirecting it to section 1 first would
-   * only put a wrong address in the history on the way to the same notice.
+   * only put a wrong address in the history on the way to the same page.
    */
   if (!AENDERBAR.includes(entwurf.status)) {
-    return <NichtMehrEntwurf status={entwurf.status} />
+    return (
+      <ProtokollAnsicht
+        protokoll={entwurf}
+        /* What the status means and what to do if something still needs
+           changing. The reviewer's own version of this sentence says the fields
+           are locked; theirs would be no use here, since the person reading this
+           is the one who would have to do the changing. */
+        hinweis={
+          <p className="form-section__hint review__hinweis">
+            {t('protokoll.abgesendet.text', {
+              status: t(statusAnzeige(entwurf.status).schluessel),
+            })}
+          </p>
+        }
+      />
+    )
   }
 
   // The draft exists and only the section number is wrong, so send the user to
