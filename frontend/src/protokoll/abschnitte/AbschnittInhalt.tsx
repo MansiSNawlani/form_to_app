@@ -1,9 +1,4 @@
-import Abschnitt1 from './Abschnitt1'
-import Abschnitt2 from './Abschnitt2'
-import Abschnitt3 from './Abschnitt3'
-import Abschnitt4 from './Abschnitt4'
-import Abschnitt5 from './Abschnitt5'
-import Abschnitt6 from './Abschnitt6'
+import { ABSCHNITTSKOERPER } from './koerper'
 import type { Bereitsteller } from '../entwurf/bereitstellen'
 import type { Anlagenzustand } from '../entwurf/speicherzustand'
 import Abschnitt7 from './Abschnitt7'
@@ -24,12 +19,17 @@ interface AbschnittInhaltProps {
   absendenLaeuft: boolean
 }
 
-/* The one place a section number becomes a section body.
+/* One section of the form, with everything section 7 needs to upload a file.
  *
- * Every section is real as of feature 9a, so there is no placeholder branch left
- * and no default case: the switch is exhaustive over Abschnitt['nr'], which is
- * what made adding section 7 in feature 10 a build error here rather than a
- * blank page, and would do the same for an eighth. */
+ * The six ordinary sections come from the shared table in koerper.ts, which
+ * feature 11e lifted out when the reviewer's page became the second thing that
+ * turns a section number into a section. The table is keyed by the section
+ * numbers, so an eighth section is a build error there rather than a blank page
+ * here, which is what the exhaustive switch this replaced was for.
+ *
+ * Section 7 stays a case of its own because it is the only one that takes props,
+ * and because its props are all about writing: an id to upload against, a
+ * provider, and the Absenden button at its foot. */
 function AbschnittInhalt({
   abschnitt,
   entwurfId,
@@ -38,30 +38,20 @@ function AbschnittInhalt({
   absenden,
   absendenLaeuft,
 }: AbschnittInhaltProps) {
-  switch (abschnitt.nr) {
-    case 1:
-      return <Abschnitt1 />
-    case 2:
-      return <Abschnitt2 />
-    case 3:
-      return <Abschnitt3 />
-    case 4:
-      return <Abschnitt4 />
-    case 5:
-      return <Abschnitt5 />
-    case 6:
-      return <Abschnitt6 />
-    case 7:
-      return (
-        <Abschnitt7
-          entwurfId={entwurfId}
-          bereitstellen={bereitstellen}
-          melde={melde}
-          absenden={absenden}
-          absendenLaeuft={absendenLaeuft}
-        />
-      )
+  if (abschnitt.nr === 7) {
+    return (
+      <Abschnitt7
+        entwurfId={entwurfId}
+        bereitstellen={bereitstellen}
+        melde={melde}
+        absenden={absenden}
+        absendenLaeuft={absendenLaeuft}
+      />
+    )
   }
+
+  const Koerper = ABSCHNITTSKOERPER[abschnitt.nr]
+  return <Koerper />
 }
 
 export default AbschnittInhalt

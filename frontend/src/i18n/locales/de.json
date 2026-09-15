@@ -151,6 +151,7 @@
     },
     "pruefung": {
       "protokollVom": "Protokoll vom {{datum}}",
+      "gesperrt": "Dieses Protokoll wird so angezeigt, wie es eingereicht wurde. Die Felder lassen sich hier nicht ändern.",
       "uebersicht": {
         "eingereichtVon": "Eingereicht von",
         "bearbeiter": "Bearbeiter",

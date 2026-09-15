@@ -997,3 +997,36 @@
   margin: 0.1rem 0 0;
   font-weight: 600;
 }
+
+/* The left column of the reviewer's page: the envelope, then one card per part
+   of the protocol. A column with a gap rather than one long card, so the six
+   parts stay as distinct on the page as they are in the step bar a surveyor
+   filled them in through. */
+.review__protokoll {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  /* A grid item will not shrink below its content by default, and section 6's
+     catch table is wider than any column. Without this the table pushes the
+     whole page sideways instead of scrolling inside its own wrapper. */
+  min-inline-size: 0;
+}
+
+/* Sits under the summary bar, inside the same card, so it needs the padding the
+   fieldsets below supply for themselves. */
+.review__hinweis {
+  margin: 0;
+  padding: 1rem 1.5rem;
+}
+
+/* The name of one part of the protocol, at the head of its card.
+
+   A strip with a rule under it rather than a plain heading, because h2 and a
+   fieldset legend are the same size in this scale: without the strip the part
+   title and the block titles inside it would read as one flat list of ten
+   headings rather than as six parts each holding blocks. */
+.abschnitt-karte__titel {
+  margin: 0;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}

@@ -233,7 +233,7 @@ unit test.
       the retry message; screenshots in both themes; `npm run lint` and `npm run build`
       pass.
 
-- [ ] **Step 4 - The protocol on it** - sections 1 to 6 stacked on that page inside one
+- [x] **Step 4 - The protocol on it** - sections 1 to 6 stacked on that page inside one
       `FormProvider` built from the answers, each in its own card with the section title as
       its heading, and the mockup's own hint saying the fields are locked while the
       protocol is in Pruefung. Section 7 waits for step 8, because its props are all about
@@ -341,6 +341,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | Step | What has not been seen |
 |---|---|
 | 3 | The head, the badge and the summary bar, in both themes and at narrow width |
+| 4 | The six sections stacked, their card titles, and section 2 on a standing water |
 
 ## Files / areas
 
