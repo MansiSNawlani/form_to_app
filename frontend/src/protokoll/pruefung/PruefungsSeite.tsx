@@ -107,7 +107,7 @@ function PruefungsSeite() {
             </p>
           </section>
 
-          <ProtokollNurLesen antworten={protokoll.antworten} />
+          <ProtokollNurLesen antworten={protokoll.antworten} entwurfId={protokoll.id} />
         </div>
       </div>
     </>

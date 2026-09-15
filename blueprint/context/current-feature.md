@@ -294,7 +294,7 @@ unit test.
       correct row totals and a correct grand total; the section is readable at the narrow
       width the form already supports; `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 8 - The attachments** - section 7 joins the page, read-only: the
+- [x] **Step 8 - The attachments** - section 7 joins the page, read-only: the
       Kartenausschnitt and the photographs as pictures with their names and sizes, no
       picker, no remove button and no Absenden block. It reads the list with a plain query
       over `listeAnlagen` rather than mounting `useAnlagen`, which is an upload machine and
@@ -339,6 +339,8 @@ that needs a pair of eyes, since Playwright is not installed and
 A protocol to look at, filed on 2026-09-15 against the running stack:
 
 - **Submitted:** `/protokolle/4132bb33-05e1-477b-b5e7-75410f6ff9ad/pruefung`
+- **Submitted, with a map excerpt and three photographs:**
+  `/protokolle/8213245b-90b6-4938-b1c9-8d86e0fea306/pruefung`
 - **A draft, to prove the redirect:** `/protokolle/575a4bf3-b38e-4ff3-b1f5-030f43c05744/pruefung`
 - Accounts, both with the password `ein gutes langes passwort`:
   `einreicher11e@ffs.de` filed it, `pruefer11e@ffs.de` reviews it.
@@ -350,6 +352,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | 5 | Text, numbers, percentages, dates and checkboxes as text rather than controls |
 | 6 | Dropdowns, radio groups and search fields printing one label each |
 | 7 | The catch table: the filled rows, the totals, and the sideways scroll |
+| 8 | The map excerpt and the photographs, with no buttons on them |
 
 ## Files / areas
 

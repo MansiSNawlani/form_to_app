@@ -1,6 +1,7 @@
 import Typography from '@mui/material/Typography'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import AnlagenNurLesen from './AnlagenNurLesen'
 import { NurLesenKontext } from './kontext'
 import { ABSCHNITTE } from '../abschnitte'
 import { ABSCHNITTSKOERPER } from '../abschnitte/koerper'
@@ -46,7 +47,16 @@ import type { Antworten } from '../entwurf/typen'
  * decision is made while rendering out of the answers themselves. What is left
  * out is only the hook that writes.
  */
-function ProtokollNurLesen({ antworten }: { antworten: Antworten }) {
+interface ProtokollNurLesenProps {
+  antworten: Antworten
+  /* Only section 7 needs it, and it travels as a prop for the same reason it
+     does in the form: the attachments are their own records, addressed by the
+     protocol's id, and one consumer is not a reason to make the protocol
+     ambient. */
+  entwurfId: string
+}
+
+function ProtokollNurLesen({ antworten, entwurfId }: ProtokollNurLesenProps) {
   const { t } = useTranslation()
 
   /* React Hook Form still holds the values, so the field components read them
@@ -58,13 +68,13 @@ function ProtokollNurLesen({ antworten }: { antworten: Antworten }) {
     <NurLesenKontext value={true}>
       <FormProvider {...form}>
         {ABSCHNITTE.map((abschnitt) => {
-          /* Section 7 is the attachments, and step 8 puts them here. Written as
-             a narrowing check rather than a filtered list, so the six bodies are
-             looked up by the same number the title comes from and the two cannot
-             fall out of step. */
+          /* Section 7 is the attachments, which are records of their own rather
+             than answers and so have their own read-only component. Written as a
+             narrowing check rather than a filtered list, so the six ordinary
+             bodies are looked up by the same number their title comes from and
+             the two cannot fall out of step. */
           const Koerper =
             abschnitt.nr === 7 ? undefined : ABSCHNITTSKOERPER[abschnitt.nr]
-          if (Koerper === undefined) return null
 
           const nr = abschnitt.nr
           const titel = t(abschnitt.titelKey)
@@ -82,7 +92,7 @@ function ProtokollNurLesen({ antworten }: { antworten: Antworten }) {
               >
                 {titel}
               </Typography>
-              <Koerper />
+              {Koerper === undefined ? <AnlagenNurLesen entwurfId={entwurfId} /> : <Koerper />}
             </section>
           )
         })}

@@ -150,6 +150,7 @@
       "leer": "Nicht angegeben",
       "ja": "Ja",
       "nein": "Nein",
+      "keineFotos": "Keine Fotos hinterlegt.",
       "keineArten": "In diesem Protokoll ist keine Art eingetragen. Auch ein Fang ohne Nachweis muss eine der vier Nichtnachweis-Arten nennen, daher fehlt hier eine Angabe."
     },
     "pruefung": {
