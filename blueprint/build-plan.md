@@ -146,6 +146,27 @@ These are not features and are not tracked here. They happen first.
     which is what the reviewer mockup's own button text promises. ACCEPTED stays in the enum
     unwritten until feature 19 needs a step between the reviewer's yes and the transfer to FiaKa.
 - [ ] 12. Review queue: list, filter and search, including by species
+- [ ] 23. Import a filled PDF: read a completed Protokoll E-Befischung out of the legacy
+      Acrobat form and open it as a draft with the answers already in place, checked by
+      exactly the same rules as anything typed in. Added on 2026-09-15
+
+  Two audiences, decided on 2026-09-15: the backlog first, a permanent route in second. The
+  immediate job is the protocols FFS already holds as Acrobat files. Whether the Acrobat
+  form stays a lasting alternative to the website, which overlaps feature 22, is decided
+  once the backlog is in and people have used it.
+
+  **Built after the review features, 11e and 12, and before the rest of the MVP.** Its
+  first job is to produce realistic protocols to test the review workflow with, so the
+  review screens are built first and validated properly afterwards. The number is 23
+  because numbering follows what is next unused, never where an item sits; the same rule
+  the 2026-09-01 reordering above follows.
+
+  Nothing about it is speculative: pypdf is already a backend dependency,
+  `backend/scripts/extract_form_definition.py` already opens this exact encrypted form, and
+  every PDF field name is already the name this application stores that answer under. An
+  imported protocol is never trusted: the legacy form has known validation bugs
+  ([../docs/ffs-defect-list.md](../docs/ffs-defect-list.md)), so an import lands as a draft
+  with the problem panel populated, never as a submission.
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
 - [ ] 15. Audit trail
