@@ -4,6 +4,9 @@ import dayjs from 'dayjs'
 import { Controller, useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
+import Feldwert from '../nurlesen/Feldwert'
+import { useNurLesen } from '../nurlesen/kontext'
+import { datumAnzeige } from '../liste/anzeige'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -33,10 +36,39 @@ function FeldDatum({
   pflicht,
   hinweisKey,
 }: FeldDatumProps) {
-  const { control } = useFormContext<Antworten>()
+  const { control, getValues } = useFormContext<Antworten>()
   const format = FORMAT[art]
   const Picker = art === 'datum' ? DatePicker : TimePicker
   const fehlerKey = useFeldFehler(name)
+  const nurLesen = useNurLesen()
+
+  if (nurLesen) {
+    const gespeichert = getValues(name)
+
+    /* A time needs no conversion: HH:mm is both how it is stored and how German
+       prints it. A date does, and the formatting is datumAnzeige's, shared with
+       the protocol list rather than written a second time here.
+       
+       A stored date that will not parse falls back to itself rather than to the
+       "not answered" placeholder. A protocol is never migrated to a later form
+       version (ADR 0004), so an unreadable value is something this screen has to
+       survive, and showing a reviewer what is actually stored beats telling them
+       the field is empty when it is not. */
+    const text =
+      art === 'uhrzeit' ? gespeichert : (datumAnzeige(gespeichert ?? null) ?? gespeichert)
+
+    return (
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
+        <Feldwert wert={text} ziffern />
+      </FeldRahmen>
+    )
+  }
 
   return (
     <FeldRahmen

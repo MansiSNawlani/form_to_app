@@ -5,6 +5,7 @@ import type { ParseKeys } from 'i18next'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { istPflichtfeld } from './pflicht'
+import { useNurLesen } from '../nurlesen/kontext'
 import { fehlerId, hinweisId, labelId, type FeldRahmenProps } from './rahmen'
 
 /* What every field on the protocol has in common: a grid column, a label above
@@ -36,6 +37,7 @@ function FeldRahmen({
   children: ReactNode
 }) {
   const { t } = useTranslation()
+  const nurLesen = useNurLesen()
 
   /* The asterisk comes from the shared required list unless the caller has an
      answer of its own. A field whose requiredness depends on another answer, such
@@ -48,7 +50,11 @@ function FeldRahmen({
   return (
     <FormControl
       className={`field col-${spalten}`}
-      required={istPflicht}
+      /* No marker while the protocol is only being read. The asterisk says
+         "you have to answer this", and nobody reading a protocol that was filed
+         months ago is being asked for anything. Whether it was answered is shown
+         by the answer itself, or by the placeholder where one is missing. */
+      required={istPflicht && !nurLesen}
       /* Carries the error state down to the label, the control and the message
          through MUI's own FormControl context, which is why none of them needs
          telling separately. */
@@ -60,7 +66,12 @@ function FeldRahmen({
           the required asterisk itself, already aria-hidden, so the requirement
           reaches assistive technology through aria-required on the control and
           not through a decorative star. */}
-      <FormLabel id={labelId(id)} htmlFor={labelFuer}>
+      {/* htmlFor is dropped when there is no control to point at. A <label for>
+          naming an element that does not exist is worse than none: a screen
+          reader follows it, finds nothing, and the field goes unnamed. The value
+          block that replaces the control follows the label in reading order, so
+          the two are still read together. */}
+      <FormLabel id={labelId(id)} htmlFor={nurLesen ? undefined : labelFuer}>
         {t(labelKey)}
       </FormLabel>
       {children}

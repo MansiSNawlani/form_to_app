@@ -1030,3 +1030,12 @@
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
 }
+
+/* A yes-or-no answer while the protocol is being read. The only field on the
+   form with no label above it, so the question and the answer are printed as one
+   line where the box and its label would have been. */
+.haken-wert {
+  display: inline-block;
+  padding: 0.55rem 0;
+  color: var(--text);
+}

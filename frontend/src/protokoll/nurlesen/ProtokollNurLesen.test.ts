@@ -1,6 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+/* Vite's ?raw import rather than node:fs. The app's TypeScript project is typed
+   against vite/client and not against node, so reading the file with fs would
+   mean adding @types/node to the whole app for one test. */
+import quelle from './ProtokollNurLesen.tsx?raw'
 
 /* A guard over the source rather than over the rendering.
  *
@@ -28,11 +30,6 @@ import { describe, expect, it } from 'vitest'
  * differently here and "fixing" it by mounting the hook. This is what stops that
  * reaching a reviewer's screen.
  */
-
-const quelle = readFileSync(
-  fileURLToPath(new URL('./ProtokollNurLesen.tsx', import.meta.url)),
-  'utf8',
-)
 
 /* Hooks that write, and what each would do to a protocol that has been filed.
    The comment matters as much as the name: whoever hits this failure needs to

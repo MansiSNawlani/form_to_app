@@ -250,7 +250,7 @@ unit test.
       answers are still in the document afterwards, checked by reading it back from the
       API; nothing on the page issues a save; `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 5 - The typed-in answers become text** - the read-only branch on `FeldText`,
+- [x] **Step 5 - The typed-in answers become text** - the read-only branch on `FeldText`,
       and with it `FeldProzent`, which is a wrapper over it. Then `FeldDatum`, which prints
       the German date and time rather than the stored ISO strings, reusing the formatting
       `liste/anzeige.ts` already owns rather than writing a third one. Then `FeldHaken`,
@@ -342,6 +342,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 |---|---|
 | 3 | The head, the badge and the summary bar, in both themes and at narrow width |
 | 4 | The six sections stacked, their card titles, and section 2 on a standing water |
+| 5 | Text, numbers, percentages, dates and checkboxes as text rather than controls |
 
 ## Files / areas
 

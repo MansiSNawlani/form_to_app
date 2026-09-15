@@ -147,7 +147,9 @@
       "weiter": "Weiter: {{abschnitt}}"
     },
     "nurlesen": {
-      "leer": "Nicht angegeben"
+      "leer": "Nicht angegeben",
+      "ja": "Ja",
+      "nein": "Nein"
     },
     "pruefung": {
       "protokollVom": "Protokoll vom {{datum}}",
