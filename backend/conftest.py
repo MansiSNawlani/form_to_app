@@ -58,6 +58,7 @@ from app.models.benutzer import Rolle, User
 from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
+from app.protokolle.formregeln.beispiele import VOLLSTAENDIG
 
 TESTDATENBANK = "befischung_test"
 
@@ -368,6 +369,38 @@ def anmelden(client: AsyncClient) -> Callable[..., Awaitable[Response]]:
         return await client.post("/api/v1/anmeldung", json={"email": email, "passwort": passwort})
 
     return _anmelden
+
+
+@pytest.fixture
+def einreichen(client: AsyncClient) -> Callable[..., Awaitable[str]]:
+    """Hand in a complete protocol as whoever is signed in, and return its id.
+
+    Through the real endpoints rather than by writing rows, so the protocol that
+    comes out has been past the rules and past feature 11b's matching, and
+    therefore has a real Probestrecke with a real Regierungspraesidium behind it.
+    A test that only needs the row can build one with `umschlag` below instead.
+
+    Shared here because two route test files already needed it and a third was
+    about to copy it.
+    """
+
+    async def _einreichen(antworten: dict[str, object] | None = None) -> str:
+        angelegt = (await client.post("/api/v1/protokolle")).json()
+        gespeichert = await client.put(
+            f"/api/v1/protokolle/{angelegt['id']}/antworten",
+            json={
+                "version": angelegt["version"],
+                "antworten": dict(VOLLSTAENDIG) if antworten is None else antworten,
+            },
+        )
+        abgesendet = await client.post(
+            f"/api/v1/protokolle/{angelegt['id']}/absenden",
+            json={"version": gespeichert.json()["version"]},
+        )
+        assert abgesendet.status_code == 200
+        return str(angelegt["id"])
+
+    return _einreichen
 
 
 @pytest.fixture

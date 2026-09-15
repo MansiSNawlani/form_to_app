@@ -40,7 +40,8 @@ from app.db import get_session
 from app.models.benutzer import User
 from app.protokolle.absenden import sende_ab
 from app.protokolle.dienst import (
-    hole_sichtbares_protokoll,
+    Protokollansicht,
+    hole_protokollansicht,
     lege_entwurf_an,
     liste_protokolle,
     loesche_protokoll,
@@ -105,7 +106,13 @@ async def anlegen(
     is empty.
     """
     entwurf = await lege_entwurf_an(session, besitzer=benutzer)
-    return ProtokollAntwort.model_validate(entwurf)
+    # The same shape the read route answers with, so the browser can cache what
+    # it gets back here under the same type. A draft has no Probestrecke until
+    # submitting matches one, which is feature 11b, so there is no region to name
+    # yet; the rest of the envelope is null on the row itself.
+    return ProtokollAntwort.model_validate(
+        Protokollansicht.aus(entwurf, eingereicht_von=benutzer.email, regierungspraesidium=None)
+    )
 
 
 @router.get("", responses=ANGEMELDET)
@@ -145,10 +152,8 @@ async def lesen(
     private to its owner**: it is somebody's unfinished work, which is what
     CONTEXT.md says a draft is. app/protokolle/dienst.py holds that rule.
     """
-    protokoll = await hole_sichtbares_protokoll(
-        session, protokoll_id=protokoll_id, benutzer=benutzer
-    )
-    return ProtokollAntwort.model_validate(protokoll)
+    ansicht = await hole_protokollansicht(session, protokoll_id=protokoll_id, benutzer=benutzer)
+    return ProtokollAntwort.model_validate(ansicht)
 
 
 @router.put("/{protokoll_id}/antworten", responses=BEIM_AENDERN)

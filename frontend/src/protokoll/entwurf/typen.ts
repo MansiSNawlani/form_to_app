@@ -503,6 +503,29 @@ export interface Entwurf {
   antworten: Antworten
   created_at: string
   updated_at: string
+
+  /* The envelope, added in feature 11e for the summary bar at the head of the
+   * reviewer's screen. backend/app/api/schemas.py's ProtokollAntwort carries the
+   * same six, and the keys stay the server's, snake_case included, for the reason
+   * pruefung/typen.ts states: renaming them on the way in needs a mapping layer,
+   * and a mapping layer is one more place for the two halves to disagree.
+   *
+   * The form itself uses none of them. It only ever showed a protocol to the
+   * person filling it in, who knows perfectly well whose it is.
+   */
+
+  /** The account that filed it, as an address until feature 16 gives it a name. */
+  eingereicht_von: string
+  /** When it was first handed in. A re-submission deliberately does not move it. */
+  submitted_at: string | null
+  /** Written by Annehmen and by nothing else: accepting and locking are one action. */
+  locked_at: string | null
+  /** The snapshot frozen at submit, not the live answer in the Bearbeiter block. */
+  bearbeiter_name: string | null
+  /** The coded occasion, never its label. */
+  anlass: string | null
+  /** 1 to 4, off the Probestrecke matched at submit. Null while it is a draft. */
+  regierungspraesidium: number | null
 }
 
 /* One protocol as the list shows it: backend/app/api/schemas.py's

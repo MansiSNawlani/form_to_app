@@ -12,6 +12,12 @@ function entwurf(id: string): Entwurf {
     antworten: {},
     created_at: '2026-09-11T08:00:00Z',
     updated_at: '2026-09-11T08:00:00Z',
+    eingereicht_von: 'bergmann@ffs.de',
+    submitted_at: null,
+    locked_at: null,
+    bearbeiter_name: null,
+    anlass: null,
+    regierungspraesidium: null,
   }
 }
 
