@@ -212,7 +212,7 @@ unit test.
       genuinely the text "0"; `npm run build` and `npm run lint` pass. Nothing renders it
       yet, which is why this step is small.
 
-- [ ] **Step 3 - The page, empty** - the route `/protokolle/:id/pruefung`,
+- [x] **Step 3 - The page, empty** - the route `/protokolle/:id/pruefung`,
       `PruefungsSeite`, the `.review` grid with its left column, the head and the summary
       bar. The head prints the protocol's name, its date and its form version with the
       status badge beside it, reading the name out of the answers document directly rather
@@ -322,6 +322,25 @@ unit test.
       `pytest`, `ruff check .` and `mypy .` pass from `backend/`; no German string added in
       this feature is hard-coded; tabbing through the page reaches the head links and
       nothing else, in document order.
+
+## Visual checks owed
+
+Kept here rather than ticked quietly, because this feature is almost entirely
+visual and 11d's archive records exactly this debt being left unrecorded. Every
+step below has passed its build, lint and test gates; what is listed is the half
+that needs a pair of eyes, since Playwright is not installed and
+`coding-standards.md` says not to add it mid-feature.
+
+A protocol to look at, filed on 2026-09-15 against the running stack:
+
+- **Submitted:** `/protokolle/4132bb33-05e1-477b-b5e7-75410f6ff9ad/pruefung`
+- **A draft, to prove the redirect:** `/protokolle/575a4bf3-b38e-4ff3-b1f5-030f43c05744/pruefung`
+- Accounts, both with the password `ein gutes langes passwort`:
+  `einreicher11e@ffs.de` filed it, `pruefer11e@ffs.de` reviews it.
+
+| Step | What has not been seen |
+|---|---|
+| 3 | The head, the badge and the summary bar, in both themes and at narrow width |
 
 ## Files / areas
 

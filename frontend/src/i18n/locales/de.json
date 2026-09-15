@@ -149,6 +149,16 @@
     "nurlesen": {
       "leer": "Nicht angegeben"
     },
+    "pruefung": {
+      "protokollVom": "Protokoll vom {{datum}}",
+      "uebersicht": {
+        "eingereichtVon": "Eingereicht von",
+        "bearbeiter": "Bearbeiter",
+        "eingereichtAm": "Eingereicht am",
+        "anlass": "Anlass",
+        "regierungspraesidium": "Regierungspräsidium"
+      }
+    },
     "abschnitt1": {
       "anlass": {
         "legend": "Anlass der Befischung",

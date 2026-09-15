@@ -1,32 +1,19 @@
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { abschnittPfad } from '../abschnitte'
+import Statusabzeichen from '../Statusabzeichen'
 import type { Uebersicht } from '../entwurf/typen'
 import {
   anlassLabel,
   bearbeitetAnzeige,
   datumAnzeige,
-  statusAnzeige,
   unterzeile,
   zeilenTitel,
-  type Statusfarbe,
 } from './anzeige'
-
-/* Our token colour to MUI's palette slot. One line rather than a colour prop
-   chosen per status at the call site, so the badge cannot drift from what
-   anzeige.ts decided. */
-const CHIP_FARBE: Record<Statusfarbe, 'default' | 'info' | 'warning' | 'error' | 'success'> = {
-  neutral: 'default',
-  info: 'info',
-  warn: 'warning',
-  danger: 'error',
-  ok: 'success',
-}
 
 interface ProtokollZeileProps {
   zeile: Uebersicht
@@ -40,7 +27,6 @@ interface ProtokollZeileProps {
 function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
   const { t } = useTranslation()
 
-  const status = statusAnzeige(zeile.status)
   const bearbeitet = bearbeitetAnzeige(zeile.updated_at, jetzt)
   const zweiteZeile = unterzeile(zeile.ortsangabe, zeile.laenge)
 
@@ -58,11 +44,7 @@ function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
       <TableCell>{anlassLabel(zeile.anlass) ?? ''}</TableCell>
 
       <TableCell>
-        <Chip
-          size="small"
-          color={CHIP_FARBE[status.farbe]}
-          label={t(status.schluessel)}
-        />
+        <Statusabzeichen status={zeile.status} />
       </TableCell>
 
       <TableCell className="zeile-tabular">

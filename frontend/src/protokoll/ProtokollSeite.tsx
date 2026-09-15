@@ -1,22 +1,19 @@
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
-import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import NotFound from '../components/NotFound'
 import NichtMehrEntwurf from './absenden/NichtMehrEntwurf'
 import AenderungAngefordert from './pruefung/AenderungAngefordert'
 import ProtokollFormular from './ProtokollFormular'
+import ProtokollLadefehler from './ProtokollLadefehler'
+import ProtokollNichtGefunden from './ProtokollNichtGefunden'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
 import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
 import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
 import type { Entwurf, Status } from './entwurf/typen'
 import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../api/fehler'
-import { useFehlertext } from '../api/useFehlertext'
 import './protokoll.css'
 
 /* The states whose owner may still fill the form in, mirroring AENDERBAR in
@@ -103,7 +100,6 @@ function ProtokollSeite() {
     refetch,
     isFetching,
   } = useQuery(entwurfsAbfrage(begannNeu ? undefined : id))
-  const fehlertext = useFehlertext(error)
   const abschnitt = findeAbschnitt(nr)
 
   /* The route pattern always supplies an id, so this is a guard rather than a
@@ -111,12 +107,7 @@ function ProtokollSeite() {
      and a disabled query stays pending forever: without this the page would sit
      on "wird geladen" and never move. */
   if (id === undefined) {
-    return (
-      <NotFound
-        title={t('protokoll.nichtGefunden.titel')}
-        text={t('protokoll.nichtGefunden.text')}
-      />
-    )
+    return <ProtokollNichtGefunden />
   }
 
   if (begannNeu) {
@@ -153,12 +144,7 @@ function ProtokollSeite() {
      same way to both, so that a stranger cannot discover which ids exist, and
      this must not be softened into "you have no permission". */
   if (error instanceof ApiFehler && error.code === PROTOKOLL_NICHT_GEFUNDEN) {
-    return (
-      <NotFound
-        title={t('protokoll.nichtGefunden.titel')}
-        text={t('protokoll.nichtGefunden.text')}
-      />
-    )
+    return <ProtokollNichtGefunden />
   }
 
   /* Everything else: the backend is down, the network dropped, the session ran
@@ -166,15 +152,7 @@ function ProtokollSeite() {
      in rather than claiming it is gone. */
   if (error !== null || entwurf === undefined) {
     return (
-      <Alert severity="error" className="protokoll-fehler">
-        <AlertTitle>{t('protokoll.ladefehler.titel')}</AlertTitle>
-        <Typography variant="body2" className="hinweis__text">
-          {fehlertext ?? t('protokoll.ladefehler.text')}
-        </Typography>
-        <Button variant="outlined" size="small" onClick={() => void refetch()} disabled={isFetching}>
-          {t('protokoll.ladefehler.erneut')}
-        </Button>
-      </Alert>
+      <ProtokollLadefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
     )
   }
 
