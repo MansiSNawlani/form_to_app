@@ -149,7 +149,8 @@
     "nurlesen": {
       "leer": "Nicht angegeben",
       "ja": "Ja",
-      "nein": "Nein"
+      "nein": "Nein",
+      "keineArten": "In diesem Protokoll ist keine Art eingetragen. Auch ein Fang ohne Nachweis muss eine der vier Nichtnachweis-Arten nennen, daher fehlt hier eine Angabe."
     },
     "pruefung": {
       "protokollVom": "Protokoll vom {{datum}}",

@@ -97,10 +97,15 @@ A reviewer's commonest reason to send a protocol back is that something was left
 Leitfaehigkeit in the mockup's own example Begruendung. A view that hides what is missing
 hides exactly what the reviewer is looking for.
 
-**The catch table is the one exception.** It shows only the rows carrying a species. A row
-with no species is not an unanswered question, it is one of the 26 slots the printed form
+**The catch table is the one exception.** It shows only the rows that hold something. A row
+with nothing in it is not an unanswered question, it is one of the 26 slots the printed form
 happens to provide, and the project's own rule that the PDF's repeated-slot counts are not
 limits applies here too. Twenty-two empty rows of dashes would bury the four real ones.
+
+Refined while building step 7. This first said "only the rows carrying a species", which
+would have hidden a row holding counts that nobody named a species for. That row is not an
+empty slot, it is recorded animals with a question hanging over them, and it is very often
+why a protocol goes back. It is shown, with the species cell saying nothing was given.
 
 ## In scope
 
@@ -274,7 +279,7 @@ unit test.
       2 and 4 show their chosen radio labels and nothing about the ones not chosen;
       `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 7 - The catch table** - `ArtenTabelle` drawn read-only: only the rows carrying
+- [x] **Step 7 - The catch table** - `ArtenTabelle` drawn read-only: only the rows carrying
       a species, the species label with its code beneath it as the mockup prints it, the
       ten size classes, the row total and the 0+ column, and the grand total. `ZahlZelle`
       and `ArtZelle` get their read-only branches. MUI's `Table`, `TableRow` and
@@ -344,6 +349,7 @@ A protocol to look at, filed on 2026-09-15 against the running stack:
 | 4 | The six sections stacked, their card titles, and section 2 on a standing water |
 | 5 | Text, numbers, percentages, dates and checkboxes as text rather than controls |
 | 6 | Dropdowns, radio groups and search fields printing one label each |
+| 7 | The catch table: the filled rows, the totals, and the sideways scroll |
 
 ## Files / areas
 
