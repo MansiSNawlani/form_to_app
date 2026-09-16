@@ -22,7 +22,8 @@ from httpx import AsyncClient, Response
 
 from app.anlagen.regeln import MAX_BYTES, MAX_FOTOS
 from app.anlagen.speicher import Anlagenspeicher
-from app.models.benutzer import User
+from app.models.benutzer import Rolle, User
+from app.protokolle.formregeln.beispiele import VOLLSTAENDIG
 
 # Real signatures, so what is uploaded here is what the content check judges.
 JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01" + b"\x00" * 64
@@ -679,3 +680,104 @@ class TestZuletztBearbeitet:
         nachher = (await client.get(f"/api/v1/protokolle/{protokoll}")).json()["updated_at"]
         assert nachher == vorher
         assert dateien() == []
+
+
+async def test_eine_pruefende_sieht_die_anlagen_eines_eingereichten_protokolls(
+    client: AsyncClient,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
+    anmelden: Callable[..., Awaitable[Response]],
+) -> None:
+    """The gap feature 11e left, found by opening the real screen on 2026-09-16.
+
+    Reading a protocol was widened to FFS staff in feature 11d and reading its
+    attachments was not, so a reviewer could open a protocol and was answered 404
+    for every picture in it. The reviewer's screen shows the map excerpt and the
+    photographs, and a reviewer cannot decide on a survey whose pictures they
+    cannot see.
+    """
+    await anlegen(email="bergmann@ffs.de")
+    await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+
+    await anmelden(email="bergmann@ffs.de")
+
+    # The picture goes on before the protocol is handed in: a submitted protocol
+    # refuses an upload, which is what pruefe_aenderbar is for.
+    angelegt = (await client.post("/api/v1/protokolle")).json()
+    protokoll_id = angelegt["id"]
+    hochgeladen = await client.post(
+        f"/api/v1/protokolle/{protokoll_id}/anlagen",
+        data={"art": "KARTENAUSSCHNITT"},
+        files={"datei": ("karte.png", PNG, "image/png")},
+    )
+    assert hochgeladen.status_code == 201
+    anlage_id = hochgeladen.json()["id"]
+
+    gespeichert = await client.put(
+        f"/api/v1/protokolle/{protokoll_id}/antworten",
+        json={"version": angelegt["version"], "antworten": dict(VOLLSTAENDIG)},
+    )
+    abgesendet = await client.post(
+        f"/api/v1/protokolle/{protokoll_id}/absenden",
+        json={"version": gespeichert.json()["version"]},
+    )
+    assert abgesendet.status_code == 200
+
+    await anmelden(email="lehmann@ffs.de")
+    liste = await client.get(f"/api/v1/protokolle/{protokoll_id}/anlagen")
+    datei = await client.get(f"/api/v1/protokolle/{protokoll_id}/anlagen/{anlage_id}/datei")
+
+    assert liste.status_code == 200
+    assert [eintrag["id"] for eintrag in liste.json()] == [anlage_id]
+    assert datei.status_code == 200
+    assert datei.content == PNG
+
+
+async def test_eine_pruefende_sieht_die_anlagen_eines_entwurfs_nicht(
+    client: AsyncClient,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
+    anmelden: Callable[..., Awaitable[Response]],
+) -> None:
+    """A draft stays private to its owner, pictures included.
+
+    The other half of the widening above. CONTEXT.md says a draft is somebody's
+    unfinished work, and widening who may read a submitted protocol must not have
+    widened that.
+    """
+    await anlegen(email="bergmann@ffs.de")
+    await anlegen(email="lehmann@ffs.de", rollen=(Rolle.REVIEWER,))
+
+    await anmelden(email="bergmann@ffs.de")
+    entwurf = (await client.post("/api/v1/protokolle")).json()["id"]
+    await client.post(
+        f"/api/v1/protokolle/{entwurf}/anlagen",
+        data={"art": "KARTENAUSSCHNITT"},
+        files={"datei": ("karte.png", PNG, "image/png")},
+    )
+
+    await anmelden(email="lehmann@ffs.de")
+    antwort = await client.get(f"/api/v1/protokolle/{entwurf}/anlagen")
+
+    assert antwort.status_code == 404
+    assert antwort.json()["code"] == "PROTOKOLL_NICHT_GEFUNDEN"
+
+
+async def test_ein_einreicher_sieht_fremde_anlagen_nicht(
+    client: AsyncClient,
+    speicher: Anlagenspeicher,
+    anlegen: Callable[..., Awaitable[User]],
+    anmelden: Callable[..., Awaitable[Response]],
+    einreichen: Callable[..., Awaitable[str]],
+) -> None:
+    """Reading was widened to FFS staff, and to nobody else."""
+    await anlegen(email="bergmann@ffs.de")
+    await anlegen(email="keller@buero-keller.de")
+
+    await anmelden(email="bergmann@ffs.de")
+    protokoll_id = await einreichen()
+
+    await anmelden(email="keller@buero-keller.de")
+    antwort = await client.get(f"/api/v1/protokolle/{protokoll_id}/anlagen")
+
+    assert antwort.status_code == 404

@@ -120,8 +120,13 @@ async def liste(
     Metadata only. The section draws twenty headings and asks for the pictures
     one at a time, so a list carrying the files would be 200 MB spent on drawing
     a list.
+
+    Answers for anybody who may read the protocol, which since feature 11d means
+    FFS staff on anything that is not a draft. Feature 11e needs it: the
+    reviewer's screen shows the attachments, and a reviewer cannot decide on a
+    survey whose pictures they cannot see.
     """
-    anlagen = await liste_anlagen(session, protokoll_id=protokoll_id, besitzer=benutzer)
+    anlagen = await liste_anlagen(session, protokoll_id=protokoll_id, benutzer=benutzer)
     return [AnlageAntwort.model_validate(anlage) for anlage in anlagen]
 
 
@@ -172,7 +177,7 @@ async def herunterladen(
     one screen.
     """
     anlage = await hole_anlage(
-        session, protokoll_id=protokoll_id, anlage_id=anlage_id, besitzer=benutzer
+        session, protokoll_id=protokoll_id, anlage_id=anlage_id, benutzer=benutzer
     )
 
     # Asked before the response starts, because once the first block has gone out

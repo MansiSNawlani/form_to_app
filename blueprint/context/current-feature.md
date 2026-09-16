@@ -360,6 +360,35 @@ computed from the tokens rather than judged by eye: 6.31:1 in light and 7.06:1 i
 dark against `--surface-sunken`, both past AA's 4.5:1. No German string added in
 this feature is hard-coded; every one reads from `de.json`.
 
+## What trying it on screen found
+
+Two defects the automated gates could not see, both found on 2026-09-16 by Mansi
+opening the real pages. Both are repairs within this feature's own scope rather
+than new work.
+
+**A reviewer could not see any attachment.** Reading a protocol was widened to FFS
+staff in feature 11d; reading its attachments was not, so `liste_anlagen` and
+`hole_anlage` still went through the owner-only loader. A reviewer opened a
+protocol and was answered 404 for the list and for every picture in it, which
+made step 8's whole section show its "could not be loaded" error. `hole_anlage`'s
+own docstring had said since feature 3d that this would have to change "once
+feature 11 lets a reviewer see a submitted protocol", and this is that feature.
+Reading now follows the protocol's own visibility rule; uploading and deleting
+stay with the owner, so widening who may look did not widen who may write. Three
+permission tests now cover it, including that a draft's pictures stay private.
+
+**Meine Protokolle offered no way into a filed protocol.** The row carried a link
+only for a draft and for one sent back for correction; every other state was a
+badge and a dead end. So step 9 built the page and left it reachable only by
+typing its address, which is not reachable at all. The note asking for this was
+left in the row component by feature 11d and named 11e as its owner. Every row
+now carries one action, with the word chosen by status: Weiter, Ueberarbeiten, or
+Ansehen.
+
+Both are the same kind of miss. The tests proved a reviewer **cannot write**, and
+nobody had asked whether a reviewer **can read**; and the feature's own steps
+proved a page renders without asking how anybody arrives at it.
+
 ## What the branch review changed
 
 Two axes were run against `main` on 2026-09-15, after all ten steps were built.
