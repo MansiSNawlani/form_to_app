@@ -1,20 +1,15 @@
 /* What the reviewer's rail is allowed to draw.
  *
  * **A copy of backend/app/protokolle/uebergang/regeln.py**, and the only one in
- * this application. That file is the original: it owns PRUEFERROLLEN, the states
- * each action may be made from, and which actions need a Begruendung. Change it
- * and change this in the same breath; entscheidungen.test.ts exists so that a
- * forgotten half fails loudly rather than quietly.
- *
- * Restated here rather than fetched, for the reason coding-standards.md already
- * writes every form rule twice, once in Zod and once in Pydantic: an endpoint
- * whose only job is to describe four constants would be a request on every page
- * load to learn something that changes when somebody edits a Python file.
+ * this application. That file is the original; change it and change this in the
+ * same breath, which entscheidungen.test.ts exists to make a forgotten half fail
+ * loudly rather than quietly. Restated rather than fetched for the reason
+ * coding-standards.md already writes every form rule twice, once in Zod and once
+ * in Pydantic: an endpoint describing four constants would be a request on every
+ * page load.
  *
  * **None of this is a permission.** It decides what to draw. Every move is
- * refused again on the server, which is where PruefungsSeite's own comment says
- * the answer belongs: hiding a button is not access control, and a browser that
- * believed otherwise would be the wrong place to believe it.
+ * refused again on the server, and hiding a button is not access control.
  */
 
 import type { Rolle } from '../../api/typen'

@@ -3,16 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { useSitzung } from '../../auth/useSitzung'
 import type { Entwurf } from '../entwurf/typen'
 import Entscheidungspanel from './Entscheidungspanel'
+import Panel from './Panel'
 import Verlauf from './Verlauf'
 import { pruefungsrail } from './entscheidungen'
 
 /* The right-hand column of the reviewer's page: what can be done, then what has
  * been done.
  *
- * Which of the four it draws is entscheidungen.ts's answer, and the three that
- * are not the panel are a sentence rather than nothing at all. A rail that
- * simply left the panel out would leave a reviewer wondering whether the page
- * had failed to load it.
+ * Which of the four it draws is entscheidungen.ts's answer. Two of the three
+ * that are not the panel say why there is nothing to decide, because a reviewer
+ * who expected a panel and got a gap would wonder whether the page had failed to
+ * load it. The fourth, nur_verlauf, says nothing on purpose: a Data Steward and
+ * a surveyor reading their own protocol were never offered a decision, so an
+ * explanation would answer a question neither of them asked.
  *
  * The Verlauf is under all four, because everybody who may read the protocol may
  * read its history, including the surveyor who filed it.
@@ -48,18 +51,15 @@ function Pruefungsrail({ protokoll }: { protokoll: Entwurf }) {
   )
 }
 
-/* A panel that only says why there is nothing to do. Same card and same head as
-   the decision panel, so the rail keeps its shape whoever is reading it. */
+/* A panel that only says why there is nothing to do. The same head the decision
+   panel carries, so the rail keeps its shape whoever is reading it. */
 function Hinweiskarte({ text }: { text: string }) {
   const { t } = useTranslation()
 
   return (
-    <section className="card">
-      <h2 className="panel__head">{t('protokoll.entscheidung.titel')}</h2>
-      <div className="panel__body">
-        <Typography variant="body2">{text}</Typography>
-      </div>
-    </section>
+    <Panel titel={t('protokoll.entscheidung.titel')}>
+      <Typography variant="body2">{text}</Typography>
+    </Panel>
   )
 }
 

@@ -1133,8 +1133,10 @@
   margin-block: 0.5rem 1rem;
 }
 
-/* MUI's FormControlLabel pulls itself 11px left to line the radio up with body
-   text, which inside a bordered block leaves the border hanging off the edge. */
+/* muiTheme.ts gives every FormControlLabel a right margin, which is the gap
+   between options in a wrapping row. These are stacked blocks with a border, so
+   that margin would end the border short of the panel; the gap above spaces them
+   instead. */
 .decision .MuiFormControlLabel-root {
   margin: 0;
   align-items: flex-start;
@@ -1146,11 +1148,6 @@
 
 .decision .MuiFormControlLabel-root:hover {
   background: var(--surface-sunken);
-}
-
-.decision .MuiRadio-root {
-  padding: 0;
-  margin-top: 0.15rem;
 }
 
 .decision .MuiFormControlLabel-label strong {
