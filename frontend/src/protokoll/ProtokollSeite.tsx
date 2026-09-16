@@ -4,6 +4,7 @@ import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import AenderungAngefordert from './pruefung/AenderungAngefordert'
 import ProtokollAnsicht from './nurlesen/ProtokollAnsicht'
+import Verlauf from './pruefung/Verlauf'
 import ProtokollFormular from './ProtokollFormular'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
@@ -155,6 +156,11 @@ function ProtokollSeite() {
             })}
           </p>
         }
+        /* The history alone, never the decision panel, whoever is reading. A
+           protocol is decided on the reviewer's own screen; this address is
+           where its author comes to read it. For a rejected protocol this is
+           the only place in the application they can find out why. */
+        rail={<Verlauf protokoll={entwurf} />}
       />
     )
   }
