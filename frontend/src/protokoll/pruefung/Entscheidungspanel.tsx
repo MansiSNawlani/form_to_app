@@ -12,8 +12,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fehlertext } from '../../api/fehler'
 import { ENTSCHEIDUNGEN, brauchtBegruendung } from './entscheidungen'
+import { entscheidungsfehler } from './entscheidungsfehler'
 import type { Entscheidung } from './typen'
-import { useEntscheiden, useInPruefungNehmen } from './useUebergang'
+import { useEntscheiden, useInPruefungNehmen, useProtokollAktualisieren } from './useUebergang'
 
 interface EntscheidungspanelProps {
   entwurfId: string
@@ -41,6 +42,7 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
   const { t } = useTranslation()
   const aufnehmen = useInPruefungNehmen(entwurfId)
   const entscheiden = useEntscheiden(entwurfId)
+  const aktualisieren = useProtokollAktualisieren(entwurfId)
 
   const [entscheidung, setEntscheidung] = useState<Entscheidung | null>(null)
   const [begruendung, setBegruendung] = useState('')
@@ -51,6 +53,10 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
 
   function speichern() {
     setFehlt(null)
+    /* The server's last answer goes too, not only ours. A refusal left standing
+       over a panel somebody has just repaired reads as though the repair did not
+       take. */
+    entscheiden.reset()
 
     if (entscheidung === null) {
       setFehlt('protokoll.entscheidung.fehlt.entscheidung')
@@ -69,7 +75,13 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
     entscheiden.mutate({ entscheidung, kommentar: text === '' ? undefined : text })
   }
 
-  const begruendungFehlt = fehlt === 'protokoll.entscheidung.fehlt.begruendung'
+  /* Where the server's refusal belongs, if there is one. The missing Begruendung
+     lands in the same place our own check puts it, so one refusal has one home on
+     screen whichever half of the application noticed it. */
+  const stelle = entscheiden.isError ? entscheidungsfehler(entscheiden.error) : null
+
+  const begruendungFehlt =
+    fehlt === 'protokoll.entscheidung.fehlt.begruendung' || stelle === 'begruendung'
 
   return (
     <section className="card">
@@ -160,13 +172,27 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
               refusal in the workflow a reviewer puts right by typing. */}
           {begruendungFehlt && (
             <FormHelperText className="field__error" id={BEGRUENDUNG_FEHLER_ID} role="alert">
-              {t(fehlt)}
+              {t('protokoll.entscheidung.fehlt.begruendung')}
             </FormHelperText>
           )}
         </FormControl>
 
-        {entscheiden.isError && (
-          <Typography variant="body2" className="field__error" role="alert">
+        {/* Somebody else decided first, or this page has been open since
+            yesterday. Nothing was typed wrong and pressing again cannot help, so
+            the way out is the current state rather than a retry. */}
+        {stelle === 'veraltet' && (
+          <div className="entscheidung__fehler" role="alert">
+            <Typography variant="body2" className="hinweis__text">
+              {t('protokoll.entscheidung.veraltet')}
+            </Typography>
+            <Button size="small" variant="outlined" onClick={aktualisieren}>
+              {t('protokoll.entscheidung.neuLaden')}
+            </Button>
+          </div>
+        )}
+
+        {stelle === 'sonst' && (
+          <Typography variant="body2" className="entscheidung__fehler" role="alert">
             <Fehlersatz fehler={entscheiden.error} />
           </Typography>
         )}

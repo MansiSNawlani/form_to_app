@@ -1169,3 +1169,10 @@
 .entscheidung__aktionen {
   margin-top: 1.25rem;
 }
+
+/* A refusal about the protocol rather than about the box above it. Above the
+   button, so it is read before the button is pressed again. */
+.entscheidung__fehler {
+  margin-top: 1.25rem;
+  color: var(--danger);
+}

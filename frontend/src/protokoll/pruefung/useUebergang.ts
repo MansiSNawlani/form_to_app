@@ -23,7 +23,13 @@ import { verlaufsKey } from './abfragen'
 import { entscheide, nimmInPruefung } from './api'
 import type { Entscheidung, UebergangAntwort } from './typen'
 
-function useNachUebergang(id: string) {
+/* Load this protocol afresh: its document, its history and its row in the list.
+ *
+ * Exported as well as used here, because a reviewer whose decision was refused
+ * as no longer possible needs exactly this and nothing else. Pressing the button
+ * again cannot help them; seeing the current state can.
+ */
+export function useProtokollAktualisieren(id: string) {
   const queryClient = useQueryClient()
 
   return () => {
@@ -40,7 +46,7 @@ function useNachUebergang(id: string) {
  * reviewer.
  */
 export function useInPruefungNehmen(id: string) {
-  const nachUebergang = useNachUebergang(id)
+  const nachUebergang = useProtokollAktualisieren(id)
 
   return useMutation<UebergangAntwort, unknown, void>({
     mutationFn: () => nimmInPruefung(id),
@@ -57,7 +63,7 @@ export interface Entscheidungseingabe {
 }
 
 export function useEntscheiden(id: string) {
-  const nachUebergang = useNachUebergang(id)
+  const nachUebergang = useProtokollAktualisieren(id)
 
   return useMutation<UebergangAntwort, unknown, Entscheidungseingabe>({
     mutationFn: ({ entscheidung, kommentar }) => entscheide({ id, entscheidung, kommentar }),
