@@ -12,7 +12,7 @@
 
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { optionen } from '../optionen'
+import { optionLabel } from '../optionen'
 import { titelAusTeilen } from '../entwurf/titel'
 import type { Status, Uebersicht } from '../entwurf/typen'
 
@@ -134,16 +134,13 @@ export function unterzeile(ortsangabe: string | null, laenge: string | null): st
 
 /* The occasion's label, from the list the form's own dropdown reads.
  *
- * Falling back to the stored code rather than to nothing. ADR 0004 never
- * migrates a protocol to a later form version, so a draft can carry a code this
- * version no longer offers; an unfamiliar code still tells its owner more than
- * an empty cell, and it is what FiaKa will receive.
+ * The lookup and its fallback to the stored code live in optionen.ts, shared
+ * with every picker on the reviewer's page since feature 11e. This stays as a
+ * named function because the list it reads is part of what it means, and three
+ * screens ask for "the Anlass label" rather than for a lookup.
  */
 export function anlassLabel(anlass: string | null): string | null {
-  const code = gefuellt(anlass)
-  if (code === null) return null
-
-  return optionen('anlass').find((option) => option.wert === code)?.label ?? code
+  return optionLabel('anlass', anlass)
 }
 
 /* Which of the token colours a badge takes. Named for the token rather than for

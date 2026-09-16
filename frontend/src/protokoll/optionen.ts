@@ -107,3 +107,54 @@ export function optionen(quelle: Optionsquelle): readonly Option[] {
   if (typeof quelle !== 'string') return quelle
   return listen[quelle] ?? []
 }
+
+/* A stored code turned into the label somebody can read.
+ *
+ * Every picker on this form stores an export value and shows a word: the
+ * Gewaessertyp is stored as "13" and read as "Bach", a species as "BFOR" and
+ * read as "Bachforelle". Reading a protocol back therefore means doing that
+ * lookup everywhere a picker was filled in, which is 60-odd fields across the
+ * six sections plus the summary bar.
+ *
+ * Added in feature 11e, when the third copy of this three-line lookup was about
+ * to be written. anlassLabel in liste/anzeige.ts and the Regierungspraesidium in
+ * the reviewer's summary bar both delegate here.
+ *
+ * **An unknown code falls back to the code itself, never to nothing.** ADR 0004
+ * never migrates a protocol to a later form version, so a protocol filed in 2026
+ * can carry a value a later list no longer offers, and it must stay renderable
+ * forever. An unfamiliar code still tells a reviewer more than a blank does, and
+ * it is what FiaKa receives either way.
+ *
+ * Blank comes back as null, so the caller can print the "not answered"
+ * placeholder rather than an empty line.
+ */
+export function optionLabel(
+  quelle: Optionsquelle,
+  wert: string | null | undefined,
+): string | null {
+  const code = wert?.trim()
+  if (!code) return null
+
+  return optionen(quelle).find((option) => option.wert === code)?.label ?? code
+}
+
+/* The same, with the stored code kept in front: "13 - Bach".
+ *
+ * For the two places the code is part of the vocabulary rather than an
+ * implementation detail. CONTEXT.md and the form's own hints both talk in
+ * Gewaessertyp numbers, and the catch table prints a species code under its
+ * name, so a reviewer checking one against a paper form needs to see it.
+ *
+ * When the code is all there is, it is printed once rather than as "31 - 31".
+ */
+export function optionLabelMitWert(
+  quelle: Optionsquelle,
+  wert: string | null | undefined,
+): string | null {
+  const code = wert?.trim()
+  const label = optionLabel(quelle, wert)
+  if (label === null || code === undefined) return label
+
+  return label === code ? code : `${code} - ${label}`
+}

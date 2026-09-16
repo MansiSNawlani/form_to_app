@@ -1,22 +1,17 @@
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import NotFound from '../components/NotFound'
-import NichtMehrEntwurf from './absenden/NichtMehrEntwurf'
 import AenderungAngefordert from './pruefung/AenderungAngefordert'
+import ProtokollAnsicht from './nurlesen/ProtokollAnsicht'
 import ProtokollFormular from './ProtokollFormular'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
-import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
+import { statusAnzeige } from './liste/anzeige'
+import { useProtokollZustand } from './useProtokollZustand'
+import { entwurfsKey } from './entwurf/abfragen'
 import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
 import type { Entwurf, Status } from './entwurf/typen'
-import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../api/fehler'
-import { useFehlertext } from '../api/useFehlertext'
 import './protokoll.css'
 
 /* The states whose owner may still fill the form in, mirroring AENDERBAR in
@@ -95,30 +90,18 @@ function ProtokollSeite() {
   /* Reading was synchronous until feature 3b, when the draft moved to the
      server. It is a query rather than a loader because the failure has to be
      retryable from the page it happened on, and because the section links
-     navigate between URLs that share this one document. */
-  const {
-    data: entwurf,
-    isPending,
-    error,
-    refetch,
-    isFetching,
-  } = useQuery(entwurfsAbfrage(begannNeu ? undefined : id))
-  const fehlertext = useFehlertext(error)
+     navigate between URLs that share this one document.
+
+     The four states in front of the protocol are shared with the reviewer's
+     page; useProtokollZustand says why they live together. */
+  const { zustand, protokoll: entwurf } = useProtokollZustand(
+    begannNeu ? undefined : id,
+  )
   const abschnitt = findeAbschnitt(nr)
 
-  /* The route pattern always supplies an id, so this is a guard rather than a
-     case anybody reaches. It matters because the query is disabled without one,
-     and a disabled query stays pending forever: without this the page would sit
-     on "wird geladen" and never move. */
-  if (id === undefined) {
-    return (
-      <NotFound
-        title={t('protokoll.nichtGefunden.titel')}
-        text={t('protokoll.nichtGefunden.text')}
-      />
-    )
-  }
-
+  /* Before the hook's verdict, because a protocol that has no record yet has
+     nothing to fetch: the hook is handed no id for it and would answer "not
+     found" for something the surveyor is in the middle of starting. */
   if (begannNeu) {
     if (abschnitt === undefined) return <Navigate to={abschnittPfad(NEU, 1)} replace />
 
@@ -139,46 +122,14 @@ function ProtokollSeite() {
     )
   }
 
-  if (isPending) {
-    /* A live region, so somebody using a screen reader is told the page is
-       working rather than left on a heading that never changes. */
-    return (
-      <Typography variant="body1" role="status">
-        {t('protokoll.laedt')}
-      </Typography>
-    )
-  }
+  if (zustand !== null || entwurf === undefined) return zustand
 
-  /* No such protocol, or somebody else's. The backend deliberately answers the
-     same way to both, so that a stranger cannot discover which ids exist, and
-     this must not be softened into "you have no permission". */
-  if (error instanceof ApiFehler && error.code === PROTOKOLL_NICHT_GEFUNDEN) {
-    return (
-      <NotFound
-        title={t('protokoll.nichtGefunden.titel')}
-        text={t('protokoll.nichtGefunden.text')}
-      />
-    )
-  }
-
-  /* Everything else: the backend is down, the network dropped, the session ran
-     out. Nothing is wrong with the protocol itself, so this offers the way back
-     in rather than claiming it is gone. */
-  if (error !== null || entwurf === undefined) {
-    return (
-      <Alert severity="error" className="protokoll-fehler">
-        <AlertTitle>{t('protokoll.ladefehler.titel')}</AlertTitle>
-        <Typography variant="body2" className="hinweis__text">
-          {fehlertext ?? t('protokoll.ladefehler.text')}
-        </Typography>
-        <Button variant="outlined" size="small" onClick={() => void refetch()} disabled={isFetching}>
-          {t('protokoll.ladefehler.erneut')}
-        </Button>
-      </Alert>
-    )
-  }
-
-  /* Sent already, so there is nothing here to fill in.
+  /* Sent already, so there is nothing here to fill in. It is shown instead.
+   *
+   * Until feature 11e this was a grey notice saying the protocol had been sent,
+   * and that was the whole of it: somebody who filed a protocol in July could
+   * never see a single answer of it again. They now get the same view a reviewer
+   * gets, without the decision panel, so they can look up what they wrote.
    *
    * NEEDS_CHANGES is the exception, added in feature 11d: a reviewer has asked
    * for a correction, and a protocol that cannot be corrected makes the request
@@ -187,10 +138,25 @@ function ProtokollSeite() {
    *
    * Before the section check below, because a submitted protocol is not editable
    * whichever section the URL names, and redirecting it to section 1 first would
-   * only put a wrong address in the history on the way to the same notice.
+   * only put a wrong address in the history on the way to the same page.
    */
   if (!AENDERBAR.includes(entwurf.status)) {
-    return <NichtMehrEntwurf status={entwurf.status} />
+    return (
+      <ProtokollAnsicht
+        protokoll={entwurf}
+        /* What the status means and what to do if something still needs
+           changing. The reviewer's own version of this sentence says the fields
+           are locked; theirs would be no use here, since the person reading this
+           is the one who would have to do the changing. */
+        hinweis={
+          <p className="form-section__hint review__hinweis">
+            {t('protokoll.abgesendet.text', {
+              status: t(statusAnzeige(entwurf.status).schluessel),
+            })}
+          </p>
+        }
+      />
+    )
   }
 
   // The draft exists and only the section number is wrong, so send the user to

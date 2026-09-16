@@ -2,6 +2,8 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import { useFormContext } from 'react-hook-form'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
+import Feldwert from '../nurlesen/Feldwert'
+import { useNurLesen } from '../nurlesen/kontext'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -54,9 +56,31 @@ function FeldText({
   pflicht,
   hinweisKey,
 }: FeldTextProps) {
-  const { register } = useFormContext<Antworten>()
-  const { ref, ...feld } = register(name)
+  const { register, getValues } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
+  const nurLesen = useNurLesen()
+
+  /* Read rather than offered for editing, and register is deliberately not
+     called on this path: registering a field asks React Hook Form to track
+     something nobody can change.
+
+     getValues rather than useWatch. Nothing on this page changes, so a
+     subscription per field would buy nothing and cost 338 of them. */
+  if (nurLesen) {
+    return (
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
+        <Feldwert wert={getValues(name)} einheit={einheit} ziffern={typ === 'number'} />
+      </FeldRahmen>
+    )
+  }
+
+  const { ref, ...feld } = register(name)
 
   const eingabe = (
     <OutlinedInput

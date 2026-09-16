@@ -5,6 +5,7 @@ import AnmeldungSeite from './auth/AnmeldungSeite'
 import SitzungsWaechter from './auth/SitzungsWaechter'
 import ProtokolleSeite from './protokoll/liste/ProtokolleSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
+import PruefungsSeite from './protokoll/pruefung/PruefungsSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { NEU } from './protokoll/entwurf/neu'
 
@@ -46,6 +47,14 @@ export const router = createBrowserRouter([
             element: <Navigate to={abschnittPfad(NEU, 1)} replace />,
           },
           { path: 'protokolle/:id/abschnitt/:nr', element: <ProtokollSeite /> },
+          /* A protocol that has been handed in, read rather than filled in.
+           *
+           * No role requirement on the route. The server decides who may read
+           * which protocol, in one place, and a second opinion here could only
+           * ever be the wrong one: an account that reaches this address without
+           * permission is answered with the same "not found" as for an id that
+           * does not exist. Hiding a route is not a permission. */
+          { path: 'protokolle/:id/pruefung', element: <PruefungsSeite /> },
           { path: '*', element: <NotFound /> },
         ],
       },

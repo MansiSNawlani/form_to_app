@@ -32,6 +32,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.anlagen.speicher import Anlagenspeicher
 from app.formular.felder import formular
 from app.models.benutzer import Rolle, User
+from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
 from app.protokolle.fehler import ProtokollNichtGefunden
 from app.protokolle.regeln import (
@@ -190,6 +191,102 @@ def _sichtbar(benutzer: User) -> ColumnElement[bool]:
     if not any(rolle in benutzer.rollen for rolle in FFS_ROLLEN):
         return eigene
     return or_(eigene, Submission.status != Status.DRAFT)
+
+
+@dataclass(frozen=True)
+class Protokollansicht:
+    """One protocol with its answers, and the envelope facts around them.
+
+    Flat, for the same reason Protokollzeile above is flat: the response model
+    reads its fields by name, and a Submission with two extras hanging off it
+    would need a mapping layer to reach owner.email.
+
+    Two of these are not columns on the protocol at all. eingereicht_von is the
+    filer's address, and regierungspraesidium comes off the Probestrecke that
+    feature 11b matched when the protocol was handed in, so it is null on a draft
+    and on nothing else.
+
+    Feature 11e added it, for the summary bar at the head of the reviewer's
+    screen. The form itself never needed any of this: it only ever showed a
+    protocol to the person who was filling it in.
+    """
+
+    id: uuid.UUID
+    status: Status
+    form_version: str
+    version: int
+    antworten: Any
+    created_at: datetime
+    updated_at: datetime
+    submitted_at: datetime | None
+    locked_at: datetime | None
+    bearbeiter_name: str | None
+    anlass: str | None
+    eingereicht_von: str
+    regierungspraesidium: int | None
+
+    @classmethod
+    def aus(
+        cls,
+        protokoll: Submission,
+        *,
+        eingereicht_von: str,
+        regierungspraesidium: int | None,
+    ) -> "Protokollansicht":
+        """A loaded protocol plus the two facts it cannot answer for itself."""
+        return cls(
+            id=protokoll.id,
+            status=protokoll.status,
+            form_version=protokoll.form_version,
+            version=protokoll.version,
+            antworten=protokoll.antworten,
+            created_at=protokoll.created_at,
+            updated_at=protokoll.updated_at,
+            submitted_at=protokoll.submitted_at,
+            locked_at=protokoll.locked_at,
+            bearbeiter_name=protokoll.bearbeiter_name,
+            anlass=protokoll.anlass,
+            eingereicht_von=eingereicht_von,
+            regierungspraesidium=regierungspraesidium,
+        )
+
+
+async def hole_protokollansicht(
+    session: AsyncSession, *, protokoll_id: uuid.UUID, benutzer: User
+) -> Protokollansicht:
+    """One protocol this account may look at, envelope and all, or a refusal.
+
+    The same visibility rule as hole_sichtbares_protokoll below, and the same
+    refusal. What differs is only how much comes back.
+
+    One query, joining both tables, rather than loading the protocol and then
+    reading protokoll.owner.email off it. A relationship read after the load is a
+    lazy load, and a lazy load in async context arrives as a MissingGreenlet
+    error rather than as anything about protocols, which is a trap the next
+    reading route would fall into as well.
+
+    The join to the Probestrecke is an outer one because a draft has none. The
+    join to the owner is not: owner_user_id is a non-null foreign key, so a
+    protocol without an account behind it cannot exist.
+    """
+    zeile = (
+        await session.execute(
+            select(Submission, User.email, Probestrecke.regierungspraesidium)
+            .join(User, User.id == Submission.owner_user_id)
+            .outerjoin(Probestrecke, Probestrecke.id == Submission.probestrecke_id)
+            .where(Submission.id == protokoll_id, _sichtbar(benutzer))
+        )
+    ).first()
+
+    if zeile is None:
+        raise ProtokollNichtGefunden(protokoll_id)
+
+    protokoll, eingereicht_von, regierungspraesidium = zeile
+    return Protokollansicht.aus(
+        protokoll,
+        eingereicht_von=eingereicht_von,
+        regierungspraesidium=regierungspraesidium,
+    )
 
 
 async def hole_sichtbares_protokoll(

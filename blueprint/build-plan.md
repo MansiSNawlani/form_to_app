@@ -131,9 +131,18 @@ These are not features and are not tracked here. They happen first.
         Meine Protokolle, the button, and the panel listing what is still missing
   - [x] 11d. The state machine: the workflow_events table, every transition and who may make it,
         the Begruendung required for a rejection and a change request, and locking on acceptance
-  - [ ] 11e. Die Pruefungsseite: the reviewer screen at /protokolle/:id/pruefung, built against
-        `prototypes/pruefung-protokoll.html`, with the read-only protocol, the decision panel and
-        the Verlauf
+  - [x] 11e. Das Protokoll lesen: a whole protocol shown read-only at /protokolle/:id/pruefung,
+        built against `prototypes/pruefung-protokoll.html`, with the summary bar, all seven
+        sections as text rather than fields, and the attachments. Also replaces the "already
+        sent" notice, so a submitter can read back what they filed
+  - [ ] 11f. Entscheiden: the right-hand rail of the same screen. In Pruefung nehmen, the three
+        decisions with the Begruendung, and the Verlauf
+
+  **11e was split in two on 2026-09-15.** The one line above covered three separate things, and
+  the read-only rendering alone means giving eleven field components a second way to draw
+  themselves. Split, a reviewer can read a protocol after 11e and decide on it after 11f, and
+  neither branch stays open over the other's work. The backend for 11f was finished in 11d; it
+  is screen only.
 
   Two decisions taken on 2026-09-11 when this was split:
 

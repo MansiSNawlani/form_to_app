@@ -1,6 +1,6 @@
 import optionslisten from '@formular/optionslisten.json'
 import { describe, expect, it } from 'vitest'
-import { optionen, type Option } from './optionen'
+import { optionLabel, optionLabelMitWert, optionen, type Option } from './optionen'
 
 /* The legacy form's E-Gerät list offers the same answer under two names, and a
    control that repeats an answer is a control where picking one thing and
@@ -63,5 +63,51 @@ describe('optionen', () => {
     // Not reachable through ListenName, which is the point: the type is the
     // first guard and this is what happens if something gets past it.
     expect(optionen('gibt.es.nicht' as 'anlass')).toEqual([])
+  })
+})
+
+describe('optionLabel', () => {
+  it('gibt das Label zum gespeicherten Code', () => {
+    expect(optionLabel('gewaessertyp', '13')).toBe('Bach')
+  })
+
+  it('gibt den Code zurück, wenn die Liste ihn nicht kennt', () => {
+    /* ADR 0004 never migrates a protocol to a later form version, so a protocol
+       filed under an older one can carry a value this version's list no longer
+       offers. An unfamiliar code still tells a reviewer more than a blank, and
+       it is what FiaKa receives either way. */
+    expect(optionLabel('gewaessertyp', '99')).toBe('99')
+  })
+
+  it('behandelt eine nicht beantwortete Auswahl als leer', () => {
+    expect(optionLabel('gewaessertyp', undefined)).toBeNull()
+    expect(optionLabel('gewaessertyp', '')).toBeNull()
+    expect(optionLabel('gewaessertyp', '   ')).toBeNull()
+  })
+
+  it('liest auch eine im Code erklärte Liste', () => {
+    // Part 4's 0 to 3 scale is declared beside its block rather than in the seed
+    // file, because the legacy form stores those answers as free text.
+    const stufen = [
+      { wert: '0', label: 'nicht vorhanden' },
+      { wert: '3', label: 'sehr viele' },
+    ] as const
+    expect(optionLabel(stufen, '3')).toBe('sehr viele')
+  })
+})
+
+describe('optionLabelMitWert', () => {
+  it('stellt den Code voran, wo er zum Vokabular gehört', () => {
+    expect(optionLabelMitWert('gewaessertyp', '13')).toBe('13 - Bach')
+  })
+
+  it('druckt einen unbekannten Code einmal, nicht zweimal', () => {
+    // "99 - 99" would read as a fault in the application rather than as a code
+    // the current form version does not know.
+    expect(optionLabelMitWert('gewaessertyp', '99')).toBe('99')
+  })
+
+  it('bleibt leer, wenn nichts gewählt wurde', () => {
+    expect(optionLabelMitWert('gewaessertyp', '')).toBeNull()
   })
 })

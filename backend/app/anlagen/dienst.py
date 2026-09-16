@@ -40,7 +40,7 @@ from app.anlagen.speicher import Anlagenspeicher, anlagen_schluessel
 from app.models.anlage import Anlagenart, Attachment
 from app.models.benutzer import User
 from app.models.protokoll import Submission
-from app.protokolle.dienst import beruehre, hole_protokoll
+from app.protokolle.dienst import beruehre, hole_protokoll, hole_sichtbares_protokoll
 from app.protokolle.regeln import pruefe_aenderbar
 
 
@@ -192,7 +192,7 @@ async def lege_anlage_an(
 
 
 async def liste_anlagen(
-    session: AsyncSession, *, protokoll_id: uuid.UUID, besitzer: User
+    session: AsyncSession, *, protokoll_id: uuid.UUID, benutzer: User
 ) -> list[Attachment]:
     """This protocol's attachments, oldest first.
 
@@ -203,8 +203,15 @@ async def liste_anlagen(
     The id breaks a tie on created_at. Several files picked in one go are written
     in the same transaction and carry the same timestamp to the microsecond, so
     without it their order is whatever the database felt like.
+
+    **Whoever may read the protocol may read its attachments**, which since
+    feature 11d means FFS staff on anything that is not a draft. Feature 11e is
+    what made that matter: the reviewer's screen shows the map excerpt and the
+    photographs, and a reviewer cannot decide on a survey whose pictures they
+    cannot see. Uploading and deleting stay with the owner, through
+    hole_protokoll, so widening who may look did not widen who may write.
     """
-    await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
+    await hole_sichtbares_protokoll(session, protokoll_id=protokoll_id, benutzer=benutzer)
 
     treffer = await session.scalars(
         select(Attachment)
@@ -214,21 +221,21 @@ async def liste_anlagen(
     return list(treffer)
 
 
-async def _hole_beide(
-    session: AsyncSession, *, protokoll_id: uuid.UUID, anlage_id: uuid.UUID, besitzer: User
-) -> tuple[Submission, Attachment]:
-    """The attachment and the protocol it hangs off, both belonging to this account.
+async def _anlage_zu(
+    session: AsyncSession, *, protokoll_id: uuid.UUID, anlage_id: uuid.UUID
+) -> Attachment:
+    """One attachment, addressed through the protocol it hangs off.
 
     **The protocol is part of the address, not decoration.** An attachment that
-    exists but belongs to a different protocol is not found here, or the ownership
-    check would be guarding nothing: anybody could name their own protocol
-    alongside somebody else's attachment id and be handed the file.
+    exists but belongs to a different protocol is not found here, or the check
+    the caller has just made would be guarding nothing: anybody could name a
+    protocol they may see alongside somebody else's attachment id and be handed
+    the file.
 
-    Both come back because deleting needs the protocol's status as well, and
-    fetching it twice would be two chances for the second one to be forgotten.
+    It makes no permission check of its own, which is why it is private. Every
+    caller has already decided who may reach this protocol, and the two callers
+    decide it differently.
     """
-    protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
-
     treffer = await session.scalar(
         select(Attachment).where(
             Attachment.id == anlage_id,
@@ -237,22 +244,38 @@ async def _hole_beide(
     )
     if treffer is None:
         raise AnlageNichtGefunden()
-    return protokoll, treffer
+    return treffer
+
+
+async def _hole_beide(
+    session: AsyncSession, *, protokoll_id: uuid.UUID, anlage_id: uuid.UUID, besitzer: User
+) -> tuple[Submission, Attachment]:
+    """The attachment and the protocol it hangs off, both belonging to this account.
+
+    The writing path. Deleting needs the protocol's status as well as the
+    attachment, and fetching it twice would be two chances for the second one to
+    be forgotten.
+    """
+    protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
+    return protokoll, await _anlage_zu(
+        session, protokoll_id=protokoll_id, anlage_id=anlage_id
+    )
 
 
 async def hole_anlage(
-    session: AsyncSession, *, protokoll_id: uuid.UUID, anlage_id: uuid.UUID, besitzer: User
+    session: AsyncSession, *, protokoll_id: uuid.UUID, anlage_id: uuid.UUID, benutzer: User
 ) -> Attachment:
-    """One attachment of one protocol belonging to this account, or a refusal.
+    """One attachment of one protocol this account may read, or a refusal.
 
-    No draft check. Looking at a picture is not changing it, and once feature 11
-    lets a reviewer see a submitted protocol its attachments have to be readable
-    for as long as the protocol is.
+    No draft check. Looking at a picture is not changing it, and this docstring
+    has said since feature 3d that once feature 11 let a reviewer see a submitted
+    protocol its attachments would have to be readable for as long as the
+    protocol is. Feature 11e is that moment, and until 2026-09-16 this still went
+    through the owner-only loader: a reviewer could open a protocol and was
+    answered 404 for every picture in it.
     """
-    _, anlage = await _hole_beide(
-        session, protokoll_id=protokoll_id, anlage_id=anlage_id, besitzer=besitzer
-    )
-    return anlage
+    await hole_sichtbares_protokoll(session, protokoll_id=protokoll_id, benutzer=benutzer)
+    return await _anlage_zu(session, protokoll_id=protokoll_id, anlage_id=anlage_id)
 
 
 async def loesche_anlage(

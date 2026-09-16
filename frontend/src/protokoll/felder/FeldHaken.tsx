@@ -3,6 +3,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import type { ParseKeys } from 'i18next'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useNurLesen } from '../nurlesen/kontext'
 import type { Spalten } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -35,7 +36,25 @@ interface FeldHakenProps {
 
 function FeldHaken({ name, labelKey, spalten }: FeldHakenProps) {
   const { t } = useTranslation()
-  const { control } = useFormContext<Antworten>()
+  const { control, getValues } = useFormContext<Antworten>()
+  const nurLesen = useNurLesen()
+
+  /* The question and its answer as a sentence, rather than a ticked box nobody
+     may untick. This is the one control with no FeldRahmen around it, so there
+     is no label above to print the value under: the label belongs beside the box
+     and has to stay beside the answer that replaces it.
+     
+     Ja or Nein, never a blank. An unticked box is a real answer here, not a
+     missing one, so the "Nicht angegeben" placeholder the other fields use would
+     be wrong: the surveyor did record that there were no Gumpen. */
+  if (nurLesen) {
+    const gesetzt = getValues(name) === GESETZT
+    const text = `${t(labelKey)}: ${t(gesetzt ? 'protokoll.nurlesen.ja' : 'protokoll.nurlesen.nein')}`
+    const satz = <span className="haken-wert">{text}</span>
+
+    if (!spalten) return satz
+    return <div className={`field field--haken col-${spalten}`}>{satz}</div>
+  }
 
   const haken = (
     <Controller

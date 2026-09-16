@@ -37,6 +37,12 @@ export function istNeu(id: string | undefined): boolean {
  * form_version is empty because only the server knows which form version is
  * current, and it stamps the record when it creates it. ProtokollKopf leaves the
  * line out rather than printing a blank.
+ *
+ * eingereicht_von is empty for the same reason, added in feature 11e. The
+ * signed-in address is known to useSitzung and not to this function, and there is
+ * nothing here that shows it: a protocol nobody has typed into is never read by
+ * anybody but the person in front of it. The server fills it in with the record.
+ * The rest of the envelope is null because none of it has happened yet.
  */
 export function leererEntwurf(): Entwurf {
   const jetzt = new Date().toISOString()
@@ -49,6 +55,12 @@ export function leererEntwurf(): Entwurf {
     antworten: {},
     created_at: jetzt,
     updated_at: jetzt,
+    eingereicht_von: '',
+    submitted_at: null,
+    locked_at: null,
+    bearbeiter_name: null,
+    anlass: null,
+    regierungspraesidium: null,
   }
 }
 

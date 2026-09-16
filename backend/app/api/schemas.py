@@ -59,15 +59,22 @@ class BenutzerAntwort(BaseModel):
 
 
 class ProtokollAntwort(BaseModel):
-    """One protocol with its answers, as its owner sees it.
+    """One protocol with its answers, and the envelope around them.
 
     Load-bearing. Feature 3b models the browser's draft on this, so a field added
-    here is a field the form gets.
+    here is a field the form gets, and feature 11e's reviewer screen draws its
+    summary bar out of the envelope fields at the bottom.
 
-    owner_user_id is deliberately absent. Every route answering with this model
-    already filtered on the caller's own id, so it would only ever repeat back
-    who the caller is. Feature 12's review queue, where the owner is somebody
-    else and worth showing, adds its own model rather than widening this one.
+    **The owner used to be deliberately absent**, on the grounds that every route
+    answering with this model had already filtered on the caller's own id and
+    would only be repeating back who was asking. Feature 11d ended that: FFS staff
+    read protocols they did not file, and the first thing a reviewer's screen has
+    to print is whose protocol this is. The rest of that reasoning still holds,
+    which is why this model lists its fields explicitly rather than being built
+    from the whole row: a column added later cannot appear here by itself.
+
+    Validated from app/protokolle/dienst.py's Protokollansicht rather than from
+    the row, because two of the fields are not columns on it.
 
     version travels with the document because the next save has to say which
     version it was working from. Without it the browser could only send its
@@ -87,6 +94,25 @@ class ProtokollAntwort(BaseModel):
     antworten: dict[str, Any]
     created_at: datetime
     updated_at: datetime
+
+    #: The account that filed it, as an address. Named for what it is meant to be
+    #: rather than for what it holds, exactly as VerlaufEintrag.akteur_name is, so
+    #: feature 16 can put a real name behind it without this changing.
+    eingereicht_von: str
+    #: When it was first handed in, which a re-submission deliberately does not
+    #: move. Null while it is still a draft.
+    submitted_at: datetime | None
+    #: Written by Annehmen and by nothing else, since accepting and locking are
+    #: one action.
+    locked_at: datetime | None
+    #: The frozen snapshot taken at submit, so a historical protocol still reads
+    #: correctly after the Person record behind it changes. Not the live answer.
+    bearbeiter_name: str | None
+    #: The coded occasion, never its label. The browser owns the labels.
+    anlass: str | None
+    #: 1 to 4, off the Probestrecke matched at submit. Null on a draft, which has
+    #: no Probestrecke yet.
+    regierungspraesidium: int | None
 
 
 class AntwortenSpeichern(BaseModel):

@@ -5,7 +5,9 @@ import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
-import { optionen, type ListenName } from '../optionen'
+import { optionLabel, optionLabelMitWert, optionen, type ListenName } from '../optionen'
+import Feldwert from '../nurlesen/Feldwert'
+import { useNurLesen } from '../nurlesen/kontext'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* A dropdown over one of the option lists extracted from the legacy PDF.
@@ -38,8 +40,29 @@ function FeldAuswahl({
   hinweisKey,
 }: FeldAuswahlProps) {
   const { t } = useTranslation()
-  const { control } = useFormContext<Antworten>()
+  const { control, getValues } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
+  const nurLesen = useNurLesen()
+
+  /* The label, not the stored code. What is stored is the export value the PDF
+     uses, and it is meaningless to a reader: "13" rather than "Bach". */
+  if (nurLesen) {
+    const beschriftung = mitWert
+      ? optionLabelMitWert(liste, getValues(name))
+      : optionLabel(liste, getValues(name))
+
+    return (
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
+        <Feldwert wert={beschriftung} />
+      </FeldRahmen>
+    )
+  }
 
   return (
     <FeldRahmen
@@ -76,7 +99,12 @@ function FeldAuswahl({
             <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
             {optionen(liste).map((option) => (
               <MenuItem key={option.wert} value={option.wert}>
-                {mitWert ? `${option.wert} - ${option.label}` : option.label}
+                {/* The same formatter the read-only branch above uses, so the
+                    word somebody picked and the word they are shown afterwards
+                    cannot come out differently. */}
+                {mitWert
+                  ? (optionLabelMitWert(liste, option.wert) ?? option.label)
+                  : option.label}
               </MenuItem>
             ))}
           </Select>

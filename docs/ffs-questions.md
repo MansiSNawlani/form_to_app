@@ -270,6 +270,35 @@ What we are building in the meantime: nobody decides on their own, whatever role
 
 ---
 
+## 15. Should the same Probestrecke be surveyed twice on the same day?
+
+A stretch is surveyed year after year, and the application is built for that: one Probestrecke
+record with many protocols hanging off it, which is what makes a survey history readable at all.
+
+Nothing currently stops two protocols naming the same stretch **on the same date**. Both are
+accepted, both attach to the one stretch record, and both would eventually be transferred to FiaKa.
+
+Two quite different things look identical from here:
+
+- A surveyor pressed Absenden twice, or filed again because they believed the first attempt had not
+  gone through. That is one survey recorded twice, and it would reach FiaKa as two.
+- There genuinely were two runs that day. On a long stretch, or where a first pass was abandoned and
+  repeated, that is ordinary field practice.
+
+The application cannot tell them apart, and guessing wrong is costly either way. Refusing the second
+one silently loses a real survey. Accepting both silently puts a survey into the official database
+that never happened.
+
+**What we need to know:** whether a second protocol for the same stretch on the same date should be
+refused, accepted, or accepted with a warning the reviewer has to acknowledge. The third is the most
+work and is probably the honest answer if both cases are real, since it leaves the judgement with
+the person who can actually tell which one it is.
+
+Noticed on 2026-09-16 while trying feature 11e, where two test protocols for the Wolfegger Ach on
+the same date sat side by side in a list and were indistinguishable.
+
+---
+
 ## What happens to the answers
 
 Anything that comes back as a requirement becomes a small change to the new application, logged the

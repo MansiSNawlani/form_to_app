@@ -69,6 +69,7 @@
       "ohneGewaesser": "Ohne Gewässername",
       "weiter": "Weiter ausfüllen",
       "ueberarbeiten": "Überarbeiten",
+      "ansehen": "Ansehen",
       "tabelle": {
         "beschriftung": "Ihre Protokolle, zuletzt bearbeitete zuerst",
         "gewaesser": "Gewässer und Probestrecke",
@@ -145,6 +146,24 @@
     "navigation": {
       "zurueck": "Zurück",
       "weiter": "Weiter: {{abschnitt}}"
+    },
+    "nurlesen": {
+      "leer": "Nicht angegeben",
+      "ja": "Ja",
+      "nein": "Nein",
+      "keineFotos": "Keine Fotos hinterlegt.",
+      "keineArten": "In diesem Protokoll ist keine Art eingetragen. Auch ein Fang ohne Nachweis muss eine der vier Nichtnachweis-Arten nennen, daher fehlt hier eine Angabe."
+    },
+    "pruefung": {
+      "protokollVom": "Protokoll vom {{datum}}",
+      "gesperrt": "Dieses Protokoll wird so angezeigt, wie es eingereicht wurde. Die Felder lassen sich hier nicht ändern.",
+      "uebersicht": {
+        "eingereichtVon": "Eingereicht von",
+        "bearbeiter": "Bearbeiter",
+        "eingereichtAm": "Eingereicht am",
+        "anlass": "Anlass",
+        "regierungspraesidium": "Regierungspräsidium"
+      }
     },
     "abschnitt1": {
       "anlass": {
@@ -705,9 +724,7 @@
       }
     },
     "abgesendet": {
-      "titel": "Dieses Protokoll ist abgesendet",
-      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden.",
-      "zurUebersicht": "Zu meinen Protokollen"
+      "text": "Der Status ist «{{status}}». Abgesendete Protokolle können nicht mehr bearbeitet werden. Wenn noch etwas zu ändern ist, wenden Sie sich bitte an die Fischereiforschungsstelle; bei der Prüfung kann eine Änderung angefordert werden."
     },
     "aenderung": {
       "titel": "Die Prüfung bittet um eine Änderung",

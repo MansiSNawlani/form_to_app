@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
-import { optionen, type Optionsquelle } from '../optionen'
+import { optionLabel, optionen, type Optionsquelle } from '../optionen'
+import Feldwert from '../nurlesen/Feldwert'
+import { useNurLesen } from '../nurlesen/kontext'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* One choice out of a handful, shown as a row of buttons rather than folded into
@@ -53,9 +55,38 @@ function FeldRadio({
   hinweisKey,
 }: FeldRadioProps) {
   const { t } = useTranslation()
-  const { control } = useFormContext<Antworten>()
+  const { control, getValues } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
+  const nurLesen = useNurLesen()
   const aufhebenId = `${name}-aufheben`
+
+  /* The band that was chosen, and only that one.
+   *
+   * Not the row of buttons with one marked, which is what a disabled group would
+   * give. Section 2 alone prints twelve of these groups with five to eight
+   * options each: a reviewer reading them as rows of greyed-out words has to
+   * find the marked one in every row, where what they want to know is which
+   * single band was recorded.
+   *
+   * The unit still follows the answer, since "mittel" and "mittel m/s" are not
+   * the same reading. children is dropped: those are the qualifying checkboxes
+   * of three hydrology groups, and each is a FeldHaken that prints itself. */
+  if (nurLesen) {
+    const gewaehlt = optionLabel(liste, getValues(name))
+
+    return (
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
+        <Feldwert wert={gewaehlt} einheit={einheit} />
+        {children}
+      </FeldRahmen>
+    )
+  }
 
   return (
     <FeldRahmen

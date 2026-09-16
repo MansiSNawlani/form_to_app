@@ -54,24 +54,11 @@ def als(
     return _als
 
 
-async def _eingereicht(client: AsyncClient) -> str:
-    """A protocol handed in by whoever is signed in, through the real endpoints."""
-    angelegt = (await client.post("/api/v1/protokolle")).json()
-    gespeichert = await client.put(
-        f"/api/v1/protokolle/{angelegt['id']}/antworten",
-        json={"version": angelegt["version"], "antworten": dict(VOLLSTAENDIG)},
-    )
-    abgesendet = await client.post(
-        f"/api/v1/protokolle/{angelegt['id']}/absenden",
-        json={"version": gespeichert.json()["version"]},
-    )
-    assert abgesendet.status_code == 200
-    return str(angelegt["id"])
-
-
 @pytest.fixture
 async def protokoll(
-    konten: Callable[..., Awaitable[User]], als: Callable[[str], Awaitable[AsyncClient]]
+    konten: Callable[..., Awaitable[User]],
+    als: Callable[[str], Awaitable[AsyncClient]],
+    einreichen: Callable[..., Awaitable[str]],
 ) -> str:
     """One submitted protocol, filed by an ordinary submitter.
 
@@ -80,7 +67,8 @@ async def protokoll(
     """
     await konten(email=EINREICHER)
     await konten(email=PRUEFERIN, rollen=(Rolle.REVIEWER,))
-    return await _eingereicht(await als(EINREICHER))
+    await als(EINREICHER)
+    return await einreichen()
 
 
 async def test_ohne_anmeldung_entscheidet_niemand(client: AsyncClient) -> None:
@@ -224,7 +212,9 @@ async def test_wer_nicht_pruefen_darf_bekommt_403(
 
 
 async def test_niemand_entscheidet_ueber_sein_eigenes(
-    konten: Callable[..., Awaitable[User]], als: Callable[[str], Awaitable[AsyncClient]]
+    konten: Callable[..., Awaitable[User]],
+    als: Callable[[str], Awaitable[AsyncClient]],
+    einreichen: Callable[..., Awaitable[str]],
 ) -> None:
     """Somebody who reviews and also fishes. Chosen with the user on 2026-09-14.
 
@@ -233,7 +223,7 @@ async def test_niemand_entscheidet_ueber_sein_eigenes(
     """
     await konten(email=PRUEFERIN, rollen=(Rolle.REVIEWER, Rolle.SUBMITTER))
     pruefer = await als(PRUEFERIN)
-    eigenes = await _eingereicht(pruefer)
+    eigenes = await einreichen()
 
     antwort = await pruefer.post(
         f"/api/v1/protokolle/{eigenes}/entscheidung", json={"entscheidung": "ANNEHMEN"}
