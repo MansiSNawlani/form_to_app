@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ProtokollAnsicht from '../nurlesen/ProtokollAnsicht'
 import { abschnittPfad } from '../abschnitte'
 import { useProtokollZustand } from '../useProtokollZustand'
-import Verlauf from './Verlauf'
+import Pruefungsrail from './Pruefungsrail'
 import '../protokoll.css'
 
 /* A protocol that has been handed in, read rather than filled in.
@@ -52,7 +52,7 @@ function PruefungsSeite() {
           {t('protokoll.pruefung.gesperrt')}
         </p>
       }
-      rail={<Verlauf protokoll={protokoll} />}
+      rail={<Pruefungsrail protokoll={protokoll} />}
     />
   )
 }

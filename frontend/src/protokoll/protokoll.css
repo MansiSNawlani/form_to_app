@@ -1110,3 +1110,14 @@
   border-left: 3px solid var(--border-strong);
   color: var(--muted);
 }
+
+/* In Pruefung nehmen, above the decision itself.
+
+   Separated by a rule rather than only by space, because the two are different
+   kinds of act: picking a protocol up says something to colleagues, deciding on
+   it ends the protocol's journey. */
+.entscheidung__aufnehmen {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}

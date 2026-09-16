@@ -732,6 +732,14 @@
       "vonOhneZeit": "Angefordert von {{person}}.",
       "hinweis": "Bitte ändern Sie das Genannte und senden Sie das Protokoll danach am Ende von Abschnitt 7 noch einmal ab. Bis dahin bleibt es bearbeitbar; gelöscht werden kann es nicht mehr."
     },
+    "entscheidung": {
+      "titel": "Entscheidung",
+      "aufnehmen": "In Prüfung nehmen",
+      "aufnehmenLaeuft": "Wird übernommen",
+      "aufnehmenHinweis": "Vermerkt, dass Sie dieses Protokoll bearbeiten. Andere sehen das in der Übersicht. Entscheiden können Sie auch ohne diesen Schritt.",
+      "entschieden": "Über dieses Protokoll ist bereits entschieden. Der Verlauf unten sagt, von wem und mit welcher Begründung.",
+      "eigenes": "Dieses Protokoll haben Sie selbst eingereicht. Darüber entscheidet eine andere Person aus der Prüfung."
+    },
     "verlauf": {
       "titel": "Verlauf",
       "laedt": "Der Verlauf wird geladen.",
