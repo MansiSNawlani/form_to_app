@@ -131,7 +131,7 @@ These are not features and are not tracked here. They happen first.
         Meine Protokolle, the button, and the panel listing what is still missing
   - [x] 11d. The state machine: the workflow_events table, every transition and who may make it,
         the Begruendung required for a rejection and a change request, and locking on acceptance
-  - [ ] 11e. Das Protokoll lesen: a whole protocol shown read-only at /protokolle/:id/pruefung,
+  - [x] 11e. Das Protokoll lesen: a whole protocol shown read-only at /protokolle/:id/pruefung,
         built against `prototypes/pruefung-protokoll.html`, with the summary bar, all seven
         sections as text rather than fields, and the attachments. Also replaces the "already
         sent" notice, so a submitter can read back what they filed

@@ -57,8 +57,15 @@ function Fang({ zeile }: { zeile: Fangzeile }) {
             <span className="cell-title">{beschriftung}</span>
             {/* The code under the name, as the mockup prints it. A reviewer
                 checking this against a paper form or against FiaKa reads the
-                code, not the German label. */}
-            {zeile.code !== undefined && <span className="cell-sub">{zeile.code}</span>}
+                code, not the German label.
+
+                Left out when the label is the code, which is what optionLabel
+                falls back to for a species this form version no longer lists.
+                "SATR" over "SATR" reads as a fault in the application rather
+                than as a code without a name, which is the same reason
+                optionLabelMitWert prints an unknown code once instead of as
+                "99 - 99". */}
+            {beschriftung !== zeile.code && <span className="cell-sub">{zeile.code}</span>}
           </>
         )}
       </TableCell>
