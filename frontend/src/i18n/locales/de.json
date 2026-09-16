@@ -738,7 +738,30 @@
       "aufnehmenLaeuft": "Wird übernommen",
       "aufnehmenHinweis": "Vermerkt, dass Sie dieses Protokoll bearbeiten. Andere sehen das in der Übersicht. Entscheiden können Sie auch ohne diesen Schritt.",
       "entschieden": "Über dieses Protokoll ist bereits entschieden. Der Verlauf unten sagt, von wem und mit welcher Begründung.",
-      "eigenes": "Dieses Protokoll haben Sie selbst eingereicht. Darüber entscheidet eine andere Person aus der Prüfung."
+      "eigenes": "Dieses Protokoll haben Sie selbst eingereicht. Darüber entscheidet eine andere Person aus der Prüfung.",
+      "frage": "Wie entscheiden Sie?",
+      "wahl": {
+        "ANNEHMEN": {
+          "titel": "Annehmen",
+          "text": "Das Protokoll wird gesperrt und für die Übernahme in FiaKa freigegeben."
+        },
+        "AENDERUNG_ANFORDERN": {
+          "titel": "Änderung anfordern",
+          "text": "Geht an den Einreicher zurück und bleibt bearbeitbar."
+        },
+        "ABLEHNEN": {
+          "titel": "Ablehnen",
+          "text": "Endgültig. Nur bei Protokollen, die nicht zu retten sind."
+        }
+      },
+      "begruendung": "Begründung",
+      "begruendungHinweis": "Bei „Änderung anfordern“ und bei „Ablehnen“ ist eine Begründung Pflicht. Der Einreicher sieht diesen Text.",
+      "speichern": "Entscheidung speichern",
+      "speichernLaeuft": "Wird gespeichert",
+      "fehlt": {
+        "entscheidung": "Bitte wählen Sie zuerst aus, wie Sie entscheiden.",
+        "begruendung": "Für diese Entscheidung ist eine Begründung Pflicht, denn der Einreicher muss wissen, was zu tun ist. Bitte schreiben Sie in das Feld, was geändert werden soll oder warum das Protokoll abgelehnt wird."
+      }
     },
     "verlauf": {
       "titel": "Verlauf",

@@ -1121,3 +1121,51 @@
   margin-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
+
+/* The three decisions, each as a bordered block rather than a bare radio.
+
+   A per-instance class, not a theme entry: nothing else in the application
+   offers a choice where each option needs a sentence explaining what it does to
+   the record. The blocks make the whole option clickable, which matters when the
+   thing being chosen is irreversible. */
+.decision {
+  gap: 0.5rem;
+  margin-block: 0.5rem 1rem;
+}
+
+/* MUI's FormControlLabel pulls itself 11px left to line the radio up with body
+   text, which inside a bordered block leaves the border hanging off the edge. */
+.decision .MuiFormControlLabel-root {
+  margin: 0;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+}
+
+.decision .MuiFormControlLabel-root:hover {
+  background: var(--surface-sunken);
+}
+
+.decision .MuiRadio-root {
+  padding: 0;
+  margin-top: 0.15rem;
+}
+
+.decision .MuiFormControlLabel-label strong {
+  display: block;
+}
+
+.decision .MuiFormControlLabel-label span {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.entscheidung__begruendung {
+  margin-top: 0.5rem;
+}
+
+.entscheidung__aktionen {
+  margin-top: 1.25rem;
+}
