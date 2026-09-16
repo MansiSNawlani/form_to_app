@@ -13,6 +13,11 @@ interface ProtokollAnsichtProps {
      changing. Everything below it is identical, which is why it is a prop rather
      than a branch. */
   hinweis: ReactNode
+  /* The right-hand column: the Verlauf, and for a reviewer the decision panel
+     above it. Optional, because the grid is a two-column grid with one child
+     until something is passed, which renders as one column and is what this
+     view did for the whole of feature 11e. */
+  rail?: ReactNode
 }
 
 /* A protocol that has been handed in, shown as it was filed.
@@ -23,11 +28,12 @@ interface ProtokollAnsichtProps {
  * they got a grey notice saying it had been sent and nothing else. Neither is
  * offered anything to change.
  *
- * The two-column grid has one child. Feature 11f puts the decision panel and the
- * Verlauf in the second column, and only the reviewer's screen will pass them, so
- * the rail belongs there rather than as an unused prop here.
+ * The two-column grid's second child is the rail, filled in feature 11f. What
+ * goes in it differs by screen, which is why it arrives as a slot: the reviewer
+ * passes the decision panel and the Verlauf, the surveyor reading their own
+ * protocol passes the Verlauf alone.
  */
-function ProtokollAnsicht({ protokoll, hinweis }: ProtokollAnsichtProps) {
+function ProtokollAnsicht({ protokoll, hinweis, rail }: ProtokollAnsichtProps) {
   return (
     <>
       <Kopfzeile protokoll={protokoll} />
@@ -41,6 +47,8 @@ function ProtokollAnsicht({ protokoll, hinweis }: ProtokollAnsichtProps) {
 
           <ProtokollNurLesen antworten={protokoll.antworten} entwurfId={protokoll.id} />
         </div>
+
+        {rail !== undefined && <div className="rail">{rail}</div>}
       </div>
     </>
   )

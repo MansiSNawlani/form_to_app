@@ -1039,3 +1039,74 @@
   padding: 0.55rem 0;
   color: var(--text);
 }
+
+/* ---------- the reviewer's rail, feature 11f ---------- */
+
+/* The right-hand column of the reviewer's page: the decision, then the history.
+
+   A column with the same gap the protocol column uses, so the two sides of the
+   page line up rather than each inventing its own rhythm. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  /* A grid item will not shrink below its content, and a long e-mail address in
+     the history has no break in it. Without this the rail widens the column the
+     grid gave it and squeezes the protocol beside it. */
+  min-inline-size: 0;
+}
+
+/* The title strip at the head of a panel. The same rule under it that a section
+   card's title has, so a panel and a card read as the same kind of object. */
+.panel__head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.panel__body {
+  padding: 1.25rem;
+}
+
+/* What has happened to the protocol, newest first.
+
+   Not a list with bullets: every entry is a short paragraph, and a rule between
+   them separates them better than a marker in front of them would. */
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.history li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--step--1);
+  /* An e-mail address is one unbroken word and the rail is 22rem wide. */
+  overflow-wrap: anywhere;
+}
+
+.history li:first-child {
+  padding-top: 0;
+}
+
+.history li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Monospaced so the timestamps under one another can be compared by eye, the
+   same reason the read-only coordinates are. */
+.history time {
+  color: var(--faint);
+  font-family: var(--font-mono);
+}
+
+/* The reviewer's own words, quoted rather than paraphrased, exactly as the
+   change-request notice above the form quotes them. */
+.history blockquote {
+  margin: 0.4rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--muted);
+}

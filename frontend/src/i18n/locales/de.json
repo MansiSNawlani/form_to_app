@@ -736,7 +736,6 @@
       "titel": "Verlauf",
       "laedt": "Der Verlauf wird geladen.",
       "fehler": "Der Verlauf konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
-      "leer": "Zu diesem Protokoll ist noch nichts vermerkt.",
       "durch": "durch {{person}}",
       "aktion": {
         "DRAFT": "Entwurf angelegt",
