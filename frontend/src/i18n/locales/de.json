@@ -731,6 +731,23 @@
       "von": "Angefordert von {{person}} am {{zeitpunkt}} Uhr.",
       "vonOhneZeit": "Angefordert von {{person}}.",
       "hinweis": "Bitte ändern Sie das Genannte und senden Sie das Protokoll danach am Ende von Abschnitt 7 noch einmal ab. Bis dahin bleibt es bearbeitbar; gelöscht werden kann es nicht mehr."
+    },
+    "verlauf": {
+      "titel": "Verlauf",
+      "laedt": "Der Verlauf wird geladen.",
+      "fehler": "Der Verlauf konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
+      "leer": "Zu diesem Protokoll ist noch nichts vermerkt.",
+      "durch": "durch {{person}}",
+      "aktion": {
+        "DRAFT": "Entwurf angelegt",
+        "SUBMITTED": "Eingereicht",
+        "IN_REVIEW": "In Prüfung genommen",
+        "NEEDS_CHANGES": "Änderung angefordert",
+        "REJECTED": "Abgelehnt",
+        "ACCEPTED": "Angenommen",
+        "LOCKED": "Angenommen und gesperrt",
+        "unbekannt": "Status geändert"
+      }
     }
   }
 }
