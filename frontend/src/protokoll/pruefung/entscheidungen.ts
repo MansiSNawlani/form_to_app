@@ -50,6 +50,16 @@ export function brauchtBegruendung(entscheidung: Entscheidung): boolean {
   return BEGRUENDUNG_NOETIG.includes(entscheidung)
 }
 
+/* The two that end the protocol's journey, because they land it in one of the
+   backend's ENDZUSTAENDE: Annehmen writes LOCKED and Ablehnen writes REJECTED,
+   and nothing leaves either. Aenderung anfordern is the reversible one, since
+   the protocol goes back to its author and comes round again. */
+const ENDGUELTIG: readonly Entscheidung[] = ['ANNEHMEN', 'ABLEHNEN']
+
+export function istEndgueltig(entscheidung: Entscheidung): boolean {
+  return ENDGUELTIG.includes(entscheidung)
+}
+
 /* Which of the four rails this reader gets.
  *
  * Three of them are a sentence and one is the panel. Each says why there is no

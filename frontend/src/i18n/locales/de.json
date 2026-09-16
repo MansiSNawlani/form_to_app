@@ -763,7 +763,18 @@
         "begruendung": "Für diese Entscheidung ist eine Begründung Pflicht, denn der Einreicher muss wissen, was zu tun ist. Bitte schreiben Sie in das Feld, was geändert werden soll oder warum das Protokoll abgelehnt wird."
       },
       "veraltet": "Über dieses Protokoll ist inzwischen entschieden worden, vermutlich von einer Kollegin oder einem Kollegen. Ihre Entscheidung wurde nicht gespeichert. Bitte laden Sie den aktuellen Stand und sehen Sie im Verlauf nach, was entschieden wurde.",
-      "neuLaden": "Aktuellen Stand laden"
+      "neuLaden": "Aktuellen Stand laden",
+      "bestaetigen": {
+        "abbrechen": "Zurück",
+        "ANNEHMEN": {
+          "titel": "Protokoll annehmen?",
+          "text": "Das Protokoll wird gesperrt und für die Übernahme in FiaKa freigegeben. Danach kann niemand mehr etwas daran ändern, auch Sie nicht, und die Entscheidung lässt sich nicht zurücknehmen."
+        },
+        "ABLEHNEN": {
+          "titel": "Protokoll ablehnen?",
+          "text": "Das Protokoll wird endgültig abgelehnt. Der Einreicher kann es danach nicht mehr überarbeiten und nicht noch einmal einreichen. Wenn es zu retten ist, fordern Sie stattdessen eine Änderung an."
+        }
+      }
     },
     "verlauf": {
       "titel": "Verlauf",

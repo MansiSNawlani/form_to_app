@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 import type { Rolle } from '../../api/typen'
 import { ROLLEN } from '../../api/typen'
 import type { Status } from '../entwurf/typen'
-import { ENTSCHEIDUNGEN, brauchtBegruendung, pruefungsrail } from './entscheidungen'
+import {
+  ENTSCHEIDUNGEN,
+  brauchtBegruendung,
+  istEndgueltig,
+  pruefungsrail,
+} from './entscheidungen'
 
 const ALLE_STATUS: readonly Status[] = [
   'DRAFT',
@@ -105,5 +110,20 @@ describe('brauchtBegruendung', () => {
 
   it('covers exactly the three decisions the API takes', () => {
     expect([...ENTSCHEIDUNGEN]).toEqual(['ANNEHMEN', 'AENDERUNG_ANFORDERN', 'ABLEHNEN'])
+  })
+})
+
+describe('istEndgueltig', () => {
+  /* Both land the protocol in one of the backend's ENDZUSTAENDE, and nothing
+     leaves either, which is why the panel asks before them. */
+  it('marks accepting and rejecting as the ones that cannot be taken back', () => {
+    expect(istEndgueltig('ANNEHMEN')).toBe(true)
+    expect(istEndgueltig('ABLEHNEN')).toBe(true)
+  })
+
+  /* The protocol goes back to its author and comes round again, so there is
+     nothing to warn about and a dialog would only be a click. */
+  it('does not mark a change request', () => {
+    expect(istEndgueltig('AENDERUNG_ANFORDERN')).toBe(false)
   })
 })

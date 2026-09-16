@@ -10,8 +10,9 @@ import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import BestaetigungsDialog from '../../components/BestaetigungsDialog'
 import { fehlertext } from '../../api/fehler'
-import { ENTSCHEIDUNGEN, brauchtBegruendung } from './entscheidungen'
+import { ENTSCHEIDUNGEN, brauchtBegruendung, istEndgueltig } from './entscheidungen'
 import { entscheidungsfehler } from './entscheidungsfehler'
 import type { Entscheidung } from './typen'
 import { useEntscheiden, useInPruefungNehmen, useProtokollAktualisieren } from './useUebergang'
@@ -50,6 +51,10 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
      of the next attempt rather than at the end of this one, so a message never
      sits over a panel somebody has just put right. */
   const [fehlt, setFehlt] = useState<ParseKeys | null>(null)
+  /* The decision waiting to be confirmed, and nothing else. Not a boolean beside
+     the chosen decision: two pieces of state for one fact drift apart, and the
+     one that would drift here decides which irreversible thing happens. */
+  const [zuBestaetigen, setZuBestaetigen] = useState<Entscheidung | null>(null)
 
   function speichern() {
     setFehlt(null)
@@ -72,7 +77,23 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
       return
     }
 
-    entscheiden.mutate({ entscheidung, kommentar: text === '' ? undefined : text })
+    /* Annehmen locks the protocol and Ablehnen ends it, and nothing leaves
+       either state. Aenderung anfordern is the reversible one and goes straight
+       through: asking about it would train people to click past the dialog that
+       matters. */
+    if (istEndgueltig(entscheidung)) {
+      setZuBestaetigen(entscheidung)
+      return
+    }
+
+    absenden(entscheidung)
+  }
+
+  function absenden(wahl: Entscheidung) {
+    setZuBestaetigen(null)
+
+    const text = begruendung.trim()
+    entscheiden.mutate({ entscheidung: wahl, kommentar: text === '' ? undefined : text })
   }
 
   /* Where the server's refusal belongs, if there is one. The missing Begruendung
@@ -205,8 +226,35 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
           </Button>
         </div>
       </div>
+
+      {/* Cancelling leaves the chosen decision chosen and the Begruendung typed,
+          because the question is whether to go through with it, not whether it
+          was meant at all. */}
+      <BestaetigungsDialog
+        offen={zuBestaetigen !== null}
+        titel={zuBestaetigen === null ? '' : t(bestaetigung(zuBestaetigen, 'titel'))}
+        text={zuBestaetigen === null ? '' : t(bestaetigung(zuBestaetigen, 'text'))}
+        abbrechenLabel={t('protokoll.entscheidung.bestaetigen.abbrechen')}
+        bestaetigenLabel={
+          zuBestaetigen === null
+            ? ''
+            : t(`protokoll.entscheidung.wahl.${zuBestaetigen}.titel` as ParseKeys)
+        }
+        onAbbrechen={() => {
+          setZuBestaetigen(null)
+        }}
+        onBestaetigen={() => {
+          if (zuBestaetigen !== null) absenden(zuBestaetigen)
+        }}
+      />
     </section>
   )
+}
+
+/* The two keys a confirmation needs. Only the final decisions have them, which
+   is why this is a lookup rather than a key per decision in the markup. */
+function bestaetigung(entscheidung: Entscheidung, teil: 'titel' | 'text'): ParseKeys {
+  return `protokoll.entscheidung.bestaetigen.${entscheidung}.${teil}` as ParseKeys
 }
 
 /* The backend's own sentence, or ours where we have one. fehlertext hands back a
