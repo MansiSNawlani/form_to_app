@@ -5,7 +5,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
-import TextField from '@mui/material/TextField'
+import OutlinedInput from '@mui/material/OutlinedInput'
 import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
 import { useState } from 'react'
@@ -172,19 +172,28 @@ function Entscheidungspanel({ entwurfId, kannAufnehmen }: EntscheidungspanelProp
           <FormLabel htmlFor={BEGRUENDUNG_ID}>
             {t('protokoll.entscheidung.begruendung')}
           </FormLabel>
-          <TextField
+          {/* OutlinedInput rather than TextField, for the reason FeldText gives:
+              TextField brings a FormControl and a label of its own, and nesting
+              those inside the one above would break the label association this
+              field depends on. Same MUI input, without a wrapper we already
+              have. */}
+          <OutlinedInput
             id={BEGRUENDUNG_ID}
             multiline
-            rows={5}
+            minRows={5}
+            fullWidth
             value={begruendung}
             onChange={(ereignis) => {
               setBegruendung(ereignis.target.value)
             }}
-            aria-describedby={
-              begruendungFehlt
+            /* On the textarea itself, through inputProps: anything handed to
+               OutlinedInput directly lands on the wrapper and names nothing. */
+            inputProps={{
+              'aria-invalid': begruendungFehlt ? true : undefined,
+              'aria-describedby': begruendungFehlt
                 ? `${BEGRUENDUNG_HINWEIS_ID} ${BEGRUENDUNG_FEHLER_ID}`
-                : BEGRUENDUNG_HINWEIS_ID
-            }
+                : BEGRUENDUNG_HINWEIS_ID,
+            }}
           />
           <FormHelperText id={BEGRUENDUNG_HINWEIS_ID} error={false}>
             {t('protokoll.entscheidung.begruendungHinweis')}

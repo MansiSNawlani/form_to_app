@@ -1,7 +1,7 @@
 # Feature: Entscheiden
 
 **From build-plan:** feature 11f
-**Status:** spec written, not started
+**Status:** built; all eight steps done, checks green, browser walkthrough still to do
 
 ## Goal
 
@@ -193,7 +193,7 @@ Step 1 is the only one with nothing to look at, and it is first because steps 3 
 branch on its answers. Every step after it changes something visible on a page you can
 open.
 
-- [ ] **Step 1 - What the browser is allowed to draw** - two plain modules over values, no
+- [x] **Step 1 - What the browser is allowed to draw** - two plain modules over values, no
       React. `pruefung/entscheidungen.ts` answers, from a status, a list of roles and
       whether the reader filed it, which of the five rails to draw and whether In Pruefung
       nehmen is offered, and separately whether a given decision needs a Begruendung.
@@ -207,7 +207,7 @@ open.
       Begruendung and the other two do; and that a status the labels do not know prints
       something rather than nothing. `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 2 - The rail exists, with the Verlauf in it** - `ProtokollAnsicht` gains its
+- [x] **Step 2 - The rail exists, with the Verlauf in it** - `ProtokollAnsicht` gains its
       `rail` prop and renders it as the second column. `Pruefungsrail` is the component
       that stacks the panels, holding only the Verlauf for now. `.panel__head`,
       `.panel__body` and `.history` ported from `mockup.css` into `protokoll.css` against
@@ -225,7 +225,7 @@ open.
       though nothing had happened; screenshots in both themes; `npm run lint` and
       `npm run build` pass.
 
-- [ ] **Step 3 - In Pruefung nehmen** - the button at the head of the rail, drawn only when
+- [x] **Step 3 - In Pruefung nehmen** - the button at the head of the rail, drawn only when
       step 1 says so, calling the `nimmInPruefung` 11e already wrote. On success it
       invalidates the protocol, the history and the list, since all three now say something
       different. Disabled while the call is in flight, because a second press would be
@@ -235,7 +235,7 @@ open.
       Data Steward and the protocol's own owner never see it; `npm run lint` and
       `npm run build` pass.
 
-- [ ] **Step 4 - The decision panel, working** - `.decision` ported. The three radios with
+- [x] **Step 4 - The decision panel, working** - `.decision` ported. The three radios with
       the mockup's descriptions, none preselected. The Begruendung box with its hint. One
       button, calling `entscheide`, invalidating the same three caches. The four rails that
       are not a decision panel, from step 1: already decided, your own protocol, not your
@@ -253,7 +253,7 @@ open.
       and no panel; screenshots of all five rails in both themes; `npm run lint` and
       `npm run build` pass.
 
-- [ ] **Step 5 - When it will not go through** - pressing save with a required Begruendung
+- [x] **Step 5 - When it will not go through** - pressing save with a required Begruendung
       empty puts the message beside the box and never calls the server, and the server's
       own `BEGRUENDUNG_FEHLT` lands in the same place, so one refusal has one home on
       screen. `UEBERGANG_NICHT_MOEGLICH` says a decision has already been made and offers
@@ -267,7 +267,7 @@ open.
       the message clears when the next attempt starts rather than sitting over a repaired
       form; `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 6 - Asking before the two that cannot be undone** - Annehmen and Ablehnen go
+- [x] **Step 6 - Asking before the two that cannot be undone** - Annehmen and Ablehnen go
       through the existing `BestaetigungsDialog` first, naming what the decision does:
       accepting locks the protocol and releases it for FiaKa, rejecting is final. Aenderung
       anfordern does not ask, because it is the reversible one: the protocol goes back to
@@ -276,7 +276,7 @@ open.
       chosen radio still chosen, confirming decides; the dialog is reachable and dismissable
       by keyboard; `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 7 - The surveyor's own history** - `ProtokollSeite` passes the same `Verlauf`
+- [x] **Step 7 - The surveyor's own history** - `ProtokollSeite` passes the same `Verlauf`
       as the rail on its read-only branch. No decision panel, which step 1's function
       already refuses them. The form itself is not touched: a `NEEDS_CHANGES` protocol
       still opens as an editable form with `AenderungAngefordert` above it.
@@ -285,7 +285,7 @@ open.
       acceptance; their still-editable `NEEDS_CHANGES` protocol is unchanged; screenshots
       in both themes.
 
-- [ ] **Step 8 - The words and the final pass** - every German string added in steps 2 to 6
+- [x] **Step 8 - The words and the final pass** - every German string added in steps 2 to 6
       under `protokoll.*` in `de.json`, none left hard-coded. A pass with a keyboard and
       against the tokens: the radio group is one tab stop and arrow keys move within it,
       the Begruendung box is labelled by its `FormLabel` and described by its hint, the
