@@ -3,6 +3,7 @@ import { useFormContext, useFormState, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import type { Prozentgruppe } from './gruppen'
 import { bewerteAnteile, bewerteGruppe } from '../../regeln/prozent'
+import { useNurLesen } from '../../nurlesen/kontext'
 import type { Antworten } from '../../entwurf/typen'
 
 /* What a Prozentgruppe currently adds up to, under the group.
@@ -32,6 +33,7 @@ interface GruppensummeProps {
 function Gruppensumme({ gruppe, id }: GruppensummeProps) {
   const { t } = useTranslation()
   const { getFieldState } = useFormContext<Antworten>()
+  const nurLesen = useNurLesen()
 
   /* Memoised because useWatch resubscribes when the name array changes
      identity, and a fresh array every render would mean a fresh subscription
@@ -70,14 +72,32 @@ function Gruppensumme({ gruppe, id }: GruppensummeProps) {
   )
   const angefasst = pfade.some((pfad) => getFieldState(pfad, formState).isTouched)
 
-  const meldung = summenfehler && (angefasst || vorbefuellt) ? t(summenfehler.schluessel) : ''
+  /* The running total is worth reading on a filed protocol; the verdict on it is
+   * not this page's to give.
+   *
+   * This component does not go through the resolver, so leaving it alone would
+   * have been the one place a rule still spoke on the reviewer's screen: a group
+   * loaded at 83 sets vorbefuellt, and the message would print in red over a
+   * record somebody handed in months ago. Found by the branch review on
+   * 2026-09-15.
+   *
+   * The number stays, since "Summe: 83 %" is a fact about the protocol. What
+   * goes is the message and the colour, which are the application telling a
+   * surveyor to fix something. Whether a reviewer should be shown a protocol's
+   * problems, and how, is the decision panel's question and belongs to feature
+   * 11f. */
+  const meldung =
+    !nurLesen && summenfehler && (angefasst || vorbefuellt) ? t(summenfehler.schluessel) : ''
 
   const vollstaendig = summe === 100 && verstoesse.length === 0
-  const zustand = meldung
-    ? ' group-total--wrong'
-    : vollstaendig
-      ? ' group-total--complete'
-      : ''
+  const zustand =
+    nurLesen
+      ? ''
+      : meldung
+        ? ' group-total--wrong'
+        : vollstaendig
+          ? ' group-total--complete'
+          : ''
 
   return (
     <p className={`group-total${zustand}`} id={id}>

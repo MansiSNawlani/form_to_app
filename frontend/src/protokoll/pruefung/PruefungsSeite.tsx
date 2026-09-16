@@ -1,13 +1,8 @@
-import Typography from '@mui/material/Typography'
-import { useQuery } from '@tanstack/react-query'
 import { Navigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import ProtokollAnsicht from '../nurlesen/ProtokollAnsicht'
-import ProtokollLadefehler from '../ProtokollLadefehler'
-import ProtokollNichtGefunden from '../ProtokollNichtGefunden'
 import { abschnittPfad } from '../abschnitte'
-import { entwurfsAbfrage } from '../entwurf/abfragen'
-import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../../api/fehler'
+import { useProtokollZustand } from '../useProtokollZustand'
 import '../protokoll.css'
 
 /* A protocol that has been handed in, read rather than filled in.
@@ -28,49 +23,10 @@ function PruefungsSeite() {
   const { id } = useParams()
   const { t } = useTranslation()
 
-  const {
-    data: protokoll,
-    isPending,
-    error,
-    refetch,
-    isFetching,
-  } = useQuery(entwurfsAbfrage(id))
-
-  /* The route pattern always supplies an id, so this is a guard rather than a
-     case anybody reaches. It matters because the query is disabled without one
-     and a disabled query stays pending forever, which would leave the page on
-     "wird geladen" and never move. ProtokollSeite carries the same guard for the
-     same reason. */
-  if (id === undefined) {
-    return <ProtokollNichtGefunden />
-  }
-
-  if (isPending) {
-    /* A live region, so somebody using a screen reader is told the page is
-       working rather than left on a heading that never changes. */
-    return (
-      <Typography variant="body1" role="status">
-        {t('protokoll.laedt')}
-      </Typography>
-    )
-  }
-
-  /* No such protocol, or one this account may not see. The backend answers the
-     two identically on purpose, so a stranger cannot discover which ids are
-     real, and **this must not be softened into "you have no permission"**: that
-     sentence is itself the fact being withheld. */
-  if (error instanceof ApiFehler && error.code === PROTOKOLL_NICHT_GEFUNDEN) {
-    return <ProtokollNichtGefunden />
-  }
-
-  /* Everything else: the backend is down, the network dropped, the session ran
-     out. Nothing is wrong with the protocol itself, so this offers the way back
-     in rather than claiming it is gone. */
-  if (error !== null || protokoll === undefined) {
-    return (
-      <ProtokollLadefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
-    )
-  }
+  /* The four ways this can end before there is a protocol, shared with the
+     form's own page. useProtokollZustand says why they live together. */
+  const { zustand, protokoll } = useProtokollZustand(id)
+  if (zustand !== null || protokoll === undefined) return zustand
 
   /* Still a draft, so this is the wrong screen for it.
    *

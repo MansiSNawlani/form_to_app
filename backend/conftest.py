@@ -384,13 +384,13 @@ def einreichen(client: AsyncClient) -> Callable[..., Awaitable[str]]:
     about to copy it.
     """
 
-    async def _einreichen(antworten: dict[str, object] | None = None) -> str:
+    async def _einreichen() -> str:
         angelegt = (await client.post("/api/v1/protokolle")).json()
         gespeichert = await client.put(
             f"/api/v1/protokolle/{angelegt['id']}/antworten",
             json={
                 "version": angelegt["version"],
-                "antworten": dict(VOLLSTAENDIG) if antworten is None else antworten,
+                "antworten": dict(VOLLSTAENDIG),
             },
         )
         abgesendet = await client.post(

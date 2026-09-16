@@ -360,6 +360,46 @@ computed from the tokens rather than judged by eye: 6.31:1 in light and 7.06:1 i
 dark against `--surface-sunken`, both past AA's 4.5:1. No German string added in
 this feature is hard-coded; every one reads from `de.json`.
 
+## What the branch review changed
+
+Two axes were run against `main` on 2026-09-15, after all ten steps were built.
+
+**One real defect, and it went straight at this feature's central promise.**
+`abschnitte/teil3/Gruppensumme.tsx` does not go through the resolver: it calls
+`bewerteAnteile` itself and reads `formState.defaultValues` to decide whether a
+group arrived already wrong. On the reviewer's page those defaults **are** the
+filed answers, so a percentage group not totalling 100 would have printed a red
+validation message, in a live region, over a record somebody handed in months
+ago. Nothing in step 4's guard could catch it, because the guard reads one file
+and this is three levels down. The running total stays, since "Summe: 83 %" is a
+fact about the protocol; the message and the colour are gone.
+
+**Four duplications, all fixed.** The four dead-end guards in front of a loaded
+protocol were copied across both pages, comments included, and are now
+`useProtokollZustand`. The "13 - Bach" format lived twice inside `FeldAuswahl`.
+The paragraph explaining why the catch table is rebuilt was in two files. A
+fixture parameter no caller passed is gone, and the step 4 guard no longer
+asserts the exact spelling of a `useForm` call, which would have broken on a
+reformat.
+
+**Recorded rather than changed.** Three deviations from the letter of this spec
+were deliberate and are explained where they are:
+
+- **`ZahlZelle` and `ArtZelle` never got read-only branches.** The spec named
+  them; step 7 replaced the whole table instead. They are 312 controls inside a
+  grid that grows and shrinks around a picker over 123 entries, and a branch
+  through all of that would have left both jobs harder to read than either alone.
+  The same applies to the two attachment blocks.
+- **`AbschnittInhalt` was refactored**, which "Out of scope" arguably forbids and
+  the Files list below arguably permits. The reviewer's page is the second thing
+  to turn a section number into a section, and two switches would have been two
+  places to remember an eighth section.
+- **Label association in read-only.** The value block carries no
+  `aria-labelledby` back to its label. It sits immediately after the label in
+  document order, and with no focusable control on the page a screen reader reads
+  the two together in browse mode. Adding an ARIA name to a plain `div` would not
+  improve that and can make it worse.
+
 ## Files / areas
 
 **Backend, changed**

@@ -49,10 +49,13 @@ describe('ProtokollNurLesen', () => {
     // A reviewer judging a filed protocol is not being asked to correct it, and
     // the gate deciding whether it could be submitted at all already ran at
     // Absenden. Red messages here would be the application arguing with a record.
-    expect(quelle).toContain('useForm<Antworten>({ defaultValues: antworten })')
     /* The code shapes, not the words. The file explains in prose why it mounts
        no resolver and never triggers, and a guard matching bare words would fail
-       on its own explanation. */
+       on its own explanation.
+       
+       Deliberately not an assertion about how the useForm call is written. A
+       guard that breaks when somebody reformats a line guards nothing; what has
+       to stay true is only that these two never appear. */
     expect(quelle).not.toContain('resolver:')
     expect(quelle).not.toContain('trigger(')
   })

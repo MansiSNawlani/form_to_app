@@ -99,7 +99,12 @@ function FeldAuswahl({
             <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
             {optionen(liste).map((option) => (
               <MenuItem key={option.wert} value={option.wert}>
-                {mitWert ? `${option.wert} - ${option.label}` : option.label}
+                {/* The same formatter the read-only branch above uses, so the
+                    word somebody picked and the word they are shown afterwards
+                    cannot come out differently. */}
+                {mitWert
+                  ? (optionLabelMitWert(liste, option.wert) ?? option.label)
+                  : option.label}
               </MenuItem>
             ))}
           </Select>

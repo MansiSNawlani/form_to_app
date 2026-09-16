@@ -1,20 +1,17 @@
-import Typography from '@mui/material/Typography'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useBlocker, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import AenderungAngefordert from './pruefung/AenderungAngefordert'
 import ProtokollAnsicht from './nurlesen/ProtokollAnsicht'
 import ProtokollFormular from './ProtokollFormular'
-import ProtokollLadefehler from './ProtokollLadefehler'
-import ProtokollNichtGefunden from './ProtokollNichtGefunden'
 import { abschnittPfad, findeAbschnitt } from './abschnitte'
 import VerwerfenDialog from './VerwerfenDialog'
 import { statusAnzeige } from './liste/anzeige'
-import { entwurfsAbfrage, entwurfsKey } from './entwurf/abfragen'
+import { useProtokollZustand } from './useProtokollZustand'
+import { entwurfsKey } from './entwurf/abfragen'
 import { NEU, istNeu, leererEntwurf, verlaesstProtokoll } from './entwurf/neu'
 import type { Entwurf, Status } from './entwurf/typen'
-import { ApiFehler, PROTOKOLL_NICHT_GEFUNDEN } from '../api/fehler'
 import './protokoll.css'
 
 /* The states whose owner may still fill the form in, mirroring AENDERBAR in
@@ -93,24 +90,18 @@ function ProtokollSeite() {
   /* Reading was synchronous until feature 3b, when the draft moved to the
      server. It is a query rather than a loader because the failure has to be
      retryable from the page it happened on, and because the section links
-     navigate between URLs that share this one document. */
-  const {
-    data: entwurf,
-    isPending,
-    error,
-    refetch,
-    isFetching,
-  } = useQuery(entwurfsAbfrage(begannNeu ? undefined : id))
+     navigate between URLs that share this one document.
+
+     The four states in front of the protocol are shared with the reviewer's
+     page; useProtokollZustand says why they live together. */
+  const { zustand, protokoll: entwurf } = useProtokollZustand(
+    begannNeu ? undefined : id,
+  )
   const abschnitt = findeAbschnitt(nr)
 
-  /* The route pattern always supplies an id, so this is a guard rather than a
-     case anybody reaches. It matters because the query is disabled without one,
-     and a disabled query stays pending forever: without this the page would sit
-     on "wird geladen" and never move. */
-  if (id === undefined) {
-    return <ProtokollNichtGefunden />
-  }
-
+  /* Before the hook's verdict, because a protocol that has no record yet has
+     nothing to fetch: the hook is handed no id for it and would answer "not
+     found" for something the surveyor is in the middle of starting. */
   if (begannNeu) {
     if (abschnitt === undefined) return <Navigate to={abschnittPfad(NEU, 1)} replace />
 
@@ -131,31 +122,7 @@ function ProtokollSeite() {
     )
   }
 
-  if (isPending) {
-    /* A live region, so somebody using a screen reader is told the page is
-       working rather than left on a heading that never changes. */
-    return (
-      <Typography variant="body1" role="status">
-        {t('protokoll.laedt')}
-      </Typography>
-    )
-  }
-
-  /* No such protocol, or somebody else's. The backend deliberately answers the
-     same way to both, so that a stranger cannot discover which ids exist, and
-     this must not be softened into "you have no permission". */
-  if (error instanceof ApiFehler && error.code === PROTOKOLL_NICHT_GEFUNDEN) {
-    return <ProtokollNichtGefunden />
-  }
-
-  /* Everything else: the backend is down, the network dropped, the session ran
-     out. Nothing is wrong with the protocol itself, so this offers the way back
-     in rather than claiming it is gone. */
-  if (error !== null || entwurf === undefined) {
-    return (
-      <ProtokollLadefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
-    )
-  }
+  if (zustand !== null || entwurf === undefined) return zustand
 
   /* Sent already, so there is nothing here to fill in. It is shown instead.
    *
