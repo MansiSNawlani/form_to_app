@@ -731,6 +731,66 @@
       "von": "Angefordert von {{person}} am {{zeitpunkt}} Uhr.",
       "vonOhneZeit": "Angefordert von {{person}}.",
       "hinweis": "Bitte ändern Sie das Genannte und senden Sie das Protokoll danach am Ende von Abschnitt 7 noch einmal ab. Bis dahin bleibt es bearbeitbar; gelöscht werden kann es nicht mehr."
+    },
+    "entscheidung": {
+      "titel": "Entscheidung",
+      "aufnehmen": "In Prüfung nehmen",
+      "aufnehmenLaeuft": "Wird übernommen",
+      "aufnehmenHinweis": "Vermerkt, dass Sie dieses Protokoll bearbeiten. Andere sehen das in der Übersicht. Entscheiden können Sie auch ohne diesen Schritt.",
+      "entschieden": "Über dieses Protokoll ist bereits entschieden. Der Verlauf unten sagt, von wem und mit welcher Begründung.",
+      "eigenes": "Dieses Protokoll haben Sie selbst eingereicht. Darüber entscheidet eine andere Person aus der Prüfung.",
+      "frage": "Wie entscheiden Sie?",
+      "wahl": {
+        "ANNEHMEN": {
+          "titel": "Annehmen",
+          "text": "Das Protokoll wird gesperrt und für die Übernahme in FiaKa freigegeben."
+        },
+        "AENDERUNG_ANFORDERN": {
+          "titel": "Änderung anfordern",
+          "text": "Geht an den Einreicher zurück und bleibt bearbeitbar."
+        },
+        "ABLEHNEN": {
+          "titel": "Ablehnen",
+          "text": "Endgültig. Nur bei Protokollen, die nicht zu retten sind."
+        }
+      },
+      "begruendung": "Begründung",
+      "begruendungHinweis": "Bei „Änderung anfordern“ und bei „Ablehnen“ ist eine Begründung Pflicht. Der Einreicher sieht diesen Text.",
+      "speichern": "Entscheidung speichern",
+      "speichernLaeuft": "Wird gespeichert",
+      "fehlt": {
+        "entscheidung": "Bitte wählen Sie zuerst aus, wie Sie entscheiden.",
+        "begruendung": "Für diese Entscheidung ist eine Begründung Pflicht, denn der Einreicher muss wissen, was zu tun ist. Bitte schreiben Sie in das Feld, was geändert werden soll oder warum das Protokoll abgelehnt wird."
+      },
+      "veraltet": "Über dieses Protokoll ist inzwischen entschieden worden, vermutlich von einer Kollegin oder einem Kollegen. Ihre Entscheidung wurde nicht gespeichert. Bitte laden Sie den aktuellen Stand und sehen Sie im Verlauf nach, was entschieden wurde.",
+      "neuLaden": "Aktuellen Stand laden",
+      "bestaetigen": {
+        "abbrechen": "Zurück",
+        "ANNEHMEN": {
+          "titel": "Protokoll annehmen?",
+          "text": "Das Protokoll wird gesperrt und für die Übernahme in FiaKa freigegeben. Danach kann niemand mehr etwas daran ändern, auch Sie nicht, und die Entscheidung lässt sich nicht zurücknehmen."
+        },
+        "ABLEHNEN": {
+          "titel": "Protokoll ablehnen?",
+          "text": "Das Protokoll wird endgültig abgelehnt. Der Einreicher kann es danach nicht mehr überarbeiten und nicht noch einmal einreichen. Wenn es zu retten ist, fordern Sie stattdessen eine Änderung an."
+        }
+      }
+    },
+    "verlauf": {
+      "titel": "Verlauf",
+      "laedt": "Der Verlauf wird geladen.",
+      "fehler": "Der Verlauf konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
+      "durch": "durch {{person}}",
+      "aktion": {
+        "DRAFT": "Entwurf angelegt",
+        "SUBMITTED": "Eingereicht",
+        "IN_REVIEW": "In Prüfung genommen",
+        "NEEDS_CHANGES": "Änderung angefordert",
+        "REJECTED": "Abgelehnt",
+        "ACCEPTED": "Angenommen",
+        "LOCKED": "Angenommen und gesperrt",
+        "unbekannt": "Status geändert"
+      }
     }
   }
 }

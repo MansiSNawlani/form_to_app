@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ProtokollAnsicht from '../nurlesen/ProtokollAnsicht'
 import { abschnittPfad } from '../abschnitte'
 import { useProtokollZustand } from '../useProtokollZustand'
+import Pruefungsrail from './Pruefungsrail'
 import '../protokoll.css'
 
 /* A protocol that has been handed in, read rather than filled in.
@@ -15,9 +16,9 @@ import '../protokoll.css'
  * and a second opinion in the browser could only ever be the wrong one; hiding a
  * page is not a permission.
  *
- * Nothing on this page writes. No automatic save, no rules run, no Absenden. The
- * decision panel and the Verlauf go in the empty right-hand column and are
- * feature 11f.
+ * Nothing on the protocol itself writes: no automatic save, no rules run, no
+ * Absenden. The rail beside it is the one part of this screen that does, and
+ * only ever to the protocol's status, never to an answer in it.
  */
 function PruefungsSeite() {
   const { id } = useParams()
@@ -43,14 +44,15 @@ function PruefungsSeite() {
   return (
     <ProtokollAnsicht
       protokoll={protokoll}
-      /* Said once for the whole protocol rather than per section. It does not
-         name the way to change it: asking for a correction is the reviewer's own
-         move and arrives with the decision panel in feature 11f. */
+      /* Said once for the whole protocol rather than per section. It is about
+         the fields, not about the decision: asking for a correction is the
+         reviewer's own move and lives in the rail. */
       hinweis={
         <p className="form-section__hint review__hinweis">
           {t('protokoll.pruefung.gesperrt')}
         </p>
       }
+      rail={<Pruefungsrail protokoll={protokoll} />}
     />
   )
 }

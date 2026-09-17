@@ -1039,3 +1039,145 @@
   padding: 0.55rem 0;
   color: var(--text);
 }
+
+/* ---------- the reviewer's rail, feature 11f ---------- */
+
+/* The right-hand column of the reviewer's page: the decision, then the history.
+
+   A column with the same gap the protocol column uses, so the two sides of the
+   page line up rather than each inventing its own rhythm. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  /* A grid item will not shrink below its content, and a long e-mail address in
+     the history has no break in it. Without this the rail widens the column the
+     grid gave it and squeezes the protocol beside it. */
+  min-inline-size: 0;
+}
+
+/* The title strip at the head of a panel. The same rule under it that a section
+   card's title has, so a panel and a card read as the same kind of object. */
+.panel__head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.panel__body {
+  padding: 1.25rem;
+}
+
+/* What has happened to the protocol, newest first.
+
+   Not a list with bullets: every entry is a short paragraph, and a rule between
+   them separates them better than a marker in front of them would. */
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.history li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--step--1);
+  /* An e-mail address is one unbroken word and the rail is 22rem wide. */
+  overflow-wrap: anywhere;
+}
+
+.history li:first-child {
+  padding-top: 0;
+}
+
+.history li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Monospaced so the timestamps under one another can be compared by eye, the
+   same reason the read-only coordinates are. */
+.history time {
+  color: var(--faint);
+  font-family: var(--font-mono);
+}
+
+/* The reviewer's own words, quoted rather than paraphrased, exactly as the
+   change-request notice above the form quotes them. */
+.history blockquote {
+  margin: 0.4rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--muted);
+}
+
+/* In Pruefung nehmen, above the decision itself.
+
+   Separated by a rule rather than only by space, because the two are different
+   kinds of act: picking a protocol up says something to colleagues, deciding on
+   it ends the protocol's journey. */
+.entscheidung__aufnehmen {
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* A clear beat between the sentence and the button under it, on top of the
+   1rem the shared notice spacing gives. More than a notice wants, because this
+   button is not a way out of a message: it makes a move on the protocol, and
+   sitting tight under the text it reads as part of the sentence. */
+.entscheidung__aufnehmen .MuiButton-root {
+  margin-top: 0.5rem;
+}
+
+/* The three decisions, each as a bordered block rather than a bare radio.
+
+   A per-instance class, not a theme entry: nothing else in the application
+   offers a choice where each option needs a sentence explaining what it does to
+   the record. The blocks make the whole option clickable, which matters when the
+   thing being chosen is irreversible. */
+.decision {
+  gap: 0.5rem;
+  margin-block: 0.5rem 1rem;
+}
+
+/* muiTheme.ts gives every FormControlLabel a right margin, which is the gap
+   between options in a wrapping row. These are stacked blocks with a border, so
+   that margin would end the border short of the panel; the gap above spaces them
+   instead. */
+.decision .MuiFormControlLabel-root {
+  margin: 0;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.8rem;
+}
+
+.decision .MuiFormControlLabel-root:hover {
+  background: var(--surface-sunken);
+}
+
+.decision .MuiFormControlLabel-label strong {
+  display: block;
+}
+
+.decision .MuiFormControlLabel-label span {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.entscheidung__begruendung {
+  margin-top: 0.5rem;
+}
+
+.entscheidung__aktionen {
+  margin-top: 1.25rem;
+}
+
+/* A refusal about the protocol rather than about the box above it. Above the
+   button, so it is read before the button is pressed again. */
+.entscheidung__fehler {
+  margin-top: 1.25rem;
+  color: var(--danger);
+}
