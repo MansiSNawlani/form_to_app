@@ -120,7 +120,7 @@ These are not features and are not tracked here. They happen first.
 - [x] 10. Photo and map excerpt upload: one Kartenausschnitt and up to twenty Fotos, kept in
       the browser until feature 3 gives them a server. Built out of order, before items 2 and
       3, by decision on 2026-09-06
-- [ ] 11. Submit and review workflow: the state machine, rejection reasons, change requests,
+- [x] 11. Submit and review workflow: the state machine, rejection reasons, change requests,
       locking
   - [x] 11a. The rules in Python: every rule from features 4c to 9b ported to the backend, plus
         the one thing no half of the app has yet, a declared list of what a finished protocol
@@ -135,7 +135,7 @@ These are not features and are not tracked here. They happen first.
         built against `prototypes/pruefung-protokoll.html`, with the summary bar, all seven
         sections as text rather than fields, and the attachments. Also replaces the "already
         sent" notice, so a submitter can read back what they filed
-  - [ ] 11f. Entscheiden: the right-hand rail of the same screen. In Pruefung nehmen, the three
+  - [x] 11f. Entscheiden: the right-hand rail of the same screen. In Pruefung nehmen, the three
         decisions with the Begruendung, and the Verlauf
 
   **11e was split in two on 2026-09-15.** The one line above covered three separate things, and
