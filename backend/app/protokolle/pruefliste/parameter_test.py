@@ -7,6 +7,7 @@ import pytest
 from app.protokolle.pruefliste.parameter import (
     PRO_SEITE_MAX,
     PRO_SEITE_MIN,
+    SEITE_MAX,
     begrenze_pro_seite,
     begrenze_seite,
     jahresgrenzen,
@@ -98,6 +99,11 @@ class TestBegrenzeSeite:
 
     def test_laesst_die_erste_seite_stehen(self) -> None:
         assert begrenze_seite(1) == 1
+
+    def test_deckelt_eine_masslose_seite(self) -> None:
+        # Uncapped, the row offset this implies is larger than the database
+        # driver can send, and a silly query parameter becomes a 500.
+        assert begrenze_seite(10**30) == SEITE_MAX
 
 
 class TestBegrenzeProSeite:

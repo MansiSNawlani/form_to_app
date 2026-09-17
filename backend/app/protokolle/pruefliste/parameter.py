@@ -23,6 +23,12 @@ PRO_SEITE_STANDARD = 25
 #: One row. A page of nothing would be a pager with no last page.
 PRO_SEITE_MIN = 1
 
+#: Far beyond any page the queue could really have, and small enough that the row
+#: offset it implies still fits comfortably in a bigint. Without a cap, a page
+#: number of 10**30 arrives as an OFFSET the database driver cannot send, and the
+#: caller gets a 500 for what is only a silly query parameter.
+SEITE_MAX = 1_000_000
+
 #: The most one request may ask for. The queue is read by a person a screenful at
 #: a time, and the cap is what stops one request asking for every protocol FFS
 #: has ever taken.
@@ -78,8 +84,15 @@ def suchmuster(begriff: str) -> str:
 
 
 def begrenze_seite(seite: int) -> int:
-    """A page number that exists. Pages are 1-based and there is none before."""
-    return max(seite, 1)
+    """A page number that exists.
+
+    Pages are 1-based, so there is none before the first, and none beyond
+    SEITE_MAX for the reason that constant gives. Both ends clamp rather than
+    refuse: a page number past the end is answered with an empty page, and
+    refusing one absurd number while quietly fixing another would be two rules
+    where the caller can only see one.
+    """
+    return min(max(seite, 1), SEITE_MAX)
 
 
 def begrenze_pro_seite(pro_seite: int) -> int:

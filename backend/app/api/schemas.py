@@ -12,7 +12,7 @@ habit, because a model built from the whole row would gain any column added late
 """
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -285,6 +285,67 @@ class ProtokollUebersicht(BaseModel):
     #: The day of the survey. updated_at is the day the draft was last touched.
     datum: str | None
     anlass: str | None
+
+
+class PruefzeileAntwort(BaseModel):
+    """One protocol as the review queue shows it, without its answers.
+
+    Mirrors Pruefzeile in app/protokolle/pruefliste/dienst.py, which is where
+    every value below is read. Load-bearing: feature 12b renders exactly these
+    fields, 12c adds a filter over them and 12d walks the list they come in.
+
+    **Deliberately not ProtokollUebersicht.** That model is Meine Protokolle's. It
+    reads five display values out of the answers document, because a draft has no
+    envelope behind it, and it carries no Bearbeiter, no filer and no region.
+    Widening it to serve both screens would put nullable fields on a list that
+    never needs them and tie two screens to one shape.
+
+    Four of these are nullable columns on the row and are not optional here.
+    umschlag_bei_abgabe requires the whole envelope the moment a protocol leaves
+    DRAFT, and nothing in this list is a draft.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    #: Never DRAFT. The queue lists protocols that have been handed in.
+    status: Status
+    form_version: str
+
+    #: The day of the Befischung, not the day it was filed.
+    datum: date
+    #: The code, e.g. "wrrl". The label is the screen's business.
+    anlass: str
+    #: Frozen at submit, so a historical row still reads correctly.
+    bearbeiter_name: str
+    submitted_at: datetime
+    updated_at: datetime
+
+    #: The account that filed it, by its login address.
+    eingereicht_von: str
+
+    #: Exactly as the surveyor typed it. Nothing normalises a water's name.
+    gewaessername: str
+    ortsangabe: str
+    laenge_m: int
+    #: Null for the great majority of stretches, which belong to no programme.
+    monitoringstrecke_nr: str | None
+    #: 1 to 4. Feature 13 narrows the queue by it.
+    regierungspraesidium: int
+
+
+class PrueflisteAntwort(BaseModel):
+    """One page of the review queue, and enough to draw a pager around it."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    zeilen: list[PruefzeileAntwort]
+    #: Every protocol matching the filters, not only the ones on this page.
+    gesamt: int
+    seite: int
+    pro_seite: int
+    #: Never below one, so an empty queue reads "Seite 1 von 1".
+    seiten: int
 
 
 class AnlageAntwort(BaseModel):

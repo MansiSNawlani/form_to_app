@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Response, status
 from pydantic import BaseModel
 
-from app.api import anlagen, anmeldung, protokolle
+from app.api import anlagen, anmeldung, protokolle, pruefliste
 from app.api.fehler_http import registriere_fehlerbehandlung
 from app.db import database_is_reachable
 
@@ -21,6 +21,7 @@ registriere_fehlerbehandlung(app)
 app.include_router(anmeldung.router)
 app.include_router(protokolle.router)
 app.include_router(anlagen.router)
+app.include_router(pruefliste.router)
 
 
 class Health(BaseModel):
