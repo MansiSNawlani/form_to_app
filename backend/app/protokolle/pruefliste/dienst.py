@@ -200,10 +200,14 @@ def _bedingungen(auswahl: Prueffilter) -> list[ColumnElement[bool]]:
     return bedingungen
 
 
-def _verbunden[Zeile: tuple[Any, ...]](
+def _eingereichte[Zeile: tuple[Any, ...]](
     anfrage: Select[Zeile], auswahl: Prueffilter
 ) -> Select[Zeile]:
-    """The three rows a handed-in protocol always has behind it, plus the filters.
+    """Narrowed to the handed-in protocols this reviewer asked for.
+
+    Named for what it selects rather than for the joins it happens to make. It
+    does both jobs, and a caller reading only "joined" would not see that the
+    filters had been applied at all.
 
     Inner joins, and that is a statement rather than an oversight. The
     umschlag_bei_abgabe constraint on submissions requires a Probestrecke the
@@ -233,9 +237,16 @@ def _pflicht[Wert](wert: Wert | None, feld: str, protokoll_id: uuid.UUID) -> Wer
     It raises rather than substituting a blank, because a null here would mean the
     database had broken its own rule, and a queue quietly printing an empty date
     for it would hide that instead of reporting it.
+
+    Deliberately not one of app/protokolle/fehler.py's typed domain errors. Those
+    are refusals a person can act on, and each has an HTTP answer waiting for it
+    in app/api/fehler_http.py. This is an invariant that cannot fail unless the
+    schema has been changed behind the application's back, so 500 is the honest
+    answer and there is nothing for the reader to do about it. The message is
+    developer English, the way RolleFehlt's is, and never reaches a response body.
     """
     if wert is None:
-        raise ValueError(f"{feld} fehlt auf dem eingereichten Protokoll {protokoll_id}")
+        raise ValueError(f"{feld} missing on submitted protocol {protokoll_id}")
     return wert
 
 
@@ -256,20 +267,27 @@ async def liste_pruefliste(
 
     Two statements rather than one with a window function. The count has to see
     exactly the filters the rows do, and two readable statements sharing one
-    _verbunden are easier to keep honest about that than one statement doing both.
+    _eingereichte are easier to keep honest about that than one doing both.
     """
     gewaehlte_seite = begrenze_seite(seite)
     groesse = begrenze_pro_seite(pro_seite)
     gewaehlt = auswahl or Prueffilter()
 
     gesamt = await session.scalar(
-        _verbunden(select(func.count()).select_from(Submission), gewaehlt)
+        _eingereichte(select(func.count()).select_from(Submission), gewaehlt)
     )
     # scalar() is typed as possibly None; COUNT(*) never is.
     gesamt = gesamt or 0
 
     treffer = await session.execute(
-        _verbunden(
+        _eingereichte(
+            # Labelled, and read back below by name rather than by position.
+            # Fourteen columns read as zeile[0] to zeile[13] would mean that
+            # inserting one column here silently rewires every field after it,
+            # and the queue would print the Ortsangabe under Gewaesser with
+            # nothing failing. The three that come off a joined table are
+            # labelled for the name the row carries, so the select and the row
+            # say the same word.
             select(
                 Submission.id,
                 Submission.status,
@@ -279,8 +297,8 @@ async def liste_pruefliste(
                 Submission.bearbeiter_name,
                 Submission.submitted_at,
                 Submission.updated_at,
-                User.email,
-                Gewaesser.name,
+                User.email.label("eingereicht_von"),
+                Gewaesser.name.label("gewaessername"),
                 Probestrecke.ortsangabe,
                 Probestrecke.laenge_m,
                 Probestrecke.monitoringstrecke_nr,
@@ -301,20 +319,22 @@ async def liste_pruefliste(
     return Prueflistenseite(
         zeilen=[
             Pruefzeile(
-                id=zeile[0],
-                status=zeile[1],
-                form_version=zeile[2],
-                datum=_pflicht(zeile[3], "datum", zeile[0]),
-                anlass=_pflicht(zeile[4], "anlass", zeile[0]),
-                bearbeiter_name=_pflicht(zeile[5], "bearbeiter_name", zeile[0]),
-                submitted_at=_pflicht(zeile[6], "submitted_at", zeile[0]),
-                updated_at=zeile[7],
-                eingereicht_von=zeile[8],
-                gewaessername=zeile[9],
-                ortsangabe=zeile[10],
-                laenge_m=zeile[11],
-                monitoringstrecke_nr=zeile[12],
-                regierungspraesidium=zeile[13],
+                id=zeile.id,
+                status=zeile.status,
+                form_version=zeile.form_version,
+                datum=_pflicht(zeile.datum, "datum", zeile.id),
+                anlass=_pflicht(zeile.anlass, "anlass", zeile.id),
+                bearbeiter_name=_pflicht(
+                    zeile.bearbeiter_name, "bearbeiter_name", zeile.id
+                ),
+                submitted_at=_pflicht(zeile.submitted_at, "submitted_at", zeile.id),
+                updated_at=zeile.updated_at,
+                eingereicht_von=zeile.eingereicht_von,
+                gewaessername=zeile.gewaessername,
+                ortsangabe=zeile.ortsangabe,
+                laenge_m=zeile.laenge_m,
+                monitoringstrecke_nr=zeile.monitoringstrecke_nr,
+                regierungspraesidium=zeile.regierungspraesidium,
             )
             for zeile in treffer
         ],

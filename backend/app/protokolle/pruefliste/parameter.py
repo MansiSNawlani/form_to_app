@@ -96,12 +96,12 @@ def begrenze_seite(seite: int) -> int:
 
 
 def begrenze_pro_seite(pro_seite: int) -> int:
-    """A page size between one row and the cap."""
+    """A page size between one row and PRO_SEITE_MAX, clamped rather than refused."""
     return min(max(pro_seite, PRO_SEITE_MIN), PRO_SEITE_MAX)
 
 
 def versatz(seite: int, pro_seite: int) -> int:
-    """How many rows to skip to reach this page."""
+    """The row offset for a page, clamping both arguments on the way."""
     return (begrenze_seite(seite) - 1) * begrenze_pro_seite(pro_seite)
 
 

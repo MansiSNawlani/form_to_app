@@ -304,6 +304,33 @@ http://localhost:8000/api/v1/docs.
 - `backend/app/models/` - every column this joins already exists.
 - `frontend/` - nothing at all.
 
+**Changed beyond the list above, found by the branch review on 2026-09-17**
+
+- `backend/conftest.py` - the shared `anlegen` fixture gained a `regierungspraesidium`
+  argument, defaulting to none. Forced by this spec's own mandatory test that a regional
+  account is refused: such an account cannot be created without a region.
+- `backend/app/api/schemas_test.py` - new, and not in the spec's test list. It pins
+  `Pruefstatus` against `Status`, so a state added to the protocol later cannot silently
+  become unaskable here.
+
+## What the build decided that the spec did not
+
+Four things the code settles which the spec left open. Recorded here rather than removed,
+because each is load-bearing for 12b, 12c or 12d.
+
+1. **`SEITE_MAX`, an upper clamp on the page number.** The spec only asked for a lower one.
+   Without an upper one a page number of 10^30 becomes a row offset larger than the database
+   driver can send, and a silly query parameter becomes a 500.
+2. **`jahr` is bounded to a year a date can express.** Otherwise the same thing: building
+   the first day of year 99999 raises, and the caller gets a 500 instead of a 422.
+3. **`suche` is capped at 200 characters**, so a search cannot be an arbitrarily large
+   request before anything looks at it. The same guard, and the same reasoning, as
+   `EMAIL_HOECHSTLAENGE` in `schemas.py`.
+4. **The `gewaesser` order sorts on the lowercased name and Ortsangabe.** Defect 2 in
+   `docs/ffs-defect-list.md` is the legacy form lowercasing water body names, so both
+   spellings are genuinely in the data and a case-sensitive A to Z would file one block
+   after the other. It also makes the order independent of the database's collation.
+
 ## Data / contracts
 
 **Load-bearing. 12b renders this, 12c adds a filter to it, and 12d walks it.**

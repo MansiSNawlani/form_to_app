@@ -513,6 +513,28 @@ class TestSuche:
         assert seite.zeilen == []
         assert seite.gesamt == 0
 
+    async def test_gibt_auf_fuenfzig_prozent_nicht_alles_zurueck(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, ortsangabe="Restwasserstrecke")
+        await protokoll(surveyor, ortsangabe="Ausleitung")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="50%"))
+
+        assert seite.zeilen == []
+
+    async def test_findet_ein_wirkliches_prozentzeichen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The other half of the rule, and the one a mask that escaped too much
+        # would break: a place really called this still has to be findable.
+        treffer = await protokoll(surveyor, ortsangabe="Ausleitung, 50% Restwasser")
+        await protokoll(surveyor, ortsangabe="Ausleitung, volle Wasserfuehrung")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="50%"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
     async def test_behandelt_den_unterstrich_als_zeichen(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:

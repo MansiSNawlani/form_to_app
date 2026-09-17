@@ -327,48 +327,45 @@ class PruefzeileAntwort(BaseModel):
     Four of these are nullable columns on the row and are not optional here.
     umschlag_bei_abgabe requires the whole envelope the moment a protocol leaves
     DRAFT, and nothing in this list is a draft.
+
+    What each field means is written once, on Pruefzeile. Saying it again here
+    would be two descriptions of one value, free to drift apart.
     """
 
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    #: Never DRAFT. The queue lists protocols that have been handed in.
     status: Status
     form_version: str
 
-    #: The day of the Befischung, not the day it was filed.
     datum: date
-    #: The code, e.g. "wrrl". The label is the screen's business.
     anlass: str
-    #: Frozen at submit, so a historical row still reads correctly.
     bearbeiter_name: str
     submitted_at: datetime
     updated_at: datetime
 
-    #: The account that filed it, by its login address.
     eingereicht_von: str
 
-    #: Exactly as the surveyor typed it. Nothing normalises a water's name.
     gewaessername: str
     ortsangabe: str
     laenge_m: int
-    #: Null for the great majority of stretches, which belong to no programme.
     monitoringstrecke_nr: str | None
-    #: 1 to 4. Feature 13 narrows the queue by it.
     regierungspraesidium: int
 
 
 class PrueflisteAntwort(BaseModel):
-    """One page of the review queue, and enough to draw a pager around it."""
+    """One page of the review queue, and enough to draw a pager around it.
+
+    Mirrors Prueflistenseite in app/protokolle/pruefliste/dienst.py, which is
+    where what each of the four numbers promises is written down.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
     zeilen: list[PruefzeileAntwort]
-    #: Every protocol matching the filters, not only the ones on this page.
     gesamt: int
     seite: int
     pro_seite: int
-    #: Never below one, so an empty queue reads "Seite 1 von 1".
     seiten: int
 
 
