@@ -16,6 +16,7 @@ import pytest
 from httpx import AsyncClient, Response
 
 from app.models.benutzer import Rolle, User
+from app.protokolle.pruefliste.dienst import Sortierung
 from app.protokolle.pruefliste.parameter import PRO_SEITE_MAX, PRO_SEITE_STANDARD
 
 PFAD = "/api/v1/pruefliste"
@@ -353,5 +354,36 @@ class TestFilterparameter:
         self, client: AsyncClient, pruefer: None
     ) -> None:
         antwort = await client.get(PFAD, params={"suche": "x" * 5000})
+
+        assert antwort.status_code == 422
+
+
+class TestSortierparameter:
+    @pytest.fixture
+    async def pruefer(self, als: Callable[..., Awaitable[None]]) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+    @pytest.mark.parametrize("sortierung", [s.value for s in Sortierung])
+    async def test_nimmt_jede_bekannte_ordnung_an(
+        self, client: AsyncClient, pruefer: None, sortierung: str
+    ) -> None:
+        antwort = await client.get(PFAD, params={"sortierung": sortierung})
+
+        assert antwort.status_code == 200
+
+    async def test_weist_eine_unbekannte_ordnung_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        # Refused rather than quietly falling back to the default. A screen
+        # asking for an order it does not get is a bug that hides itself.
+        antwort = await client.get(PFAD, params={"sortierung": "zufaellig"})
+
+        assert antwort.status_code == 422
+
+    async def test_weist_einen_spaltennamen_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        # The four orders are a closed list, not a column name the caller picks.
+        antwort = await client.get(PFAD, params={"sortierung": "owner_user_id"})
 
         assert antwort.status_code == 422

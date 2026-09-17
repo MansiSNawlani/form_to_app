@@ -24,6 +24,7 @@ Probestrecke, and nothing in this list is a draft.
 import uuid
 from dataclasses import dataclass
 from datetime import date, datetime
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import ColumnElement, Select, func, or_, select
@@ -124,6 +125,41 @@ class Prueffilter:
     suche: str | None = None
 
 
+class Sortierung(StrEnum):
+    """The orders the review queue can be asked for.
+
+    Four rather than a free-form column name, so the caller cannot ask to sort by
+    something that has no index, no meaning, or no business being exposed.
+    """
+
+    #: The default. Longest wait first.
+    EINGEREICHT_ALT = "eingereicht_alt"
+    #: Most recently handed in first.
+    EINGEREICHT_NEU = "eingereicht_neu"
+    #: The day of the Befischung, newest first.
+    DATUM_NEU = "datum_neu"
+    #: The water A to Z, then the Ortsangabe within it.
+    GEWAESSER = "gewaesser"
+
+
+#: What each order sorts by, before the tie-break.
+#
+# The water is sorted on its lowercased form rather than as stored. Defect 2 in
+# docs/ffs-defect-list.md is the legacy form lowercasing water body names, so both
+# spellings are genuinely in the data, and an A to Z list that files every
+# lowercased name in a block of its own is not an A to Z list. It also makes the
+# order the same whatever collation the database was created with.
+_ORDNUNGEN: dict[Sortierung, tuple[ColumnElement[Any], ...]] = {
+    Sortierung.EINGEREICHT_ALT: (Submission.submitted_at.asc(),),
+    Sortierung.EINGEREICHT_NEU: (Submission.submitted_at.desc(),),
+    Sortierung.DATUM_NEU: (Submission.datum.desc(),),
+    Sortierung.GEWAESSER: (
+        func.lower(Gewaesser.name).asc(),
+        func.lower(Probestrecke.ortsangabe).asc(),
+    ),
+}
+
+
 def _bedingungen(auswahl: Prueffilter) -> list[ColumnElement[bool]]:
     """The filters as WHERE clauses, in the order a reader would ask them.
 
@@ -207,21 +243,16 @@ async def liste_pruefliste(
     session: AsyncSession,
     *,
     auswahl: Prueffilter | None = None,
+    sortierung: Sortierung = Sortierung.EINGEREICHT_ALT,
     seite: int = 1,
     pro_seite: int = PRO_SEITE_STANDARD,
 ) -> Prueflistenseite:
     """One page of the protocols waiting to be worked on.
 
-    Ordered by the longest wait first. This is a work queue, and a queue that puts
-    the newest hand-in at the top grows a tail of protocols nobody sees; Meine
-    Protokolle sorts the other way on purpose, because it answers "what was I just
-    doing". Feature 12a's later step makes the order choosable and leaves this one
-    the default.
-
-    The id breaks the tie, for the reason liste_protokolle already gives: two rows
-    written in one transaction carry the same timestamp to the microsecond, so
-    without it the order is whatever the database felt like and a test asserting it
-    fails now and then for no reason anybody can reproduce.
+    Ordered by the longest wait first unless asked otherwise. This is a work
+    queue, and a queue that puts the newest hand-in at the top grows a tail of
+    protocols nobody sees; Meine Protokolle sorts the other way on purpose, because
+    it answers "what was I just doing".
 
     Two statements rather than one with a window function. The count has to see
     exactly the filters the rows do, and two readable statements sharing one
@@ -257,7 +288,12 @@ async def liste_pruefliste(
             ),
             gewaehlt,
         )
-        .order_by(Submission.submitted_at.asc(), Submission.id.asc())
+        # The tie-break is on every order, not only the default. Two rows
+        # written in one transaction share a timestamp to the microsecond, and
+        # two protocols on the same water share a name, so without it the order
+        # is whatever the database felt like and a page boundary could show the
+        # same protocol twice.
+        .order_by(*_ORDNUNGEN[sortierung], Submission.id.asc())
         .limit(groesse)
         .offset(versatz(gewaehlte_seite, groesse))
     )

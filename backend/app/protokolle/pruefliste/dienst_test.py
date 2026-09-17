@@ -18,7 +18,7 @@ from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
-from app.protokolle.pruefliste.dienst import Prueffilter, liste_pruefliste
+from app.protokolle.pruefliste.dienst import Prueffilter, Sortierung, liste_pruefliste
 
 EINGEREICHT = datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
 
@@ -573,3 +573,139 @@ class TestFilterZusammen:
 
         assert seite.gesamt == 3
         assert seite.seiten == 2
+
+
+class TestSortierung:
+    """Four orders over three protocols chosen so that each gives a different one."""
+
+    @pytest.fixture
+    async def drei(
+        self, protokoll: Protokollfabrik, surveyor: User
+    ) -> dict[str, uuid.UUID]:
+        neckar = await protokoll(
+            surveyor,
+            gewaessername="Neckar",
+            submitted_at=datetime(2026, 1, 1, 9, 0, tzinfo=UTC),
+            datum=date(2026, 3, 1),
+        )
+        argen = await protokoll(
+            surveyor,
+            gewaessername="Argen",
+            submitted_at=datetime(2026, 2, 1, 9, 0, tzinfo=UTC),
+            datum=date(2026, 1, 15),
+        )
+        schussen = await protokoll(
+            surveyor,
+            gewaessername="Schussen",
+            submitted_at=datetime(2026, 3, 1, 9, 0, tzinfo=UTC),
+            datum=date(2026, 5, 20),
+        )
+        return {"neckar": neckar.id, "argen": argen.id, "schussen": schussen.id}
+
+    async def test_stellt_ohne_angabe_die_laengste_wartezeit_nach_vorn(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        seite = await liste_pruefliste(session)
+
+        assert [zeile.id for zeile in seite.zeilen] == [
+            drei["neckar"],
+            drei["argen"],
+            drei["schussen"],
+        ]
+
+    async def test_sortiert_nach_der_aeltesten_abgabe(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        seite = await liste_pruefliste(session, sortierung=Sortierung.EINGEREICHT_ALT)
+
+        assert [zeile.id for zeile in seite.zeilen] == [
+            drei["neckar"],
+            drei["argen"],
+            drei["schussen"],
+        ]
+
+    async def test_sortiert_nach_der_neuesten_abgabe(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        seite = await liste_pruefliste(session, sortierung=Sortierung.EINGEREICHT_NEU)
+
+        assert [zeile.id for zeile in seite.zeilen] == [
+            drei["schussen"],
+            drei["argen"],
+            drei["neckar"],
+        ]
+
+    async def test_sortiert_nach_dem_tag_der_befischung(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        seite = await liste_pruefliste(session, sortierung=Sortierung.DATUM_NEU)
+
+        assert [zeile.id for zeile in seite.zeilen] == [
+            drei["schussen"],
+            drei["neckar"],
+            drei["argen"],
+        ]
+
+    async def test_sortiert_nach_dem_gewaesser(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        seite = await liste_pruefliste(session, sortierung=Sortierung.GEWAESSER)
+
+        assert [zeile.id for zeile in seite.zeilen] == [
+            drei["argen"],
+            drei["neckar"],
+            drei["schussen"],
+        ]
+
+    async def test_sortiert_gewaesser_ohne_ruecksicht_auf_grossschreibung(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # Defect 2 in docs/ffs-defect-list.md is the legacy form lowercasing water
+        # names, so both spellings are really in the data. A case-sensitive sort
+        # would file every lowercased name in a block of its own.
+        klein = await protokoll(surveyor, gewaessername="argen")
+        gross = await protokoll(surveyor, gewaessername="Brenz")
+
+        seite = await liste_pruefliste(session, sortierung=Sortierung.GEWAESSER)
+
+        assert [zeile.id for zeile in seite.zeilen] == [klein.id, gross.id]
+
+    async def test_ordnet_innerhalb_eines_gewaessers_nach_der_ortsangabe(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        unten = await protokoll(surveyor, gewaessername="Argen", ortsangabe="Amtzell")
+        oben = await protokoll(surveyor, gewaessername="Argen", ortsangabe="Wangen")
+
+        seite = await liste_pruefliste(session, sortierung=Sortierung.GEWAESSER)
+
+        assert [zeile.id for zeile in seite.zeilen] == [unten.id, oben.id]
+
+    @pytest.mark.parametrize("sortierung", list(Sortierung))
+    async def test_bleibt_in_jeder_ordnung_stabil(
+        self,
+        session: AsyncSession,
+        protokoll: Protokollfabrik,
+        surveyor: User,
+        sortierung: Sortierung,
+    ) -> None:
+        # Three rows agreeing on every sorted value, so only the tie-break can
+        # decide. Without it the order is whatever the database felt like.
+        for _ in range(3):
+            await protokoll(surveyor)
+
+        erste = [z.id for z in (await liste_pruefliste(session, sortierung=sortierung)).zeilen]
+        zweite = [z.id for z in (await liste_pruefliste(session, sortierung=sortierung)).zeilen]
+
+        assert erste == zweite
+        assert len(erste) == 3
+
+    async def test_sortiert_die_seite_und_nicht_nur_die_zeilen_darauf(
+        self, session: AsyncSession, drei: dict[str, uuid.UUID]
+    ) -> None:
+        # The slice has to come out of the sorted set, not the sort out of the
+        # slice, or page two would be the first page sorted differently.
+        seite = await liste_pruefliste(
+            session, sortierung=Sortierung.GEWAESSER, seite=2, pro_seite=1
+        )
+
+        assert [zeile.id for zeile in seite.zeilen] == [drei["neckar"]]

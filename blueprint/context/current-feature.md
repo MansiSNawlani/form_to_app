@@ -1,7 +1,7 @@
 # Feature: Die Pruefliste, der Endpunkt
 
 **From build-plan:** feature 12a
-**Status:** spec written, not started
+**Status:** built. All five steps green: pytest, ruff and mypy from backend/, npm test, lint and build from frontend/.
 
 ## Goal
 
@@ -208,7 +208,7 @@ Step 1 has nothing to open, and it is first because step 4 is built on its answe
 step 3 onward every step is something you can try in the API docs at
 http://localhost:8000/api/v1/docs.
 
-- [ ] **Step 1 - What a search box and a page number mean, as values** - one module,
+- [x] **Step 1 - What a search box and a page number mean, as values** - one module,
       `app/protokolle/pruefliste/parameter.py`, over plain values, with no SQLAlchemy and no
       database in it. It escapes `%` and `_` in a search term, splits a search string into
       terms and drops the empty ones, clamps `seite` to at least 1 and `pro_seite` into 1 to
@@ -221,7 +221,7 @@ http://localhost:8000/api/v1/docs.
       `pro_seite=5000` on 100; the year 2026 becoming 2026-01-01 to 2026-12-31; and a total of
       0 making 1 page rather than 0. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 2 - The query: what the Pruefliste actually is** - a new package
+- [x] **Step 2 - The query: what the Pruefliste actually is** - a new package
       `app/protokolle/pruefliste/`, with `dienst.py` holding the `Pruefzeile` dataclass and
       `liste_pruefliste`. One statement joining `submissions` to `probestrecken`, `gewaesser`
       and `users`, filtered to `status != DRAFT`, ordered oldest hand-in first with the id as
@@ -240,7 +240,7 @@ http://localhost:8000/api/v1/docs.
       that `seite=2, pro_seite=2` over five protocols returns the third and fourth with
       `gesamt` still 5. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 3 - The route, and who may call it** - `app/api/pruefliste.py` with
+- [x] **Step 3 - The route, and who may call it** - `app/api/pruefliste.py` with
       `GET /api/v1/pruefliste`, taking `seite` and `pro_seite`, guarded by
       `erfordert_rollen(*FFS_ROLLEN)`, registered in `app/main.py`. `PruefzeileAntwort` and
       `PrueflisteAntwort` in `app/api/schemas.py` alongside the other response models, with the
@@ -252,7 +252,7 @@ http://localhost:8000/api/v1/docs.
       of 25 with a true `gesamt`; `pro_seite=500` is answered at 100 rather than refused;
       `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 4 - The filters** - `status`, `anlass`, `jahr` and `suche`, applied to both the
+- [x] **Step 4 - The filters** - `status`, `anlass`, `jahr` and `suche`, applied to both the
       row query and the count, and taken as query parameters on the route. `DRAFT` refused as a
       `status` value with 422, since the queue never lists one and silently returning nothing
       would look like a database with no protocols in it. The search built from step 1's terms:
@@ -267,7 +267,7 @@ http://localhost:8000/api/v1/docs.
       the wrong case still finds the row; `status=DRAFT` answers 422; and filters combine rather
       than replace each other. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 5 - The four orders, and the final pass** - `sortierung` as a query parameter over
+- [x] **Step 5 - The four orders, and the final pass** - `sortierung` as a query parameter over
       the four values, each tie-broken by the id, defaulting to the longest wait first. An
       unknown value answers 422 rather than quietly falling back to the default, because a screen
       asking for an order it does not get is a bug that hides itself.

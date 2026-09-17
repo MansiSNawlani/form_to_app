@@ -25,7 +25,7 @@ from app.db import get_session
 from app.models.benutzer import User
 from app.models.protokoll import Status
 from app.protokolle.dienst import FFS_ROLLEN
-from app.protokolle.pruefliste.dienst import Prueffilter, liste_pruefliste
+from app.protokolle.pruefliste.dienst import Prueffilter, Sortierung, liste_pruefliste
 from app.protokolle.pruefliste.parameter import (
     JAHR_MAX,
     JAHR_MIN,
@@ -92,6 +92,13 @@ async def pruefliste(
             " Monitoringstrecken-Nr. Jedes Wort muss irgendwo vorkommen.",
         ),
     ] = None,
+    sortierung: Annotated[
+        Sortierung,
+        Query(
+            description="In welcher Reihenfolge. Ohne Angabe zuerst das Protokoll,"
+            " das am laengsten wartet."
+        ),
+    ] = Sortierung.EINGEREICHT_ALT,
     seite: Annotated[
         int,
         Query(description="Welche Seite, ab 1 gezaehlt."),
@@ -123,9 +130,11 @@ async def pruefliste(
     same list from a URL alone, and a hidden input would make "the protocol before
     this one" depend on what the reviewer happened to do earlier.
 
-    Asking for DRAFT is refused by Pruefstatus rather than answered with nothing.
-    The queue never lists a draft, and quietly returning an empty page would read
-    like a database with no protocols in it.
+    Asking for DRAFT is refused by Pruefstatus rather than answered with nothing,
+    and so is an order that does not exist. The queue never lists a draft, and a
+    screen asking for an order it does not get is a bug that hides itself; quietly
+    answering either with something else would read like a database with no
+    protocols in it, or like a sort button that does nothing.
     """
     seitenergebnis = await liste_pruefliste(
         session,
@@ -137,6 +146,7 @@ async def pruefliste(
             jahr=jahr,
             suche=suche,
         ),
+        sortierung=sortierung,
         seite=seite,
         pro_seite=pro_seite,
     )
