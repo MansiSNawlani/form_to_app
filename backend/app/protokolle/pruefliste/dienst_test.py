@@ -18,7 +18,7 @@ from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
-from app.protokolle.pruefliste.dienst import liste_pruefliste
+from app.protokolle.pruefliste.dienst import Prueffilter, liste_pruefliste
 
 EINGEREICHT = datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
 
@@ -323,3 +323,253 @@ class TestSeiten:
         assert seite.zeilen == []
         assert seite.gesamt == 0
         assert seite.seiten == 1
+
+
+class TestStatusfilter:
+    async def test_nimmt_nur_die_genannten_zustaende(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        eingereicht = await protokoll(surveyor, status=Status.SUBMITTED)
+        in_pruefung = await protokoll(surveyor, status=Status.IN_REVIEW)
+        await protokoll(surveyor, status=Status.REJECTED)
+
+        seite = await liste_pruefliste(
+            session,
+            auswahl=Prueffilter(status=(Status.SUBMITTED, Status.IN_REVIEW)),
+        )
+
+        assert {zeile.id for zeile in seite.zeilen} == {eingereicht.id, in_pruefung.id}
+
+    async def test_zaehlt_nur_die_genannten_zustaende(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The count has to see the same filters the rows do, or the pager offers
+        # pages that are not there.
+        await protokoll(surveyor, status=Status.SUBMITTED)
+        await protokoll(surveyor, status=Status.REJECTED)
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(status=(Status.SUBMITTED,))
+        )
+
+        assert seite.gesamt == 1
+
+    async def test_nimmt_ohne_angabe_alles(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, status=Status.SUBMITTED)
+        await protokoll(surveyor, status=Status.REJECTED)
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter())
+
+        assert seite.gesamt == 2
+
+
+class TestAnlassfilter:
+    async def test_nimmt_nur_den_genannten_anlass(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        monitoring = await protokoll(surveyor, anlass="wrrl")
+        await protokoll(surveyor, anlass="best")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(anlass="wrrl"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [monitoring.id]
+
+
+class TestJahresfilter:
+    async def test_nimmt_den_letzten_tag_des_jahres_mit(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        silvester = await protokoll(surveyor, datum=date(2025, 12, 31))
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2025))
+
+        assert [zeile.id for zeile in seite.zeilen] == [silvester.id]
+
+    async def test_laesst_den_ersten_tag_des_naechsten_jahres_draussen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, datum=date(2026, 1, 1))
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2025))
+
+        assert seite.zeilen == []
+
+    async def test_nimmt_den_ersten_tag_des_jahres_mit(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        neujahr = await protokoll(surveyor, datum=date(2025, 1, 1))
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2025))
+
+        assert [zeile.id for zeile in seite.zeilen] == [neujahr.id]
+
+    async def test_richtet_sich_nach_dem_tag_der_befischung(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # Not the day it was handed in. A survey done in December and filed in
+        # January belongs to the year somebody stood in the water.
+        await protokoll(
+            surveyor,
+            datum=date(2025, 12, 20),
+            submitted_at=datetime(2026, 1, 8, 9, 0, tzinfo=UTC),
+        )
+
+        gefischt = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2025))
+        eingereicht = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2026))
+
+        assert gefischt.gesamt == 1
+        assert eingereicht.gesamt == 0
+
+
+class TestSuche:
+    async def test_findet_ueber_den_gewaessernamen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        argen = await protokoll(surveyor, gewaessername="Argen")
+        await protokoll(surveyor, gewaessername="Schussen")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="Argen"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [argen.id]
+
+    async def test_findet_allein_ueber_die_ortsangabe(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(
+            surveyor, gewaessername="Schussen", ortsangabe="Weissenau"
+        )
+        await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Eriskirch")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="Weissenau"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
+    async def test_findet_ueber_die_monitoringnummer(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(surveyor, monitoringstrecke_nr="1001000001")
+        await protokoll(surveyor)
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="1001000001"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
+    async def test_findet_einen_teil_eines_wortes(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(surveyor, gewaessername="Schussen")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="chuss"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
+    async def test_achtet_nicht_auf_gross_und_kleinschreibung(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(surveyor, gewaessername="Schussen")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="SCHUSSEN"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
+    async def test_verlangt_jedes_wort_aber_nicht_in_derselben_spalte(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The search a reviewer actually types: the water and the place.
+        treffer = await protokoll(
+            surveyor, gewaessername="Schussen", ortsangabe="Weissenau, an der Bruecke"
+        )
+        await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Eriskirch")
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(suche="Schussen Weissenau")
+        )
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+
+    async def test_findet_nichts_wenn_ein_wort_nirgends_vorkommt(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Weissenau")
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(suche="Schussen Donau")
+        )
+
+        assert seite.zeilen == []
+
+    async def test_behandelt_das_prozentzeichen_als_zeichen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # Unescaped this is LIKE's "anything" and the search hands back the whole
+        # database, which is the bug this feature was most likely to ship.
+        await protokoll(surveyor, gewaessername="Schussen")
+        await protokoll(surveyor, gewaessername="Argen")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="%"))
+
+        assert seite.zeilen == []
+        assert seite.gesamt == 0
+
+    async def test_behandelt_den_unterstrich_als_zeichen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, gewaessername="Bach-1")
+        mit_strich = await protokoll(surveyor, gewaessername="Bach_1")
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="h_1"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [mit_strich.id]
+
+    async def test_behandelt_reinen_leerraum_wie_keine_suche(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor)
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="   "))
+
+        assert seite.gesamt == 1
+
+
+class TestFilterZusammen:
+    async def test_engt_ein_statt_zu_ersetzen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(
+            surveyor, gewaessername="Argen", anlass="wrrl", status=Status.SUBMITTED
+        )
+        # Each of these matches two of the three conditions and must still be out.
+        await protokoll(
+            surveyor, gewaessername="Argen", anlass="best", status=Status.SUBMITTED
+        )
+        await protokoll(
+            surveyor, gewaessername="Argen", anlass="wrrl", status=Status.REJECTED
+        )
+        await protokoll(
+            surveyor, gewaessername="Schussen", anlass="wrrl", status=Status.SUBMITTED
+        )
+
+        seite = await liste_pruefliste(
+            session,
+            auswahl=Prueffilter(status=(Status.SUBMITTED,), anlass="wrrl", suche="Argen"),
+        )
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+        assert seite.gesamt == 1
+
+    async def test_laesst_die_seitenzahl_von_den_filtern_abhaengen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        for _ in range(3):
+            await protokoll(surveyor, anlass="wrrl")
+        for _ in range(7):
+            await protokoll(surveyor, anlass="best")
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(anlass="wrrl"), pro_seite=2
+        )
+
+        assert seite.gesamt == 3
+        assert seite.seiten == 2

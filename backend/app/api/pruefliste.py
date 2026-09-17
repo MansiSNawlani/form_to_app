@@ -20,12 +20,21 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.abhaengigkeiten import erfordert_rollen
-from app.api.schemas import FehlerAntwort, PrueflisteAntwort
+from app.api.schemas import FehlerAntwort, PrueflisteAntwort, Pruefstatus
 from app.db import get_session
 from app.models.benutzer import User
+from app.models.protokoll import Status
 from app.protokolle.dienst import FFS_ROLLEN
-from app.protokolle.pruefliste.dienst import liste_pruefliste
-from app.protokolle.pruefliste.parameter import PRO_SEITE_STANDARD
+from app.protokolle.pruefliste.dienst import Prueffilter, liste_pruefliste
+from app.protokolle.pruefliste.parameter import (
+    JAHR_MAX,
+    JAHR_MIN,
+    PRO_SEITE_STANDARD,
+)
+
+# Far longer than any water or place anybody types, and short enough that a
+# search cannot be an arbitrarily large request before anything looks at it.
+SUCHE_HOECHSTLAENGE = 200
 
 router = APIRouter(prefix="/api/v1/pruefliste", tags=["Pruefliste"])
 
@@ -52,6 +61,37 @@ async def pruefliste(
     # starts to matter, and it will read this.
     benutzer: Annotated[User, FFS],
     session: Annotated[AsyncSession, Depends(get_session)],
+    status_: Annotated[
+        list[Pruefstatus] | None,
+        Query(
+            alias="status",
+            description=(
+                "Nur Protokolle in diesen Zustaenden. Mehrfach angebbar."
+                " Ohne Angabe: alle eingereichten Protokolle."
+            ),
+        ),
+    ] = None,
+    anlass: Annotated[
+        str | None,
+        Query(description='Nur Protokolle zu diesem Anlass, als Code, etwa "wrrl".'),
+    ] = None,
+    jahr: Annotated[
+        int | None,
+        Query(
+            ge=JAHR_MIN,
+            le=JAHR_MAX,
+            description="Nur Befischungen aus diesem Jahr. Der Tag der Befischung zaehlt,"
+            " nicht der Tag der Abgabe.",
+        ),
+    ] = None,
+    suche: Annotated[
+        str | None,
+        Query(
+            max_length=SUCHE_HOECHSTLAENGE,
+            description="Freitext ueber Gewaessername, Ortsangabe und"
+            " Monitoringstrecken-Nr. Jedes Wort muss irgendwo vorkommen.",
+        ),
+    ] = None,
     seite: Annotated[
         int,
         Query(description="Welche Seite, ab 1 gezaehlt."),
@@ -76,6 +116,28 @@ async def pruefliste(
     1, and a request for 500 rows is answered with 100. A page past the end comes
     back empty with the true total, so the pager can offer the way back instead of
     the screen having to handle a 404.
+
+    **Everything that changes which protocols come back, and in what order, is a
+    query parameter.** Nothing is taken from the session or from a default the
+    caller cannot see. Feature 12d's Vorheriges and Naechstes have to rebuild this
+    same list from a URL alone, and a hidden input would make "the protocol before
+    this one" depend on what the reviewer happened to do earlier.
+
+    Asking for DRAFT is refused by Pruefstatus rather than answered with nothing.
+    The queue never lists a draft, and quietly returning an empty page would read
+    like a database with no protocols in it.
     """
-    seitenergebnis = await liste_pruefliste(session, seite=seite, pro_seite=pro_seite)
+    seitenergebnis = await liste_pruefliste(
+        session,
+        auswahl=Prueffilter(
+            # Pruefstatus is the same six values narrowed to what may be asked
+            # for; the query is written in the protocol's own Status.
+            status=tuple(Status(zustand.value) for zustand in status_ or ()),
+            anlass=anlass,
+            jahr=jahr,
+            suche=suche,
+        ),
+        seite=seite,
+        pro_seite=pro_seite,
+    )
     return PrueflisteAntwort.model_validate(seitenergebnis)

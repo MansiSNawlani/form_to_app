@@ -237,3 +237,121 @@ class TestSeitenparameter:
         antwort = await client.get(PFAD, params={"seite": "zwei"})
 
         assert antwort.status_code == 422
+
+
+class TestFilterparameter:
+    @pytest.fixture
+    async def pruefer(self, als: Callable[..., Awaitable[None]]) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+    async def test_weist_die_frage_nach_entwuerfen_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        # Refused, not answered with nothing. The queue never lists a draft, and
+        # an empty page would read like a database with no protocols in it.
+        antwort = await client.get(PFAD, params={"status": "DRAFT"})
+
+        assert antwort.status_code == 422
+
+    async def test_weist_einen_unbekannten_zustand_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        antwort = await client.get(PFAD, params={"status": "ERLEDIGT"})
+
+        assert antwort.status_code == 422
+
+    async def test_nimmt_mehrere_zustaende_auf_einmal(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        # The screen's own default: the protocols nobody has decided on yet.
+        protokoll_id = await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(
+            PFAD, params=[("status", "SUBMITTED"), ("status", "IN_REVIEW")]
+        )
+
+        assert antwort.status_code == 200
+        assert [zeile["id"] for zeile in antwort.json()["zeilen"]] == [protokoll_id]
+
+    async def test_engt_auf_einen_zustand_ein(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(PFAD, params={"status": "REJECTED"})
+
+        assert antwort.json()["zeilen"] == []
+        assert antwort.json()["gesamt"] == 0
+
+    async def test_reicht_die_suche_durch(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        gefunden = (await client.get(PFAD)).json()["zeilen"][0]
+        treffer = await client.get(PFAD, params={"suche": gefunden["gewaessername"]})
+        daneben = await client.get(PFAD, params={"suche": "Donau Kinzig Jagst"})
+
+        assert [zeile["id"] for zeile in treffer.json()["zeilen"]] == [gefunden["id"]]
+        assert daneben.json()["zeilen"] == []
+
+    async def test_reicht_den_anlass_durch(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        gefunden = (await client.get(PFAD)).json()["zeilen"][0]
+        treffer = await client.get(PFAD, params={"anlass": gefunden["anlass"]})
+        daneben = await client.get(PFAD, params={"anlass": "gibtesnicht"})
+
+        assert [zeile["id"] for zeile in treffer.json()["zeilen"]] == [gefunden["id"]]
+        assert daneben.json()["zeilen"] == []
+
+    async def test_reicht_das_jahr_durch(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        gefunden = (await client.get(PFAD)).json()["zeilen"][0]
+        jahr = int(str(gefunden["datum"])[:4])
+
+        treffer = await client.get(PFAD, params={"jahr": jahr})
+        daneben = await client.get(PFAD, params={"jahr": jahr - 1})
+
+        assert [zeile["id"] for zeile in treffer.json()["zeilen"]] == [gefunden["id"]]
+        assert daneben.json()["zeilen"] == []
+
+    async def test_weist_ein_jahr_zurueck_das_kein_datum_sein_kann(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        # Unbounded, date() raises on this and a query parameter becomes a 500.
+        antwort = await client.get(PFAD, params={"jahr": 99999})
+
+        assert antwort.status_code == 422
+
+    async def test_weist_eine_masslos_lange_suche_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        antwort = await client.get(PFAD, params={"suche": "x" * 5000})
+
+        assert antwort.status_code == 422

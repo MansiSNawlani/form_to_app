@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import ColumnElement, Select, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.benutzer import User
@@ -34,10 +34,14 @@ from app.models.gewaesser import Gewaesser
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
 from app.protokolle.pruefliste.parameter import (
+    ESCAPE,
     PRO_SEITE_STANDARD,
     begrenze_pro_seite,
     begrenze_seite,
+    jahresgrenzen,
     seitenzahl,
+    suchbegriffe,
+    suchmuster,
     versatz,
 )
 
@@ -95,20 +99,90 @@ class Prueflistenseite:
     seiten: int
 
 
-def _verbunden[Zeile: tuple[Any, ...]](anfrage: Select[Zeile]) -> Select[Zeile]:
-    """The three rows a handed-in protocol always has behind it.
+@dataclass(frozen=True)
+class Prueffilter:
+    """How a reviewer has narrowed the queue.
+
+    One value rather than four arguments, so the row query and the count query
+    cannot drift apart: both are handed the same object, and a filter added later
+    is added to both at once. A count that saw fewer filters than the rows would
+    offer pages that are not there.
+
+    Every field defaults to "not narrowed", so an unfiltered queue is
+    Prueffilter() and no caller has to spell out four nothings.
+    """
+
+    #: Any of these states. Empty means every state the queue lists, which never
+    #: includes DRAFT.
+    status: tuple[Status, ...] = ()
+    #: The coded Anlass, e.g. "wrrl". One rather than several, because the screen
+    #: gives it one dropdown.
+    anlass: str | None = None
+    #: The year of the Befischung, not of the hand-in.
+    jahr: int | None = None
+    #: The free text box. Split into words, each of which has to find something.
+    suche: str | None = None
+
+
+def _bedingungen(auswahl: Prueffilter) -> list[ColumnElement[bool]]:
+    """The filters as WHERE clauses, in the order a reader would ask them.
+
+    The search is the only one that is not a plain comparison. Each word the
+    person typed becomes its own clause, and within a clause the word may sit in
+    the water's name, the Ortsangabe or the Monitoringstrecken-Nr. That is what
+    makes "Schussen Weissenau" find the row whose water is one and whose place is
+    the other; requiring both words in one column would find nothing.
+
+    ILIKE rather than LIKE, because nobody searching for a water types its
+    capitals the way the surveyor did. The explicit escape is what stops a typed %
+    from matching the whole database, and it has to be passed here as well as
+    applied in suchmuster: the masking puts the backslashes in, and this is what
+    tells Postgres to read them as masking rather than as backslashes.
+    """
+    bedingungen: list[ColumnElement[bool]] = []
+
+    if auswahl.status:
+        bedingungen.append(Submission.status.in_(auswahl.status))
+
+    if auswahl.anlass is not None:
+        bedingungen.append(Submission.anlass == auswahl.anlass)
+
+    if auswahl.jahr is not None:
+        von, bis = jahresgrenzen(auswahl.jahr)
+        bedingungen.append(Submission.datum.between(von, bis))
+
+    for begriff in suchbegriffe(auswahl.suche):
+        muster = suchmuster(begriff)
+        bedingungen.append(
+            or_(
+                Gewaesser.name.ilike(muster, escape=ESCAPE),
+                Probestrecke.ortsangabe.ilike(muster, escape=ESCAPE),
+                Probestrecke.monitoringstrecke_nr.ilike(muster, escape=ESCAPE),
+            )
+        )
+
+    return bedingungen
+
+
+def _verbunden[Zeile: tuple[Any, ...]](
+    anfrage: Select[Zeile], auswahl: Prueffilter
+) -> Select[Zeile]:
+    """The three rows a handed-in protocol always has behind it, plus the filters.
 
     Inner joins, and that is a statement rather than an oversight. The
     umschlag_bei_abgabe constraint on submissions requires a Probestrecke the
     moment a protocol is not a draft, and owner_user_id is a non-null foreign key.
     An outer join would be pretending a row could arrive without a water, and the
     queue would then quietly print a blank line for a row that cannot exist.
+
+    The joins and the filters are applied in one place so the rows and the count
+    cannot end up seeing different ones.
     """
     return (
         anfrage.join(User, User.id == Submission.owner_user_id)
         .join(Probestrecke, Probestrecke.id == Submission.probestrecke_id)
         .join(Gewaesser, Gewaesser.id == Probestrecke.gewaesser_id)
-        .where(Submission.status != Status.DRAFT)
+        .where(Submission.status != Status.DRAFT, *_bedingungen(auswahl))
     )
 
 
@@ -132,6 +206,7 @@ def _pflicht[Wert](wert: Wert | None, feld: str, protokoll_id: uuid.UUID) -> Wer
 async def liste_pruefliste(
     session: AsyncSession,
     *,
+    auswahl: Prueffilter | None = None,
     seite: int = 1,
     pro_seite: int = PRO_SEITE_STANDARD,
 ) -> Prueflistenseite:
@@ -154,9 +229,10 @@ async def liste_pruefliste(
     """
     gewaehlte_seite = begrenze_seite(seite)
     groesse = begrenze_pro_seite(pro_seite)
+    gewaehlt = auswahl or Prueffilter()
 
     gesamt = await session.scalar(
-        _verbunden(select(func.count()).select_from(Submission))
+        _verbunden(select(func.count()).select_from(Submission), gewaehlt)
     )
     # scalar() is typed as possibly None; COUNT(*) never is.
     gesamt = gesamt or 0
@@ -178,7 +254,8 @@ async def liste_pruefliste(
                 Probestrecke.laenge_m,
                 Probestrecke.monitoringstrecke_nr,
                 Probestrecke.regierungspraesidium,
-            )
+            ),
+            gewaehlt,
         )
         .order_by(Submission.submitted_at.asc(), Submission.id.asc())
         .limit(groesse)

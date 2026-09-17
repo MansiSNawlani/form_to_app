@@ -13,6 +13,7 @@ habit, because a model built from the whole row would gain any column added late
 
 import uuid
 from datetime import date, datetime
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -285,6 +286,29 @@ class ProtokollUebersicht(BaseModel):
     #: The day of the survey. updated_at is the day the draft was last touched.
     datum: str | None
     anlass: str | None
+
+
+class Pruefstatus(StrEnum):
+    """Which states the review queue may be asked for: every one but DRAFT.
+
+    A narrower enum rather than a hand-written check, so asking for drafts is
+    refused by FastAPI with a 422 and the generated docs list the six acceptable
+    values instead of seven with one that always fails.
+
+    Drafts are missing because the queue never lists one. Accepting DRAFT here and
+    quietly returning nothing would read like a database with no protocols in it,
+    which is a worse answer than saying no.
+
+    Pinned against Status in app/api/schemas_test.py, so a state added to the
+    protocol later cannot silently become unaskable here.
+    """
+
+    SUBMITTED = "SUBMITTED"
+    IN_REVIEW = "IN_REVIEW"
+    NEEDS_CHANGES = "NEEDS_CHANGES"
+    REJECTED = "REJECTED"
+    ACCEPTED = "ACCEPTED"
+    LOCKED = "LOCKED"
 
 
 class PruefzeileAntwort(BaseModel):
