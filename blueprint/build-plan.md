@@ -158,7 +158,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 12a. Die Pruefliste, der Endpunkt: the query that reads across every account, who may
         call it, the filters for status, Anlass, year and a free-text search over the water,
         the Ortsangabe and the Monitoringstrecken-Nr., the sort orders and the paging
-  - [ ] 12b. Die Pruefliste, der Bildschirm: the /pruefung page with the filter bar, the
+  - [x] 12b. Die Pruefliste, der Bildschirm: the /pruefung page with the filter bar, the
         table, the paging and its loading, empty and error states, and FFS staff landing here
         after signing in instead of on Meine Protokolle
   - [ ] 12c. Suche nach Art: searching the catch by species end to end, the JSONB query, the

@@ -16,7 +16,8 @@ import lazbw from '../assets/lazbw.png'
 import ThemeToggle from '../components/ThemeToggle'
 import { feldAria, fehlerId } from '../protokoll/felder/rahmen'
 import { useAnmeldung } from './useSitzung'
-import { GRUND_PARAM, istAbgelaufen, sichererWeiterPfad, WEITER_PARAM } from './weiter'
+import { zielNachAnmeldung } from './startseite'
+import { GRUND_PARAM, istAbgelaufen, WEITER_PARAM } from './weiter'
 // The brand block and the link colour are the shell's, and this page borrows
 // both rather than restating them. Imported explicitly rather than relying on
 // the shell having been loaded by some other route first.
@@ -129,13 +130,18 @@ function AnmeldungSeite() {
     defaultValues: { email: '', passwort: '' },
   })
 
-  const ziel = sichererWeiterPfad(suchparameter.get(WEITER_PARAM))
-
   const absenden = handleSubmit((werte) => {
     anmeldung.mutate(werte, {
-      /* replace, so the browser's back button returns to wherever they came
+      /* Where to go is decided once the account is known, not before, because
+         FFS staff start on the Pruefliste and everybody else on their own
+         protocols. A page that was actually asked for still wins over both.
+
+         replace, so the browser's back button returns to wherever they came
          from rather than to a login page they are already past. */
-      onSuccess: () => void navigate(ziel, { replace: true }),
+      onSuccess: (benutzer) =>
+        void navigate(zielNachAnmeldung(suchparameter.get(WEITER_PARAM), benutzer.rollen), {
+          replace: true,
+        }),
     })
   })
 

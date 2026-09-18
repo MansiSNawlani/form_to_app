@@ -19,6 +19,16 @@ export const ANTWORT_UNLESBAR = 'ANTWORT_UNLESBAR'
 /** Not signed in, or the session has run out. Published by the backend. */
 export const NICHT_ANGEMELDET = 'NICHT_ANGEMELDET'
 
+/* Signed in, but this account has no business at this address.
+ *
+ * Published by the backend since feature 2b, and named here in feature 12b, which
+ * is the first screen that branches on it: the Pruefliste is refused to anybody
+ * who is not FFS staff, and the way out of that refusal is a link rather than a
+ * retry. It is also settled, so retrying it only makes the refusal slower to
+ * appear.
+ */
+export const ROLLE_FEHLT = 'ROLLE_FEHLT'
+
 /* No such protocol, or one belonging to somebody else. Published by the backend,
  * which deliberately answers the same way to both: telling them apart would let
  * a stranger discover which ids exist. */

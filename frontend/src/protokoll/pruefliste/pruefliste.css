@@ -1,0 +1,58 @@
+/* The review queue's filter bar and pager.
+
+   Ported from prototypes/mockup.css, keeping its class names so the built screen
+   and the approved mockup can be compared side by side, exactly as liste.css and
+   shell.css already do. Every value is a token from styles/theme.css.
+
+   The table's own look is not here. It is in theme/muiTheme.ts under
+   .tabelle--liste, shared with Meine Protokolle and, from feature 16, the user
+   list. The two-line cells come from liste.css, which this screen imports through
+   the same tokens rather than restating. */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Each control takes an equal share of the row and only wraps when the window
+   genuinely cannot hold five of them. The basis is what the search box needs to
+   show a water name and an Ortsangabe together. */
+.filters__feld {
+  flex: 1 1 12rem;
+}
+
+/* ---------- paging ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Fixed width so "Seite 9 von 12" does not shove the two buttons sideways as the
+   reader pages through. */
+.pager__stand {
+  color: var(--muted);
+  min-width: 10rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- the states that replace the table ---------- */
+
+/* Inside the card, under the filter bar, so the filters stay reachable while
+   the message explains why nothing is under them. */
+.pruefliste__laedt,
+.pruefliste__meldung {
+  padding: 1.5rem;
+}
+
+.pruefliste__laedt {
+  color: var(--muted);
+}

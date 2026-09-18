@@ -1,10 +1,19 @@
 import type { ParseKeys } from 'i18next'
 import { useTranslation } from 'react-i18next'
+import { NavLink } from 'react-router'
 import { ROLLEN } from '../api/typen'
 import lazbw from '../assets/lazbw.png'
 import AbmeldeKnopf from '../auth/AbmeldeKnopf'
+import { darfPruefen, PRUEFLISTE } from '../auth/startseite'
 import { useSitzung } from '../auth/useSitzung'
 import ThemeToggle from './ThemeToggle'
+
+/* NavLink marks the page you are on itself, through aria-current, which is what a
+   screen reader announces. The class only makes that visible to everybody else,
+   so the two never disagree about which link is current. */
+function navKlasse({ isActive }: { isActive: boolean }): string {
+  return isActive ? 'site-header__navlink site-header__navlink--aktiv' : 'site-header__navlink'
+}
 
 /* Two strings here are deliberately NOT in the locale file and must never be
    translated: the organisation name is a proper noun, and "Protokoll
@@ -30,6 +39,29 @@ function SiteHeader() {
             <span className="brand__app">Protokoll E-Befischung</span>
           </span>
         </div>
+        {/* Two lists, two questions, and a link between them. Meine Protokolle
+            answers "what have I got"; the Pruefliste answers "what is waiting for
+            FFS". Before feature 12b there was only one, so the shell needed no
+            navigation at all.
+
+            The Pruefliste is shown only to the three accounts the endpoint admits.
+            That is a courtesy rather than a permission: hiding a link is not
+            security, and the server refuses the page whether or not the link is
+            drawn. Showing everybody a link that answers "this is not for you"
+            would simply be a worse header. */}
+        {sitzung.zustand === 'angemeldet' && (
+          <nav className="site-header__nav" aria-label={t('shell.nav.beschriftung')}>
+            <NavLink to="/" end className={navKlasse}>
+              {t('shell.nav.meineProtokolle')}
+            </NavLink>
+            {darfPruefen(sitzung.benutzer.rollen) && (
+              <NavLink to={PRUEFLISTE} className={navKlasse}>
+                {t('shell.nav.pruefliste')}
+              </NavLink>
+            )}
+          </nav>
+        )}
+
         <div className="site-header__spacer" />
         <div className="site-header__user">
           <ThemeToggle />

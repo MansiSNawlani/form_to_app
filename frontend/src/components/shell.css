@@ -68,6 +68,43 @@
   flex: 1;
 }
 
+/* The two lists, side by side on one line. Added in feature 12b, when there was
+   a second list to go to at all.
+
+   nowrap for the same reason .site-header__user carries it: the header is one
+   row, and a navigation that drops onto a second line pushes the whole page
+   down. */
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  flex: none;
+}
+
+.site-header__navlink {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: var(--step--1);
+  white-space: nowrap;
+  padding: 0.25rem 0;
+  /* Reserved whether or not this link is the current one, so marking the current
+     page does not shift the other one sideways. */
+  border-bottom: 2px solid transparent;
+}
+
+.site-header__navlink:hover {
+  color: var(--text);
+}
+
+/* The accent underline, not colour alone: the current page has to be obvious
+   without colour vision and in a printout. */
+.site-header__navlink--aktiv {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
 /* One line, never wrapped into a second row. The address is the only part that
    can grow without limit, so it is the only part allowed to shrink. */
 .site-header__user {
