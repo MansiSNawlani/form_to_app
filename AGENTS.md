@@ -140,6 +140,22 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
 - Preview the build: `npm run preview`
 - Lint: `npm run lint`
 - Tests: `npm test` (vitest, added in feature 4a)
+- Browser tests: `npm run e2e` (Playwright, added in feature 12b)
+
+**The browser tests need the stack running and two accounts.** They drive the real
+application through Chromium against the real backend, so `docker compose up -d` and a
+dev server have to be up; `npm run e2e` reuses a dev server that is already running and
+starts one otherwise. Create the accounts once, from the repository root, with any
+password of at least 12 characters:
+
+- `docker compose exec backend befischung benutzer anlegen --email e2e-pruefer@test.de --rolle REVIEWER`
+- `docker compose exec backend befischung benutzer anlegen --email e2e-einreicher@test.de --rolle SUBMITTER`
+
+Then set `E2E_EMAIL_PRUEFER`, `E2E_EMAIL_EINREICHER` and `E2E_PASSWORT` in the
+environment. No password is committed: without the three variables the suite skips with a
+sentence saying what to set, the same way the backend tests report "not run here" rather
+than passing when no database is reachable. These are development accounts on a throwaway
+database and nothing else.
 
 **Backend** (from `backend/`)
 

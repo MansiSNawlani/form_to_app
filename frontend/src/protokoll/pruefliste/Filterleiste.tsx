@@ -129,6 +129,10 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
         <Select
           labelId={labelId('pruefliste-jahr')}
           SelectDisplayProps={{ id: 'pruefliste-jahr' }}
+          /* Without this MUI draws an empty box for the "" value instead of
+             the Alle entry, so an unset filter reads as a control that failed
+             to load. Status and Sortierung never sit at "" and do not need it. */
+          displayEmpty
           value={abfrage.jahr === null ? '' : String(abfrage.jahr)}
           onChange={(ereignis) =>
             onAendern({ jahr: ereignis.target.value === '' ? null : Number(ereignis.target.value) })
@@ -148,6 +152,10 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
         <Select
           labelId={labelId('pruefliste-anlass')}
           SelectDisplayProps={{ id: 'pruefliste-anlass' }}
+          /* Without this MUI draws an empty box for the "" value instead of
+             the Alle entry, so an unset filter reads as a control that failed
+             to load. Status and Sortierung never sit at "" and do not need it. */
+          displayEmpty
           value={abfrage.anlass ?? ''}
           onChange={(ereignis) =>
             onAendern({ anlass: ereignis.target.value === '' ? null : ereignis.target.value })

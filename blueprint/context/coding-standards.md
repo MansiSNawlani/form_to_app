@@ -154,9 +154,26 @@ submitter's submission, and one proving a Regierungspräsidium account cannot se
 
 ## Browser verification
 
-Prefer real browser evidence over reading the code and assuming. Playwright is not installed. Do
-not add it silently mid-feature; add it only when asked, or when the step is explicitly about
-setting up browser automation. Until then use the dev server, screenshots, API output and the build.
+Prefer real browser evidence over reading the code and assuming.
+
+**Playwright is installed**, added on 2026-09-18 during feature 12b at the user's request. The
+tests live in `frontend/e2e/` and end in `.spec.ts`, deliberately outside vitest's
+`src/**/*.test.ts`, so neither runner picks up the other's files. Run them with `npm run e2e`.
+
+This does not move the line the Testing section above draws. Logic where a wrong answer is
+possible still gets a unit test beside it; components and integration surfaces still get browser
+evidence rather than component unit tests. What changed is that the browser evidence is now
+written down and runs again, instead of being clicked through once and described in a report.
+
+**Address controls by their accessible role and name**, not by a CSS class or a test id. A
+selector that cannot find "the combobox named Status" is a control a screen reader cannot
+announce either, so the tests carry part of the accessibility requirement rather than restating
+it. Feature 12b shipped four dropdowns a screen reader could not name, and role-based selectors
+are what now keeps that fixed.
+
+**Looking at the screen is still worth doing.** The same feature also shipped two dropdowns that
+drew as empty boxes and a placeholder cut off mid-word. Every test passed; a screenshot caught
+both. Take one when a feature changes what a screen looks like.
 
 ## Code quality
 

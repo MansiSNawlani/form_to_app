@@ -128,7 +128,7 @@
     "filter": {
       "beschriftung": "Prüfliste filtern",
       "suche": "Suche",
-      "suchePlatzhalter": "Gewässer, Ortsangabe oder Monitoringstrecken-Nr.",
+      "suchePlatzhalter": "Gewässer oder Ortsangabe",
       "status": "Status",
       "statusOffen": "Offen",
       "statusAlle": "Alle",
