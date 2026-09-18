@@ -133,7 +133,7 @@ answers are touched.
       combines with status and year; and `gesamt` counts the same rows the page
       shows. *Done when:* `pytest` passes from `backend/`, the new tests fail if
       the clause is removed, and `ruff check .` and `mypy .` are clean.
-- [ ] **Step 2 - The index.** One Alembic migration adding
+- [x] **Step 2 - The index.** One Alembic migration adding
       `ix_submissions_artcodes` and dropping it on downgrade, with the index also
       declared on the model so `alembic check` stays quiet. *Done when:*
       `alembic upgrade head` then `alembic downgrade -1` then `alembic upgrade head`
@@ -142,6 +142,13 @@ answers are touched.
       rather than a Seq Scan. Build the volume inside `BEGIN ... ROLLBACK` with an
       `ANALYZE` before the `EXPLAIN`, so the development database keeps no
       synthetic protocols afterwards.
+
+      *Evidence, 2026-09-18:* at 50,000 protocols the planner chooses
+      `Bitmap Index Scan on ix_submissions_artcodes` with default settings. At
+      5,000 it prefers a sequential read, which is the right call on a table that
+      small and not a fault in the index: forced off sequential scans at that size
+      it uses the index too. The development database was left at its own 18
+      protocols.
 - [ ] **Step 3 - The endpoint.** `art` as a `Query` parameter on
       `GET /api/v1/pruefliste`, length-capped like `suche`, documented in German
       on the route the way its five neighbours are. Tests in

@@ -36,12 +36,14 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Text,
     Time,
     Uuid,
     cast,
     func,
+    literal_column,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, JSONPATH
@@ -131,6 +133,32 @@ class Submission(Base):
         CheckConstraint(
             text("(status = 'LOCKED') = (locked_at IS NOT NULL)"),
             name="gesperrt_hat_zeitpunkt",
+        ),
+        # **Which protocols name a given species in their catch table.**
+        #
+        # Feature 12c's reason for being a build-plan item of its own. Every other
+        # filter on the review queue compares an indexed column; this one reads
+        # inside the answers document, so without an index Postgres reads every
+        # submission end to end for each search, and the paper backlog feature 23
+        # imports is what makes that matter.
+        #
+        # Written as text and spelled exactly as Postgres stores it, quoted keys
+        # and ::jsonpath included, rather than built from artcodes() below.
+        # Alembic reflects an expression index as the string the server gives back
+        # and compares that with what this renders, so anything that renders
+        # differently, CAST(... AS JSONPATH) included, makes alembic check report a
+        # changed index forever. The two spellings mean the same thing to the
+        # planner, which compares parsed expressions and not text.
+        #
+        # The operator class is not repeated here for the same reason: it cannot be
+        # attached to a text expression, and nothing builds the schema from this
+        # declaration. The index is created by
+        # database/migrations/versions/20260918_23a161edb386_artcodes_index.py,
+        # which is where jsonb_path_ops is asked for and why.
+        Index(
+            "ix_submissions_artcodes",
+            text("jsonb_path_query_array(antworten, '$.\"arten\".*.\"name\"'::jsonpath)"),
+            postgresql_using="gin",
         ),
     )
 
@@ -262,7 +290,17 @@ def artcodes() -> ColumnElement[Any]:
     JSONB, and .contains() on the expression compiles to LIKE against a jsonb
     value, which Postgres refuses outright. With it, .contains() is the @>
     containment operator the index is built for.
+
+    literal_column, and not a bound parameter, for the path. Postgres decides
+    whether an expression index applies by comparing the query's expression tree
+    with the index's, and a parameter and a literal are not the same node however
+    equal their values are at run time. Passed as a parameter the query is correct
+    and the index is simply never used, which nothing would report. The value is
+    this module's own constant and never anything a caller supplies, so there is
+    nothing here to inject.
     """
     return func.jsonb_path_query_array(
-        Submission.antworten, cast(ARTCODES_PFAD, JSONPATH), type_=JSONB
+        Submission.antworten,
+        cast(literal_column(f"'{ARTCODES_PFAD}'"), JSONPATH),
+        type_=JSONB,
     )
