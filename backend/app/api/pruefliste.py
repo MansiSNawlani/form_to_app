@@ -36,6 +36,11 @@ from app.protokolle.pruefliste.parameter import (
 # search cannot be an arbitrarily large request before anything looks at it.
 SUCHE_HOECHSTLAENGE = 200
 
+# The same idea for the species code. The codes in the form's own list are four
+# characters; the cap is generous rather than exact because the list belongs to a
+# form version and this parameter deliberately does not check against one.
+ART_HOECHSTLAENGE = 50
+
 router = APIRouter(prefix="/api/v1/pruefliste", tags=["Pruefliste"])
 
 # Documented on the route so the generated docs show what a refusal looks like
@@ -92,6 +97,15 @@ async def pruefliste(
             " Monitoringstrecken-Nr. Jedes Wort muss irgendwo vorkommen.",
         ),
     ] = None,
+    art: Annotated[
+        str | None,
+        Query(
+            max_length=ART_HOECHSTLAENGE,
+            description="Nur Protokolle, deren Fangtabelle diese Art nennt, als"
+            ' Exportcode, etwa "HECH". Ob etwas gezaehlt wurde, spielt keine Rolle.'
+            " Ein unbekannter Code liefert eine leere Seite.",
+        ),
+    ] = None,
     sortierung: Annotated[
         Sortierung,
         Query(
@@ -145,6 +159,7 @@ async def pruefliste(
             anlass=anlass,
             jahr=jahr,
             suche=suche,
+            art=art,
         ),
         sortierung=sortierung,
         seite=seite,

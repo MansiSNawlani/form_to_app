@@ -161,7 +161,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 12b. Die Pruefliste, der Bildschirm: the /pruefung page with the filter bar, the
         table, the paging and its loading, empty and error states, and FFS staff landing here
         after signing in instead of on Meine Protokolle
-  - [ ] 12c. Suche nach Art: searching the catch by species end to end, the JSONB query, the
+  - [x] 12c. Suche nach Art: searching the catch by species end to end, the JSONB query, the
         index that keeps it fast, and the species picker in the filter bar
   - [ ] 12d. Durch die Liste blaettern: the Pruefliste crumb and the Vorheriges and Naechstes
         buttons on the reviewer's screen, carrying the filters and the order with them

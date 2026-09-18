@@ -5,6 +5,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import Optionssuche from '../felder/Optionssuche'
 import { labelId } from '../felder/rahmen'
 import { optionen } from '../optionen'
 import {
@@ -48,7 +49,7 @@ interface FilterleisteProps {
   onAendern: (aenderung: Aenderung, ersetzen?: boolean) => void
 }
 
-/* The five controls that decide what the queue shows.
+/* The six controls that decide what the queue shows.
  *
  * None of them holds any state. Each reads its value out of the selection the
  * page took from the address bar and reports a change back up, where it is
@@ -86,7 +87,7 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
 
   return (
     <div className="filters" role="search" aria-label={t('pruefliste.filter.beschriftung')}>
-      <FormControl className="filters__feld">
+      <FormControl className="filters__feld filters__feld--suche">
         <FormLabel htmlFor="pruefliste-suche">{t('pruefliste.filter.suche')}</FormLabel>
         <OutlinedInput
           id="pruefliste-suche"
@@ -172,7 +173,29 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
         </Select>
       </FormControl>
 
+      {/* The species, over the catch table rather than over a column. The same
+          control and the same 123 entry list the catch table itself uses, so the
+          queue and the form cannot disagree about what a species is called.
+
+          Named by the FormLabel through htmlFor and by nothing else, because
+          unlike a MUI Select the Autocomplete's control really is an input. An
+          aria-label here as well would win over the visible label and leave two
+          strings to keep in step, which is a control whose accessible name can
+          drift away from the word printed above it. */}
       <FormControl className="filters__feld">
+        <FormLabel htmlFor="pruefliste-art">{t('pruefliste.filter.art')}</FormLabel>
+        <Optionssuche
+          id="pruefliste-art"
+          liste="arten"
+          wert={abfrage.art}
+          onWaehlen={(art) => onAendern({ art })}
+          eingabeAria={{}}
+          platzhalter={t('pruefliste.filter.artAlle')}
+          className="filters__art"
+        />
+      </FormControl>
+
+      <FormControl className="filters__feld filters__feld--sortierung">
         <FormLabel id={labelId('pruefliste-sortierung')}>
           {t('pruefliste.filter.sortierung')}
         </FormLabel>

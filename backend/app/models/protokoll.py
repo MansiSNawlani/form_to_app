@@ -28,20 +28,25 @@ the real rule and the reason the columns could not simply be declared NOT NULL.
 import uuid
 from datetime import date, datetime, time
 from enum import StrEnum
+from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    ColumnElement,
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Text,
     Time,
     Uuid,
+    cast,
     func,
+    literal_column,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, JSONPATH
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -128,6 +133,32 @@ class Submission(Base):
         CheckConstraint(
             text("(status = 'LOCKED') = (locked_at IS NOT NULL)"),
             name="gesperrt_hat_zeitpunkt",
+        ),
+        # **Which protocols name a given species in their catch table.**
+        #
+        # Feature 12c's reason for being a build-plan item of its own. Every other
+        # filter on the review queue compares an indexed column; this one reads
+        # inside the answers document, so without an index Postgres reads every
+        # submission end to end for each search, and the paper backlog feature 23
+        # imports is what makes that matter.
+        #
+        # Written as text and spelled exactly as Postgres stores it, quoted keys
+        # and ::jsonpath included, rather than built from artcodes() below.
+        # Alembic reflects an expression index as the string the server gives back
+        # and compares that with what this renders, so anything that renders
+        # differently, CAST(... AS JSONPATH) included, makes alembic check report a
+        # changed index forever. The two spellings mean the same thing to the
+        # planner, which compares parsed expressions and not text.
+        #
+        # The operator class is not repeated here for the same reason: it cannot be
+        # attached to a text expression, and nothing builds the schema from this
+        # declaration. The index is created by
+        # database/migrations/versions/20260918_23a161edb386_artcodes_index.py,
+        # which is where jsonb_path_ops is asked for and why.
+        Index(
+            "ix_submissions_artcodes",
+            text("jsonb_path_query_array(antworten, '$.\"arten\".*.\"name\"'::jsonpath)"),
+            postgresql_using="gin",
         ),
     )
 
@@ -232,3 +263,60 @@ class Submission(Base):
         # No answers. A repr ends up in logs and test failures, and a protocol's
         # contents are survey data that has no business in either.
         return f"<Submission {self.id} {self.status.value} v{self.version}>"
+
+
+#: Where the species codes of a catch table sit inside the answers document.
+#
+# A wildcard over the rows rather than twenty-six paths: it collects whichever of
+# arten.art1 to arten.art26 the document actually carries, so a document with
+# fewer rows, or one day more, needs no change here. The row count is the printed
+# form's and feature 23's import may yet meet a document that does not share it.
+#
+# **The same path is written out twice more**, and both copies have to keep
+# meaning this one. Postgres matches an expression index to a query by comparing
+# expression trees, so a copy that drifts leaves the index built and never used,
+# with every test still passing and the queue quietly back to reading every
+# protocol on disk for each search.
+#
+# The two are:
+#
+# - database/migrations/versions/20260918_23a161edb386_artcodes_index.py, which
+#   creates the index. A migration must not import app/, for the reason it states
+#   at the top of itself, so it spells the whole expression out.
+# - the Index() in __table_args__ above, deliberately in a third spelling:
+#   '$."arten".*."name"'::jsonpath, which is how Postgres hands the expression
+#   back when Alembic reflects it. The three spellings mean one thing to the
+#   planner, which parses before it compares.
+#
+# TestArtindex in app/protokolle/pruefliste/dienst_test.py is what notices if
+# they stop meaning the same thing. It asks the database whether the real query
+# can use the real index, which is the only question that matters here and the
+# only one a string comparison could not answer.
+ARTCODES_PFAD = "$.arten.*.name"
+
+
+def artcodes() -> ColumnElement[Any]:
+    """Every species a catch table names, as a JSON array of export codes.
+
+    Written as one expression so the query in
+    app/protokolle/pruefliste/dienst.py and the index over the same values are
+    built from one piece of code rather than two matching strings.
+
+    type_ is not decoration. Without it SQLAlchemy does not know the result is
+    JSONB, and .contains() on the expression compiles to LIKE against a jsonb
+    value, which Postgres refuses outright. With it, .contains() is the @>
+    containment operator the index is built for.
+
+    literal_column, and not a bound parameter, for the path. Postgres decides
+    whether an expression index applies by comparing the query's expression tree
+    with the index's, and a parameter and a literal are not the same node however
+    equal their values are at run time. Passed as a parameter the query is correct
+    and the index is simply never used, which nothing would report. The value is
+    this module's own constant and never anything a caller supplies, so there is
+    nothing here to inject.
+    """
+    return func.jsonb_path_query_array(
+        Submission.antworten,
+        cast(literal_column(f"'{ARTCODES_PFAD}'"), JSONPATH),
+        type_=JSONB,
+    )
