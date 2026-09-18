@@ -18,10 +18,36 @@
 }
 
 /* Each control takes an equal share of the row and only wraps when the window
-   genuinely cannot hold five of them. The basis is what the search box needs to
-   show a water name and an Ortsangabe together. */
+   genuinely cannot hold all six of them. The basis is what the search box needs
+   to show a water name and an Ortsangabe together.
+
+   Narrowed from 12rem when feature 12c added the species picker: six controls at
+   the old basis wrapped the last one onto a line of its own at ordinary desktop
+   widths, and a filter bar that grows a second row for one control reads as a
+   control that fell off. They still grow to fill whatever the window has. */
 .filters__feld {
-  flex: 1 1 12rem;
+  flex: 1 1 9.5rem;
+}
+
+/* The two controls whose text is a phrase rather than a word, given room for it.
+   The search box names the two things it searches, and the order names itself in
+   full: "Laengste Wartezeit zuerst". At the equal share above, the first was cut
+   to "Gewaesser oder Ortsangal" and the second to "Laengste Wartezeit z...",
+   which is the same fault the feature 12b review found and the reason a
+   screenshot is taken at all. */
+.filters__feld--suche {
+  flex: 1.6 1 14rem;
+}
+
+.filters__feld--sortierung {
+  flex: 1.4 1 13rem;
+}
+
+/* MUI's Autocomplete draws its own padding around the text, which makes the
+   species picker a few pixels taller than the five controls beside it and leaves
+   the row visibly uneven. This takes it back to the height of a plain input. */
+.filters__art .MuiAutocomplete-input {
+  padding-block: 0;
 }
 
 /* ---------- paging ---------- */

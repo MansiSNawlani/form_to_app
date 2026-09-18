@@ -162,7 +162,7 @@ answers are touched.
       reset button. Tests in `parameter.test.ts`. *Done when:* `npm test` passes,
       including a test that setting a species resets to page 1 and one that
       `istGefiltert` is true for a species alone.
-- [ ] **Step 5 - The picker.** Split the form-free control out of
+- [x] **Step 5 - The picker.** Split the form-free control out of
       `felder/Suche.tsx` so `Filterleiste.tsx` can use the same Autocomplete
       without a `useFormContext`, then add the sixth control, its two German
       strings, and whatever the filter row's CSS needs to stay on one line.
