@@ -32,6 +32,16 @@ dependencies = [
     # The command line. By the author of FastAPI and the conventional choice
     # here; gives help text, option validation and exit codes for free.
     "typer>=0.15",
+    # Talks to whatever object store holds the attachments when there is no
+    # persistent disk to hold them. A runtime dependency rather than an optional
+    # one: which store runs is configuration, and a deployment that installs main
+    # dependencies only must still be able to serve a photograph.
+    #
+    # The reference S3 client rather than an async wrapper. app/anlagen/speicher.py
+    # already puts every blocking call behind asyncio.to_thread, so the S3 store
+    # follows the pattern already in the file instead of introducing a second
+    # concurrency story and a less-maintained dependency to go with it.
+    "boto3>=1.35",
 ]
 
 [project.optional-dependencies]
@@ -45,6 +55,16 @@ dev = [
     # pypdf needs cryptography to open it even though there is no password.
     "pypdf>=6.0",
     "cryptography>=44",
+    # An in-process S3, so the object store's tests actually run rather than
+    # skipping everywhere a bucket is not configured. It serves real HTTP to real
+    # botocore, so what they exercise is our calls and our error handling, not a
+    # hand-written stub agreeing with itself.
+    "moto[s3]>=5.0",
+    # boto3 ships no types of its own, and mypy is a gate here. Without these the
+    # S3 calls would be the one unchecked corner of the backend; with them a
+    # wrong argument name is caught before it reaches a bucket, which is how the
+    # delete_objects payload in speicher_s3.py was found to be the wrong shape.
+    "boto3-stubs[s3]>=1.35",
 ]
 
 # Lets an administrator run "befischung benutzer anlegen" rather than
