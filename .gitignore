@@ -7,6 +7,11 @@ frontend/.vite/
 *.tsbuildinfo
 
 # python
+# The root pyproject.toml is for the Vercel deployment; its lock is produced at
+# build time. Not committed, because every other dependency list in this project
+# is a range rather than a pin, and one locked corner would be the odd one out.
+uv.lock
+
 __pycache__/
 *.py[cod]
 .venv/

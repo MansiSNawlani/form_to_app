@@ -1,0 +1,39 @@
+# The project as one deployable unit, for a platform that builds from the
+# repository root. Used by the Vercel deployment and by nothing else.
+#
+# The Docker image does not read this file. Its build context is backend/, so it
+# installs backend/pyproject.toml directly, and docker-compose.yml serves the
+# frontend separately. Nothing here changes either of those.
+#
+# **This exists rather than a requirements.txt** because the platform resolves
+# dependencies with uv, and uv runs `uv lock`, which needs a project. Given only
+# a requirements.txt listing `./backend`, it synthesises one and takes the
+# package name from the directory, then refuses the build because the directory
+# is called `backend` while the package inside calls itself `befischung-backend`.
+# Declaring the project here says the name outright, so nothing has to be
+# guessed from a path. Found on 2026-09-18, by a failed deploy.
+
+[project]
+name = "befischung-vercel"
+version = "0.1.0"
+description = "Root project for deploying the frontend and backend as one service"
+requires-python = ">=3.12"
+dependencies = [
+    # The backend, named properly, so its own pyproject.toml stays the single
+    # list of what the application needs and nothing is restated here to drift.
+    "befischung-backend",
+    # Named again, and deliberately without a version, so the platform can see
+    # which framework this is: it picks its Python preset by looking for a known
+    # dependency by name, and a path dependency tells it nothing. The version
+    # still comes from backend/pyproject.toml.
+    "fastapi",
+]
+
+[tool.uv.sources]
+befischung-backend = { path = "backend" }
+
+[tool.vercel]
+# asgi.py is already one of the filenames the platform looks for on its own.
+# Saying it explicitly means the entrypoint is a decision in this repository
+# rather than a convention that could change under us.
+entrypoint = "asgi:app"
