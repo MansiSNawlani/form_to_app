@@ -50,6 +50,7 @@ from app.benutzer.regeln import (
     pruefe_regierungspraesidium,
 )
 from app.config import get_settings
+from app.db import fuer_asyncpg
 from app.models.benutzer import Locale, Rolle
 from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 
@@ -65,7 +66,9 @@ from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 # closes its loop at the end, so any second one would be handed a connection
 # that no longer works. That is the failure found on 2026-09-07, and with
 # nothing pooled it cannot happen at all.
-_engine = create_async_engine(str(get_settings().database_url), poolclass=NullPool)
+_engine = create_async_engine(
+    fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool
+)
 session_factory = async_sessionmaker(_engine)
 
 app = typer.Typer(help="Verwaltung der Anwendung Protokoll E-Befischung.", no_args_is_help=True)

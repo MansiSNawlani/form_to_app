@@ -27,6 +27,7 @@ from sqlalchemy.sql.schema import SchemaItem
 
 from alembic import context
 from app.config import get_settings
+from app.db import fuer_asyncpg
 
 # Imported for its side effect as much as its value: app.models registers every
 # model on this metadata, and autogenerate can only see a table that is on it.
@@ -77,8 +78,15 @@ def include_object(
 
 
 def database_url() -> str:
-    """PostgresDsn is a URL object; SQLAlchemy and Alembic both want the string."""
-    return str(get_settings().database_url)
+    """PostgresDsn is a URL object; SQLAlchemy and Alembic both want the string.
+
+    Through fuer_asyncpg for the same reason app/db.py uses it: migrating is the
+    first thing anybody does against a newly created managed database, with the
+    connection string exactly as its console printed it. Failing here, on that
+    very first command, over a parameter the provider put there is the worst
+    possible moment for it.
+    """
+    return fuer_asyncpg(str(get_settings().database_url))
 
 
 def run_migrations_offline() -> None:
