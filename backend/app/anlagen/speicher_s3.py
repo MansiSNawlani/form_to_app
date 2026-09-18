@@ -31,6 +31,7 @@ from tempfile import SpooledTemporaryFile
 from typing import TYPE_CHECKING, Any
 
 import boto3
+from botocore.config import Config
 from botocore.exceptions import ClientError
 
 from app.anlagen.speicher import BLOCKGROESSE, SCHLUESSEL_MUSTER, SchluesselUngueltig
@@ -47,6 +48,18 @@ else:
 # implementations prefer NotFound. Treating any of them as "not there" is what
 # keeps a missing photograph a 404 rather than a 500.
 NICHT_VORHANDEN = frozenset({"404", "NoSuchKey", "NoSuchBucket", "NotFound"})
+
+# Put the bucket in the path, https://host/bucket/key, rather than in the
+# hostname, https://bucket.host/key.
+#
+# boto3 chooses between the two on its own, and what it chooses depends on the
+# endpoint and on whether the bucket name happens to look like a hostname. That
+# is a guess we do not want it making: Neon's object storage accepts path style
+# only, MinIO is normally run that way too, and Amazon and Cloudflare R2 both
+# accept it. Saying so explicitly means the same settings reach every one of
+# them, rather than working against whichever provider happened to be tried
+# first and failing against the next with a DNS error that names nothing.
+ADRESSIERUNG = Config(s3={"addressing_style": "path"})
 
 # Below this an upload never touches a disk at all. A protocol's photographs are
 # capped at 10 MB each, so the common case is a few megabytes held in memory for
@@ -86,6 +99,7 @@ class S3Speicher:
             region_name=region,
             aws_access_key_id=zugriffsschluessel,
             aws_secret_access_key=geheimschluessel,
+            config=ADRESSIERUNG,
         )
 
     def _geprueft(self, schluessel: str) -> str:

@@ -13,7 +13,7 @@ Everything below is free of charge at the sizes this needs.
 |---|---|---|
 | React frontend and FastAPI backend | One Vercel project, one address | Same origin, so the session cookie needs no CORS and no SameSite loosening |
 | PostgreSQL | Neon | Vercel runs no database of its own |
-| Photographs and map excerpts | Cloudflare R2 | Vercel's filesystem is thrown away between requests |
+| Photographs and map excerpts | Neon Object Storage | Vercel's filesystem is thrown away between requests |
 
 The frontend and the backend deliberately share one address. The browser only
 ever talks to one host, which is exactly what `frontend/src/api/client.ts` has
@@ -21,9 +21,13 @@ always assumed. `asgi.py` is what joins them, and it explains itself.
 
 ## Before you start
 
-You need accounts for Vercel, [Neon](https://neon.tech) and
-[Cloudflare](https://dash.cloudflare.com). All three have a free tier that
-covers this.
+You need accounts for Vercel and [Neon](https://neon.tech). Both have a free
+tier that covers this. Neon provides the database and the file storage together,
+so there is no third account to make.
+
+Any other S3-compatible store works just as well, because that is what the
+application was written against: Cloudflare R2, Amazon, or a MinIO server FFS
+run on their own machines. Only the four S3 settings in step 3 change.
 
 You also need this repository pushed to GitHub, and the backend virtual
 environment working locally, because the database migrations are run from your
@@ -31,8 +35,18 @@ machine and not by the deployment.
 
 ## 1. The database, on Neon
 
-1. Create a project. Any name; pick the region closest to Baden-Württemberg,
-   which is usually **Frankfurt (eu-central-1)**.
+1. Create a project. Any name will do; `form_to_app` is fine.
+
+   **Set the region to AWS Europe (Frankfurt) before creating it.** A project's
+   region cannot be changed afterwards, these are German fisheries records, and
+   object storage is offered there.
+
+   Under **Services**, leave **Postgres database** and **Object storage** on, and
+   turn **Functions**, **AI gateway** and **Neon Auth** off. Neon Auth in
+   particular would be a second login competing with the accounts and six roles
+   this application already has.
+
+   Name the bucket **`befischung-anlagen`** and leave its visibility **Private**.
 2. Neon shows a connection string. Copy it. It looks like:
 
    ```
@@ -72,21 +86,35 @@ alembic current
 
 Re-run `alembic upgrade head` after any future deployment that adds a migration.
 
-## 2. The photographs, on Cloudflare R2
+## 2. The photographs, in Neon's object storage
 
-R2 speaks the S3 protocol, which is why the application was written against S3
-rather than against any one provider. The same settings later point at Amazon,
-or at a MinIO server FFS run on their own machines.
+You turned this on in step 1. It speaks the S3 protocol, which is exactly why the
+application was written against S3 rather than against any one provider, so the
+same four settings later point at Amazon or at a MinIO server of FFS's own.
 
-1. In the Cloudflare dashboard, open **R2** and create a bucket. Call it
-   `befischung-anlagen`. Leave it **private**; the application streams every file
-   through its own permission checks and nothing should be publicly readable.
-2. Under **R2 > API > Manage API Tokens**, create a token with
-   **Object Read & Write**, scoped to that one bucket.
-3. Copy the three values it shows you. The secret is shown **once**:
-   - Access Key ID
-   - Secret Access Key
-   - The S3 endpoint, `https://<account-id>.r2.cloudflarestorage.com`
+From your project, open **Object storage** and collect four values:
+
+- the **bucket name**, `befischung-anlagen`
+- the **Access Key ID**
+- the **Secret Access Key**
+- the **endpoint URL**, the address Neon shows for S3 access
+
+Neon also shows a region alongside them, usually `aws-eu-central-1` for a
+Frankfurt project. Use whatever it shows rather than guessing.
+
+**The secret is shown once.** If you lose it, make a new credential; it cannot
+be read back.
+
+Two things that matter and are easy to get wrong:
+
+- **The bucket stays private.** Every file is streamed through the application's
+  own permission checks, so a submitter sees only their own protocol's
+  photographs. A public bucket would hand anybody holding a URL a survey
+  photograph directly, with no check at all.
+- **Watch the free quota.** A protocol may carry a map excerpt and up to twenty
+  photographs at 10 MB each, so a handful of realistic protocols fills a small
+  allowance quickly. Check what your plan includes before inviting FFS to upload
+  in earnest.
 
 ## 3. The Vercel project
 
@@ -110,10 +138,10 @@ Set all of these for **Production**, **Preview** and **Development**.
 | `JWT_SECRET` | Generate your own, see below. Never reuse the local one |
 | `ANLAGEN_SPEICHER` | `s3` |
 | `S3_BUCKET` | `befischung-anlagen` |
-| `S3_ENDPOINT` | `https://<account-id>.r2.cloudflarestorage.com` |
-| `S3_REGION` | `auto` |
-| `S3_ZUGRIFFSSCHLUESSEL` | The R2 Access Key ID |
-| `S3_GEHEIMSCHLUESSEL` | The R2 Secret Access Key |
+| `S3_ENDPOINT` | The endpoint Neon shows for S3 access |
+| `S3_REGION` | What Neon shows, usually `aws-eu-central-1` |
+| `S3_ZUGRIFFSSCHLUESSEL` | The Access Key ID from step 2 |
+| `S3_GEHEIMSCHLUESSEL` | The Secret Access Key from step 2 |
 | `FORMULAR_SEED_DIR` | `database/seed/form_version_20260609` |
 
 Generate the signing secret:
@@ -168,16 +196,17 @@ In order, because each step depends on the one before:
 5. Start a protocol, type into part 1, reload the page. What you typed is still
    there, which means the draft reached Neon.
 6. **Upload a photograph in section 7, then reload.** This is the one that
-   matters: it proves R2 is wired up. If the upload fails, check the three S3
-   values. If it succeeds but the picture is gone after a redeploy, the store is
+   matters: it proves the object storage is wired up. If the upload fails, check
+   the four S3 values. If it succeeds but the picture is gone after a redeploy, the store is
    still on `datei` and `ANLAGEN_SPEICHER` did not take effect.
 7. Fill in a protocol, submit it, then sign in as the reviewer and decide on it.
 
 ## What this deployment is not
 
 - **Not a production deployment.** No backups, no monitoring, no custom domain,
-  and no agreement with FFS about where German survey data may be stored. R2 and
-  Neon are both outside Germany unless configured otherwise.
+  and no agreement with FFS about where German survey data may be stored. A
+  Frankfurt project keeps it in Germany, on a US company's infrastructure, which
+  is a question for FFS rather than one this guide can settle.
 - **No background worker.** Feature 14, the email notifications and the weekly
   digest, needs a process that runs on a schedule. Vercel has cron jobs, but that
   feature is not built yet.
@@ -193,5 +222,5 @@ In order, because each step depends on the one before:
 | Build fails on `npm ci` | `frontend/package-lock.json` out of step with `package.json`. Run `npm install` locally and commit the lock file |
 | `The backend cannot start:` in the function logs | A missing or wrong environment variable. The message names it |
 | `/api/v1/ready` says `database: down` | `DATABASE_URL` wrong, or `postgresql://` not changed to `postgresql+asyncpg://` |
-| Uploads fail with a 500 | One of the three S3 values, or the R2 token not scoped to this bucket |
+| Uploads fail with a 500 | One of the four S3 values, or the credential not scoped to this bucket |
 | Everything 404s | Root Directory was set to `frontend` or `backend` instead of the repository root |
