@@ -298,6 +298,18 @@ test.describe('Die Suche nach Art', () => {
     await expect(page).toHaveURL(/\/pruefung$/)
   })
 
+  /* A code the picker cannot offer: typed into the address by hand today, and
+     one day a protocol frozen on an older form version naming a species the
+     current list has dropped. The filter still runs, so the box has to say what
+     it is filtering on rather than reading as though nothing were chosen. */
+  test('zeigt einen Code, den die Liste nicht kennt, trotzdem an', async ({ page }) => {
+    await page.goto('/pruefung?art=GIBTESNICHT')
+
+    await expect(page.getByRole('combobox', { name: 'Art' })).toHaveValue('GIBTESNICHT')
+    await expect(page.getByText('Keine Protokolle zu diesen Filtern')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Filter zurücksetzen' })).toBeVisible()
+  })
+
   test('laesst sich mit der Tastatur allein waehlen', async ({ page }) => {
     await page.goto('/pruefung')
 

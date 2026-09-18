@@ -176,8 +176,12 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
       {/* The species, over the catch table rather than over a column. The same
           control and the same 123 entry list the catch table itself uses, so the
           queue and the form cannot disagree about what a species is called.
-          FormLabel names it through htmlFor, because unlike a MUI Select the
-          Autocomplete's control really is an input. */}
+
+          Named by the FormLabel through htmlFor and by nothing else, because
+          unlike a MUI Select the Autocomplete's control really is an input. An
+          aria-label here as well would win over the visible label and leave two
+          strings to keep in step, which is a control whose accessible name can
+          drift away from the word printed above it. */}
       <FormControl className="filters__feld">
         <FormLabel htmlFor="pruefliste-art">{t('pruefliste.filter.art')}</FormLabel>
         <Optionssuche
@@ -185,7 +189,7 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
           liste="arten"
           wert={abfrage.art}
           onWaehlen={(art) => onAendern({ art })}
-          eingabeAria={{ 'aria-label': t('pruefliste.filter.art') }}
+          eingabeAria={{}}
           platzhalter={t('pruefliste.filter.artAlle')}
           className="filters__art"
         />

@@ -31,10 +31,13 @@
 
 /* The two controls whose text is a phrase rather than a word, given room for it.
    The search box names the two things it searches, and the order names itself in
-   full: "Laengste Wartezeit zuerst". At the equal share above, the first was cut
-   to "Gewaesser oder Ortsangal" and the second to "Laengste Wartezeit z...",
-   which is the same fault the feature 12b review found and the reason a
-   screenshot is taken at all. */
+   full: "Laengste Wartezeit zuerst".
+
+   Both fitted at five controls. Narrowing the shared basis for the sixth cut the
+   first to "Gewaesser oder Ortsangal" and the second to "Laengste Wartezeit
+   z...", so this is feature 12c repairing what feature 12c broke. The fault is
+   the one the 12b review found by looking at the screen, and the reason a
+   screenshot is taken whenever this row changes. */
 .filters__feld--suche {
   flex: 1.6 1 14rem;
 }

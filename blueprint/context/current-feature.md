@@ -177,6 +177,15 @@ answers are touched.
       *Done when:* `npm run e2e` passes with the stack up and both screenshots show
       a filter row that has not broken its layout.
 
+      *Evidence, 2026-09-18:* the screenshots were taken with a throwaway spec and
+      not kept, the way feature 12b's were. At 1440px the six controls sit on one
+      line at an even height, and the species picker reads "Alle Arten" in
+      placeholder grey beside the Alle entries of the dropdowns. At 400px the row
+      stacks into two columns and the picker carries its clear button. **They
+      caught a fault the tests did not:** a sixth control at the old equal share
+      cut the search placeholder to "Gewaesser oder Ortsangal" and the order to
+      "Laengste Wartezeit z...", which is why those two now have their own widths.
+
 ## Files / areas
 
 **Backend**
@@ -206,7 +215,7 @@ answers are touched.
 |---|---|---|
 | `GET /api/v1/pruefliste?art=<code>` | one export code, exact match, unknown code is an empty page | 12d, which rebuilds this list from a URL |
 | `?art=` in `/pruefung`'s address bar | the same code, absent when not narrowed | 12d's Vorheriges and Naechstes |
-| The jsonpath `$.arten.*.name` | one constant, shared by the query and the index | any later query over the catch |
+| The jsonpath `$.arten.*.name` | `ARTCODES_PFAD` for the query, written out again in the migration and a third time in the model's `Index`, all meaning the same path | any later query over the catch |
 
 The picker's entries come from `optionen('arten')`, which reads
 `database/seed/form_version_20260609/optionslisten.json`, the same file the catch
@@ -237,8 +246,12 @@ feature does what it was split out to do.
 
 - **Read `AGENTS.md`'s Commands section before running anything.** Backend
   commands run from `backend/` through `.venv`; the database must be up.
-- The jsonpath string appears in the query and in the index. One constant, used by
-  both. A copy that drifts is an index the planner silently stops using.
+- The jsonpath appears in three places and cannot be one constant: a migration
+  must not import `app/`, and Alembic compares the model's `Index` against the
+  spelling Postgres reflects back. `TestArtindex` is what holds them together. It
+  asks the database whether the real query can use the real index, because a copy
+  that drifts is an index the planner silently stops using and no string
+  comparison could tell you that.
 - `Prueffilter` is handed to both the row query and the count query on purpose.
   Add the field to the dataclass, not to one call site.
 - MUI wherever MUI has a component. The picker is an `Autocomplete` in a

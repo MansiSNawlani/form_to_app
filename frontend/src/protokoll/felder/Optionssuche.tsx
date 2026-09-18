@@ -1,6 +1,6 @@
 import Autocomplete from '@mui/material/Autocomplete'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { optionen, type ListenName } from '../optionen'
+import { optionen, type ListenName, type Option } from '../optionen'
 
 /* A search over one of the form's option lists, as a plain controlled field.
  *
@@ -47,6 +47,11 @@ interface OptionssucheProps {
   fehlerhaft?: boolean
 }
 
+/* A code the list does not carry, as an option that at least names it. */
+function unbekannt(wert: string | null): Option | null {
+  return wert === null || wert === '' ? null : { wert, label: wert }
+}
+
 function Optionssuche({
   id,
   liste,
@@ -66,8 +71,16 @@ function Optionssuche({
       options={alle}
       /* Autocomplete works in options, everything storing a value stores the
          export code, so the code is looked back up here. null, not undefined,
-         because undefined would make the control uncontrolled. */
-      value={alle.find((option) => option.wert === wert) ?? null}
+         because undefined would make the control uncontrolled.
+
+         A code with no entry in the list becomes an option showing the code
+         itself rather than nothing. It happens when an address is typed by hand,
+         and it will happen for real once a protocol frozen on an older form
+         version names a code the current list has dropped: ADR 0004 keeps those
+         protocols exactly as they were filed. Falling back to null would leave
+         the control saying nothing is chosen while the list beneath it is
+         narrowed, which reads as a screen showing the wrong number of rows. */
+      value={alle.find((option) => option.wert === wert) ?? unbekannt(wert)}
       onChange={(_, option) => onWaehlen(option?.wert ?? null)}
       onBlur={onBlur}
       getOptionLabel={(option) => option.label}

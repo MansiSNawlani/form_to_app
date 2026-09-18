@@ -11,13 +11,15 @@ from collections.abc import Awaitable, Callable, Mapping
 from datetime import UTC, date, datetime, time
 
 import pytest
+from sqlalchemy import func, literal_column, select, text
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.benutzer import Rolle, User
 from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
-from app.models.protokoll import Status, Submission
+from app.models.protokoll import Status, Submission, artcodes
 from app.protokolle.pruefliste.dienst import Prueffilter, Sortierung, liste_pruefliste
 
 EINGEREICHT = datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
@@ -674,6 +676,23 @@ class TestArtfilter:
         assert seite.gesamt == 3
         assert seite.seiten == 2
 
+    async def test_engt_zusammen_mit_dem_jahr_ein(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(
+            surveyor, arten={1: "HECH"}, datum=date(2026, 6, 9)
+        )
+        # Each of these matches one of the two conditions and must still be out.
+        await protokoll(surveyor, arten={1: "HECH"}, datum=date(2025, 6, 9))
+        await protokoll(surveyor, arten={1: "AALE"}, datum=date(2026, 6, 9))
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(jahr=2026, art="HECH")
+        )
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
+        assert seite.gesamt == 1
+
     async def test_engt_zusammen_mit_dem_status_ein(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:
@@ -689,6 +708,58 @@ class TestArtfilter:
 
         assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
         assert seite.gesamt == 1
+
+
+class TestArtindex:
+    """That the species query can actually use the index built for it.
+
+    The one thing about feature 12c that a passing query test says nothing about.
+    Postgres decides whether an expression index applies by comparing expression
+    trees, so the query in this module and ix_submissions_artcodes have to agree
+    exactly. They are written in two places that cannot import each other: the
+    index is created by a migration, which must not reach into app/, and the query
+    is built by app/models/protokoll.py's artcodes(). If either is edited alone,
+    every other test here still passes and the queue quietly goes back to reading
+    every protocol on disk for each search.
+
+    Sequential scans are discouraged rather than forbidden, because the test
+    database holds a handful of rows and a full read of those is genuinely the
+    cheaper plan. What is being asked is not "would the planner choose the index
+    today" but "can it use it at all", which is exactly the question drift in the
+    expression changes the answer to.
+    """
+
+    async def test_kann_den_index_benutzen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        await protokoll(surveyor, arten={1: "HECH"})
+
+        # LOCAL, so it dies with the transaction the test is rolled back in.
+        await session.execute(text("SET LOCAL enable_seqscan = off"))
+
+        # Everything spelled out rather than bound, because EXPLAIN has to see the
+        # whole statement. The left side is the expression under test, built by
+        # the same artcodes() the queue uses.
+        anfrage = (
+            select(func.count())
+            .select_from(Submission)
+            .where(artcodes().op("@>")(literal_column('\'["HECH"]\'::jsonb')))
+        )
+        # SQLAlchemy ships no annotation for postgresql.dialect(), and the dialect
+        # has to be named: compiled against the default one, JSONPATH and @> would
+        # not render at all.
+        sql = anfrage.compile(
+            dialect=postgresql.dialect(),  # type: ignore[no-untyped-call]
+            compile_kwargs={"literal_binds": True},
+        )
+        plan = (await session.execute(text(f"EXPLAIN {sql}"))).scalars().all()
+
+        gefunden = any("ix_submissions_artcodes" in zeile for zeile in plan)
+        assert gefunden, (
+            "Die Artabfrage findet ix_submissions_artcodes nicht. Der Ausdruck in"
+            " app/models/protokoll.py und der im Migrationsskript sind"
+            " auseinandergelaufen. Plan: " + " | ".join(plan)
+        )
 
 
 class TestFilterZusammen:

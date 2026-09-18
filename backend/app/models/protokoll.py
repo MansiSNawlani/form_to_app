@@ -272,10 +272,26 @@ class Submission(Base):
 # fewer rows, or one day more, needs no change here. The row count is the printed
 # form's and feature 23's import may yet meet a document that does not share it.
 #
-# **This exact string is also the index's**, in the migration that creates
-# ix_submissions_artcodes. Postgres matches an expression index to a query by the
-# expression, so a copy that drifted from this one would leave the index built and
-# never used, and nothing would fail to say so.
+# **The same path is written out twice more**, and both copies have to keep
+# meaning this one. Postgres matches an expression index to a query by comparing
+# expression trees, so a copy that drifts leaves the index built and never used,
+# with every test still passing and the queue quietly back to reading every
+# protocol on disk for each search.
+#
+# The two are:
+#
+# - database/migrations/versions/20260918_23a161edb386_artcodes_index.py, which
+#   creates the index. A migration must not import app/, for the reason it states
+#   at the top of itself, so it spells the whole expression out.
+# - the Index() in __table_args__ above, deliberately in a third spelling:
+#   '$."arten".*."name"'::jsonpath, which is how Postgres hands the expression
+#   back when Alembic reflects it. The three spellings mean one thing to the
+#   planner, which parses before it compares.
+#
+# TestArtindex in app/protokolle/pruefliste/dienst_test.py is what notices if
+# they stop meaning the same thing. It asks the database whether the real query
+# can use the real index, which is the only question that matters here and the
+# only one a string comparison could not answer.
 ARTCODES_PFAD = "$.arten.*.name"
 
 

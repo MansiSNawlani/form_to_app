@@ -16,8 +16,14 @@ app/models/protokoll.py**, which is the same rule the workflow-events migration
 above states: a migration records what the database was changed to on one day,
 while the model keeps moving afterwards, so a migration reaching into app/ starts
 failing the moment somebody edits a class it mentions. The model declares the
-same index so a reader of the table sees it; the two are kept the same by hand,
-and the tests are what would notice.
+same index so a reader of the table sees it, and app/models/protokoll.py builds
+the query's half of it from ARTCODES_PFAD. The three are kept the same by hand.
+
+What notices if they stop agreeing is TestArtindex in
+app/protokolle/pruefliste/dienst_test.py. It asks the database whether the real
+query can use the real index, rather than comparing the strings, because
+agreeing as text is neither necessary nor sufficient: the planner parses both
+before it compares them.
 
 Not CREATE INDEX CONCURRENTLY. Alembic runs a migration inside a transaction and
 CONCURRENTLY cannot run in one. Building it plainly takes a write lock on
