@@ -357,6 +357,61 @@ class TestFilterparameter:
 
         assert antwort.status_code == 422
 
+    async def test_reicht_die_art_durch(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        # SATR is the first species the complete example names, so the protocol
+        # this fixture hands in really did catch one.
+        eingereicht = await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        treffer = await client.get(PFAD, params={"art": "SATR"})
+        daneben = await client.get(PFAD, params={"art": "HECH"})
+
+        assert [zeile["id"] for zeile in treffer.json()["zeilen"]] == [eingereicht]
+        assert daneben.json()["zeilen"] == []
+
+    async def test_findet_auch_die_art_der_zweiten_zeile(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        eingereicht = await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(PFAD, params={"art": "COGO"})
+
+        assert [zeile["id"] for zeile in antwort.json()["zeilen"]] == [eingereicht]
+
+    async def test_beantwortet_einen_unbekannten_code_mit_einer_leeren_seite(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        # Not a 422. The code lists belong to a form version, and a protocol
+        # frozen on an older one may legitimately name a code the current list no
+        # longer carries, so the parameter is not checked against a list at all.
+        await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(PFAD, params={"art": "GIBTESNICHT"})
+
+        assert antwort.status_code == 200
+        assert antwort.json()["zeilen"] == []
+        assert antwort.json()["gesamt"] == 0
+
+    async def test_weist_eine_masslos_lange_art_zurueck(
+        self, client: AsyncClient, pruefer: None
+    ) -> None:
+        antwort = await client.get(PFAD, params={"art": "x" * 5000})
+
+        assert antwort.status_code == 422
+
 
 class TestSortierparameter:
     @pytest.fixture

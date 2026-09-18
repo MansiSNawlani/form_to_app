@@ -149,7 +149,7 @@ answers are touched.
       small and not a fault in the index: forced off sequential scans at that size
       it uses the index too. The development database was left at its own 18
       protocols.
-- [ ] **Step 3 - The endpoint.** `art` as a `Query` parameter on
+- [x] **Step 3 - The endpoint.** `art` as a `Query` parameter on
       `GET /api/v1/pruefliste`, length-capped like `suche`, documented in German
       on the route the way its five neighbours are. Tests in
       `backend/app/api/pruefliste_test.py`: the parameter narrows the answer, an
