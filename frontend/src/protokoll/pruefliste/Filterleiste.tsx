@@ -5,6 +5,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { labelId } from '../felder/rahmen'
 import { optionen } from '../optionen'
 import {
   PRUEFSTATUS,
@@ -41,7 +42,10 @@ function jahre(heute: Date): number[] {
 
 interface FilterleisteProps {
   abfrage: Prueflistenabfrage
-  onAendern: (aenderung: Aenderung) => void
+  /* ersetzen replaces the history entry instead of adding one. Only the search
+     box asks for it, because it fires on a pause in typing rather than on a
+     deliberate choice. */
+  onAendern: (aenderung: Aenderung, ersetzen?: boolean) => void
 }
 
 /* The five controls that decide what the queue shows.
@@ -76,7 +80,7 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
   useEffect(() => {
     if (suchtext === abfrage.suche) return
 
-    const zeitgeber = setTimeout(() => onAendern({ suche: suchtext }), TIPPPAUSE)
+    const zeitgeber = setTimeout(() => onAendern({ suche: suchtext }, true), TIPPPAUSE)
     return () => clearTimeout(zeitgeber)
   }, [suchtext, abfrage.suche, onAendern])
 
@@ -93,10 +97,17 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
         />
       </FormControl>
 
+      {/* The control somebody reaches in a MUI Select is a div with
+          role="combobox", not an input, so <label for> cannot name it: an id
+          passed the ordinary way lands on MUI's hidden aria-hidden input and
+          leaves the real control nameless. labelId and SelectDisplayProps are
+          the only wiring that names it, which is what felder/FeldAuswahl.tsx
+          already does for every dropdown on the protocol itself. */}
       <FormControl className="filters__feld">
-        <FormLabel htmlFor="pruefliste-status">{t('pruefliste.filter.status')}</FormLabel>
+        <FormLabel id={labelId('pruefliste-status')}>{t('pruefliste.filter.status')}</FormLabel>
         <Select
-          id="pruefliste-status"
+          labelId={labelId('pruefliste-status')}
+          SelectDisplayProps={{ id: 'pruefliste-status' }}
           value={abfrage.status}
           onChange={(ereignis) => onAendern({ status: ereignis.target.value as Statuswahl })}
         >
@@ -114,9 +125,10 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
       </FormControl>
 
       <FormControl className="filters__feld">
-        <FormLabel htmlFor="pruefliste-jahr">{t('pruefliste.filter.jahr')}</FormLabel>
+        <FormLabel id={labelId('pruefliste-jahr')}>{t('pruefliste.filter.jahr')}</FormLabel>
         <Select
-          id="pruefliste-jahr"
+          labelId={labelId('pruefliste-jahr')}
+          SelectDisplayProps={{ id: 'pruefliste-jahr' }}
           value={abfrage.jahr === null ? '' : String(abfrage.jahr)}
           onChange={(ereignis) =>
             onAendern({ jahr: ereignis.target.value === '' ? null : Number(ereignis.target.value) })
@@ -132,9 +144,10 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
       </FormControl>
 
       <FormControl className="filters__feld">
-        <FormLabel htmlFor="pruefliste-anlass">{t('pruefliste.filter.anlass')}</FormLabel>
+        <FormLabel id={labelId('pruefliste-anlass')}>{t('pruefliste.filter.anlass')}</FormLabel>
         <Select
-          id="pruefliste-anlass"
+          labelId={labelId('pruefliste-anlass')}
+          SelectDisplayProps={{ id: 'pruefliste-anlass' }}
           value={abfrage.anlass ?? ''}
           onChange={(ereignis) =>
             onAendern({ anlass: ereignis.target.value === '' ? null : ereignis.target.value })
@@ -152,11 +165,12 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
       </FormControl>
 
       <FormControl className="filters__feld">
-        <FormLabel htmlFor="pruefliste-sortierung">
+        <FormLabel id={labelId('pruefliste-sortierung')}>
           {t('pruefliste.filter.sortierung')}
         </FormLabel>
         <Select
-          id="pruefliste-sortierung"
+          labelId={labelId('pruefliste-sortierung')}
+          SelectDisplayProps={{ id: 'pruefliste-sortierung' }}
           value={abfrage.sortierung}
           onChange={(ereignis) =>
             onAendern({ sortierung: ereignis.target.value as Sortierung })

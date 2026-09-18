@@ -1,7 +1,8 @@
 # Feature: Die Pruefliste, der Bildschirm
 
 **From build-plan:** feature 12b
-**Status:** in progress on branch feature/12b-pruefliste-bildschirm
+**Status:** built on branch feature/12b-pruefliste-bildschirm, branch-reviewed on both
+axes, review findings fixed. Not yet tried in a browser.
 
 ## Goal
 
@@ -304,6 +305,8 @@ http://localhost:5173/pruefung, signed in as a reviewer.
 - `Filterleiste.tsx` - the five controls.
 - `PrueflistenTabelle.tsx`, `PrueflistenZeile.tsx` - the table.
 - `Pager.tsx` - paging.
+- `LeererZustand.tsx` - nothing to show, and which of the two reasons it is.
+- `Ladefehler.tsx` - the fetch failed, with a retry.
 - `KeineBerechtigung.tsx` - the refused-account state.
 - `pruefliste.css` - only what the mockup's `.filters` and the pager need.
 

@@ -166,6 +166,22 @@ export type Aenderung = Partial<Prueflistenabfrage>
 /** Everything that narrows or reorders the list, as opposed to paging it. */
 const FILTERFELDER = ['status', 'anlass', 'jahr', 'suche', 'sortierung'] as const
 
+/* Whether the reader has narrowed the queue themselves.
+ *
+ * The page number is deliberately not part of the answer, and that is the whole
+ * reason this is a named, tested function rather than a check on the query
+ * string. Asking "is anything in the address bar?" counts being on page 2 as
+ * being filtered, which makes an empty page past the end say "nothing matches
+ * your filters" to somebody who has set none, and offer them a reset button for
+ * filters that do not exist.
+ *
+ * The order is counted, because a reader who changed it has made a choice about
+ * the list that is worth offering to undo alongside the rest.
+ */
+export function istGefiltert(abfrage: Prueflistenabfrage): boolean {
+  return FILTERFELDER.some((feld) => abfrage[feld] !== STANDARD[feld])
+}
+
 /* A changed selection, back on the first page whenever the list itself changed.
  *
  * Without the reset, narrowing the queue while on page 4 lands on a page that no

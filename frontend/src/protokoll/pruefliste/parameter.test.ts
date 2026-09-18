@@ -3,6 +3,7 @@ import {
   abfrageAus,
   alsEndpunktParameter,
   alsSuchparameter,
+  istGefiltert,
   mitAenderung,
   OFFEN,
   STANDARD,
@@ -116,6 +117,28 @@ describe('mitAenderung', () => {
 
   it('clamps a page below the first', () => {
     expect(mitAenderung(STANDARD, { seite: 0 }).seite).toBe(1)
+  })
+})
+
+describe('istGefiltert', () => {
+  it('is false for the plain queue', () => {
+    expect(istGefiltert(STANDARD)).toBe(false)
+  })
+
+  /* The finding this function exists for. Asking "is anything in the address
+     bar?" counted page 2 as a filter, so an empty page past the end told a
+     reader who had narrowed nothing that nothing matched their filters, and
+     offered to reset filters that were not set. */
+  it('is false on a later page, because a page is not a filter', () => {
+    expect(istGefiltert(mitAenderung(STANDARD, { seite: 99 }))).toBe(false)
+  })
+
+  it('is true for each thing that narrows or reorders the list', () => {
+    expect(istGefiltert(mitAenderung(STANDARD, { status: 'alle' }))).toBe(true)
+    expect(istGefiltert(mitAenderung(STANDARD, { anlass: 'wrrl' }))).toBe(true)
+    expect(istGefiltert(mitAenderung(STANDARD, { jahr: 2025 }))).toBe(true)
+    expect(istGefiltert(mitAenderung(STANDARD, { suche: 'Argen' }))).toBe(true)
+    expect(istGefiltert(mitAenderung(STANDARD, { sortierung: 'gewaesser' }))).toBe(true)
   })
 })
 

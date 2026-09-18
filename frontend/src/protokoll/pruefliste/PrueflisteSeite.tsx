@@ -14,6 +14,7 @@ import PrueflistenTabelle from './PrueflistenTabelle'
 import {
   abfrageAus,
   alsSuchparameter,
+  istGefiltert,
   mitAenderung,
   STANDARD,
   type Aenderung,
@@ -58,13 +59,15 @@ function PrueflisteSeite() {
      mitAenderung on the way, which is what returns the reader to the first page
      when the list itself changed.
 
-     replace rather than push: filtering is refining one question, not visiting a
-     series of pages, and pushing would make Back undo a search letter by letter
-     instead of leaving the screen. */
+     Pushing a history entry by default, so Back undoes the last thing the reader
+     did to the list rather than leaving the screen entirely. Only the search box
+     replaces instead, and only because it fires on a pause in typing: pushed, a
+     six-letter water name would put six entries in the history and Back would
+     walk out of it one letter at a time. */
   const aendern = useCallback(
-    (aenderung: Aenderung) => {
+    (aenderung: Aenderung, ersetzen = false) => {
       setSuchparameter(alsSuchparameter(mitAenderung(abfrageAus(suchparameter), aenderung)), {
-        replace: true,
+        replace: ersetzen,
       })
     },
     [suchparameter, setSuchparameter],
@@ -80,7 +83,6 @@ function PrueflisteSeite() {
     return <KeineBerechtigung />
   }
 
-  const gefiltert = alsSuchparameter(abfrage).toString() !== ''
   const zeilen = seite?.zeilen ?? []
 
   return (
@@ -118,16 +120,20 @@ function PrueflisteSeite() {
           </div>
         )}
 
-        {seite !== undefined && zeilen.length === 0 && (
-          <LeererZustand gefiltert={gefiltert} onZuruecksetzen={zuruecksetzen} />
+        {/* gesamt, not the rows on this page. A page past the end also comes back
+            with no rows, and it is not empty in the sense this state means: there
+            are protocols behind it and a pager that can reach them, so telling
+            the reader nothing matched would be untrue and the reset button would
+            offer to undo filters they never set. */}
+        {seite !== undefined && seite.gesamt === 0 && (
+          <LeererZustand gefiltert={istGefiltert(abfrage)} onZuruecksetzen={zuruecksetzen} />
         )}
 
         {zeilen.length > 0 && <PrueflistenTabelle zeilen={zeilen} />}
 
-        {/* Kept for a page past the end, which comes back empty with the true
-            total: the pager is then the way back rather than a dead end, which is
-            why this is not inside the rows check above. */}
-        {seite !== undefined && (seite.gesamt > 0 || seite.seite > 1) && (
+        {/* Drawn whenever there is anything to page through, including on a page
+            past the end, where it is the only way back. */}
+        {seite !== undefined && seite.gesamt > 0 && (
           <Pager
             seite={seite.seite}
             seiten={seite.seiten}
