@@ -137,7 +137,7 @@ test.describe('Die Pruefliste', () => {
     await page.goto('/pruefung')
 
     await expect(page.getByRole('searchbox', { name: 'Suche' })).toBeVisible()
-    for (const name of ['Status', 'Jahr', 'Anlass', 'Sortierung']) {
+    for (const name of ['Status', 'Jahr', 'Anlass', 'Art', 'Sortierung']) {
       await expect(page.getByRole('combobox', { name })).toBeVisible()
     }
   })
@@ -174,7 +174,7 @@ test.describe('Die Pruefliste', () => {
     await page.goto('/pruefung')
     await page.getByRole('searchbox', { name: 'Suche' }).focus()
 
-    for (const erwartet of ['Status', 'Jahr', 'Anlass', 'Sortierung']) {
+    for (const erwartet of ['Status', 'Jahr', 'Anlass', 'Art', 'Sortierung']) {
       await page.keyboard.press('Tab')
       await expect(page.locator(':focus')).toHaveAccessibleName(erwartet)
     }
@@ -200,6 +200,113 @@ test.describe('Die Pruefliste', () => {
     await expect(page.getByRole('combobox', { name: 'Sortierung' })).toHaveText(
       'Längste Wartezeit zuerst',
     )
+    /* The species picker is an input rather than a MUI Select, so what it is set
+       to is its value. Unset, it says so through its placeholder instead of
+       standing there as an empty box. */
+    const art = page.getByRole('combobox', { name: 'Art' })
+    await expect(art).toHaveValue('')
+    await expect(art).toHaveAttribute('placeholder', 'Alle Arten')
+  })
+})
+
+/* Feature 12c. The one filter that is not a column comparison: it reads the
+   catch table inside each protocol's answers document.
+
+   Every test asks the endpoint for the same species first and asserts against
+   that, rather than against a number written down here. What is in the
+   development database is whatever earlier work left in it, and a test expecting
+   two rows is a test that starts failing on somebody else's machine. */
+test.describe('Die Suche nach Art', () => {
+  /* Bachneunauge, adult. Any entry in the picker would do; what this one has is
+     a protocol in the development database that names it. */
+  const ART = { code: 'BNEA', label: 'Bachneunauge, adult' }
+
+  test.beforeEach(async ({ page }) => {
+    await anmelden(page, PRUEFER!)
+  })
+
+  /* Skipped rather than passed when the development database holds no protocol
+     with this species in it, and the skip says how to stop skipping. The same
+     arrangement konten.ts uses for the credentials, and for the same reason: a
+     test that quietly proves nothing must not read as a test that passed. */
+  async function treffer(page: Page): Promise<number> {
+    const anzahl = await gesamt(page, `status=SUBMITTED&status=IN_REVIEW&art=${ART.code}`)
+    test.skip(
+      anzahl === 0,
+      `Kein offenes Protokoll mit der Art ${ART.label} in dieser Datenbank.` +
+        ' Eines einreichen, das diese Art in der Fangtabelle nennt.',
+    )
+    return anzahl
+  }
+
+  test('engt die Liste auf die Protokolle mit dieser Art ein', async ({ page }) => {
+    const mitArt = await treffer(page)
+    const ohneArt = await gesamt(page, 'status=SUBMITTED&status=IN_REVIEW')
+    expect(mitArt).toBeLessThan(ohneArt)
+
+    await page.goto('/pruefung')
+    await expect(page.getByText(new RegExp(`^${ohneArt} eingereichte`))).toBeVisible()
+
+    await page.getByRole('combobox', { name: 'Art' }).fill(ART.label)
+    await page.getByRole('option', { name: ART.label, exact: true }).click()
+
+    await expect(page).toHaveURL(new RegExp(`art=${ART.code}`))
+    await expect(page.getByText(new RegExp(`^${mitArt} eingereichte`))).toBeVisible()
+  })
+
+  test('ueberlebt einen Reload und laesst sich als Link weitergeben', async ({ page }) => {
+    const mitArt = await treffer(page)
+
+    await page.goto(`/pruefung?art=${ART.code}`)
+
+    await expect(page.getByRole('combobox', { name: 'Art' })).toHaveValue(ART.label)
+    await expect(page.getByText(new RegExp(`^${mitArt} eingereichte`))).toBeVisible()
+  })
+
+  test('macht der Zurueck-Knopf die Artwahl rueckgaengig', async ({ page }) => {
+    const mitArt = await treffer(page)
+    const ohneArt = await gesamt(page, 'status=SUBMITTED&status=IN_REVIEW')
+
+    await page.goto('/pruefung')
+
+    await page.getByRole('combobox', { name: 'Art' }).fill(ART.label)
+    await page.getByRole('option', { name: ART.label, exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`art=${ART.code}`))
+    /* Waiting for the narrowed list before going back, and not only for the
+       address bar. Back pressed inside the same tick as the choice is a race no
+       reader can run, and it leaves the screen showing one selection while the
+       address carries the other. */
+    await expect(page.getByText(new RegExp(`^${mitArt} eingereichte`))).toBeVisible()
+
+    await page.goBack()
+    await expect(page.getByText(new RegExp(`^${ohneArt} eingereichte`))).toBeVisible()
+
+    await expect(page).toHaveURL(/\/pruefung$/)
+    await expect(page.getByRole('combobox', { name: 'Art' })).toHaveValue('')
+  })
+
+  test('zaehlt als Filter, wenn nichts passt', async ({ page }) => {
+    /* KNMU is "kein Nachweis, Muscheln", an ordinary entry in the picker that no
+       protocol here names. The queue has to say the filters matched nothing and
+       offer the way back, rather than reading as an empty database. */
+    await page.goto('/pruefung?art=KNMU')
+
+    await expect(page.getByText('Keine Protokolle zu diesen Filtern')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+
+    await expect(page).toHaveURL(/\/pruefung$/)
+  })
+
+  test('laesst sich mit der Tastatur allein waehlen', async ({ page }) => {
+    await page.goto('/pruefung')
+
+    await page.getByRole('combobox', { name: 'Art' }).focus()
+    await page.keyboard.type('Hecht')
+    await page.keyboard.press('Enter')
+
+    await expect(page).toHaveURL(/art=HECH/)
+    await expect(page.getByRole('combobox', { name: 'Art' })).toHaveValue('Hecht')
   })
 })
 

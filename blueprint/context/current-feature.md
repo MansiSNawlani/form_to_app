@@ -1,7 +1,7 @@
 # Feature: Suche nach Art
 
 **From build-plan:** feature 12c
-**Status:** in progress on feature/12c-suche-nach-art
+**Status:** built on feature/12c-suche-nach-art, all six steps done and checked
 
 ## Goal
 
@@ -169,7 +169,7 @@ answers are touched.
       *Done when:* picking a species narrows the list and puts `art=` in the
       address bar, clearing it returns to all species, the control is reachable and
       operable by keyboard alone, and `npm run build` and `npm run lint` are clean.
-- [ ] **Step 6 - Browser evidence.** Tests in `frontend/e2e/pruefliste.spec.ts`
+- [x] **Step 6 - Browser evidence.** Tests in `frontend/e2e/pruefliste.spec.ts`
       addressing the control by its accessible role and name: the species filter
       narrows the count to what the endpoint says for the same code, it survives a
       reload, Back undoes it, and the control announces what it is set to. Plus one
