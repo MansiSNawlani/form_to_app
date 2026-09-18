@@ -28,9 +28,11 @@ the real rule and the reason the columns could not simply be declared NOT NULL.
 import uuid
 from datetime import date, datetime, time
 from enum import StrEnum
+from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    ColumnElement,
     Date,
     DateTime,
     ForeignKey,
@@ -38,10 +40,11 @@ from sqlalchemy import (
     Text,
     Time,
     Uuid,
+    cast,
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, JSONPATH
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -232,3 +235,34 @@ class Submission(Base):
         # No answers. A repr ends up in logs and test failures, and a protocol's
         # contents are survey data that has no business in either.
         return f"<Submission {self.id} {self.status.value} v{self.version}>"
+
+
+#: Where the species codes of a catch table sit inside the answers document.
+#
+# A wildcard over the rows rather than twenty-six paths: it collects whichever of
+# arten.art1 to arten.art26 the document actually carries, so a document with
+# fewer rows, or one day more, needs no change here. The row count is the printed
+# form's and feature 23's import may yet meet a document that does not share it.
+#
+# **This exact string is also the index's**, in the migration that creates
+# ix_submissions_artcodes. Postgres matches an expression index to a query by the
+# expression, so a copy that drifted from this one would leave the index built and
+# never used, and nothing would fail to say so.
+ARTCODES_PFAD = "$.arten.*.name"
+
+
+def artcodes() -> ColumnElement[Any]:
+    """Every species a catch table names, as a JSON array of export codes.
+
+    Written as one expression so the query in
+    app/protokolle/pruefliste/dienst.py and the index over the same values are
+    built from one piece of code rather than two matching strings.
+
+    type_ is not decoration. Without it SQLAlchemy does not know the result is
+    JSONB, and .contains() on the expression compiles to LIKE against a jsonb
+    value, which Postgres refuses outright. With it, .contains() is the @>
+    containment operator the index is built for.
+    """
+    return func.jsonb_path_query_array(
+        Submission.antworten, cast(ARTCODES_PFAD, JSONPATH), type_=JSONB
+    )

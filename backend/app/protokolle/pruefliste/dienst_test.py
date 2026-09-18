@@ -7,7 +7,7 @@ that difference is the first test below.
 """
 
 import uuid
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Mapping
 from datetime import UTC, date, datetime, time
 
 import pytest
@@ -56,6 +56,7 @@ def protokoll(session: AsyncSession) -> Callable[..., Awaitable[Submission]]:
         datum: date = date(2026, 6, 9),
         submitted_at: datetime = EINGEREICHT,
         bearbeiter_name: str = "Anna Weber",
+        arten: Mapping[int, str] | None = None,
     ) -> Submission:
         gewaesser = Gewaesser(
             id=uuid.uuid4(), name=gewaessername, vorfluter=["Bodensee", "Rhein"]
@@ -101,11 +102,20 @@ def protokoll(session: AsyncSession) -> Callable[..., Awaitable[Submission]]:
             }
         )
 
+        # The catch table as the form stores it: a row per species, keyed by its
+        # row number, and nothing else in it. The counts are left out on purpose.
+        # The species filter must find a row by the species it names whether or
+        # not anybody got as far as counting, and a fixture that always filled
+        # the counts in would never say so.
+        antworten: dict[str, str | dict[str, object]] = {}
+        if arten is not None:
+            antworten["arten"] = {f"art{nr}": {"name": code} for nr, code in arten.items()}
+
         eintrag = Submission(
             owner_user_id=besitzer.id,
             status=status,
             form_version="20260609",
-            antworten={},
+            antworten=antworten,
             **umschlag,
         )
         session.add(eintrag)
@@ -552,6 +562,132 @@ class TestSuche:
 
         seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="   "))
 
+        assert seite.gesamt == 1
+
+
+class TestArtfilter:
+    """Searching the catch table, which is the one filter that is not a column.
+
+    Every other filter here compares something the database indexed as a value of
+    its own. This one asks whether any of up to twenty-six rows inside the
+    antworten document names a species, which is why feature 12c was split out of
+    12b and why these tests run against a real Postgres rather than a stand-in.
+    """
+
+    async def test_findet_das_protokoll_das_die_art_nennt(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        hecht = await protokoll(surveyor, arten={1: "HECH", 2: "BACH"})
+        await protokoll(surveyor, arten={1: "AALE"})
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="HECH"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [hecht.id]
+
+    async def test_findet_die_art_in_jeder_zeile_der_tabelle(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The twenty-sixth row is as findable as the first. A query written as one
+        # comparison against arten.art1 would pass every other test in this class.
+        spaet = await protokoll(surveyor, arten={1: "AALE", 26: "HECH"})
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="HECH"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [spaet.id]
+
+    async def test_laesst_ein_protokoll_ohne_fangtabelle_draussen(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # A document with no arten key at all, which is what a protocol imported
+        # or written before part 6 was filled in looks like. The query has to
+        # answer "no" rather than fail on the missing key.
+        await protokoll(surveyor)
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="HECH"))
+
+        assert seite.zeilen == []
+        assert seite.gesamt == 0
+
+    async def test_unterscheidet_zwei_codes_mit_gleichem_anfang(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The whole code or nothing. A filter that matched on a prefix would
+        # answer "Aal" with every Aalquappe in the database.
+        await protokoll(surveyor, arten={1: "AALQ"})
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="AALE"))
+
+        assert seite.zeilen == []
+
+    async def test_findet_kein_nachweis_wie_jede_andere_art(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # OFAN is an ordinary entry in the picker, so "which surveys found
+        # nothing" is a question the queue answers with no extra code.
+        ohne_fang = await protokoll(surveyor, arten={1: "OFAN"})
+        await protokoll(surveyor, arten={1: "HECH"})
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="OFAN"))
+
+        assert [zeile.id for zeile in seite.zeilen] == [ohne_fang.id]
+
+    async def test_uebergeht_eine_zeile_ohne_art(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # A started row that names nothing is stored as an empty name, so the
+        # extracted codes hold a "" that must not match a real search.
+        await protokoll(surveyor, arten={1: "", 2: "HECH"})
+
+        leer = await liste_pruefliste(session, auswahl=Prueffilter(art=""))
+        treffer = await liste_pruefliste(session, auswahl=Prueffilter(art="HECH"))
+
+        # An empty filter is no filter, the same as an empty search box.
+        assert len(leer.zeilen) == 1
+        assert len(treffer.zeilen) == 1
+
+    async def test_findet_nichts_zu_einem_unbekannten_code(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # A hand-typed address rather than the picker. An empty answer, not a
+        # failure: the code lists belong to a form version, and refusing anything
+        # the current list lacks would refuse a code an older protocol may
+        # legitimately carry.
+        await protokoll(surveyor, arten={1: "HECH"})
+
+        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="GIBTESNICHT"))
+
+        assert seite.zeilen == []
+        assert seite.gesamt == 0
+
+    async def test_zaehlt_nur_die_protokolle_mit_der_art(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        for _ in range(3):
+            await protokoll(surveyor, arten={1: "HECH"})
+        for _ in range(7):
+            await protokoll(surveyor, arten={1: "AALE"})
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(art="HECH"), pro_seite=2
+        )
+
+        assert seite.gesamt == 3
+        assert seite.seiten == 2
+
+    async def test_engt_zusammen_mit_dem_status_ein(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        treffer = await protokoll(
+            surveyor, arten={1: "HECH"}, status=Status.SUBMITTED
+        )
+        await protokoll(surveyor, arten={1: "HECH"}, status=Status.REJECTED)
+        await protokoll(surveyor, arten={1: "AALE"}, status=Status.SUBMITTED)
+
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(status=(Status.SUBMITTED,), art="HECH")
+        )
+
+        assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
         assert seite.gesamt == 1
 
 

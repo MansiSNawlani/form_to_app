@@ -33,7 +33,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.benutzer import User
 from app.models.gewaesser import Gewaesser
 from app.models.probestrecke import Probestrecke
-from app.models.protokoll import Status, Submission
+from app.models.protokoll import Status, Submission, artcodes
 from app.protokolle.pruefliste.parameter import (
     ESCAPE,
     PRO_SEITE_STANDARD,
@@ -123,6 +123,10 @@ class Prueffilter:
     jahr: int | None = None
     #: The free text box. Split into words, each of which has to find something.
     suche: str | None = None
+    #: One species export code, e.g. "HECH". The catch table has to name it.
+    #: One rather than several, because the screen gives it one dropdown and
+    #: "Hecht and Aal" would first have to decide whether it means both or either.
+    art: str | None = None
 
 
 class Sortierung(StrEnum):
@@ -163,11 +167,14 @@ _ORDNUNGEN: dict[Sortierung, tuple[ColumnElement[Any], ...]] = {
 def _bedingungen(auswahl: Prueffilter) -> list[ColumnElement[bool]]:
     """The filters as WHERE clauses, in the order a reader would ask them.
 
-    The search is the only one that is not a plain comparison. Each word the
-    person typed becomes its own clause, and within a clause the word may sit in
-    the water's name, the Ortsangabe or the Monitoringstrecken-Nr. That is what
-    makes "Schussen Weissenau" find the row whose water is one and whose place is
-    the other; requiring both words in one column would find nothing.
+    Two of them are not plain comparisons: the free text search, below, and the
+    species, which reads inside the answers document rather than a column.
+
+    Each word the person typed becomes its own clause, and within a clause the
+    word may sit in the water's name, the Ortsangabe or the
+    Monitoringstrecken-Nr. That is what makes "Schussen Weissenau" find the row
+    whose water is one and whose place is the other; requiring both words in one
+    column would find nothing.
 
     ILIKE rather than LIKE, because nobody searching for a water types its
     capitals the way the surveyor did. The explicit escape is what stops a typed %
@@ -186,6 +193,23 @@ def _bedingungen(auswahl: Prueffilter) -> list[ColumnElement[bool]]:
     if auswahl.jahr is not None:
         von, bis = jahresgrenzen(auswahl.jahr)
         bedingungen.append(Submission.datum.between(von, bis))
+
+    # The one filter that is not a column comparison. artcodes() collects the
+    # species out of whichever catch rows the document has, and @> asks whether
+    # the chosen code is among them.
+    #
+    # Containment over an extracted array rather than twenty-six comparisons
+    # against arten.art1 to arten.art26. One expression covers every row, the
+    # match is on the whole code so "Aal" cannot find an Aalquappe, and it is the
+    # shape ix_submissions_artcodes indexes; twenty-six ORs would need
+    # twenty-six indexes to stay fast.
+    #
+    # A blank code is no filter, the same as a blank search box. A protocol's
+    # untouched catch rows are stored with an empty name, so treating "" as a
+    # species to look for would answer with every half-filled protocol in the
+    # database.
+    if auswahl.art:
+        bedingungen.append(artcodes().contains([auswahl.art]))
 
     for begriff in suchbegriffe(auswahl.suche):
         muster = suchmuster(begriff)
