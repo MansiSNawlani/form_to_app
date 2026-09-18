@@ -27,13 +27,16 @@ describe('abfrageAus', () => {
   })
 
   it('reads every filter back out of the address', () => {
-    const abfrage = aus('status=REJECTED&anlass=wrrl&jahr=2025&suche=Schussen&sortierung=gewaesser&seite=3')
+    const abfrage = aus(
+      'status=REJECTED&anlass=wrrl&jahr=2025&suche=Schussen&art=HECH&sortierung=gewaesser&seite=3',
+    )
 
     expect(abfrage).toEqual({
       status: 'REJECTED',
       anlass: 'wrrl',
       jahr: 2025,
       suche: 'Schussen',
+      art: 'HECH',
       sortierung: 'gewaesser',
       seite: 3,
     })
@@ -70,6 +73,7 @@ describe('alsSuchparameter', () => {
 
   it('writes only what differs from the default', () => {
     expect(adresse({ anlass: 'wrrl' })).toBe('anlass=wrrl')
+    expect(adresse({ art: 'HECH' })).toBe('art=HECH')
     expect(adresse({ jahr: 2025 })).toBe('jahr=2025')
     expect(adresse({ status: 'alle' })).toBe('status=alle')
   })
@@ -83,6 +87,7 @@ describe('alsSuchparameter', () => {
       anlass: 'ffh',
       jahr: 2024,
       suche: 'Wolfegger Ach',
+      art: 'HECH',
       sortierung: 'datum_neu',
     })
 
@@ -101,6 +106,7 @@ describe('mitAenderung', () => {
     expect(mitAenderung(seite4, { suche: 'Argen' }).seite).toBe(1)
     expect(mitAenderung(seite4, { status: 'alle' }).seite).toBe(1)
     expect(mitAenderung(seite4, { jahr: 2025 }).seite).toBe(1)
+    expect(mitAenderung(seite4, { art: 'HECH' }).seite).toBe(1)
     expect(mitAenderung(seite4, { sortierung: 'gewaesser' }).seite).toBe(1)
   })
 
@@ -138,6 +144,7 @@ describe('istGefiltert', () => {
     expect(istGefiltert(mitAenderung(STANDARD, { anlass: 'wrrl' }))).toBe(true)
     expect(istGefiltert(mitAenderung(STANDARD, { jahr: 2025 }))).toBe(true)
     expect(istGefiltert(mitAenderung(STANDARD, { suche: 'Argen' }))).toBe(true)
+    expect(istGefiltert(mitAenderung(STANDARD, { art: 'HECH' }))).toBe(true)
     expect(istGefiltert(mitAenderung(STANDARD, { sortierung: 'gewaesser' }))).toBe(true)
   })
 })
@@ -173,16 +180,31 @@ describe('alsEndpunktParameter', () => {
     expect(parameter.has('anlass')).toBe(false)
     expect(parameter.has('jahr')).toBe(false)
     expect(parameter.has('suche')).toBe(false)
+    expect(parameter.has('art')).toBe(false)
   })
 
   it('sends the filters that are set', () => {
     const parameter = alsEndpunktParameter(
-      mitAenderung(STANDARD, { anlass: 'wrrl', jahr: 2025, suche: 'Schussen Weissenau' }),
+      mitAenderung(STANDARD, {
+        anlass: 'wrrl',
+        jahr: 2025,
+        suche: 'Schussen Weissenau',
+        art: 'HECH',
+      }),
     )
 
     expect(parameter.get('anlass')).toBe('wrrl')
     expect(parameter.get('jahr')).toBe('2025')
     expect(parameter.get('suche')).toBe('Schussen Weissenau')
+    expect(parameter.get('art')).toBe('HECH')
+  })
+
+  /* A species that is only whitespace is nobody's choice. The picker cannot
+     produce one; a hand-edited address can, and sending it on would narrow the
+     queue to the protocols with a blank species row in them. */
+  it('sends no species for a blank one in the address', () => {
+    expect(alsEndpunktParameter(aus('art=%20%20')).has('art')).toBe(false)
+    expect(aus('art=%20%20').art).toBeNull()
   })
 
   /* Trimmed on the way out, not on the way in, so somebody typing a second word

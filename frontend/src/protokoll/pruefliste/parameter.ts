@@ -75,6 +75,8 @@ export interface Prueflistenabfrage {
   jahr: number | null
   /** As typed, untrimmed. Trimmed on the way to the endpoint, not on the way in. */
   suche: string
+  /** One species export code, as the catch table stores it, e.g. "HECH". */
+  art: string | null
   sortierung: Sortierung
   seite: number
 }
@@ -85,6 +87,7 @@ export const STANDARD: Prueflistenabfrage = {
   anlass: null,
   jahr: null,
   suche: '',
+  art: null,
   sortierung: 'eingereicht_alt',
   seite: 1,
 }
@@ -122,6 +125,19 @@ function seiteAus(roh: string | null): number {
   return Number.isNaN(seite) ? STANDARD.seite : begrenzeSeite(seite)
 }
 
+/* The species, or nothing.
+ *
+ * The code is not checked against the form's list. The picker can only offer
+ * real ones, and a list belongs to a form version: a protocol frozen on an older
+ * one may legitimately name a code today's list no longer carries, and the
+ * endpoint answers an unknown code with an empty page rather than a refusal.
+ * Whitespace alone is nobody's choice and becomes no filter, the same as an empty
+ * search box.
+ */
+function artAus(roh: string | null): string | null {
+  return roh === null || roh.trim() === '' ? null : roh.trim()
+}
+
 function sucheAus(roh: string | null): string {
   // Whitespace alone is the same as no search, so a box somebody tabbed through
   // does not narrow the queue to nothing.
@@ -135,6 +151,7 @@ export function abfrageAus(parameter: URLSearchParams): Prueflistenabfrage {
     anlass: parameter.get('anlass'),
     jahr: jahrAus(parameter.get('jahr')),
     suche: sucheAus(parameter.get('suche')),
+    art: artAus(parameter.get('art')),
     sortierung: sortierungAus(parameter.get('sortierung')),
     seite: seiteAus(parameter.get('seite')),
   }
@@ -152,6 +169,7 @@ export function alsSuchparameter(abfrage: Prueflistenabfrage): URLSearchParams {
   if (abfrage.anlass !== null) parameter.set('anlass', abfrage.anlass)
   if (abfrage.jahr !== null) parameter.set('jahr', String(abfrage.jahr))
   if (abfrage.suche !== '') parameter.set('suche', abfrage.suche)
+  if (abfrage.art !== null) parameter.set('art', abfrage.art)
   if (abfrage.sortierung !== STANDARD.sortierung) {
     parameter.set('sortierung', abfrage.sortierung)
   }
@@ -164,7 +182,7 @@ export function alsSuchparameter(abfrage: Prueflistenabfrage): URLSearchParams {
 export type Aenderung = Partial<Prueflistenabfrage>
 
 /** Everything that narrows or reorders the list, as opposed to paging it. */
-const FILTERFELDER = ['status', 'anlass', 'jahr', 'suche', 'sortierung'] as const
+const FILTERFELDER = ['status', 'anlass', 'jahr', 'suche', 'art', 'sortierung'] as const
 
 /* Whether the reader has narrowed the queue themselves.
  *
@@ -220,6 +238,8 @@ export function alsEndpunktParameter(abfrage: Prueflistenabfrage): URLSearchPara
 
   const suche = abfrage.suche.trim()
   if (suche !== '') parameter.set('suche', suche)
+
+  if (abfrage.art !== null) parameter.set('art', abfrage.art)
 
   parameter.set('sortierung', abfrage.sortierung)
   parameter.set('seite', String(abfrage.seite))

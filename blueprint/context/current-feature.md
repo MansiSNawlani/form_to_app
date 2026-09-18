@@ -156,7 +156,7 @@ answers are touched.
       unknown code answers an empty page with `gesamt` 0 rather than a 422, and it
       is still refused for a non-FFS account. *Done when:* `pytest` passes and the
       parameter is visible and described at `/api/v1/docs`.
-- [ ] **Step 4 - The address bar.** `art` on `Prueflistenabfrage`, read by
+- [x] **Step 4 - The address bar.** `art` on `Prueflistenabfrage`, read by
       `abfrageAus`, written by `alsSuchparameter` and `alsEndpunktParameter`, and
       added to `FILTERFELDER` so it counts as a filter for the empty state and the
       reset button. Tests in `parameter.test.ts`. *Done when:* `npm test` passes,
