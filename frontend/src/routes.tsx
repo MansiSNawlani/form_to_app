@@ -4,6 +4,7 @@ import NotFound from './components/NotFound'
 import AnmeldungSeite from './auth/AnmeldungSeite'
 import SitzungsWaechter from './auth/SitzungsWaechter'
 import ProtokolleSeite from './protokoll/liste/ProtokolleSeite'
+import PrueflisteSeite from './protokoll/pruefliste/PrueflisteSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import PruefungsSeite from './protokoll/pruefung/PruefungsSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
@@ -55,6 +56,17 @@ export const router = createBrowserRouter([
            * permission is answered with the same "not found" as for an id that
            * does not exist. Hiding a route is not a permission. */
           { path: 'protokolle/:id/pruefung', element: <PruefungsSeite /> },
+          /* The review queue, and the one page that reads across every account.
+           *
+           * No role requirement here either, and for the reason given just
+           * above: the endpoint refuses an account that has no business with it,
+           * and the page turns that refusal into words with a way onward. Hiding
+           * a route is not a permission.
+           *
+           * Its filters live in the address bar rather than in the page, which
+           * is what lets a filtered queue be shared as a link and what feature
+           * 12d needs to walk the list from a protocol's own URL. */
+          { path: 'pruefung', element: <PrueflisteSeite /> },
           { path: '*', element: <NotFound /> },
         ],
       },

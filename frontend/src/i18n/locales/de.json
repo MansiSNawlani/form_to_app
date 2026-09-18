@@ -7,6 +7,11 @@
     "header": {
       "themeToggle": "Dunkles Design"
     },
+    "nav": {
+      "beschriftung": "Hauptnavigation",
+      "meineProtokolle": "Meine Protokolle",
+      "pruefliste": "Prüfliste"
+    },
     "footer": {
       "legalNavLabel": "Rechtliches",
       "impressum": "Impressum",
@@ -113,6 +118,68 @@
         "text": "Die Liste ist gerade nicht erreichbar. Ihre Protokolle sind gespeichert und gehen nicht verloren. Bitte versuchen Sie es noch einmal.",
         "erneut": "Erneut versuchen"
       }
+    }
+  },
+  "pruefliste": {
+    "titel": "Prüfliste",
+    "laedt": "Prüfliste wird geladen.",
+    "anzahl_one": "{{count}} eingereichtes Protokoll",
+    "anzahl_other": "{{count}} eingereichte Protokolle",
+    "filter": {
+      "beschriftung": "Prüfliste filtern",
+      "suche": "Suche",
+      "suchePlatzhalter": "Gewässer, Ortsangabe oder Monitoringstrecken-Nr.",
+      "status": "Status",
+      "statusOffen": "Offen",
+      "statusAlle": "Alle",
+      "jahr": "Jahr",
+      "jahrAlle": "Alle",
+      "anlass": "Anlass",
+      "anlassAlle": "Alle",
+      "sortierung": "Sortierung",
+      "zuruecksetzen": "Filter zurücksetzen"
+    },
+    "sortierungen": {
+      "eingereicht_alt": "Längste Wartezeit zuerst",
+      "eingereicht_neu": "Zuletzt eingereicht zuerst",
+      "datum_neu": "Neueste Befischung zuerst",
+      "gewaesser": "Gewässer von A bis Z"
+    },
+    "tabelle": {
+      "beschriftung": "Eingereichte Protokolle",
+      "gewaesser": "Gewässer und Probestrecke",
+      "datum": "Datum",
+      "anlass": "Anlass",
+      "bearbeiter": "Bearbeiter",
+      "status": "Status",
+      "eingereicht": "Eingereicht",
+      "aktion": "Aktion",
+      "monitoringstrecke": "MST {{nummer}}",
+      "pruefen": "Prüfen"
+    },
+    "pager": {
+      "beschriftung": "Seiten der Prüfliste",
+      "zurueck": "Zurück",
+      "weiter": "Weiter",
+      "stand": "Seite {{seite}} von {{seiten}}"
+    },
+    "leer": {
+      "titel": "Noch nichts eingereicht",
+      "text": "Sobald ein Protokoll abgeschickt wird, erscheint es hier und kann geprüft werden."
+    },
+    "keineTreffer": {
+      "titel": "Keine Protokolle zu diesen Filtern",
+      "text": "Es sind Protokolle vorhanden, aber keines passt zu der aktuellen Auswahl. Setzen Sie die Filter zurück, um wieder alle offenen Protokolle zu sehen."
+    },
+    "ladefehler": {
+      "titel": "Die Prüfliste konnte nicht geladen werden",
+      "text": "Die Liste ist gerade nicht erreichbar. Es ist nichts verloren gegangen. Bitte versuchen Sie es noch einmal.",
+      "erneut": "Erneut versuchen"
+    },
+    "keineBerechtigung": {
+      "titel": "Die Prüfliste ist für Mitarbeitende der FFS",
+      "text": "Ihr Konto darf nur die eigenen Protokolle sehen. Wenn Sie hier Zugriff brauchen, wenden Sie sich an die Administration.",
+      "knopf": "Zu meinen Protokollen"
     }
   },
   "protokoll": {
