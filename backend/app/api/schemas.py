@@ -12,7 +12,8 @@ habit, because a model built from the whole row would gain any column added late
 """
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -285,6 +286,87 @@ class ProtokollUebersicht(BaseModel):
     #: The day of the survey. updated_at is the day the draft was last touched.
     datum: str | None
     anlass: str | None
+
+
+class Pruefstatus(StrEnum):
+    """Which states the review queue may be asked for: every one but DRAFT.
+
+    A narrower enum rather than a hand-written check, so asking for drafts is
+    refused by FastAPI with a 422 and the generated docs list the six acceptable
+    values instead of seven with one that always fails.
+
+    Drafts are missing because the queue never lists one. Accepting DRAFT here and
+    quietly returning nothing would read like a database with no protocols in it,
+    which is a worse answer than saying no.
+
+    Pinned against Status in app/api/schemas_test.py, so a state added to the
+    protocol later cannot silently become unaskable here.
+    """
+
+    SUBMITTED = "SUBMITTED"
+    IN_REVIEW = "IN_REVIEW"
+    NEEDS_CHANGES = "NEEDS_CHANGES"
+    REJECTED = "REJECTED"
+    ACCEPTED = "ACCEPTED"
+    LOCKED = "LOCKED"
+
+
+class PruefzeileAntwort(BaseModel):
+    """One protocol as the review queue shows it, without its answers.
+
+    Mirrors Pruefzeile in app/protokolle/pruefliste/dienst.py, which is where
+    every value below is read. Load-bearing: feature 12b renders exactly these
+    fields, 12c adds a filter over them and 12d walks the list they come in.
+
+    **Deliberately not ProtokollUebersicht.** That model is Meine Protokolle's. It
+    reads five display values out of the answers document, because a draft has no
+    envelope behind it, and it carries no Bearbeiter, no filer and no region.
+    Widening it to serve both screens would put nullable fields on a list that
+    never needs them and tie two screens to one shape.
+
+    Four of these are nullable columns on the row and are not optional here.
+    umschlag_bei_abgabe requires the whole envelope the moment a protocol leaves
+    DRAFT, and nothing in this list is a draft.
+
+    What each field means is written once, on Pruefzeile. Saying it again here
+    would be two descriptions of one value, free to drift apart.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    status: Status
+    form_version: str
+
+    datum: date
+    anlass: str
+    bearbeiter_name: str
+    submitted_at: datetime
+    updated_at: datetime
+
+    eingereicht_von: str
+
+    gewaessername: str
+    ortsangabe: str
+    laenge_m: int
+    monitoringstrecke_nr: str | None
+    regierungspraesidium: int
+
+
+class PrueflisteAntwort(BaseModel):
+    """One page of the review queue, and enough to draw a pager around it.
+
+    Mirrors Prueflistenseite in app/protokolle/pruefliste/dienst.py, which is
+    where what each of the four numbers promises is written down.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    zeilen: list[PruefzeileAntwort]
+    gesamt: int
+    seite: int
+    pro_seite: int
+    seiten: int
 
 
 class AnlageAntwort(BaseModel):

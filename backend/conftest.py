@@ -351,8 +351,17 @@ def anlegen(session: AsyncSession) -> Callable[..., Awaitable[User]]:
         email: str = "anna@ffs.de",
         rollen: Sequence[Rolle] = (Rolle.SUBMITTER,),
         passwort: str = PASSWORT,
+        regierungspraesidium: int | None = None,
     ) -> User:
-        return await lege_benutzer_an(session, email=email, passwort=passwort, rollen=rollen)
+        # A REGIERUNGSPRAESIDIUM account is refused without a region, so a test
+        # about a regional account cannot build one through this without it.
+        return await lege_benutzer_an(
+            session,
+            email=email,
+            passwort=passwort,
+            rollen=rollen,
+            regierungspraesidium=regierungspraesidium,
+        )
 
     return _anlegen
 
