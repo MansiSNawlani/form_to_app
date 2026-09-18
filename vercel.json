@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm --prefix frontend ci && npm --prefix frontend run build",
+  "functions": {
+    "asgi.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{Resources/**,docs/**,blueprint/**,prototypes/**,deployment/**,.scratch/**,frontend/src/**,frontend/e2e/**,frontend/public/**,frontend/node_modules/**,backend/**/*_test.py,backend/conftest.py,backend/scripts/**,database/migrations/**}"
+    }
+  }
+}

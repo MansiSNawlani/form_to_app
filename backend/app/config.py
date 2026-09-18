@@ -1,8 +1,8 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import Field, PostgresDsn, SecretStr, ValidationError
+from pydantic import Field, PostgresDsn, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The repository root, from backend/app/config.py. Used only to point at the form
@@ -20,6 +20,22 @@ FORMULAR_SEED = REPO_WURZEL / "database" / "seed" / "form_version_20260609"
 # repository. The container mounts a named volume and sets this to it, because a
 # path inside a container layer is thrown away on the next deploy.
 ANLAGEN_STANDARD = REPO_WURZEL / "uploads" / "anlagen"
+
+# Which store holds the attachments. "datei" is a directory and is right
+# wherever the service has a disk that outlives it, which is every developer
+# machine and the Docker Compose stack. "s3" is an object store and is what a
+# platform without a persistent disk needs, because there a directory is thrown
+# away between requests and the photographs go with it.
+ANLAGEN_SPEICHER_ARTEN = ("datei", "s3")
+
+# What "s3" cannot be guessed without. The endpoint and the region have workable
+# defaults; these three have none, and a deployment missing one must be told at
+# startup rather than at the first upload.
+S3_PFLICHT = {
+    "s3_bucket": "S3_BUCKET",
+    "s3_zugriffsschluessel": "S3_ZUGRIFFSSCHLUESSEL",
+    "s3_geheimschluessel": "S3_GEHEIMSCHLUESSEL",
+}
 
 # Long enough that guessing the key is hopeless. token_urlsafe(48) produces 64
 # characters, so the value .env.example tells people to generate clears this with
@@ -58,6 +74,19 @@ HINWEISE = {
         " survive a redeploy: use a mounted volume in a deployment. Leave it out"
         " of .env to use ./uploads/anlagen in this checkout."
     ),
+    "anlagen_speicher": (
+        "ANLAGEN_SPEICHER must be either datei or s3. Leave it out of .env to use"
+        " datei, which keeps the attachments in the directory ANLAGEN_VERZEICHNIS"
+        " names. Use s3 only where the service has no disk that survives a"
+        " redeploy."
+    ),
+    "s3": (
+        "ANLAGEN_SPEICHER is s3, but the bucket it should use is not fully"
+        " described. Set S3_BUCKET, S3_ZUGRIFFSSCHLUESSEL and"
+        " S3_GEHEIMSCHLUESSEL, plus S3_ENDPOINT for anything other than Amazon"
+        " (Cloudflare R2 and MinIO both need it). Or leave ANLAGEN_SPEICHER out"
+        " of .env to keep the attachments in a directory."
+    ),
     "formular_seed_dir": (
         "FORMULAR_SEED_DIR must be a path to the directory holding felder.json."
         " Leave it out of .env to use the copy in this checkout."
@@ -73,10 +102,23 @@ class KonfigurationUngueltig(RuntimeError):
     a deployment mistake and the person reading it may never have seen this code.
     """
 
+    # Pydantic's own prefix on a ValueError raised inside a validator. Stripped so
+    # a rule that already wrote a whole sentence is not introduced by a fragment.
+    WERTFEHLER = "Value error, "
+
     def __init__(self, fehler: ValidationError) -> None:
         self.felder = [str(einzeln["loc"][0]) for einzeln in fehler.errors() if einzeln["loc"]]
         zeilen = [
             HINWEISE.get(feld, f"{feld.upper()} is missing or invalid.") for feld in self.felder
+        ]
+        # A rule spanning several fields, such as the S3 one, belongs to no single
+        # field and so arrives with an empty location. Without this it would be
+        # dropped and the process would refuse to start while saying nothing about
+        # why, which is the one thing this class exists to prevent.
+        zeilen += [
+            einzeln["msg"].removeprefix(self.WERTFEHLER)
+            for einzeln in fehler.errors()
+            if not einzeln["loc"]
         ]
         super().__init__(
             "The backend cannot start:\n" + "\n".join(f"  - {zeile}" for zeile in zeilen)
@@ -156,6 +198,57 @@ class Settings(BaseSettings):
     # that outlives the container, or a redeploy silently throws away every
     # picture FFS has been sent.
     anlagen_verzeichnis: Path = ANLAGEN_STANDARD
+
+    # Which of the two stores in app/anlagen/ actually runs. The default keeps
+    # every developer, the test suite and the Compose stack on the directory
+    # above, so nothing here changes unless a deployment says so.
+    anlagen_speicher: Literal["datei", "s3"] = "datei"
+
+    # The bucket, and how to reach it. All ignored while anlagen_speicher is
+    # "datei", so a developer never sets any of them.
+    s3_bucket: str = ""
+
+    # Empty means Amazon's own endpoint. Anything else, Cloudflare R2 or a MinIO
+    # server FFS run themselves, needs its address here; that is the whole reason
+    # this store is written against S3 rather than against one provider.
+    s3_endpoint: str = ""
+
+    # "auto" is what Cloudflare R2 expects and it is harmless elsewhere as a
+    # default; Amazon wants a real region such as eu-central-1.
+    s3_region: str = "auto"
+
+    # SecretStr for the same reason as jwt_secret: these two together are write
+    # access to every photograph FFS has been sent, so they must not reach a log
+    # because something printed the settings object.
+    s3_zugriffsschluessel: SecretStr = SecretStr("")
+    s3_geheimschluessel: SecretStr = SecretStr("")
+
+    @model_validator(mode="after")
+    def _s3_ist_vollstaendig_beschrieben(self) -> "Settings":
+        """Choosing s3 without a bucket must stop the process, not the first upload.
+
+        A cross-field rule, so it cannot be a Field constraint. It fails under the
+        key "s3" rather than under one field name because the useful message names
+        all three variables at once: telling somebody about S3_BUCKET, and only
+        then about the access key, is three restarts to learn one thing.
+        """
+        if self.anlagen_speicher != "s3":
+            return self
+
+        fehlend = [
+            name
+            for feld, name in S3_PFLICHT.items()
+            if not str(_klartext(getattr(self, feld))).strip()
+        ]
+        if fehlend:
+            raise ValueError(HINWEISE["s3"])
+        return self
+
+
+def _klartext(wert: object) -> object:
+    """The value behind a SecretStr, so emptiness can be checked without caring
+    which of the two kinds of setting it is."""
+    return wert.get_secret_value() if isinstance(wert, SecretStr) else wert
 
 
 def lade_settings(**overrides: Any) -> Settings:

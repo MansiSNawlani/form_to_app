@@ -6,6 +6,7 @@ import pytest
 
 from app.anlagen.speicher import (
     Anlagenspeicher,
+    DateiSpeicher,
     SchluesselUngueltig,
     anlagen_schluessel,
 )
@@ -24,7 +25,7 @@ async def bloecke(*teile: bytes) -> AsyncIterator[bytes]:
 
 @pytest.fixture
 def speicher(tmp_path: Path) -> Anlagenspeicher:
-    return Anlagenspeicher(tmp_path)
+    return DateiSpeicher(tmp_path)
 
 
 async def test_schreibt_und_liest_zurueck(speicher: Anlagenspeicher) -> None:
