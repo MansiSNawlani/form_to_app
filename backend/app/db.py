@@ -25,31 +25,51 @@ from app.config import get_settings
 CONNECT_TIMEOUT_SECONDS = 5.0
 
 
+# Connection parameters that only libpq understands.
+#
+# `sslmode` is renamed, because asyncpg has the same setting under another name
+# and takes the same values. `channel_binding` is dropped, because asyncpg has no
+# equivalent to pass it to: it negotiates SCRAM channel binding itself over the
+# TLS connection that `ssl` already asks for, so removing the parameter loses
+# nothing that was being enforced.
+#
+# Both were found the same way, by pasting a real provider's connection string in
+# and reading what the driver said. Expect the list to grow the first time a
+# different provider is used.
+UMBENANNT = {"sslmode": "ssl"}
+VERWORFEN = frozenset({"channel_binding"})
+
+
 def fuer_asyncpg(url: str) -> str:
-    """Rename the libpq spelling of the TLS setting to the one asyncpg knows.
+    """Make a connection string copied from a provider's console usable by asyncpg.
 
-    Every managed Postgres hands out a connection string ending in
-    `?sslmode=require`: it is what libpq, psql and psycopg all read, so it is
-    what the provider's console shows and what somebody pastes into the
-    deployment. asyncpg calls the same setting `ssl` and takes the same values,
-    and rejects the unknown keyword outright.
+    Every managed Postgres hands out a libpq connection string: it is what psql
+    and psycopg read, so it is what the console shows and what somebody pastes
+    into the deployment. Neon's ends in `?sslmode=require&channel_binding=require`.
+    asyncpg understands neither spelling and refuses the whole connection on the
+    first unknown keyword.
 
-    Without this, a correct connection string copied from Neon or any comparable
-    service fails with `connect() got an unexpected keyword argument 'sslmode'`,
-    raised from inside the driver, naming nothing the reader controls and
-    offering no way forward. Translating it here is a one-line rename that makes
-    the value the provider gave simply work.
+    Without this, a correct connection string fails with
+    `connect() got an unexpected keyword argument 'sslmode'`, raised from inside
+    the driver, naming nothing the reader controls and offering no way forward.
+    They would then have to know which parts of their own connection string to
+    delete, which is not knowledge a deployment should demand.
 
-    Only the name changes. An explicit `ssl` is left alone, and so is a URL with
-    neither.
+    Nothing is added and nothing is renamed that asyncpg already understands: an
+    explicit `ssl`, a URL with no query at all, and every parameter outside the
+    two sets above are passed through untouched.
     """
     geteilt = urlsplit(url)
     parameter = parse_qsl(geteilt.query, keep_blank_values=True)
-    if not any(name == "sslmode" for name, _ in parameter):
+    if not any(name in UMBENANNT or name in VERWORFEN for name, _ in parameter):
         return url
 
-    umbenannt = [("ssl" if name == "sslmode" else name, wert) for name, wert in parameter]
-    return urlunsplit(geteilt._replace(query=urlencode(umbenannt)))
+    behalten = [
+        (UMBENANNT.get(name, name), wert)
+        for name, wert in parameter
+        if name not in VERWORFEN
+    ]
+    return urlunsplit(geteilt._replace(query=urlencode(behalten)))
 
 
 def _create_engine() -> AsyncEngine:

@@ -34,3 +34,19 @@ class TestFuerAsyncpg:
         assert "ssl=require" in uebersetzt
         assert "application_name=befischung" in uebersetzt
         assert "sslmode" not in uebersetzt
+
+    def test_wirft_channel_binding_weg(self) -> None:
+        """asyncpg has nothing to pass it to and refuses the keyword. It
+        negotiates SCRAM channel binding itself over the TLS connection that ssl
+        already asks for, so dropping it enforces nothing less."""
+        uebersetzt = fuer_asyncpg(f"{NEON}?channel_binding=require")
+
+        assert "channel_binding" not in uebersetzt
+
+    def test_die_zeichenkette_die_neon_wirklich_ausgibt(self) -> None:
+        """Both parameters at once, in the order Neon's console prints them.
+        This is the string that was pasted in on 2026-09-18 and that asyncpg
+        refused twice, once for each parameter."""
+        uebersetzt = fuer_asyncpg(f"{NEON}?sslmode=require&channel_binding=require")
+
+        assert uebersetzt == f"{NEON}?ssl=require"

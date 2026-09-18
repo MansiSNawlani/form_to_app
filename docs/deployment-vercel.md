@@ -50,15 +50,23 @@ machine and not by the deployment.
 2. Neon shows a connection string. Copy it. It looks like:
 
    ```
-   postgresql://nutzer:geheim@ep-etwas-123.eu-central-1.aws.neon.tech/neondb?sslmode=require
+   postgresql://nutzer:geheim@ep-etwas-123.eu-central-1.aws.neon.tech/befischung?sslmode=require&channel_binding=require
    ```
 
 3. **Change `postgresql://` to `postgresql+asyncpg://`** and keep everything
    else exactly as it is. SQLAlchemy picks its driver from that prefix.
 
-   Leave `?sslmode=require` alone. The application translates it for you, in
-   `backend/app/db.py`, because asyncpg spells that setting differently from
-   every provider's console.
+   **Change nothing after the `?`.** Neon's string carries `sslmode` and
+   `channel_binding`, which are libpq's spellings; asyncpg understands neither
+   and refuses the connection on the first one it meets. `fuer_asyncpg` in
+   `backend/app/db.py` renames the first and drops the second, and every place
+   that connects goes through it: the application, Alembic, and the account
+   command. Deleting parts of your own connection string by hand is not
+   knowledge a deployment should demand.
+
+   Either endpoint works. Neon offers a pooled host, ending `-pooler`, and a
+   direct one; both were tried against this application on 2026-09-18, including
+   repeated parameterised queries, and both behaved.
 
 4. Keep the result. It is `DATABASE_URL` below.
 
@@ -139,7 +147,7 @@ Set all of these for **Production**, **Preview** and **Development**.
 | `ANLAGEN_SPEICHER` | `s3` |
 | `S3_BUCKET` | `befischung-anlagen` |
 | `S3_ENDPOINT` | The endpoint Neon shows for S3 access |
-| `S3_REGION` | What Neon shows, usually `aws-eu-central-1` |
+| `S3_REGION` | What Neon shows, for example `eu-central-1` |
 | `S3_ZUGRIFFSSCHLUESSEL` | The Access Key ID from step 2 |
 | `S3_GEHEIMSCHLUESSEL` | The Secret Access Key from step 2 |
 | `FORMULAR_SEED_DIR` | `database/seed/form_version_20260609` |
@@ -222,5 +230,6 @@ In order, because each step depends on the one before:
 | Build fails on `npm ci` | `frontend/package-lock.json` out of step with `package.json`. Run `npm install` locally and commit the lock file |
 | `The backend cannot start:` in the function logs | A missing or wrong environment variable. The message names it |
 | `/api/v1/ready` says `database: down` | `DATABASE_URL` wrong, or `postgresql://` not changed to `postgresql+asyncpg://` |
+| `connect() got an unexpected keyword argument` | A connection string parameter asyncpg does not know. Add it to `UMBENANNT` or `VERWORFEN` in `backend/app/db.py`, where `sslmode` and `channel_binding` already are |
 | Uploads fail with a 500 | One of the four S3 values, or the credential not scoped to this bucket |
 | Everything 404s | Root Directory was set to `frontend` or `backend` instead of the repository root |
