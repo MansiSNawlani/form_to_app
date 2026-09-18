@@ -235,3 +235,26 @@ class TestFremderSchluessel:
             await speicher.loesche(schluessel)
         with pytest.raises(SchluesselUngueltig):
             await speicher.schreibe(schluessel, bloecke(b"x"))
+
+
+class TestAdressierung:
+    """The bucket belongs in the path, not in the hostname.
+
+    boto3 decides that for itself otherwise, and its decision varies with the
+    endpoint and the bucket name. Neon's object storage accepts path style only,
+    so a wrong guess here is a deployment where every upload fails.
+    """
+
+    def test_die_erzeugte_adresse_traegt_den_eimer_im_pfad(
+        self, speicher: S3Speicher
+    ) -> None:
+        """What the client would actually request, rather than merely what it was
+        configured with. Asserting on the configuration would pass even if botocore
+        stopped honouring it."""
+        adresse = speicher._client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": BUCKET, "Key": anlagen_schluessel(PROTOKOLL, ANLAGE)},
+        )
+
+        assert f"/{BUCKET}/" in adresse
+        assert f"//{BUCKET}." not in adresse
