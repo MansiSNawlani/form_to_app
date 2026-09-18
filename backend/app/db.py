@@ -6,6 +6,7 @@ Postgres connection limit.
 """
 
 from collections.abc import AsyncIterator
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
@@ -24,10 +25,37 @@ from app.config import get_settings
 CONNECT_TIMEOUT_SECONDS = 5.0
 
 
+def fuer_asyncpg(url: str) -> str:
+    """Rename the libpq spelling of the TLS setting to the one asyncpg knows.
+
+    Every managed Postgres hands out a connection string ending in
+    `?sslmode=require`: it is what libpq, psql and psycopg all read, so it is
+    what the provider's console shows and what somebody pastes into the
+    deployment. asyncpg calls the same setting `ssl` and takes the same values,
+    and rejects the unknown keyword outright.
+
+    Without this, a correct connection string copied from Neon or any comparable
+    service fails with `connect() got an unexpected keyword argument 'sslmode'`,
+    raised from inside the driver, naming nothing the reader controls and
+    offering no way forward. Translating it here is a one-line rename that makes
+    the value the provider gave simply work.
+
+    Only the name changes. An explicit `ssl` is left alone, and so is a URL with
+    neither.
+    """
+    geteilt = urlsplit(url)
+    parameter = parse_qsl(geteilt.query, keep_blank_values=True)
+    if not any(name == "sslmode" for name, _ in parameter):
+        return url
+
+    umbenannt = [("ssl" if name == "sslmode" else name, wert) for name, wert in parameter]
+    return urlunsplit(geteilt._replace(query=urlencode(umbenannt)))
+
+
 def _create_engine() -> AsyncEngine:
     return create_async_engine(
         # PostgresDsn is a URL object; SQLAlchemy wants the string form.
-        str(get_settings().database_url),
+        fuer_asyncpg(str(get_settings().database_url)),
         # Checks a pooled connection is still alive before handing it out.
         # Without it the first request after Postgres restarts fails, which on
         # this project would make readiness flap rather than recover.

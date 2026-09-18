@@ -136,6 +136,7 @@ reason, which the submitter sees. Accepting locks the protocol.
 | [blueprint/context/project-overview.md](blueprint/context/project-overview.md) | The data model, feature list and stack. The single source of truth |
 | [docs/adr/](docs/adr/) | The six hard-to-reverse architecture decisions |
 | [docs/ffs-defect-list.md](docs/ffs-defect-list.md) | Bugs found in the legacy PDF form, for FFS |
+| [docs/deployment-vercel.md](docs/deployment-vercel.md) | Putting what is built so far on a real address, for showing FFS |
 | [AGENTS.md](AGENTS.md) | How AI coding agents should work in this repository |
 
 ## Layout
@@ -302,6 +303,24 @@ An empty run of either suite exits non-zero, so "no tests ran" can never read as
 
 There is no single `Verify` command yet. Run `/ci` to define one and add matching GitHub checks;
 that is a separate setup step from the feature loop.
+
+## Deploying it
+
+The production deployment is Docker containers on an FFS-approved platform
+behind a reverse proxy, which is what `project-overview.md` describes and what
+`docker-compose.yml` already runs locally.
+
+For showing FFS what has been built, there is a second, temporary route:
+[docs/deployment-vercel.md](docs/deployment-vercel.md) puts the whole
+application on one Vercel address, with PostgreSQL on Neon and the photographs
+in an S3-compatible bucket. `asgi.py` and `vercel.json` at the repository root
+exist only for that; nothing else reads them.
+
+Attachments are the reason the storage layer has two implementations. A
+directory is right wherever the service has a disk that outlives it, and wrong
+on a platform that throws its filesystem away between requests, where every
+uploaded photograph would vanish silently. `ANLAGEN_SPEICHER` picks; the default
+is the directory, so local development is unaffected.
 
 ## Language
 
