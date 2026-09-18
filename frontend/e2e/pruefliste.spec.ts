@@ -148,6 +148,49 @@ test.describe('Die Pruefliste', () => {
      the empty value, and an unset filter read as a control that had failed to
      load. Neither the unit tests nor the other tests here noticed; looking at it
      did. */
+  /* The backend unreachable, without stopping anything: the request is blocked in
+     the browser, which is the same thing as far as this screen can tell. Driving
+     it from here rather than from docker means the test runs on any machine and
+     leaves nothing stopped behind it. */
+  test('erklaert einen Fehlschlag und erholt sich beim zweiten Versuch', async ({ page }) => {
+    await page.route('**/api/v1/pruefliste*', (route) => route.abort())
+    await page.goto('/pruefung')
+
+    await expect(page.getByText('Die Prüfliste konnte nicht geladen werden')).toBeVisible({
+      timeout: 15_000,
+    })
+
+    await page.unroute('**/api/v1/pruefliste*')
+    await page.getByRole('button', { name: 'Erneut versuchen' }).click()
+
+    await expect(page.getByRole('table', { name: 'Eingereichte Protokolle' })).toBeVisible()
+    await expect(page.getByText('Die Prüfliste konnte nicht geladen werden')).toHaveCount(0)
+  })
+
+  /* The filter bar walked with the keyboard alone, in the order it is drawn. A
+     control that is labelled but unreachable is still a control somebody cannot
+     use, so naming them is not on its own enough. */
+  test('laesst sich mit der Tastatur allein bedienen', async ({ page }) => {
+    await page.goto('/pruefung')
+    await page.getByRole('searchbox', { name: 'Suche' }).focus()
+
+    for (const erwartet of ['Status', 'Jahr', 'Anlass', 'Sortierung']) {
+      await page.keyboard.press('Tab')
+      await expect(page.locator(':focus')).toHaveAccessibleName(erwartet)
+    }
+
+    /* On from the filter bar into the table, which is where the reader is going.
+       The first Pruefen carries the water in its accessible name, so twenty-five
+       identical buttons are told apart by a screen reader. */
+    let gefunden = false
+    for (let schritt = 0; schritt < 12 && !gefunden; schritt += 1) {
+      await page.keyboard.press('Tab')
+      gefunden = /^Prüfen/.test((await page.locator(':focus').getAttribute('aria-label')) ?? '')
+        || /^Prüfen/.test(await page.locator(':focus').innerText().catch(() => ''))
+    }
+    expect(gefunden).toBe(true)
+  })
+
   test('sagt bei jedem Filter, worauf er gerade steht', async ({ page }) => {
     await page.goto('/pruefung')
 
