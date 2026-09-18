@@ -134,6 +134,12 @@ Now you can press **Import** on the screen you had open.
    serves both halves.
 3. Vercel should detect **FastAPI**. If it does not, set the framework preset to
    FastAPI by hand.
+
+   The root `pyproject.toml` is what makes this work. It names the backend as a
+   dependency and points at `asgi.py`, so nothing about the build is inferred
+   from directory names. An earlier attempt used a `requirements.txt` listing
+   `./backend`, and the build failed because uv took the package name from the
+   folder.
 4. Add the environment variables below, then deploy.
 
 ### Environment variables
@@ -228,6 +234,8 @@ In order, because each step depends on the one before:
 | Symptom | Almost always |
 |---|---|
 | Build fails on `npm ci` | `frontend/package-lock.json` out of step with `package.json`. Run `npm install` locally and commit the lock file |
+| `Package metadata name ... does not match given name` | A dependency named after a folder instead of itself. The root `pyproject.toml` exists to prevent this; check `[tool.uv.sources]` still names `befischung-backend` |
+| Vercel detected `POSTGRES_USER` and friends | It reads `.env.example`. Those three are for `docker-compose.yml` only and the backend never reads them; remove them |
 | `The backend cannot start:` in the function logs | A missing or wrong environment variable. The message names it |
 | `/api/v1/ready` says `database: down` | `DATABASE_URL` wrong, or `postgresql://` not changed to `postgresql+asyncpg://` |
 | `connect() got an unexpected keyword argument` | A connection string parameter asyncpg does not know. Add it to `UMBENANNT` or `VERWORFEN` in `backend/app/db.py`, where `sslmode` and `channel_binding` already are |
