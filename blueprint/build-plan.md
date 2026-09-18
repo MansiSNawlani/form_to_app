@@ -155,7 +155,7 @@ These are not features and are not tracked here. They happen first.
     which is what the reviewer mockup's own button text promises. ACCEPTED stays in the enum
     unwritten until feature 19 needs a step between the reviewer's yes and the transfer to FiaKa.
 - [ ] 12. Review queue: list, filter and search, including by species
-  - [ ] 12a. Die Pruefliste, der Endpunkt: the query that reads across every account, who may
+  - [x] 12a. Die Pruefliste, der Endpunkt: the query that reads across every account, who may
         call it, the filters for status, Anlass, year and a free-text search over the water,
         the Ortsangabe and the Monitoringstrecken-Nr., the sort orders and the paging
   - [ ] 12b. Die Pruefliste, der Bildschirm: the /pruefung page with the filter bar, the
