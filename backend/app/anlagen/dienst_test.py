@@ -16,7 +16,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.dienst import Hochgeladen, lege_anlage_an
-from app.anlagen.speicher import Anlagenspeicher
+from app.anlagen.speicher import Anlagenspeicher, DateiSpeicher
 from app.formular.felder import formular
 from app.models.anlage import Anlagenart
 from app.models.benutzer import User
@@ -99,7 +99,7 @@ def besitzer_von(session: AsyncSession) -> Callable[[Submission], Awaitable[User
 
 async def test_eine_zeile_die_nicht_landet_nimmt_ihre_datei_mit(
     session: AsyncSession,
-    speicher: Anlagenspeicher,
+    speicher: DateiSpeicher,
     protokoll: Submission,
     besitzer_von: Callable[[Submission], Awaitable[User]],
     monkeypatch: pytest.MonkeyPatch,
@@ -134,7 +134,7 @@ async def test_eine_zeile_die_nicht_landet_nimmt_ihre_datei_mit(
 
 async def test_der_speicherschluessel_kommt_aus_den_beiden_ids(
     session: AsyncSession,
-    speicher: Anlagenspeicher,
+    speicher: DateiSpeicher,
     protokoll: Submission,
     besitzer_von: Callable[[Submission], Awaitable[User]],
 ) -> None:
