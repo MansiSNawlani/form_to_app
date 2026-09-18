@@ -233,5 +233,26 @@ def get_speicher() -> Anlagenspeicher:
     Cached so the configuration is read once per process. A function rather than
     a module-level instance so the tests can override it with one pointing at a
     temporary directory, exactly as they override the database session.
+
+    Which store depends only on configuration, so no caller has to know there is
+    more than one. The default is the directory, which keeps every developer, the
+    test suite and the Compose stack exactly where they were.
     """
-    return DateiSpeicher(get_settings().anlagen_verzeichnis)
+    einstellungen = get_settings()
+    if einstellungen.anlagen_speicher == "s3":
+        # Imported here rather than at the top for two reasons. speicher_s3 imports
+        # this module for the interface and the key rules, so a module-level import
+        # would be a cycle; and boto3 is a large import that a deployment using the
+        # directory has no reason to pay for at startup.
+        from app.anlagen.speicher_s3 import S3Speicher
+
+        return S3Speicher(
+            bucket=einstellungen.s3_bucket,
+            # Empty means Amazon's own endpoint, which is what boto3 reads None as.
+            endpoint=einstellungen.s3_endpoint or None,
+            region=einstellungen.s3_region,
+            zugriffsschluessel=einstellungen.s3_zugriffsschluessel.get_secret_value(),
+            geheimschluessel=einstellungen.s3_geheimschluessel.get_secret_value(),
+        )
+
+    return DateiSpeicher(einstellungen.anlagen_verzeichnis)
