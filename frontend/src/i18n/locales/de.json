@@ -232,7 +232,10 @@
         "eingereichtAm": "Eingereicht am",
         "anlass": "Anlass",
         "regierungspraesidium": "Regierungspräsidium"
-      }
+      },
+      "vorheriges": "Vorheriges",
+      "naechstes": "Nächstes",
+      "schrittGewaesser": ", {{gewaesser}}"
     },
     "abschnitt1": {
       "anlass": {

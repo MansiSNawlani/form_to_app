@@ -64,3 +64,26 @@ export interface VerlaufEintrag {
   akteur_name: string
   created_at: string
 }
+
+/* One protocol standing next to another in the review queue.
+ *
+ * backend/app/api/schemas.py's NachbarAntwort, field for field.
+ */
+export interface Nachbar {
+  id: string
+  /** Which page of the queue that protocol sits on, so the crumb stays honest. */
+  seite: number
+  gewaessername: string
+}
+
+/* Where one protocol sits in the queue, and what stands either side of it.
+ *
+ * backend/app/api/schemas.py's NachbarschaftAntwort. position and seite are null
+ * together, which is the whole of "not in the list you asked about".
+ */
+export interface Nachbarschaft {
+  position: number | null
+  seite: number | null
+  vorheriges: Nachbar | null
+  naechstes: Nachbar | null
+}

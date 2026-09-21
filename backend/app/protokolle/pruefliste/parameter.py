@@ -117,6 +117,23 @@ def seitenzahl(gesamt: int, pro_seite: int) -> int:
     return max(-(-gesamt // pro_seite), 1)
 
 
+def seite_von_position(position: int, pro_seite: int) -> int:
+    """Which page of the queue a given place in the list falls on.
+
+    The inverse of versatz, and the reason it lives beside it: a reader walking
+    from one protocol to the next crosses a page boundary without ever asking for
+    a page, and the crumb back to the list has to name the page they are actually
+    in. Off by one here sends them back to a page their protocol is not on, which
+    reads as the queue having lost it.
+
+    With 25 to a page, position 25 is the last row of page 1 and position 26 the
+    first of page 2. Both arguments are clamped the way every other page number
+    here is, so a position of zero is page one rather than page zero.
+    """
+    groesse = begrenze_pro_seite(pro_seite)
+    return begrenze_seite(-(-max(position, 1) // groesse))
+
+
 def jahresgrenzen(jahr: int) -> tuple[date, date]:
     """A year as the first and the last day of it.
 

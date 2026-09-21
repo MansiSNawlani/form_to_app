@@ -40,6 +40,7 @@ from app.protokolle.pruefliste.parameter import (
     begrenze_pro_seite,
     begrenze_seite,
     jahresgrenzen,
+    seite_von_position,
     seitenzahl,
     suchbegriffe,
     suchmuster,
@@ -98,6 +99,37 @@ class Prueflistenseite:
     pro_seite: int
     #: Never below one, so an empty queue reads "Seite 1 von 1".
     seiten: int
+
+
+@dataclass(frozen=True)
+class Nachbar:
+    """The protocol standing next to another one in the queue.
+
+    Three values, because that is all a button needs: where to go, which page of
+    the list that protocol sits on so the crumb keeps telling the truth, and what
+    to call it so the button can say what it opens.
+    """
+
+    id: uuid.UUID
+    seite: int
+    gewaessername: str
+
+
+@dataclass(frozen=True)
+class Nachbarschaft:
+    """Where one protocol sits in the queue, and what stands either side of it.
+
+    position and seite are None together, which is the whole of "not in the list
+    you asked about". nachbarn() below says why that is an answer and not a
+    failure.
+    """
+
+    #: Counted from 1, as the reader would count. None when it is not in the list.
+    position: int | None
+    #: Which page of the queue that position falls on. None for the same reason.
+    seite: int | None
+    vorheriges: Nachbar | None
+    naechstes: Nachbar | None
 
 
 @dataclass(frozen=True)
@@ -366,4 +398,89 @@ async def liste_pruefliste(
         seite=gewaehlte_seite,
         pro_seite=groesse,
         seiten=seitenzahl(gesamt, groesse),
+    )
+
+
+async def nachbarn(
+    session: AsyncSession,
+    protokoll_id: uuid.UUID,
+    *,
+    auswahl: Prueffilter | None = None,
+    sortierung: Sortierung = Sortierung.EINGEREICHT_ALT,
+    pro_seite: int = PRO_SEITE_STANDARD,
+) -> Nachbarschaft:
+    """What stands either side of one protocol in the queue as it was filtered.
+
+    **The server answers this rather than the browser working it out from the page
+    of rows it happens to be holding.** Three things go wrong if it does not. The
+    last row of a page has its successor on a page the browser never fetched, so
+    one row in every twenty-five would have no next protocol. Counting neighbours
+    by array index is a second definition of an order whose first definition is
+    _ORDNUNGEN above, free to drift from it. And the rows move: a decision changes
+    a status, so the row the arithmetic counted from can be gone by the time it is
+    counted.
+
+    Which is why this shares _eingereichte and _ORDNUNGEN with liste_pruefliste
+    rather than restating either. That the two are the same list is the whole
+    promise here, and a second WHERE clause is how that stops being true.
+
+    One statement rather than three. Asking for the position and then for each
+    neighbour in turn would be three answers about a list that can change between
+    them.
+    """
+    gewaehlt = auswahl or Prueffilter()
+    groesse = begrenze_pro_seite(pro_seite)
+
+    # The whole filtered list, numbered in the order the queue shows it. The
+    # tie-break is the list's own, for the same reason: two protocols written in
+    # one transaction share a submitted_at to the microsecond, and without it
+    # "the one after this" would be whichever the database felt like this time.
+    geordnet = _eingereichte(
+        select(
+            Submission.id,
+            Gewaesser.name.label("gewaessername"),
+            func.row_number()
+            .over(order_by=(*_ORDNUNGEN[sortierung], Submission.id.asc()))
+            .label("position"),
+        ),
+        gewaehlt,
+    ).cte("geordnet")
+
+    # Where this protocol stands, as something the WHERE below can count from.
+    # Null when it is not in the list at all, and BETWEEN against null matches
+    # nothing, which is the empty answer that case wants.
+    hier = select(geordnet.c.position).where(geordnet.c.id == protokoll_id).scalar_subquery()
+
+    treffer = await session.execute(
+        select(geordnet.c.id, geordnet.c.gewaessername, geordnet.c.position).where(
+            geordnet.c.position.between(hier - 1, hier + 1)
+        )
+    )
+    umgebung = {zeile.position: zeile for zeile in treffer}
+
+    eigene = next(
+        (stelle for stelle, zeile in umgebung.items() if zeile.id == protokoll_id),
+        None,
+    )
+    # Not in this list, which is an answer and not a failure. A protocol that has
+    # just been accepted has left an "Offen" queue, and a link somebody sent
+    # carries the filters they were using rather than ones that must match.
+    if eigene is None:
+        return Nachbarschaft(position=None, seite=None, vorheriges=None, naechstes=None)
+
+    def als_nachbar(stelle: int) -> Nachbar | None:
+        zeile = umgebung.get(stelle)
+        if zeile is None:
+            return None
+        return Nachbar(
+            id=zeile.id,
+            seite=seite_von_position(zeile.position, groesse),
+            gewaessername=zeile.gewaessername,
+        )
+
+    return Nachbarschaft(
+        position=eigene,
+        seite=seite_von_position(eigene, groesse),
+        vorheriges=als_nachbar(eigene - 1),
+        naechstes=als_nachbar(eigene + 1),
     )

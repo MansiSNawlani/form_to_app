@@ -10,6 +10,7 @@ over every protocol FFS holds in a single request if its role requirement were
 ever dropped.
 """
 
+import uuid
 from collections.abc import Awaitable, Callable
 
 import pytest
@@ -440,5 +441,196 @@ class TestSortierparameter:
     ) -> None:
         # The four orders are a closed list, not a column name the caller picks.
         antwort = await client.get(PFAD, params={"sortierung": "owner_user_id"})
+
+        assert antwort.status_code == 422
+
+
+class TestNachbarn:
+    """Vorheriges and Naechstes: who may ask, and whether it walks the queue's list.
+
+    What the neighbours are is proved against the database in
+    app/protokolle/pruefliste/dienst_test.py. What is proved here is that the
+    route is closed to the same accounts the queue is closed to, and that the two
+    routes really do answer about one list rather than two that happen to agree
+    today.
+    """
+
+    @pytest.fixture
+    async def drei(
+        self,
+        anlegen: Callable[..., Awaitable[User]],
+        anmelden: Callable[..., Awaitable[Response]],
+        einreichen: Callable[[], Awaitable[str]],
+    ) -> None:
+        """Three protocols handed in by somebody who is not FFS staff."""
+        await anlegen(email=SURVEYOR)
+        await anmelden(email=SURVEYOR)
+        for _ in range(3):
+            await einreichen()
+
+    async def reihenfolge(self, client: AsyncClient, **params: str) -> list[str]:
+        """The queue's own order, which the neighbours have to agree with.
+
+        Read from the list endpoint rather than written down here on purpose.
+        Three protocols handed in within the same second share a submitted_at, so
+        which order they come in is the tie-break's answer, and hard-coding one
+        would test the fixture rather than the agreement that matters.
+        """
+        antwort = await client.get(PFAD, params=params)
+        assert antwort.status_code == 200
+        return [zeile["id"] for zeile in antwort.json()["zeilen"]]
+
+    @pytest.mark.parametrize(
+        "rolle", [Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN]
+    )
+    async def test_laesst_ffs_personal_hinein(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+        rolle: Rolle,
+    ) -> None:
+        protokoll_id = await eingereichtes_protokoll()
+        await als("lehmann@ffs.de", rolle)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{protokoll_id}")
+
+        assert antwort.status_code == 200
+
+    async def test_weist_einen_gewoehnlichen_einreicher_ab(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        # Refused even about a protocol this account could read on its own screen.
+        # The question is "where does it sit in the review queue", and the queue
+        # is not theirs.
+        protokoll_id = await eingereichtes_protokoll()
+        await als("neu@ffs.de", Rolle.SUBMITTER)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{protokoll_id}")
+
+        assert antwort.status_code == 403
+
+    async def test_weist_ein_regierungspraesidium_ab(
+        self,
+        client: AsyncClient,
+        als: Callable[..., Awaitable[None]],
+        eingereichtes_protokoll: Callable[[], Awaitable[str]],
+    ) -> None:
+        protokoll_id = await eingereichtes_protokoll()
+        await als("rp4@rp.bwl.de", Rolle.REGIERUNGSPRAESIDIUM, regierungspraesidium=4)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{protokoll_id}")
+
+        assert antwort.status_code == 403
+
+    async def test_weist_ohne_sitzung_ab(self, client: AsyncClient) -> None:
+        antwort = await client.get(f"{PFAD}/nachbarn/{uuid.uuid4()}")
+
+        assert antwort.status_code == 401
+
+    async def test_nennt_die_nachbarn_aus_der_liste(
+        self, client: AsyncClient, drei: None, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+        ids = await self.reihenfolge(client)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{ids[1]}")
+
+        umgebung = antwort.json()
+        assert umgebung["position"] == 2
+        assert umgebung["seite"] == 1
+        assert umgebung["vorheriges"]["id"] == ids[0]
+        assert umgebung["naechstes"]["id"] == ids[2]
+
+    async def test_folgt_denselben_filtern_wie_die_liste(
+        self, client: AsyncClient, drei: None, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        # The same parameters put to both routes have to describe one list. This
+        # is the whole claim the reviewer's buttons rest on.
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+        filter_ = {"sortierung": "gewaesser", "status": "SUBMITTED"}
+        ids = await self.reihenfolge(client, **filter_)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{ids[0]}", params=filter_)
+
+        umgebung = antwort.json()
+        assert umgebung["vorheriges"] is None
+        assert umgebung["naechstes"]["id"] == ids[1]
+
+    async def test_zaehlt_die_seiten_mit_der_gewaehlten_seitengroesse(
+        self, client: AsyncClient, drei: None, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+        ids = await self.reihenfolge(client)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{ids[1]}", params={"pro_seite": 1})
+
+        umgebung = antwort.json()
+        assert umgebung["seite"] == 2
+        assert umgebung["vorheriges"]["seite"] == 1
+        assert umgebung["naechstes"]["seite"] == 3
+
+    async def test_nennt_das_gewaesser_des_nachbarn(
+        self, client: AsyncClient, drei: None, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+        ids = await self.reihenfolge(client)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{ids[0]}")
+
+        assert antwort.json()["naechstes"]["gewaessername"]
+
+    async def test_antwortet_zu_einem_protokoll_ausserhalb_der_liste_mit_nichts(
+        self, client: AsyncClient, drei: None, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        # 200 and nulls, not 404. The protocol exists and the caller can read it;
+        # it is only not in the list they asked about, which is what happens the
+        # moment a reviewer accepts one out of an "Offen" queue.
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+        ids = await self.reihenfolge(client)
+
+        antwort = await client.get(
+            f"{PFAD}/nachbarn/{ids[0]}", params={"status": "REJECTED"}
+        )
+
+        assert antwort.status_code == 200
+        assert antwort.json() == {
+            "position": None,
+            "seite": None,
+            "vorheriges": None,
+            "naechstes": None,
+        }
+
+    async def test_antwortet_zu_einer_unbekannten_id_mit_nichts(
+        self, client: AsyncClient, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/{uuid.uuid4()}")
+
+        assert antwort.status_code == 200
+        assert antwort.json()["position"] is None
+
+    async def test_weist_eine_id_zurueck_die_keine_ist(
+        self, client: AsyncClient, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(f"{PFAD}/nachbarn/nicht-einmal-eine-uuid")
+
+        assert antwort.status_code == 422
+
+    async def test_weist_die_frage_nach_entwuerfen_zurueck(
+        self, client: AsyncClient, als: Callable[..., Awaitable[None]]
+    ) -> None:
+        # The same refusal the list gives, because it is the same parameter.
+        await als("lehmann@ffs.de", Rolle.REVIEWER)
+
+        antwort = await client.get(
+            f"{PFAD}/nachbarn/{uuid.uuid4()}", params={"status": "DRAFT"}
+        )
 
         assert antwort.status_code == 422

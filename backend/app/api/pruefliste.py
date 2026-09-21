@@ -14,18 +14,30 @@ app/protokolle/pruefliste/parameter.py, so both can be held to their promises
 without an HTTP request.
 """
 
+import uuid
+from dataclasses import dataclass
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.abhaengigkeiten import erfordert_rollen
-from app.api.schemas import FehlerAntwort, PrueflisteAntwort, Pruefstatus
+from app.api.schemas import (
+    FehlerAntwort,
+    NachbarschaftAntwort,
+    PrueflisteAntwort,
+    Pruefstatus,
+)
 from app.db import get_session
 from app.models.benutzer import User
 from app.models.protokoll import Status
 from app.protokolle.dienst import FFS_ROLLEN
-from app.protokolle.pruefliste.dienst import Prueffilter, Sortierung, liste_pruefliste
+from app.protokolle.pruefliste.dienst import (
+    Prueffilter,
+    Sortierung,
+    liste_pruefliste,
+    nachbarn,
+)
 from app.protokolle.pruefliste.parameter import (
     JAHR_MAX,
     JAHR_MIN,
@@ -58,14 +70,27 @@ NUR_FFS: dict[int | str, dict[str, Any]] = {
 FFS = Depends(erfordert_rollen(*FFS_ROLLEN))
 
 
-@router.get("", responses=NUR_FFS)
-async def pruefliste(
-    # Declared and not read, which is not an oversight. The parameter is what
-    # makes FastAPI run the role requirement at all, and the queue is the same
-    # list for everybody who passes it. Feature 13 is where the account itself
-    # starts to matter, and it will read this.
-    benutzer: Annotated[User, FFS],
-    session: Annotated[AsyncSession, Depends(get_session)],
+@dataclass(frozen=True)
+class Prueflistenfrage:
+    """Everything that decides which protocols a request is about, and in what order.
+
+    One dependency, read by both routes below, rather than two copies of the same
+    seven Query declarations. What feature 12d rests on is that the queue and the
+    neighbours of one protocol in it are the same list; two hand-copied parameter
+    lists are exactly how that stops being true, quietly, on the day one of them
+    gains a filter and the other does not.
+
+    seite is deliberately not part of it. Which page a reader is on decides which
+    slice of the list comes back and says nothing at all about who stands next to
+    a given protocol, so only the list route asks for it.
+    """
+
+    auswahl: Prueffilter
+    sortierung: Sortierung
+    pro_seite: int
+
+
+def prueflistenfrage(
     status_: Annotated[
         list[Pruefstatus] | None,
         Query(
@@ -113,14 +138,45 @@ async def pruefliste(
             " das am laengsten wartet."
         ),
     ] = Sortierung.EINGEREICHT_ALT,
-    seite: Annotated[
-        int,
-        Query(description="Welche Seite, ab 1 gezaehlt."),
-    ] = 1,
     pro_seite: Annotated[
         int,
         Query(description="Wie viele Protokolle eine Seite traegt, hoechstens 100."),
     ] = PRO_SEITE_STANDARD,
+) -> Prueflistenfrage:
+    """The query parameters both routes share, as one value.
+
+    Pruefstatus is the same six values narrowed to what may be asked for; the
+    query below is written in the protocol's own Status.
+    """
+    return Prueflistenfrage(
+        auswahl=Prueffilter(
+            status=tuple(Status(zustand.value) for zustand in status_ or ()),
+            anlass=anlass,
+            jahr=jahr,
+            suche=suche,
+            art=art,
+        ),
+        sortierung=sortierung,
+        pro_seite=pro_seite,
+    )
+
+
+FRAGE = Depends(prueflistenfrage)
+
+
+@router.get("", responses=NUR_FFS)
+async def pruefliste(
+    # Declared and not read, which is not an oversight. The parameter is what
+    # makes FastAPI run the role requirement at all, and the queue is the same
+    # list for everybody who passes it. Feature 13 is where the account itself
+    # starts to matter, and it will read this.
+    benutzer: Annotated[User, FFS],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    frage: Annotated[Prueflistenfrage, FRAGE],
+    seite: Annotated[
+        int,
+        Query(description="Welche Seite, ab 1 gezaehlt."),
+    ] = 1,
 ) -> PrueflisteAntwort:
     """One page of the protocols that have been handed in, longest wait first.
 
@@ -152,17 +208,42 @@ async def pruefliste(
     """
     seitenergebnis = await liste_pruefliste(
         session,
-        auswahl=Prueffilter(
-            # Pruefstatus is the same six values narrowed to what may be asked
-            # for; the query is written in the protocol's own Status.
-            status=tuple(Status(zustand.value) for zustand in status_ or ()),
-            anlass=anlass,
-            jahr=jahr,
-            suche=suche,
-            art=art,
-        ),
-        sortierung=sortierung,
+        auswahl=frage.auswahl,
+        sortierung=frage.sortierung,
         seite=seite,
-        pro_seite=pro_seite,
+        pro_seite=frage.pro_seite,
     )
     return PrueflisteAntwort.model_validate(seitenergebnis)
+
+
+@router.get("/nachbarn/{protokoll_id}", responses=NUR_FFS)
+async def nachbarschaft(
+    # Declared and not read, for the same reason as above: it is what makes
+    # FastAPI run the role requirement.
+    benutzer: Annotated[User, FFS],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    protokoll_id: uuid.UUID,
+    frage: Annotated[Prueflistenfrage, FRAGE],
+) -> NachbarschaftAntwort:
+    """Which protocol comes before this one in the queue, and which comes after.
+
+    What the reviewer's Vorheriges and Naechstes buttons ask, and the reason the
+    filters above are query parameters rather than anything held in a session: a
+    walk through the queue has to be rebuildable from a URL alone, whoever opens
+    it and whenever.
+
+    **A protocol that is not in the filtered list is answered, not refused.**
+    position and seite come back null and there are no neighbours. That is the
+    everyday case rather than an error: accepting a protocol takes it out of an
+    Offen queue while the reviewer is still looking at it. A 404 would make the
+    caller handle a failure for something that has not failed, and would be an odd
+    thing to say about a protocol they can plainly read.
+    """
+    umgebung = await nachbarn(
+        session,
+        protokoll_id,
+        auswahl=frage.auswahl,
+        sortierung=frage.sortierung,
+        pro_seite=frage.pro_seite,
+    )
+    return NachbarschaftAntwort.model_validate(umgebung)

@@ -20,7 +20,12 @@ from app.models.gewaesser import Gewaesser
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission, artcodes
-from app.protokolle.pruefliste.dienst import Prueffilter, Sortierung, liste_pruefliste
+from app.protokolle.pruefliste.dienst import (
+    Prueffilter,
+    Sortierung,
+    liste_pruefliste,
+    nachbarn,
+)
 
 EINGEREICHT = datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
 
@@ -938,3 +943,253 @@ class TestSortierung:
         )
 
         assert [zeile.id for zeile in seite.zeilen] == [drei["neckar"]]
+
+
+class TestNachbarn:
+    """Who stands either side of one protocol, in the list as it was filtered.
+
+    The question the reviewer's Vorheriges and Naechstes buttons ask. Every test
+    here is really one assertion: that this and liste_pruefliste are the same
+    list, whatever it was narrowed or ordered by.
+    """
+
+    @pytest.fixture
+    async def vier(self, protokoll: Protokollfabrik, surveyor: User) -> list[uuid.UUID]:
+        """Four protocols an hour apart, so the default order is the order below."""
+        eintraege = [
+            await protokoll(
+                surveyor,
+                gewaessername=name,
+                submitted_at=datetime(2026, 7, 1, stunde, 0, tzinfo=UTC),
+            )
+            for stunde, name in enumerate(("Argen", "Brenz", "Donau", "Enz"), start=9)
+        ]
+        return [eintrag.id for eintrag in eintraege]
+
+    async def test_nennt_beide_nachbarn_in_der_mitte(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        umgebung = await nachbarn(session, vier[1])
+
+        assert umgebung.position == 2
+        assert umgebung.vorheriges is not None
+        assert umgebung.vorheriges.id == vier[0]
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.id == vier[2]
+
+    async def test_hat_vor_dem_ersten_nichts(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        umgebung = await nachbarn(session, vier[0])
+
+        assert umgebung.position == 1
+        assert umgebung.vorheriges is None
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.id == vier[1]
+
+    async def test_hat_nach_dem_letzten_nichts(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        umgebung = await nachbarn(session, vier[3])
+
+        assert umgebung.position == 4
+        assert umgebung.vorheriges is not None
+        assert umgebung.vorheriges.id == vier[2]
+        assert umgebung.naechstes is None
+
+    async def test_hat_als_einziges_protokoll_gar_keine_nachbarn(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        allein = await protokoll(surveyor)
+
+        umgebung = await nachbarn(session, allein.id)
+
+        assert umgebung.position == 1
+        assert umgebung.vorheriges is None
+        assert umgebung.naechstes is None
+
+    async def test_nennt_das_gewaesser_des_nachbarn(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        # The button says what it opens. Two buttons announcing only "Vorheriges"
+        # and "Naechstes" tell a screen reader nothing about where they go.
+        umgebung = await nachbarn(session, vier[0])
+
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.gewaessername == "Brenz"
+
+    async def test_kennt_ein_protokoll_ausserhalb_der_liste_nicht(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        # The everyday case: a protocol accepted a moment ago has left an "Offen"
+        # queue, and the screen it is still being read on asks about it anyway.
+        await protokoll(surveyor)
+        angenommen = await protokoll(surveyor, status=Status.LOCKED)
+
+        umgebung = await nachbarn(
+            session, angenommen.id, auswahl=Prueffilter(status=(Status.SUBMITTED,))
+        )
+
+        assert umgebung.position is None
+        assert umgebung.seite is None
+        assert umgebung.vorheriges is None
+        assert umgebung.naechstes is None
+
+    async def test_kennt_einen_entwurf_nicht(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        entwurf = await protokoll(surveyor, status=Status.DRAFT)
+
+        umgebung = await nachbarn(session, entwurf.id)
+
+        assert umgebung.position is None
+
+    async def test_kennt_eine_unbekannte_id_nicht(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        umgebung = await nachbarn(session, uuid.uuid4())
+
+        assert umgebung.position is None
+        assert umgebung.vorheriges is None
+        assert umgebung.naechstes is None
+
+    async def test_ueberspringt_was_der_statusfilter_auslaesst(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        erstes = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
+        )
+        await protokoll(
+            surveyor,
+            status=Status.REJECTED,
+            submitted_at=datetime(2026, 7, 1, 10, 0, tzinfo=UTC),
+        )
+        drittes = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 1, 11, 0, tzinfo=UTC)
+        )
+
+        umgebung = await nachbarn(
+            session, erstes.id, auswahl=Prueffilter(status=(Status.SUBMITTED,))
+        )
+
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.id == drittes.id
+
+    async def test_ueberspringt_was_der_artfilter_auslaesst(
+        self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
+    ) -> None:
+        erstes = await protokoll(
+            surveyor,
+            submitted_at=datetime(2026, 7, 1, 9, 0, tzinfo=UTC),
+            arten={1: "HECH"},
+        )
+        await protokoll(
+            surveyor,
+            submitted_at=datetime(2026, 7, 1, 10, 0, tzinfo=UTC),
+            arten={1: "AALA"},
+        )
+        drittes = await protokoll(
+            surveyor,
+            submitted_at=datetime(2026, 7, 1, 11, 0, tzinfo=UTC),
+            arten={3: "HECH"},
+        )
+
+        umgebung = await nachbarn(session, erstes.id, auswahl=Prueffilter(art="HECH"))
+
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.id == drittes.id
+
+    @pytest.mark.parametrize(
+        ("sortierung", "davor", "danach"),
+        [
+            (Sortierung.EINGEREICHT_ALT, "neckar", "schussen"),
+            (Sortierung.EINGEREICHT_NEU, "schussen", "neckar"),
+            (Sortierung.DATUM_NEU, "neckar", None),
+            (Sortierung.GEWAESSER, None, "neckar"),
+        ],
+    )
+    async def test_folgt_der_gewaehlten_ordnung(
+        self,
+        session: AsyncSession,
+        protokoll: Protokollfabrik,
+        surveyor: User,
+        sortierung: Sortierung,
+        davor: str | None,
+        danach: str | None,
+    ) -> None:
+        """The same three protocols give the Argen four different neighbours."""
+        drei = {
+            "neckar": await protokoll(
+                surveyor,
+                gewaessername="Neckar",
+                submitted_at=datetime(2026, 1, 1, 9, 0, tzinfo=UTC),
+                datum=date(2026, 3, 1),
+            ),
+            "argen": await protokoll(
+                surveyor,
+                gewaessername="Argen",
+                submitted_at=datetime(2026, 2, 1, 9, 0, tzinfo=UTC),
+                datum=date(2026, 1, 15),
+            ),
+            "schussen": await protokoll(
+                surveyor,
+                gewaessername="Schussen",
+                submitted_at=datetime(2026, 3, 1, 9, 0, tzinfo=UTC),
+                datum=date(2026, 5, 20),
+            ),
+        }
+
+        umgebung = await nachbarn(session, drei["argen"].id, sortierung=sortierung)
+
+        vorher = None if umgebung.vorheriges is None else umgebung.vorheriges.id
+        nachher = None if umgebung.naechstes is None else umgebung.naechstes.id
+        assert vorher == (None if davor is None else drei[davor].id)
+        assert nachher == (None if danach is None else drei[danach].id)
+
+    @pytest.mark.parametrize("sortierung", list(Sortierung))
+    async def test_steht_in_derselben_reihenfolge_wie_die_liste(
+        self,
+        session: AsyncSession,
+        protokoll: Protokollfabrik,
+        surveyor: User,
+        sortierung: Sortierung,
+    ) -> None:
+        # Three rows agreeing on every sorted value, so only the tie-break can
+        # decide. A neighbour query without it would put them in one order and
+        # the list they came from in another.
+        for _ in range(3):
+            await protokoll(surveyor)
+
+        seite = await liste_pruefliste(session, sortierung=sortierung)
+        mitte = seite.zeilen[1].id
+
+        umgebung = await nachbarn(session, mitte, sortierung=sortierung)
+
+        assert umgebung.position == 2
+        assert umgebung.vorheriges is not None
+        assert umgebung.vorheriges.id == seite.zeilen[0].id
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.id == seite.zeilen[2].id
+
+    async def test_nennt_die_seite_auf_der_das_protokoll_steht(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        # Two to a page puts the third protocol at the top of page two, and its
+        # predecessor at the bottom of page one. Getting this wrong sends the
+        # reader back to a page their protocol is not on.
+        umgebung = await nachbarn(session, vier[2], pro_seite=2)
+
+        assert umgebung.seite == 2
+        assert umgebung.vorheriges is not None
+        assert umgebung.vorheriges.seite == 1
+        assert umgebung.naechstes is not None
+        assert umgebung.naechstes.seite == 2
+
+    async def test_nennt_die_seite_die_auch_die_liste_zeigt(
+        self, session: AsyncSession, vier: list[uuid.UUID]
+    ) -> None:
+        umgebung = await nachbarn(session, vier[2], pro_seite=2)
+
+        assert umgebung.seite is not None
+        seite = await liste_pruefliste(session, seite=umgebung.seite, pro_seite=2)
+        assert vier[2] in [zeile.id for zeile in seite.zeilen]

@@ -12,6 +12,7 @@ from app.protokolle.pruefliste.parameter import (
     begrenze_seite,
     jahresgrenzen,
     maskiere_platzhalter,
+    seite_von_position,
     seitenzahl,
     suchbegriffe,
     suchmuster,
@@ -159,6 +160,35 @@ class TestSeitenzahl:
         # begrenze_pro_seite keeps this from arriving, but a divide by zero is
         # not the way to find out that something slipped past it.
         assert seitenzahl(10, 0) == 1
+
+
+class TestSeiteVonPosition:
+    """Which page a place in the list falls on, which is where an off-by-one hurts."""
+
+    def test_setzt_die_erste_stelle_auf_die_erste_seite(self) -> None:
+        assert seite_von_position(1, 25) == 1
+
+    def test_laesst_die_letzte_zeile_einer_seite_auf_ihr(self) -> None:
+        assert seite_von_position(25, 25) == 1
+
+    def test_setzt_die_naechste_zeile_auf_die_naechste_seite(self) -> None:
+        assert seite_von_position(26, 25) == 2
+
+    def test_rechnet_weiter_hinten_genauso(self) -> None:
+        assert seite_von_position(51, 25) == 3
+
+    def test_kehrt_den_versatz_um(self) -> None:
+        # The two have to agree, or a reader walking past a page boundary is sent
+        # back to a page their protocol is not on.
+        assert versatz(seite_von_position(26, 25), 25) == 25
+
+    def test_macht_aus_einer_stelle_vor_der_ersten_die_erste_seite(self) -> None:
+        assert seite_von_position(0, 25) == 1
+
+    def test_deckelt_eine_masslose_seitengroesse(self) -> None:
+        # begrenze_pro_seite applies here too, so the page number this returns is
+        # the page the list would really put that row on.
+        assert seite_von_position(150, 5000) == seite_von_position(150, PRO_SEITE_MAX)
 
 
 class TestJahresgrenzen:

@@ -1,7 +1,7 @@
 # Feature: Durch die Liste blaettern
 
 **From build-plan:** feature 12d
-**Status:** specced, not started
+**Status:** built, all five steps green; awaiting review
 
 ## Goal
 
@@ -87,7 +87,6 @@ It answers, for the protocol named in the path:
 |---|---|
 | `position` | Its place in the filtered, ordered list, counted from 1. `null` when it is not in that list at all |
 | `seite` | Which page of the queue that position falls on. `null` for the same reason |
-| `gesamt` | How many protocols the list holds, the same number the list's own `gesamt` gives |
 | `vorheriges` | The protocol before it, or `null` at the front |
 | `naechstes` | The protocol after it, or `null` at the end |
 
@@ -144,9 +143,9 @@ still a place to go back to.
 - **Any change to what the queue shows or how it filters.** `liste_pruefliste`, the
   filters, the orders, the species query and the index are all finished. This feature adds
   a second reader of `Prueffilter` and changes nothing it reads.
-- **"Protokoll 7 von 42" anywhere on the screen.** `position` and `gesamt` are in the
-  answer because the page numbers are computed from them, not because this feature prints
-  a counter. The mockup has none, and inventing one is scope.
+- **"Protokoll 7 von 42" anywhere on the screen.** `position` is in the answer because the
+  page number is computed from it, not because this feature prints a counter. The mockup
+  has none, and inventing one is scope.
 - **A decision moving the reader on by itself.** Annehmen does not jump to the next
   protocol. That is a real idea and a separate one, and a screen that navigates away from
   a decision on its own takes away the moment to see that it worked.
@@ -176,7 +175,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 Steps 1 and 2 are the backend and have nothing to look at but a test run and the API
 docs. From step 3 onward every step is something to open in the browser.
 
-- [ ] **Step 1 - Who stands before and after** - `nachbarn()` in
+- [x] **Step 1 - Who stands before and after** - `nachbarn()` in
       `backend/app/protokolle/pruefliste/dienst.py`, beside `liste_pruefliste` and sharing
       its `_eingereichte`, `_bedingungen` and `_ORDNUNGEN` rather than restating any of
       them, plus the `Nachbar` and `Nachbarschaft` dataclasses. One statement: a CTE
@@ -194,11 +193,10 @@ docs. From step 3 onward every step is something to open in the browser.
       by the id tie-break the list uses; and the page number matching the page the same row
       appears on in `liste_pruefliste`. `ruff check .` and `mypy .` are clean.
 
-- [ ] **Step 2 - The endpoint** - `GET /api/v1/pruefliste/nachbarn/{protokoll_id}` on the
+- [x] **Step 2 - The endpoint** - `GET /api/v1/pruefliste/nachbarn/{protokoll_id}` on the
       existing router, with `NachbarAntwort` and `NachbarschaftAntwort` in
       `app/api/schemas.py`. The query parameters are the list's, copied in the sense of
-      taking the same types, the same bounds and the same descriptions, minus `seite`. The
-      checked-in `openapi.json` is regenerated.
+      taking the same types, the same bounds and the same descriptions, minus `seite`.
       *Done when:* `pytest` covers each of the three FFS roles admitted and a Submitter and
       a REGIERUNGSPRAESIDIUM account refused with 403; a request with no filters agreeing
       with the unfiltered list; the same filters given to both endpoints agreeing about who
@@ -206,7 +204,7 @@ docs. From step 3 onward every step is something to open in the browser.
       id answering 200 with nulls rather than 404. The endpoint is visible and callable in
       the API docs at http://localhost:8000/api/v1/docs.
 
-- [ ] **Step 3 - The queue rides along in the link** - `pruefliste/pfad.ts`, two plain
+- [x] **Step 3 - The queue rides along in the link** - `pruefliste/pfad.ts`, two plain
       functions with their test: `prueflistenPfad(abfrage)` and `pruefungsPfad(id,
       abfrage)`, both built on `alsSuchparameter` so there is one spelling of a queue in a
       URL. `PrueflistenZeile` uses the second for its Pruefen button.
@@ -218,7 +216,7 @@ docs. From step 3 onward every step is something to open in the browser.
       on an unfiltered queue is unchanged from today. `npm run lint` and `npm run build`
       pass.
 
-- [ ] **Step 4 - The crumb** - `Kopfzeile.tsx` draws **Pruefliste** in front of the date in
+- [x] **Step 4 - The crumb** - `Kopfzeile.tsx` draws **Pruefliste** in front of the date in
       `page__sub` for an FFS account, linking back through `prueflistenPfad`, and drops the
       Alle Protokolle button for that account. A submitter's view of the same screen is
       untouched.
@@ -228,7 +226,7 @@ docs. From step 3 onward every step is something to open in the browser.
       the crumb reads as a link to a screen reader and is reachable by keyboard; a
       screenshot of the page head in light and in dark matches the mockup's line.
 
-- [ ] **Step 5 - Vorheriges and Naechstes** - `pruefung/Listennavigation.tsx` with the two
+- [x] **Step 5 - Vorheriges and Naechstes** - `pruefung/Listennavigation.tsx` with the two
       buttons, `holeNachbarn` in `pruefung/api.ts`, `nachbarnAbfrage` in
       `pruefung/abfragen.ts` pinned with `staleTime: Infinity` and reusing the queue's own
       `sollWiederholen`, the types in `pruefung/typen.ts`, and the German strings.
@@ -257,7 +255,6 @@ docs. From step 3 onward every step is something to open in the browser.
 - `app/api/pruefliste.py` - the route.
 - `app/api/schemas.py` - `NachbarAntwort`, `NachbarschaftAntwort`.
 - `app/api/pruefliste_test.py` - the role cases and the agreement with the list.
-- `backend/openapi.json` - regenerated.
 
 **Frontend, new**
 
@@ -267,6 +264,8 @@ docs. From step 3 onward every step is something to open in the browser.
 **Frontend, changed**
 
 - `src/protokoll/pruefliste/PrueflistenZeile.tsx` - the Pruefen link carries the queue.
+- `src/protokoll/pruefliste/PrueflistenTabelle.tsx` and `PrueflisteSeite.tsx` - the
+  selection handed down to the row. Not in the first draft of this list; see deviation 5.
 - `src/protokoll/pruefung/Kopfzeile.tsx` - the crumb, the two buttons, and Alle Protokolle
   only where there is no queue behind the reader.
 - `src/protokoll/pruefung/api.ts`, `abfragen.ts`, `typen.ts` - the one new call.
@@ -292,7 +291,6 @@ narrow the queue by region, and when it does this endpoint inherits that narrowi
 NachbarschaftAntwort
   position     int | null    place in the filtered list, from 1. null: not in it
   seite        int | null    which page that position falls on
-  gesamt       int           protocols the filtered list holds
   vorheriges   NachbarAntwort | null
   naechstes    NachbarAntwort | null
 
@@ -327,9 +325,11 @@ are all this reads.
 evidence, a screenshot of the page head in both themes, and `npm run build`, per step.
 
 **Browser evidence, and it needs real rows.** Walking a queue needs at least four handed-in
-protocols, and testing the page boundary needs twenty-six, which is more than anybody will
-type by hand; the boundary is covered by the backend test and by setting `pro_seite` low by
-hand in the address bar for one look. The Playwright suite already has the two accounts and
+protocols. The page boundary needs twenty-six, which the development database does not hold
+and which no query parameter can fake: the queue screen never sends `pro_seite`, so every
+page in the browser is 25 rows. The boundary is therefore covered by the backend tests over
+`nachbarn()` and `seite_von_position()` and not in the browser, which is where that arithmetic
+lives anyway. The Playwright suite already has the two accounts and
 its skip message; this adds to `pruefliste.spec.ts` rather than a new file, because it is
 the same queue.
 
@@ -366,3 +366,57 @@ the same queue.
 - **Comment the why, not the what.** Three comments are owed: why the server answers who is
   next rather than the browser counting rows, why the neighbours are frozen on arrival, and
   why the endpoint answers a protocol outside the list with nulls instead of 404.
+
+## What the build decided that the spec did not
+
+Six things the code settles which the draft left open or got wrong. Recorded here rather
+than quietly, because the next feature to touch this endpoint inherits all four.
+
+1. **`gesamt` was dropped from the answer.** The draft carried it, and nothing reads it: the
+   screen prints no counter, and the page numbers come from `position` alone. It also could
+   not be answered honestly in the one case that matters, a protocol outside the filtered
+   list, where the single statement returns no rows and therefore no count. Keeping it would
+   have meant either a second query or a zero that was a lie.
+
+2. **The query parameters became one shared dependency, `Prueflistenfrage`.** The draft said
+   to copy the list's seven `Query` declarations onto the new route. Copying them is exactly
+   how the two routes would stop describing one list, quietly, on the day one of them gains a
+   filter. Both routes now read the same dependency; only the list adds `seite`. Nothing about
+   the generated documentation or the existing endpoint's behaviour changes, and its 35 tests
+   passed untouched.
+
+3. **There is no `openapi.json` to regenerate.** The draft said to update one. Feature 12a
+   already recorded that `coding-standards.md` asks for a checked-in OpenAPI document, that no
+   such file exists for any endpoint, and that fixing it project-wide is a `/fix` rather than
+   something to do inside a feature branch. That still holds.
+
+4. **The crumb reuses `shell.nav.pruefliste` rather than a string of its own.** It is the same
+   word for the same page as the header's link, and two keys would be two chances to call one
+   destination two things. The cost, noted rather than hidden: renaming the header's link
+   renames the crumb with it.
+
+5. **The selection is handed down to the row rather than read in it.** The draft named only
+   `PrueflistenZeile.tsx`, but a row cannot build a link to a list it cannot see.
+   `PrueflisteSeite` already reads the address bar once, so it passes the selection through
+   `PrueflistenTabelle` to each row. Twenty-five rows each reading the query string for
+   themselves would be twenty-five chances to disagree about one list.
+
+6. **One definition of what the neighbours request asks, found by the branch review.** The
+   call stripped `seite` before sending, and the cache key was built from the unstripped
+   selection. Nothing would have come back wrong, but the key varied by a value the request
+   did not carry, so the same question asked from two different pages would have been two
+   cache entries and a second fetch, quietly working against the freeze the feature is built
+   on. `nachbarnParameter()` is now the single answer, used by the call and by the key. This
+   is precisely the second-definition-of-one-list fault the whole feature was shaped to
+   avoid, which is worth recording rather than quietly fixing.
+
+## What browser evidence showed
+
+The backend container had been running a two-day-old image, so the first run of the new
+browser tests failed with no buttons at all: the endpoint answered 404 while every unit test
+passed. `docker compose up -d --build backend` is part of trying this, not an optional step.
+
+The frozen rule was watched rather than assumed. A protocol opened out of the Offen queue,
+accepted, and therefore LOCKED and no longer in that queue, still carried its Vorheriges
+button pointing at the same protocol it had on arrival. That is the whole feature, and it is
+the one behaviour a unit test cannot show.
