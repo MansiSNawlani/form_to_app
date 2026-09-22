@@ -187,16 +187,26 @@ These are not features and are not tracked here. They happen first.
         it creates for whoever uploaded it, and the answer listing everything already wrong
         with the protocol, the attachments the file carries included
 
-    **Open before 23b is specced, found on 2026-09-22.** Three real filed protocols were
-    supplied to test the reader against, and all three are older form versions than this
-    application serves: two say `Version 2023-02-25` and one `Version 2024-01-10`, while the
-    seed is `20260609`. The version gate built in 23a therefore refuses all three, which
-    means it would refuse the FFS backlog this whole item exists to read. Their 540 field
-    names are identical to ours, so the files are not otherwise strange. Three ways out, and
-    which one is right is a question for FFS rather than for us: accept a range of versions
-    as long as the field names match, keep one version and ask FFS to re-save the backlog
-    through the current form, or hold a definition per version as ADR 0004 already
-    envisages. Nothing is decided.
+    **Which form versions are accepted, decided on 2026-09-22.** 23a's gate accepts one
+    version and refuses every other, which would have refused all three of the real
+    protocols supplied that day. It accepts **any version whose field names match ours**
+    instead.
+
+    The evidence for that being safe, measured rather than assumed. All three real files
+    carry 540 fields under exactly our names. The one from January 2024 differs from our
+    June 2026 form in nothing at all: same fields, same buttons, same option lists, same
+    number formats. The two from February 2023 differ in one respect, in nine places: each
+    hydrology group lacks the extra unlabelled `0` button that means "hydrology does not
+    apply to this water", which FFS added sometime before January 2024. A button a file
+    does not have is a button nobody could have ticked, so it cannot produce a value the
+    reader chokes on; a 2023 protocol for a standing water instead arrives with hydrology
+    answers our rules then flag, which is what the problem panel is for.
+
+    **An old template does not mean an old survey**, and this is why the tolerance is
+    needed at all. All three of those files record surveys carried out in August and
+    September 2026 on templates from 2023 and 2024, because people keep filling in whatever
+    copy of the PDF they downloaded years ago. The version stamp says nothing about the age
+    of the survey and is never a reason to treat a protocol differently.
   - [ ] 23c. PDF einlesen auf dem Bildschirm: the control on Meine Protokolle, the file
         picker, the busy, refused and failed states, and landing in the new draft with the
         problem panel already populated
@@ -206,16 +216,30 @@ These are not features and are not tracked here. They happen first.
   - [ ] 23e. Das Protokoll als PDF: the download, built by writing the answers into the
         official form's own boxes
 
-  Two audiences, decided on 2026-09-15: the backlog first, a permanent route in second. The
-  immediate job is the protocols FFS already holds as Acrobat files. Whether the Acrobat
-  form stays a lasting alternative to the website, which overlaps feature 22, is decided
-  once the backlog is in and people have used it.
+  **What this is for, settled on 2026-09-22, and it is the opposite of what this item
+  assumed on 2026-09-15.** That note put the backlog first: the stack of completed
+  protocols FFS already holds as Acrobat files. That premise is wrong, because those
+  surveys are already in FiaKa and importing them achieves nothing.
 
-  **Built after the review features, 11e and 12, and before the rest of the MVP.** Its
-  first job is to produce realistic protocols to test the review workflow with, so the
-  review screens are built first and validated properly afterwards. The number is 23
-  because numbering follows what is next unused, never where an item sits; the same rule
-  the 2026-09-01 reordering above follows.
+  The real job is the one the old note listed second. A surveyor who would rather fill in
+  the Acrobat form in the field should not have to type the whole protocol again because
+  the reviewers at FFS now work in the application. They import their file instead. So this
+  is a permanent route into the app rather than a migration tool, it overlaps feature 22,
+  and the question of whether the Acrobat form stays a lasting alternative is answered:
+  yes, for as long as people keep using it.
+
+  **Every import is a new survey.** An ordinary draft, owned by whoever uploaded it,
+  stamped with the form version this application serves, and held to today's rules before
+  it can be submitted. Nothing imported is a historical record being preserved, so nothing
+  imported is exempt from the current rulebook.
+
+  **Built after the review features, 11e and 12, and before the rest of the MVP.** The
+  reason given on 2026-09-15 was that an import would produce realistic protocols to test
+  the review workflow with. That still holds, and three real protocols supplied on
+  2026-09-22 now do the same job directly, so the ordering stands on the plainer ground
+  that this is a route real surveyors will use and the review screens it feeds already
+  exist. The number is 23 because numbering follows what is next unused, never where an
+  item sits; the same rule the 2026-09-01 reordering above follows.
 
   Nothing about the import is speculative. `backend/scripts/extract_form_definition.py`
   already opens this exact encrypted form, every PDF field name is already the name this
