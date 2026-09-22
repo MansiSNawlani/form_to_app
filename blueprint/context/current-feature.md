@@ -1,7 +1,7 @@
 # Feature: Aus der PDF lesen
 
 **From build-plan:** feature 23a
-**Status:** not started
+**Status:** built, all six steps done
 
 ## Goal
 
@@ -116,7 +116,7 @@ Steps 1 to 5 each end with something `pytest` can prove. There is nothing to cli
 23c, so every done-when here is a test, the two linters, and the existing suite staying
 green.
 
-- [ ] **Step 1 - Opening the file, and one copy of the walk** - `app/formular/pdf.py`
+- [x] **Step 1 - Opening the file, and one copy of the walk** - `app/formular/pdf.py`
       with `decode` and `walk` moved out of `backend/scripts/extract_form_definition.py`
       unchanged, plus `oeffne(daten: bytes)` which reads from memory, decrypts with the
       empty password, and hands back the AcroForm's fields. `app/formular/fehler.py` with
@@ -135,7 +135,7 @@ green.
       `scripts/extract_form_definition_test.py` passes unchanged. `ruff check .` and
       `mypy .` pass.
 
-- [ ] **Step 2 - Which fields are answers** - `app/protokolle/einlesen/felder.py` with
+- [x] **Step 2 - Which fields are answers** - `app/protokolle/einlesen/felder.py` with
       the 55 excluded names as named, commented groups exactly as the table above sets
       them out, and `ist_antwort(name)`. A guard in the spirit of `RADIO_LABELS` in the
       extraction script: a test reading `felder.json` and asserting every one of its 540
@@ -148,7 +148,7 @@ green.
       `arten.art7.klasse_3` and `arten.art7.0plus` are answers while `arten.art7.summe`
       is not; and that no name is both. `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 3 - Which form is this** - `lies_version` in `app/protokolle/einlesen/`,
+- [x] **Step 3 - Which form is this** - `lies_version` in `app/protokolle/einlesen/`,
       reading the `version` field and turning `Version 2026-06-09` into the `20260609`
       the rest of the application uses, with a typed refusal naming what was found when
       it is anything else. Compared against the version the running deployment serves,
@@ -161,7 +161,7 @@ green.
       that a `version` field holding something unparseable is refused. `ruff check .` and
       `mypy .` pass.
 
-- [ ] **Step 4 - The German numbers and the German date** - the one place in this
+- [x] **Step 4 - The German numbers and the German date** - the one place in this
       feature where the file's values and ours genuinely differ, and therefore the one
       place a correct-looking wrong number can get in. This step did not exist in the
       first draft of this spec, which is the gap the red-team pass on 2026-09-22 found.
@@ -198,7 +198,7 @@ green.
       field untouched and reports it; and leaves `31.02.2026` untouched and reports it.
       `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 5 - The values, as an answers document** - `lies_antworten`, walking the
+- [x] **Step 5 - The values, as an answers document** - `lies_antworten`, walking the
       answer fields and building the nested document: a text value decoded and put
       through step 4, a radio or checkbox value with its leading slash removed, `/Off`
       and the empty string left out entirely, and every value a string. A value too long
@@ -221,7 +221,7 @@ green.
       check with no violations, since 23b will save it through the normal path.
       `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 6 - One function, and what it could not use** - `lies_protokoll(daten)`
+- [x] **Step 6 - One function, and what it could not use** - `lies_protokoll(daten)`
       returning the `Einleseergebnis` the Data section fixes: the version, the answers, the
       fields the file held that this application has no home for, and how many of the five
       picture slots carry an image. Then the pass over the whole sub-feature: two entries

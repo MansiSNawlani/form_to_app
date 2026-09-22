@@ -162,3 +162,18 @@ Everything that has happened to one Submission: who moved it from which state to
 what they wrote. Its own record, separate from the audit trail of feature 15, which is about who
 changed which answer.
 _Avoid_: log, timeline, audit trail
+
+**Einlesen**:
+Reading a completed Protokoll out of the legacy Acrobat form and opening it as a Draft, with the
+answers already in place. Never as a Submission: the legacy form has known validation bugs, so
+what is read in is checked by exactly the same rules as anything typed in, and whoever imported it
+puts the problems right before sending it. The word is about one file becoming one Draft, not about
+a bulk transfer of records.
+_Avoid_: import, upload, migration, conversion
+
+**Protokoll-PDF**:
+A Submission written back into the official form's own boxes, for its author to download, keep and
+print. It is the Protokoll E-Befischung as FFS has always had it on paper, with the legacy form's
+own JavaScript stripped out. Not everything a Submission holds fits on the paper: there is no box
+for the Bearbeiter's Ort, no room past the fourth Foto, and nowhere for the status or the Verlauf.
+_Avoid_: export, printout, report, Ausdruck

@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import ArrayObject, NameObject
+from pypdf.generic import ArrayObject, DecodedStreamObject, NameObject
 
 RESSOURCEN = Path(__file__).resolve().parents[3] / "Resources" / "Fiaka_Resources"
 
@@ -87,6 +87,46 @@ def ohne_feld(name: str) -> bytes:
     if len(behalten) == len(acroform["/Fields"]):
         raise AssertionError(f"{name} is not a top-level field of this form")
     acroform[NameObject("/Fields")] = ArrayObject(behalten)
+    puffer = BytesIO()
+    schreiber.write(puffer)
+    return puffer.getvalue()
+
+
+def mit_bild(*namen: str) -> bytes:
+    """The real form with a picture sitting in each of those slots.
+
+    The legacy form holds a photograph as a push button's icon, in the widget's
+    appearance dictionary under `/MK /I`, which is how a PDF form can carry an
+    image at all. The blank form has no `/I` on any of the five slots, so its
+    presence means somebody really put a picture there.
+
+    What goes in is a minimal Form XObject rather than a photograph. Feature 23d
+    is what reads the pixels out; all 23a does is count the slots that are
+    filled, so a real JPEG here would prove nothing extra and would have to be
+    committed or generated.
+    """
+    schreiber = PdfWriter(clone_from=_leser())
+    acroform: Any = schreiber._root_object["/AcroForm"]
+    gesucht = set(namen)
+
+    for ref in acroform["/Fields"]:
+        feld: Any = ref.get_object()
+        if str(feld.get("/T")) != "fotos":
+            continue
+        for kind_ref in feld.get("/Kids", []):
+            kind: Any = kind_ref.get_object()
+            if f"fotos.{kind.get('/T')}" not in gesucht:
+                continue
+            symbol = DecodedStreamObject()
+            symbol.set_data(b"")
+            kind[NameObject("/MK")].update(
+                {NameObject("/I"): schreiber._add_object(symbol)}
+            )
+            gesucht.discard(f"fotos.{kind.get('/T')}")
+
+    if gesucht:
+        raise AssertionError(f"not picture slots of this form: {sorted(gesucht)}")
+
     puffer = BytesIO()
     schreiber.write(puffer)
     return puffer.getvalue()
