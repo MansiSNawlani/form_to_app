@@ -70,10 +70,11 @@ function Kopfzeile({ protokoll }: { protokoll: Entwurf }) {
               <Link
                 component={RouterLink}
                 to={prueflistenPfad(abfrage)}
+                className="krume"
               >
                 {t('shell.nav.pruefliste')}
               </Link>
-              {' › '}
+              <span className="krume-trenner">{' › '}</span>
             </>
           )}
           {datum !== null && (

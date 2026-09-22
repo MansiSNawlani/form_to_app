@@ -27,13 +27,39 @@ async function gesamt(page: Page, abfrage: string): Promise<number> {
   return (await antwort.json()).gesamt as number
 }
 
+const OFFEN = 'status=SUBMITTED&status=IN_REVIEW&sortierung=eingereicht_alt'
+
+interface Pruefzeile {
+  id: string
+  gewaessername: string
+}
+
 /** One page of the queue as the endpoint answers it, so tests assert against data. */
-async function offeneListe(page: Page): Promise<{ id: string; gewaessername: string }[]> {
-  const antwort = await page.request.get(
-    '/api/v1/pruefliste?status=SUBMITTED&status=IN_REVIEW&sortierung=eingereicht_alt&seite=1',
-  )
+async function offeneSeite(
+  page: Page,
+  seite = 1,
+): Promise<{ zeilen: Pruefzeile[]; seiten: number }> {
+  const antwort = await page.request.get(`/api/v1/pruefliste?${OFFEN}&seite=${seite}`)
   expect(antwort.ok()).toBe(true)
-  return (await antwort.json()).zeilen as { id: string; gewaessername: string }[]
+  const inhalt = await antwort.json()
+  return { zeilen: inhalt.zeilen as Pruefzeile[], seiten: inhalt.seiten as number }
+}
+
+async function offeneListe(page: Page): Promise<Pruefzeile[]> {
+  return (await offeneSeite(page)).zeilen
+}
+
+/* The genuinely last protocol in the queue, not the last one on page one.
+ *
+ * Worth the second request. The first version of this test compared the page
+ * against the total and skipped itself the moment the queue outgrew one page,
+ * which is exactly when walking to the end stops being trivial: "not run here"
+ * must never read as "passed".
+ */
+async function letztesOffenes(page: Page): Promise<Pruefzeile> {
+  const { seiten } = await offeneSeite(page)
+  const { zeilen } = await offeneSeite(page, seiten)
+  return zeilen[zeilen.length - 1]
 }
 
 test.describe('Die Pruefliste', () => {
@@ -420,9 +446,7 @@ test.describe('Durch die Liste blaettern', () => {
 
   test('sperrt Vorheriges am Anfang und Naechstes am Ende', async ({ page }) => {
     const zeilen = await offeneListe(page)
-    const alle = await gesamt(page, 'status=SUBMITTED&status=IN_REVIEW')
     test.skip(zeilen.length < 2, 'Zu wenige eingereichte Protokolle im Testbestand.')
-    test.skip(alle !== zeilen.length, 'Die Liste hat mehr als eine Seite.')
 
     await page.goto(`/protokolle/${zeilen[0].id}/pruefung`)
     // Drawn, not gone: a button that disappears at the edge makes the head jump
@@ -430,9 +454,32 @@ test.describe('Durch die Liste blaettern', () => {
     await expect(page.getByRole('button', { name: 'Vorheriges' })).toBeDisabled()
     await expect(page.getByRole('link', { name: /^Nächstes/ })).toBeVisible()
 
-    await page.goto(`/protokolle/${zeilen[zeilen.length - 1].id}/pruefung`)
+    // The end of the queue, whichever page it falls on.
+    const letztes = await letztesOffenes(page)
+    await page.goto(`/protokolle/${letztes.id}/pruefung`)
     await expect(page.getByRole('button', { name: 'Nächstes' })).toBeDisabled()
     await expect(page.getByRole('link', { name: /^Vorheriges/ })).toBeVisible()
+  })
+
+  test('traegt die Seite ueber die Seitengrenze mit', async ({ page }) => {
+    // The one case the queue's own paging makes possible: the last row of a page
+    // has its successor on the next one, and the crumb has to follow the reader
+    // there rather than sending them back to the page they started on.
+    const { zeilen, seiten } = await offeneSeite(page)
+    test.skip(seiten < 2, 'Die Liste hat nur eine Seite.')
+
+    const letzteAufSeiteEins = zeilen[zeilen.length - 1]
+    const naechsteSeite = await offeneSeite(page, 2)
+    const erstesAufSeiteZwei = naechsteSeite.zeilen[0]
+
+    await page.goto(`/protokolle/${letzteAufSeiteEins.id}/pruefung`)
+    await page.getByRole('link', { name: /^Nächstes/ }).click()
+
+    await expect(page).toHaveURL(new RegExp(`/protokolle/${erstesAufSeiteZwei.id}/pruefung`))
+    await expect(page).toHaveURL(/seite=2/)
+
+    await page.getByRole('main').getByRole('link', { name: 'Prüfliste' }).click()
+    await expect(page).toHaveURL(/seite=2/)
   })
 
   test('nimmt die Filter mit auf den Pruefbildschirm und wieder zurueck', async ({ page }) => {

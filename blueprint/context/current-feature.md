@@ -369,7 +369,7 @@ the same queue.
 
 ## What the build decided that the spec did not
 
-Six things the code settles which the draft left open or got wrong. Recorded here rather
+Seven things the code settles which the draft left open or got wrong. Recorded here rather
 than quietly, because the next feature to touch this endpoint inherits all four.
 
 1. **`gesamt` was dropped from the answer.** The draft carried it, and nothing reads it: the
@@ -410,11 +410,30 @@ than quietly, because the next feature to touch this endpoint inherits all four.
    is precisely the second-definition-of-one-list fault the whole feature was shaped to
    avoid, which is worth recording rather than quietly fixing.
 
+7. **The crumb is bold and in the accent colour, not the sub-line's grey.** The first person
+   to try this screen went for the header's Pruefliste tab instead of the crumb, and that tab
+   goes to the plain queue: their filters and their page were thrown away. The crumb itself
+   was carrying both correctly. What was wrong was that it read as part of a quiet grey line
+   of dates and version numbers. `.krume` in `protokoll.css` gives it weight and the accent,
+   keeping the mockup's proportions, and the separator stays muted so the contrast is what the
+   eye lands on.
+
+   **Left alone deliberately:** the header's Pruefliste tab still goes to the unfiltered
+   queue. It is site-wide navigation, "take me to the queue" is a reasonable thing for it to
+   mean, and making one word mean two destinations depending on where you were is its own
+   surprise. Worth revisiting if people keep reaching for it.
+
 ## What browser evidence showed
 
 The backend container had been running a two-day-old image, so the first run of the new
 browser tests failed with no buttons at all: the endpoint answered 404 while every unit test
 passed. `docker compose up -d --build backend` is part of trying this, not an optional step.
+
+A test that guards itself into silence is worse than no test. The first version of "sperrt
+Vorheriges am Anfang und Naechstes am Ende" compared page one against the total and skipped
+whenever the queue outgrew one page, which is exactly when walking to the end stops being
+trivial. It now asks the endpoint which page is last and goes there, and a second test walks
+across the boundary from row 25 to row 26 and checks the crumb follows.
 
 The frozen rule was watched rather than assumed. A protocol opened out of the Offen queue,
 accepted, and therefore LOCKED and no longer in that queue, still carried its Vorheriges
