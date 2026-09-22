@@ -179,7 +179,7 @@ These are not features and are not tracked here. They happen first.
       by exactly the same rules as anything typed in, and hand a filed protocol back as a
       PDF its author can download, keep and print. Added on 2026-09-15; the export folded
       in on 2026-09-22
-  - [ ] 23a. Aus der PDF lesen: the reader, as plain functions over bytes. Decrypt the file,
+  - [x] 23a. Aus der PDF lesen: the reader, as plain functions over bytes. Decrypt the file,
         walk its fields, decode the umlauts the way the extraction script already has to,
         turn `/13` into `13` and `/Ja` into `Ja`, leave out everything the form carries that
         is not an answer, and refuse a file that is not this form version
