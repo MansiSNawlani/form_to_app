@@ -154,7 +154,7 @@ These are not features and are not tracked here. They happen first.
   - **Accepting locks the protocol.** Annehmen writes LOCKED and sets `locked_at` in one action,
     which is what the reviewer mockup's own button text promises. ACCEPTED stays in the enum
     unwritten until feature 19 needs a step between the reviewer's yes and the transfer to FiaKa.
-- [ ] 12. Review queue: list, filter and search, including by species
+- [x] 12. Review queue: list, filter and search, including by species
   - [x] 12a. Die Pruefliste, der Endpunkt: the query that reads across every account, who may
         call it, the filters for status, Anlass, year and a free-text search over the water,
         the Ortsangabe and the Monitoringstrecken-Nr., the sort orders and the paging
@@ -163,7 +163,7 @@ These are not features and are not tracked here. They happen first.
         after signing in instead of on Meine Protokolle
   - [x] 12c. Suche nach Art: searching the catch by species end to end, the JSONB query, the
         index that keeps it fast, and the species picker in the filter bar
-  - [ ] 12d. Durch die Liste blaettern: the Pruefliste crumb and the Vorheriges and Naechstes
+  - [x] 12d. Durch die Liste blaettern: the Pruefliste crumb and the Vorheriges and Naechstes
         buttons on the reviewer's screen, carrying the filters and the order with them
 
   **Split on 2026-09-17.** Species search is its own item because it is the one filter that is
