@@ -358,16 +358,28 @@ as `12,5`. Step 4 is deliberately written to be correct either way, by leaving a
 that is already in our own form alone, which is why this is a weakness rather than a
 blocker. A real filled protocol would settle it outright. See the question below.
 
-## One question for you, and one note
+## What the real protocols answered, and one note
 
-**A question.** Can FFS give us one real filled-in protocol, saved out of Acrobat? It is
-the only thing that proves the reader against a file we did not write, and there is now
-a specific thing it would settle: whether a temperature of twelve and a half degrees is
-stored in the file as `12,5` or as `12.5`. The reader is built to be right either way,
-so this is confirmation rather than a dependency. It would not be committed: a real
-protocol carries a surveyor's name, telephone number and e-mail address, so it would be
-kept outside the repository and used once, by hand. The work does not wait on this, and
-every step above passes without it.
+**The question, and its answer.** This section asked for one real filled-in protocol,
+saved out of Acrobat, because a file we wrote cannot prove how a file Acrobat wrote is
+stored. Three arrived on 2026-09-22 and are kept, git-ignored, in
+`Resources/echte-protokolle/`; that directory's README says why they are not committed.
+Four things they settled, and only the first was the expected answer:
+
+1. **Acrobat stores the parsed number, with a dot.** A temperature the form displays as
+   `14,4` sits in the file as `14.4`, and an output of `1,7 kW` as `1.7`. So the comma
+   case does not arise in a real protocol. The conversion is written to be right either
+   way, which is why this is confirmation rather than rework.
+2. **A date is stored German**, `09.09.2026`, so that conversion is load-bearing after
+   all.
+3. **All three carry their Kartenausschnitt as an embedded image**, and `zaehle_bilder`
+   counts exactly one in each. The four photo slots are empty in all three.
+4. **All three are older form versions than this application serves**, and that is the
+   one that matters. Two say `Version 2023-02-25` and one `Version 2024-01-10`. The
+   version gate therefore refuses all three. Their 540 field names are identical to
+   ours, so nothing else about them is strange. This is 23b's problem rather than 23a's,
+   and it is written up under item 23 in `blueprint/build-plan.md` because it is a
+   decision about what the import is for, not a bug in the reader.
 
 **A note, nothing needed.** An imported protocol can contradict itself, because the
 legacy form's hydrology check is broken: defect 9 in `docs/ffs-defect-list.md` means a

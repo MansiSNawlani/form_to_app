@@ -30,6 +30,15 @@ venv/
 deployment/data/
 uploads/
 
+# Real filled-in protocols, for testing the PDF import against files this
+# project did not write. Never committed: a filed protocol carries the
+# surveyor's name, postal address, telephone number and e-mail address, and
+# there is no consent on record for putting any of that in a repository. The
+# blank forms in Resources/Fiaka_Resources/ are committed and carry nobody's
+# data; these do. Keep your own copies here and they stay out of every commit.
+Resources/echte-protokolle/*
+!Resources/echte-protokolle/README.md
+
 # editors and OS
 .DS_Store
 Thumbs.db

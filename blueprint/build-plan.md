@@ -186,6 +186,17 @@ These are not features and are not tracked here. They happen first.
   - [ ] 23b. Der Einlese-Endpunkt: the upload endpoint, its size and type limits, the draft
         it creates for whoever uploaded it, and the answer listing everything already wrong
         with the protocol, the attachments the file carries included
+
+    **Open before 23b is specced, found on 2026-09-22.** Three real filed protocols were
+    supplied to test the reader against, and all three are older form versions than this
+    application serves: two say `Version 2023-02-25` and one `Version 2024-01-10`, while the
+    seed is `20260609`. The version gate built in 23a therefore refuses all three, which
+    means it would refuse the FFS backlog this whole item exists to read. Their 540 field
+    names are identical to ours, so the files are not otherwise strange. Three ways out, and
+    which one is right is a question for FFS rather than for us: accept a range of versions
+    as long as the field names match, keep one version and ask FFS to re-save the backlog
+    through the current form, or hold a definition per version as ADR 0004 already
+    envisages. Nothing is decided.
   - [ ] 23c. PDF einlesen auf dem Bildschirm: the control on Meine Protokolle, the file
         picker, the busy, refused and failed states, and landing in the new draft with the
         problem panel already populated
