@@ -42,6 +42,15 @@ dependencies = [
     # follows the pattern already in the file instead of introducing a second
     # concurrency story and a less-maintained dependency to go with it.
     "boto3>=1.35",
+    # Reads and writes the legacy Acrobat form. A runtime dependency since
+    # feature 23a: until then only scripts/extract_form_definition.py used it, to
+    # pull the option lists out of the PDF once, but the application itself now
+    # imports a filled-in protocol and hands one back for download, so the
+    # service cannot start without it. cryptography comes with it because the
+    # form FFS distributes is encrypted, and pypdf needs it to open the file even
+    # though the password is empty.
+    "pypdf>=6.0",
+    "cryptography>=44",
 ]
 
 [project.optional-dependencies]
@@ -51,10 +60,6 @@ dev = [
     "ruff>=0.7",
     "mypy>=1.13",
     "pytest-asyncio>=0.24",
-    # scripts/extract_form_definition.py only. The legacy PDF is encrypted, so
-    # pypdf needs cryptography to open it even though there is no password.
-    "pypdf>=6.0",
-    "cryptography>=44",
     # An in-process S3, so the object store's tests actually run rather than
     # skipping everywhere a bucket is not configured. It serves real HTTP to real
     # botocore, so what they exercise is our calls and our error handling, not a

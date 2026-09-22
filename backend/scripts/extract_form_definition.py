@@ -18,13 +18,13 @@ from __future__ import annotations
 import json
 import re
 import sys
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 from pypdf import PdfReader
-from pypdf._codecs import _pdfdoc_encoding
-from pypdf.generic import ByteStringObject, DictionaryObject, TextStringObject
+from pypdf.generic import DictionaryObject
+
+from app.formular.pdf import decode, walk
 
 # Repeated pickers share one vocabulary. Collapsing them keeps the seed readable
 # and stops 26 identical species lists from landing in the file.
@@ -177,43 +177,10 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
 # frontend and the seed README already refer to it that way.
 RADIO_LIST_NAMES: dict[str, str] = {"probestrecke.gewaessertyp": "gewaessertyp"}
 
-
-def decode(value: Any) -> str:
-    """Decode a PDF text string.
-
-    pypdf mis-decodes the PDFDocEncoded strings in this form, turning every
-    umlaut into a replacement character, so the original bytes are decoded here
-    instead.
-    """
-    if isinstance(value, ByteStringObject):
-        raw = bytes(value)
-    elif isinstance(value, TextStringObject):
-        raw = value.get_original_bytes()
-    else:
-        return str(value)
-    if raw.startswith(b"\xfe\xff"):
-        return raw[2:].decode("utf-16-be")
-    return "".join(_pdfdoc_encoding[byte] for byte in raw)
-
-
-def walk(fields: Any, prefix: str = "") -> Iterator[tuple[str, DictionaryObject]]:
-    """Yield every terminal field as (full legacy path, field dictionary).
-
-    Names are assembled from the /T parts down the tree, which is what produces
-    the dotted paths the legacy form uses, such as
-    probestrecke.gewaesser.vorfluter1.
-    """
-    for ref in fields:
-        field = ref.get_object()
-        title = field.get("/T")
-        name = f"{prefix}{decode(title)}" if title is not None else prefix.rstrip(".")
-        kids = field.get("/Kids")
-        # A radio group's kids are widget annotations, not fields: they have no
-        # /T of their own. Only descend when the kids are real child fields.
-        if kids and any(kid.get_object().get("/T") is not None for kid in kids):
-            yield from walk(kids, f"{name}.")
-        else:
-            yield name, field
+# decode and walk used to live here. Feature 23a moved them to
+# app/formular/pdf.py, because the PDF import reads the same fields out of a
+# filled-in copy of this form and two copies of the walk would be two answers to
+# what a field is called.
 
 
 def options(field: DictionaryObject) -> list[dict[str, str]] | None:

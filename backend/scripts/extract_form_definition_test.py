@@ -17,9 +17,13 @@ from extract_form_definition import (
     RADIO_LABELS,
     export_values,
     radio_options,
-    walk,
 )
 from pypdf import PdfReader
+
+# From its own home rather than through the script that uses it. walk moved to
+# app/formular/pdf.py in feature 23a, and importing it from the script would be
+# leaning on a re-export that mypy is right to refuse.
+from app.formular.pdf import walk
 
 PDF = (
     Path(__file__).resolve().parents[2]
