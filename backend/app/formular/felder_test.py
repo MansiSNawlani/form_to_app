@@ -15,6 +15,8 @@ import pytest
 from app.config import FORMULAR_SEED
 from app.formular.felder import (
     ZUSAETZLICHE_PFADE,
+    Feldformat,
+    Formatart,
     FormularDefinitionFehlt,
     formular,
     lade,
@@ -140,6 +142,64 @@ def test_meldet_doppelte_namen(tmp_path: Path) -> None:
             "version": "20260609",
             "anzahl": 2,
             "felder": [{"name": "anlass"}, {"name": "anlass"}],
+        },
+    )
+
+    with pytest.raises(FormularDefinitionFehlt):
+        lade(tmp_path)
+
+
+def test_liest_wie_die_felder_ihre_werte_schreiben() -> None:
+    """The 385 fields that write a date, a time or a number.
+
+    One per distinct format in the form, so a regenerated seed that has lost or
+    changed a format fails here rather than in an imported protocol. The
+    separator styles are Acrobat's: 2 groups thousands with a dot, 3 does not
+    group, 1 does not group and uses a dot for the decimals.
+    """
+    formate = lade(FORMULAR_SEED).formate
+
+    assert len(formate) == 385
+    assert formate["datum"] == Feldformat(art=Formatart.DATUM, muster="dd.mm.yyyy")
+    assert formate["messdaten.uhrzeit"] == Feldformat(art=Formatart.ZEIT)
+    # The catch table and 369 others: whole numbers, thousands grouped with a dot.
+    assert formate["arten.art1.klasse_1"] == Feldformat(
+        art=Formatart.ZAHL, stellen=0, trennung=2
+    )
+    assert formate["probestrecke.laenge"] == Feldformat(
+        art=Formatart.ZAHL, stellen=0, trennung=2
+    )
+    assert formate["messdaten.temperatur"] == Feldformat(
+        art=Formatart.ZAHL, stellen=1, trennung=2
+    )
+    assert formate["hydrologie.breite_schaetzwert"] == Feldformat(
+        art=Formatart.ZAHL, stellen=1, trennung=3
+    )
+    assert formate["bewirschaftung.besatz1_jahr"] == Feldformat(
+        art=Formatart.ZAHL, stellen=0, trennung=1
+    )
+
+
+def test_ein_textfeld_schreibt_nichts_besonderes() -> None:
+    """155 of the 540 declare no format: a name, an address, a remark."""
+    formate = lade(FORMULAR_SEED).formate
+
+    assert "probestrecke.gewaesser.gewaessername" not in formate
+    assert "bemerkungen.sonstige_bemerkungen" not in formate
+
+
+def test_meldet_ein_unlesbares_format(tmp_path: Path) -> None:
+    """A hand-edited seed, which is the only way this can happen.
+
+    Loudly at startup with the path, because the alternative is a service that
+    starts and then stores an imported date in the wrong order.
+    """
+    schreibe(
+        tmp_path,
+        {
+            "version": "20260609",
+            "anzahl": 1,
+            "felder": [{"name": "datum", "format": {"art": "kalender"}}],
         },
     )
 

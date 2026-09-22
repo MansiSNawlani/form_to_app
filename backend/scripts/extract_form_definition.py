@@ -10,7 +10,8 @@ issues a new form version.
         ../database/seed/form_version_20260609
 
 Writes optionslisten.json (the named option lists) and felder.json (every field
-with its type), both keyed by the legacy field paths.
+with its type and, where it has one, how the form writes its value), both keyed
+by the legacy field paths.
 """
 
 from __future__ import annotations
@@ -249,6 +250,72 @@ def radio_options(field_name: str, exports: list[str]) -> list[dict[str, str]]:
     return [{"wert": wert, "label": label} for wert, label in labels.items() if label is not None]
 
 
+# How the form writes its dates and its numbers, which is not how this
+# application stores them. Every field that holds one carries its own formatting
+# script, so the formats are read out of the file rather than a table of 383
+# field names being written out by hand here.
+#
+# Acrobat's own functions, and the arguments that matter:
+#
+#   AFDate_FormatEx(pattern)     - a date, printed by that pattern
+#   AFTime_Format(style)         - a time; style 0 is HH:MM
+#   AFNumber_Format(decimals, separatorStyle, negStyle, currStyle, currency, prepend)
+#
+# separatorStyle is what makes an imported number dangerous. 0 groups thousands
+# with a comma and marks decimals with a dot, 1 has no grouping and a dot, 2
+# groups with a dot and marks decimals with a comma, and 3 has no grouping and a
+# comma. 373 of this form's 383 numeric fields are style 2, so a catch of 1234
+# fish is written "1.234", which a dot-decimal parser reads as 1.2.
+FORMAT_ZAHL = re.compile(
+    r'^AFNumber_Format\((\d+), (\d+), (\d+), (\d+), "[^"]*", (?:true|false)\);$'
+)
+FORMAT_DATUM = re.compile(r'^AFDate_FormatEx\("([^"]+)"\);$')
+FORMAT_ZEIT = re.compile(r"^AFTime_Format\((\d+)\);$")
+
+# The date patterns this script is willing to record, which is the set the
+# importer knows how to read. An unrecorded pattern stops the extraction rather
+# than landing in the seed for something downstream to guess at, the same rule
+# radio_options follows for an unlabelled button.
+DATUMSMUSTER = frozenset({"dd.mm.yyyy"})
+
+
+def feldformat(field: DictionaryObject) -> dict[str, Any] | None:
+    """How this field writes its value, or nothing if it is plain text.
+
+    Read from the field's format action, the script Acrobat runs to turn a value
+    into what is printed in the box. 155 of this form's fields have none: a name,
+    an address, a remark.
+    """
+    actions: Any = field.get("/AA")
+    if actions is None or "/F" not in actions:
+        return None
+    script = str(actions["/F"].get_object().get("/JS")).strip()
+
+    if treffer := FORMAT_ZAHL.match(script):
+        return {
+            "art": "zahl",
+            "stellen": int(treffer.group(1)),
+            "trennung": int(treffer.group(2)),
+        }
+    if treffer := FORMAT_DATUM.match(script):
+        muster = treffer.group(1)
+        if muster not in DATUMSMUSTER:
+            raise ValueError(
+                f"unknown date pattern {muster!r}. Add it to DATUMSMUSTER here and"
+                " teach app/protokolle/einlesen/werte.py to read it, or an imported"
+                " date will be stored in the wrong order."
+            )
+        return {"art": "datum", "muster": muster}
+    if FORMAT_ZEIT.match(script):
+        return {"art": "zeit"}
+
+    raise ValueError(
+        f"unrecognised format script {script!r}. Every one in this form is a"
+        " number, a date or a time; a new kind has to be described here before"
+        " the seed can claim to know how the field is written."
+    )
+
+
 def extract(pdf_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     reader = PdfReader(str(pdf_path))
     catalog: Any = reader.trailer["/Root"].get_object()
@@ -260,6 +327,9 @@ def extract(pdf_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     for name, field in walk(acroform["/Fields"]):
         ftype = str(field.get("/FT", ""))
         eintrag: dict[str, Any] = {"name": name, "typ": ftype.lstrip("/") or None}
+
+        if (format_ := feldformat(field)) is not None:
+            eintrag["format"] = format_
 
         if ftype == "/Ch":
             auswahl = options(field) or []

@@ -63,6 +63,26 @@ sum-to-100 blocks and the tick-group rules are enforced.
 text, `Ch` dropdown, `Btn` radio or checkbox). Radio groups carry their export values. This is
 the reference for naming fields as each form part is built.
 
+385 of them also carry a `format`, added in feature 23a, saying how the form writes that field's
+value. `{"art": "datum", "muster": "dd.mm.yyyy"}` on the one date, `{"art": "zeit"}` on the one
+time, and `{"art": "zahl", "stellen": 1, "trennung": 2}` on each of the 383 numbers, where
+`stellen` is the decimal places and `trennung` is Acrobat's separator style:
+
+| `trennung` | Thousands | Decimals | Fields |
+|---|---|---|---|
+| 0 | comma | dot | 1, `ufer.erlen` alone |
+| 1 | not grouped | dot | 4, the `besatz` years |
+| 2 | dot | comma | 373 |
+| 3 | not grouped | comma | 5, the four UTM coordinates and one Schätzwert |
+
+**This is why an imported number cannot be taken at face value.** Under style 2 a catch of 1234
+fish is written `1.234`, which a dot-decimal parser reads as 1.2, and a temperature of twelve and
+a half is written `12,5`, which such a parser refuses outright. The conversion lives in
+`backend/app/protokolle/einlesen/werte.py` and reads these entries rather than a hand-written
+table of 383 field names. The format is read out of each field's own Acrobat format script, so a
+form version that changes one changes this file too, and an unrecognised script stops the
+extraction rather than producing a seed that claims to know how a field is written.
+
 ## Three things to know
 
 **The German is correct here, whatever your terminal shows.** The PDF stores these strings in

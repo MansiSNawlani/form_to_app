@@ -9,6 +9,7 @@ the real form rather than against the transcription that produced it.
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -16,9 +17,11 @@ import pytest
 from extract_form_definition import (
     RADIO_LABELS,
     export_values,
+    feldformat,
     radio_options,
 )
 from pypdf import PdfReader
+from pypdf.generic import DictionaryObject, NameObject, TextStringObject
 
 # From its own home rather than through the script that uses it. walk moved to
 # app/formular/pdf.py in feature 23a, and importing it from the script would be
@@ -92,3 +95,71 @@ def test_the_hydrology_groups_all_carry_the_not_applicable_value(
     for name in hydrologie:
         assert "0" in button_values[name]
         assert RADIO_LABELS[name]["0"] is None
+
+
+def feld_mit_format(script: str) -> Any:
+    """A field dictionary carrying one format action, as the real ones do."""
+    return DictionaryObject(
+        {
+            NameObject("/AA"): DictionaryObject(
+                {
+                    NameObject("/F"): DictionaryObject(
+                        {NameObject("/JS"): TextStringObject(script)}
+                    )
+                }
+            )
+        }
+    )
+
+
+def test_erkennt_die_drei_formate_der_form() -> None:
+    """A number, a date and a time, which is all this form has."""
+    assert feldformat(feld_mit_format('AFNumber_Format(1, 2, 0, 0, "", true);')) == {
+        "art": "zahl",
+        "stellen": 1,
+        "trennung": 2,
+    }
+    assert feldformat(feld_mit_format('AFDate_FormatEx("dd.mm.yyyy");')) == {
+        "art": "datum",
+        "muster": "dd.mm.yyyy",
+    }
+    assert feldformat(feld_mit_format("AFTime_Format(0);")) == {"art": "zeit"}
+
+
+def test_ein_feld_ohne_formatskript_hat_kein_format() -> None:
+    assert feldformat(DictionaryObject()) is None
+    assert feldformat(DictionaryObject({NameObject("/AA"): DictionaryObject()})) is None
+
+
+def test_ein_unbekanntes_datumsmuster_haelt_die_extraktion_an() -> None:
+    """Rather than landing in the seed for the importer to guess at.
+
+    A pattern read as dd.mm.yyyy when it is really mm/dd/yyyy stores the fourth
+    of May as the fifth of April, and nothing downstream would notice.
+    """
+    with pytest.raises(ValueError, match="unknown date pattern"):
+        feldformat(feld_mit_format('AFDate_FormatEx("mm/dd/yyyy");'))
+
+
+def test_ein_unbekanntes_formatskript_haelt_die_extraktion_an() -> None:
+    """The same rule radio_options follows for an unlabelled button.
+
+    Every format script in this form is one of three kinds. A fourth means FFS
+    changed something, and a seed that shrugs at it would claim to know how a
+    field is written when it does not.
+    """
+    with pytest.raises(ValueError, match="unrecognised format script"):
+        feldformat(feld_mit_format("AFPercent_Format(2, 0);"))
+
+
+def test_jedes_formatskript_der_echten_form_wird_erkannt() -> None:
+    """Against the real file: 383 numbers, one date, one time, 155 with none."""
+    reader = PdfReader(str(PDF))
+    catalog: Any = reader.trailer["/Root"].get_object()
+    acroform: Any = catalog["/AcroForm"].get_object()
+
+    formate = [feldformat(field) for _, field in walk(acroform["/Fields"])]
+    arten = Counter(f["art"] for f in formate if f is not None)
+
+    assert len(formate) == 540
+    assert arten == {"zahl": 383, "datum": 1, "zeit": 1}
