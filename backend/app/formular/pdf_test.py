@@ -10,9 +10,13 @@ from io import BytesIO
 import pytest
 from pypdf import PdfWriter
 
-from app.formular.beispiele import formular_bytes
+from app.formular.beispiele import FEHLT, formular_bytes, vorhanden
 from app.formular.fehler import PdfGesperrt, PdfNichtLesbar, PdfOhneFormular
 from app.formular.pdf import decode, felder, oeffne
+
+# The forms are not in the repository, so a checkout without them skips this
+# module rather than failing it.
+pytestmark = pytest.mark.skipif(not vorhanden(), reason=FEHLT)
 
 
 def ohne_formular() -> bytes:

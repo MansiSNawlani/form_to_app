@@ -17,6 +17,13 @@ the package sits in site-packages, with no repository around it. That is the sam
 caveat `app/config.py` carries for `REPO_WURZEL`, which is imported here rather
 than worked out a second time, and it is why the Dockerfile hands the seed
 directory to the application through an environment variable instead.
+
+**The forms are not in the repository.** They are FFS's own documents rather than
+this project's work, untracked by decision on 2026-09-22, so a fresh checkout does
+not have them. `vorhanden()` below is what lets the tests that need one skip with
+a message instead of failing, the same way the database tests skip when no
+database is running: a developer who has not fetched the forms should see "not run
+here", not a wall of red.
 """
 
 from collections.abc import Mapping
@@ -37,6 +44,26 @@ FORMULAR_PDF = RESSOURCEN / "Formular_Protokoll_E-Befischung_V20260609.pdf"
 #: encrypted, and built by the same people, which makes it a far better "wrong
 #: file" than anything we could construct.
 KREBS_PDF = RESSOURCEN / "Formular_Protokoll_Krebs_V20230622.pdf"
+
+
+#: What to say when the forms are missing. Names the file, says why it is not
+#: here, and says what to do, which is what this project asks of any message a
+#: person has to act on.
+FEHLT = (
+    "The FFS form PDFs are not in this checkout, so the tests that read one"
+    f" cannot run. They are not committed: see .gitignore. Put them in {RESSOURCEN}"
+    " and run the tests again. AGENTS.md, under Commands, says where they come"
+    " from."
+)
+
+
+def vorhanden() -> bool:
+    """Whether this checkout has the two forms the tests read.
+
+    Both, not either: a run that silently covered half of what it claims to
+    cover would be worse than one that skips.
+    """
+    return FORMULAR_PDF.is_file() and KREBS_PDF.is_file()
 
 
 def formular_bytes() -> bytes:

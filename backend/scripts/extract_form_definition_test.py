@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -28,14 +27,17 @@ from pypdf.generic import DictionaryObject, NameObject, TextStringObject
 # From its own home rather than through the script that uses it. walk moved to
 # app/formular/pdf.py in feature 23a, and importing it from the script would be
 # leaning on a re-export that mypy is right to refuse.
+from app.config import REPO_WURZEL
+from app.formular.beispiele import FEHLT, FORMULAR_PDF, vorhanden
 from app.formular.pdf import walk
 
-PDF = (
-    Path(__file__).resolve().parents[2]
-    / "Resources"
-    / "Fiaka_Resources"
-    / "Formular_Protokoll_E-Befischung_V20260609.pdf"
-)
+PDF = FORMULAR_PDF
+
+# The form is not in the repository, so a checkout without it skips this module
+# rather than failing it. What that costs is worth naming: the two tests below
+# that check the committed seed against freshly generated output are the guard
+# against a hand-edited seed, and they do not run on a machine without the form.
+pytestmark = pytest.mark.skipif(not vorhanden(), reason=FEHLT)
 
 
 @pytest.fixture(scope="module")
@@ -176,7 +178,7 @@ def test_die_ausgelieferte_definition_ist_die_erzeugte() -> None:
     re-ran it after. It also holds the claim feature 23a made when it added the
     formats, that regenerating changed nothing else.
     """
-    seed = Path(__file__).resolve().parents[2] / "database" / "seed" / "form_version_20260609"
+    seed = REPO_WURZEL / "database" / "seed" / "form_version_20260609"
     _, felder = extract(PDF)
     committed = json.loads((seed / "felder.json").read_text(encoding="utf-8"))
 
@@ -185,7 +187,7 @@ def test_die_ausgelieferte_definition_ist_die_erzeugte() -> None:
 
 def test_die_ausgelieferten_optionslisten_sind_die_erzeugten() -> None:
     """The same for the option lists, which the whole form depends on."""
-    seed = Path(__file__).resolve().parents[2] / "database" / "seed" / "form_version_20260609"
+    seed = REPO_WURZEL / "database" / "seed" / "form_version_20260609"
     optionslisten, _ = extract(PDF)
     committed = json.loads((seed / "optionslisten.json").read_text(encoding="utf-8"))
 

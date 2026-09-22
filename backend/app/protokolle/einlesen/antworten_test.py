@@ -11,12 +11,16 @@ from typing import Any
 import pytest
 from pypdf.generic import DictionaryObject, NameObject, TextStringObject
 
-from app.formular.beispiele import formular_bytes, gefuellt
+from app.formular.beispiele import FEHLT, formular_bytes, gefuellt, vorhanden
 from app.formular.felder import FormularDefinition, formular
 from app.formular.pdf import oeffne
 from app.protokolle.einlesen.antworten import lies_antworten, wert_aus
 from app.protokolle.einlesen.beispiele import AUSGEFUELLT, VORBELEGT
 from app.protokolle.regeln import MAX_ZEICHEN_PRO_ANTWORT, pruefe_antworten
+
+# The forms are not in the repository, so a checkout without them skips this
+# module rather than failing it.
+pytestmark = pytest.mark.skipif(not vorhanden(), reason=FEHLT)
 
 
 def test_die_leere_form_ergibt_genau_ihre_vorbelegung() -> None:

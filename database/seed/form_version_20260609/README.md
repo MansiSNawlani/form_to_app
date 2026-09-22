@@ -4,6 +4,11 @@ Extracted from `Resources/Fiaka_Resources/Formular_Protokoll_E-Befischung_V20260
 `backend/scripts/extract_form_definition.py`. `optionslisten.json` and `felder.json` are
 generated files: re-run the script rather than editing them.
 
+**The form itself is not in the repository.** `Resources/` is untracked, so these generated
+files are the only copy of the form's definition that a checkout has, which is why they are
+committed and why nothing in the application reads the PDF. To regenerate them you need the
+form; AGENTS.md, under Commands, says where it goes.
+
 **`pflichtfelder.json` is the exception. It is hand-authored and is edited by hand.** The
 PDF's field definition carries no required flag at all, only a name, a type and an option
 list, so which answers a finished protocol must carry is a decision this project took rather

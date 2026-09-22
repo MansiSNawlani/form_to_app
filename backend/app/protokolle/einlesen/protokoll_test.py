@@ -7,11 +7,15 @@ counted rather than passed over in silence.
 
 import pytest
 
-from app.formular.beispiele import formular_bytes, gefuellt, krebs_bytes, mit_bild
+from app.formular.beispiele import FEHLT, formular_bytes, gefuellt, krebs_bytes, mit_bild, vorhanden
 from app.formular.fehler import PdfNichtLesbar
 from app.protokolle.einlesen.beispiele import AUSGEFUELLT, VORBELEGT
 from app.protokolle.einlesen.fehler import FormularversionPasstNicht
 from app.protokolle.einlesen.protokoll import lies_protokoll
+
+# The forms are not in the repository, so a checkout without them skips this
+# module rather than failing it.
+pytestmark = pytest.mark.skipif(not vorhanden(), reason=FEHLT)
 
 
 def test_ein_ausgefuelltes_protokoll_wird_eingelesen() -> None:

@@ -8,13 +8,24 @@ the wrong file would actually upload.
 
 import pytest
 
-from app.formular.beispiele import formular_bytes, gefuellt, krebs_bytes, ohne_feld
+from app.formular.beispiele import (
+    FEHLT,
+    formular_bytes,
+    gefuellt,
+    krebs_bytes,
+    ohne_feld,
+    vorhanden,
+)
 from app.formular.pdf import oeffne
 from app.protokolle.einlesen.fehler import (
     FormularversionFehlt,
     FormularversionPasstNicht,
 )
 from app.protokolle.einlesen.version import lies_version
+
+# The forms are not in the repository, so a checkout without them skips this
+# module rather than failing it.
+pytestmark = pytest.mark.skipif(not vorhanden(), reason=FEHLT)
 
 
 def test_die_echte_form_nennt_ihre_version() -> None:

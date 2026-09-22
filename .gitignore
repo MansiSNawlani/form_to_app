@@ -30,14 +30,23 @@ venv/
 deployment/data/
 uploads/
 
-# Real filled-in protocols, for testing the PDF import against files this
-# project did not write. Never committed: a filed protocol carries the
-# surveyor's name, postal address, telephone number and e-mail address, and
-# there is no consent on record for putting any of that in a repository. The
-# blank forms in Resources/Fiaka_Resources/ are committed and carry nobody's
-# data; these do. Keep your own copies here and they stay out of every commit.
-Resources/echte-protokolle/*
-!Resources/echte-protokolle/README.md
+# The source material FFS supplies, and nothing of ours.
+#
+# Untracked entirely by decision on 2026-09-22. Two different reasons sit in
+# this one directory and both point the same way. The filled-in protocols under
+# echte-protokolle/ carry the surveyor's name, postal address, telephone number
+# and e-mail address, and nobody consented to that being in a repository. The
+# blank forms and their JavaScript under Fiaka_Resources/ are FFS's own
+# documents rather than this project's work, and a repository is not where
+# somebody else's distribution belongs.
+#
+# What this costs, and how it is handled: the field and option definition is
+# generated from the blank form, and the generated files under database/seed/
+# stay committed, so the application and the container need nothing from here.
+# The tests that read a form skip with a message naming what to fetch, the same
+# way the database tests skip when no database is running. AGENTS.md says where
+# to put the files.
+Resources/
 
 # editors and OS
 .DS_Store
