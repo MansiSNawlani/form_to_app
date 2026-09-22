@@ -27,6 +27,41 @@ async function gesamt(page: Page, abfrage: string): Promise<number> {
   return (await antwort.json()).gesamt as number
 }
 
+const OFFEN = 'status=SUBMITTED&status=IN_REVIEW&sortierung=eingereicht_alt'
+
+interface Pruefzeile {
+  id: string
+  gewaessername: string
+}
+
+/** One page of the queue as the endpoint answers it, so tests assert against data. */
+async function offeneSeite(
+  page: Page,
+  seite = 1,
+): Promise<{ zeilen: Pruefzeile[]; seiten: number }> {
+  const antwort = await page.request.get(`/api/v1/pruefliste?${OFFEN}&seite=${seite}`)
+  expect(antwort.ok()).toBe(true)
+  const inhalt = await antwort.json()
+  return { zeilen: inhalt.zeilen as Pruefzeile[], seiten: inhalt.seiten as number }
+}
+
+async function offeneListe(page: Page): Promise<Pruefzeile[]> {
+  return (await offeneSeite(page)).zeilen
+}
+
+/* The genuinely last protocol in the queue, not the last one on page one.
+ *
+ * Worth the second request. The first version of this test compared the page
+ * against the total and skipped itself the moment the queue outgrew one page,
+ * which is exactly when walking to the end stops being trivial: "not run here"
+ * must never read as "passed".
+ */
+async function letztesOffenes(page: Page): Promise<Pruefzeile> {
+  const { seiten } = await offeneSeite(page)
+  const { zeilen } = await offeneSeite(page, seiten)
+  return zeilen[zeilen.length - 1]
+}
+
 test.describe('Die Pruefliste', () => {
   test.beforeEach(async ({ page }) => {
     await anmelden(page, PRUEFER!)
@@ -364,5 +399,137 @@ test.describe('Wo ein Konto nach der Anmeldung landet', () => {
   test('bringt ein Einreicher-Konto auf die eigenen Protokolle', async ({ page }) => {
     await ueberFormularAnmelden(page, EINREICHER!)
     await expect(page).toHaveURL(/\/$/)
+  })
+})
+
+/* Walking the queue from the reviewer's screen, feature 12d.
+ *
+ * The protocols come out of the endpoint rather than being named here, because
+ * which protocol is next depends on what the development database holds. What is
+ * asserted is the relationship between the list and the two buttons, which is
+ * the whole of what this feature promises.
+ */
+test.describe('Durch die Liste blaettern', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies()
+    await anmelden(page, PRUEFER!)
+  })
+
+  test('geht mit Naechstes weiter und mit Vorheriges zurueck', async ({ page }) => {
+    const zeilen = await offeneListe(page)
+    test.skip(zeilen.length < 3, 'Zu wenige eingereichte Protokolle im Testbestand.')
+
+    await page.goto(`/protokolle/${zeilen[1].id}/pruefung`)
+
+    await page.getByRole('link', { name: /^Nächstes/ }).click()
+    await expect(page).toHaveURL(new RegExp(`/protokolle/${zeilen[2].id}/pruefung`))
+
+    await page.getByRole('link', { name: /^Vorheriges/ }).click()
+    await expect(page).toHaveURL(new RegExp(`/protokolle/${zeilen[1].id}/pruefung`))
+  })
+
+  test('nennt im verborgenen Teil des Knopfes das Gewaesser', async ({ page }) => {
+    // Two buttons reading only "Vorheriges" and "Naechstes" announce nothing
+    // about where they go. The name is what a screen reader reads out.
+    const zeilen = await offeneListe(page)
+    test.skip(zeilen.length < 2, 'Zu wenige eingereichte Protokolle im Testbestand.')
+
+    await page.goto(`/protokolle/${zeilen[0].id}/pruefung`)
+
+    /* The name, not an exact string: JSX puts a space between the label and the
+       hidden water, so the button announces "Naechstes , Schussen". It reads the
+       same aloud, and it is the same shape the queue's Pruefen buttons have. */
+    await expect(
+      page.getByRole('link', { name: new RegExp(`^Nächstes.*${zeilen[1].gewaessername}`) }),
+    ).toBeVisible()
+  })
+
+  test('sperrt Vorheriges am Anfang und Naechstes am Ende', async ({ page }) => {
+    const zeilen = await offeneListe(page)
+    test.skip(zeilen.length < 2, 'Zu wenige eingereichte Protokolle im Testbestand.')
+
+    await page.goto(`/protokolle/${zeilen[0].id}/pruefung`)
+    // Drawn, not gone: a button that disappears at the edge makes the head jump
+    // about as the reader walks.
+    await expect(page.getByRole('button', { name: 'Vorheriges' })).toBeDisabled()
+    await expect(page.getByRole('link', { name: /^Nächstes/ })).toBeVisible()
+
+    // The end of the queue, whichever page it falls on.
+    const letztes = await letztesOffenes(page)
+    await page.goto(`/protokolle/${letztes.id}/pruefung`)
+    await expect(page.getByRole('button', { name: 'Nächstes' })).toBeDisabled()
+    await expect(page.getByRole('link', { name: /^Vorheriges/ })).toBeVisible()
+  })
+
+  test('traegt die Seite ueber die Seitengrenze mit', async ({ page }) => {
+    // The one case the queue's own paging makes possible: the last row of a page
+    // has its successor on the next one, and the crumb has to follow the reader
+    // there rather than sending them back to the page they started on.
+    const { zeilen, seiten } = await offeneSeite(page)
+    test.skip(seiten < 2, 'Die Liste hat nur eine Seite.')
+
+    const letzteAufSeiteEins = zeilen[zeilen.length - 1]
+    const naechsteSeite = await offeneSeite(page, 2)
+    const erstesAufSeiteZwei = naechsteSeite.zeilen[0]
+
+    await page.goto(`/protokolle/${letzteAufSeiteEins.id}/pruefung`)
+    await page.getByRole('link', { name: /^Nächstes/ }).click()
+
+    await expect(page).toHaveURL(new RegExp(`/protokolle/${erstesAufSeiteZwei.id}/pruefung`))
+    await expect(page).toHaveURL(/seite=2/)
+
+    await page.getByRole('main').getByRole('link', { name: 'Prüfliste' }).click()
+    await expect(page).toHaveURL(/seite=2/)
+  })
+
+  test('nimmt die Filter mit auf den Pruefbildschirm und wieder zurueck', async ({ page }) => {
+    await page.goto('/pruefung?status=alle&sortierung=gewaesser')
+
+    await page
+      .getByRole('link', { name: /^Prüfen/ })
+      .first()
+      .click()
+
+    // The queue rides in the address, which is the only thing the reviewer's
+    // screen knows about the list it was opened out of.
+    await expect(page).toHaveURL(/status=alle/)
+    await expect(page).toHaveURL(/sortierung=gewaesser/)
+
+    await page.getByRole('main').getByRole('link', { name: 'Prüfliste' }).click()
+
+    await expect(page).toHaveURL(/\/pruefung\?/)
+    await expect(page).toHaveURL(/status=alle/)
+    await expect(page).toHaveURL(/sortierung=gewaesser/)
+  })
+
+  test('zeigt keine Schritte zu einem Protokoll ausserhalb der Filter', async ({ page }) => {
+    // An accepted protocol has left an Offen queue while it is still being read.
+    // The crumb stays, because the list is still somewhere to go back to.
+    const zeilen = await offeneListe(page)
+    test.skip(zeilen.length < 1, 'Kein eingereichtes Protokoll im Testbestand.')
+
+    await page.goto(`/protokolle/${zeilen[0].id}/pruefung?status=REJECTED`)
+
+    await expect(page.getByRole('main').getByRole('link', { name: 'Prüfliste' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /^Nächstes/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Nächstes' })).toHaveCount(0)
+  })
+
+  test('gibt einem Einreicher die Spur zur Pruefliste gar nicht erst', async ({ page }) => {
+    await page.context().clearCookies()
+    await anmelden(page, EINREICHER!)
+
+    const eigene = await page.request.get('/api/v1/protokolle')
+    const eingereicht = ((await eigene.json()) as { id: string; status: string }[]).find(
+      (zeile) => zeile.status !== 'DRAFT',
+    )
+    test.skip(eingereicht === undefined, 'Das Einreicher-Konto hat nichts eingereicht.')
+
+    await page.goto(`/protokolle/${eingereicht!.id}/pruefung`)
+
+    // The queue is not their list. They keep the button that goes where they
+    // actually came from.
+    await expect(page.getByRole('main').getByRole('link', { name: 'Prüfliste' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Alle Protokolle' })).toBeVisible()
   })
 })

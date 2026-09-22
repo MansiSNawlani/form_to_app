@@ -1181,3 +1181,34 @@
   margin-top: 1.25rem;
   color: var(--danger);
 }
+
+/* The way back to the queue, feature 12d.
+ *
+ * The sub-line it sits in is deliberately quiet: muted colour, one step down in
+ * size, because everything else on that line is a date and a version number
+ * nobody hunts for. The crumb is the opposite, and the first person to try this
+ * screen went for the header's Pruefliste tab instead, which throws away the
+ * filters and the page. A link that reads as part of the grey line is a link
+ * people do not see.
+ *
+ * Weight rather than size, so the line keeps the mockup's proportions, and the
+ * accent so it reads as the one thing on that line worth clicking. Underlined in
+ * both states: colour alone is not a signal somebody with low colour vision can
+ * use, and it is what makes it look like a link rather than a heading.
+ */
+.krume {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.15em;
+}
+
+.krume:hover {
+  color: var(--accent-hover);
+}
+
+/* The separator stays as quiet as the rest of the line, so the contrast between
+   it and the link is what the eye lands on. */
+.krume-trenner {
+  color: var(--muted);
+}

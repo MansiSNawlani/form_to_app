@@ -5,6 +5,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
+import type { Prueflistenabfrage } from './parameter'
 import PrueflistenZeile from './PrueflistenZeile'
 import type { Pruefzeile } from './typen'
 
@@ -15,7 +16,15 @@ import type { Pruefzeile } from './typen'
  * table by adding the class rather than by importing Meine Protokolle's table or
  * restating its styles. Feature 16's user list will be the third.
  */
-function PrueflistenTabelle({ zeilen }: { zeilen: readonly Pruefzeile[] }) {
+function PrueflistenTabelle({
+  zeilen,
+  abfrage,
+}: {
+  zeilen: readonly Pruefzeile[]
+  /* Handed down rather than read from the address here, so twenty-five rows
+     share one reading of the query string and cannot disagree about it. */
+  abfrage: Prueflistenabfrage
+}) {
   const { t } = useTranslation()
 
   return (
@@ -43,7 +52,7 @@ function PrueflistenTabelle({ zeilen }: { zeilen: readonly Pruefzeile[] }) {
         </TableHead>
         <TableBody>
           {zeilen.map((zeile) => (
-            <PrueflistenZeile key={zeile.id} zeile={zeile} />
+            <PrueflistenZeile key={zeile.id} zeile={zeile} abfrage={abfrage} />
           ))}
         </TableBody>
       </Table>

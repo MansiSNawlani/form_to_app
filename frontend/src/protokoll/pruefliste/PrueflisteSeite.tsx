@@ -129,7 +129,7 @@ function PrueflisteSeite() {
           <LeererZustand gefiltert={istGefiltert(abfrage)} onZuruecksetzen={zuruecksetzen} />
         )}
 
-        {zeilen.length > 0 && <PrueflistenTabelle zeilen={zeilen} />}
+        {zeilen.length > 0 && <PrueflistenTabelle zeilen={zeilen} abfrage={abfrage} />}
 
         {/* Drawn whenever there is anything to page through, including on a page
             past the end, where it is the only way back. */}

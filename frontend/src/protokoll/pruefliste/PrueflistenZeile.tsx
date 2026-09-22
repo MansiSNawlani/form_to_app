@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import Statusabzeichen from '../Statusabzeichen'
 import { anlassLabel, datumAnzeige, zeitpunktAnzeige } from '../liste/anzeige'
 import { unterzeile } from './anzeige'
+import type { Prueflistenabfrage } from './parameter'
+import { pruefungsPfad } from './pfad'
 import type { Pruefzeile } from './typen'
 
 /* One handed-in protocol, as the queue lists it.
@@ -20,7 +22,13 @@ import type { Pruefzeile } from './typen'
  * this queue: open it and read it. What is possible once there is 11f's decision
  * rail to decide, and it already refuses somebody their own protocol.
  */
-function PrueflistenZeile({ zeile }: { zeile: Pruefzeile }) {
+function PrueflistenZeile({
+  zeile,
+  abfrage,
+}: {
+  zeile: Pruefzeile
+  abfrage: Prueflistenabfrage
+}) {
   const { t } = useTranslation()
 
   const monitoring =
@@ -61,7 +69,10 @@ function PrueflistenZeile({ zeile }: { zeile: Pruefzeile }) {
       <TableCell className="zeile-aktion">
         <Button
           component={Link}
-          to={`/protokolle/${zeile.id}/pruefung`}
+          /* The queue rides along in the address, so the reviewer's screen
+             knows which list this protocol was opened out of: the crumb back
+             and the two step buttons have nothing else to go on. */
+          to={pruefungsPfad(zeile.id, abfrage)}
           size="small"
           variant="outlined"
         >

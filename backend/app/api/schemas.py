@@ -369,6 +369,36 @@ class PrueflisteAntwort(BaseModel):
     seiten: int
 
 
+class NachbarAntwort(BaseModel):
+    """The protocol standing next to another one in the review queue.
+
+    Mirrors Nachbar in app/protokolle/pruefliste/dienst.py, which is where what
+    each of the three values promises is written down.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    seite: int
+    gewaessername: str
+
+
+class NachbarschaftAntwort(BaseModel):
+    """Where one protocol sits in the queue, and what stands either side of it.
+
+    Mirrors Nachbarschaft in app/protokolle/pruefliste/dienst.py, where what
+    each value promises and why a protocol outside the list is answered rather
+    than refused are both written down.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    position: int | None
+    seite: int | None
+    vorheriges: NachbarAntwort | None
+    naechstes: NachbarAntwort | None
+
+
 class AnlageAntwort(BaseModel):
     """One attachment, without its bytes.
 
