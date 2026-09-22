@@ -131,18 +131,26 @@ green.
       PDF encrypted with a real user password, written in the test with pypdf, raises the
       "locked" error rather than the "not readable" one; that a PDF with no AcroForm
       raises the "no form in it" error; and that `decode` returns real umlauts rather than
-      replacement characters for a string out of this form. The existing
-      `scripts/extract_form_definition_test.py` passes unchanged. `ruff check .` and
-      `mypy .` pass.
+      replacement characters for a string out of this form. `decode` and `walk`
+      themselves are byte-identical to what the script held.
+      **Corrected during the build:** this step said the existing
+      `scripts/extract_form_definition_test.py` would pass unchanged. It needed one
+      line: it imported `walk` from the script, which after the move is a re-export
+      that mypy is right to refuse, so it now imports it from
+      `app.formular.pdf`. The assertions are untouched. `ruff check .` and `mypy .`
+      pass.
 
 - [x] **Step 2 - Which fields are answers** - `app/protokolle/einlesen/felder.py` with
-      the 55 excluded names as named, commented groups exactly as the table above sets
-      them out, and `ist_antwort(name)`. A guard in the spirit of `RADIO_LABELS` in the
+      the 55 excluded names as named, commented groups, and `ist_antwort(name)`.
+      **Five groups rather than the table's six.** The 12 push buttons are split in
+      two, because the five picture slots are 23d's work and the seven action buttons
+      are nobody's, and the three the form keeps for itself are one group rather than
+      three of one name each. A guard in the spirit of `RADIO_LABELS` in the
       extraction script: a test reading `felder.json` and asserting every one of its 540
       names is either an answer or explicitly excluded, so a future form version cannot
       add a field the import drops in silence.
-      *Done when:* `pytest` proves exactly 485 of the 540 names are answers; that each of
-      the six excluded groups is excluded and its count is what the table says; that
+      *Done when:* `pytest` proves exactly 485 of the 540 names are answers; that each
+      excluded group is excluded and its count is what the table says; that
       `z.rp`, `z.quelle` and `z.ps_nummer` are answers, since they look like bookkeeping
       but the form asks for them and `entwurf/typen.ts` stores them; that
       `arten.art7.klasse_3` and `arten.art7.0plus` are answers while `arten.art7.summe`
@@ -209,7 +217,14 @@ green.
       rather than storing `""` matters and is the rule `entwurf/typen.ts` already sets:
       absent means never touched, `""` means touched and cleared, and a surveyor never
       touched a box they did not fill in.
-      *Done when:* `pytest` proves the blank committed form yields an empty document; that
+      *Done when:* `pytest` proves the blank committed form yields exactly the answers
+      the blank form itself carries, which is **not** an empty document: this step
+      predicted one, and the form turned out to ship seventeen answers, fifteen of them
+      a zero, plus the Anlass at "best" and the cathode at "Kupferlitze". A shipped zero
+      cannot be told apart from a zero a surveyor meant, so all seventeen are imported
+      and the form rules refuse the implausible ones, such as a Probestrecke of no
+      length. The blank form also parks a single space in each of 32 unchosen dropdowns,
+      the 26 species pickers among them, and that counts as unanswered. And that
       a filled fixture yields the exact nested document expected, water name, Vorfluter,
       date, Anlass, a Gewaessertyp of `13` with no slash, a ticked `einfluesse.wasserkraft`
       of `Ja`, an untouched `einfluesse.badebetrieb` absent rather than empty, a species
@@ -247,9 +262,22 @@ green.
 - `backend/app/protokolle/einlesen/felder.py` - which of the 540 are answers.
 - `backend/app/protokolle/einlesen/werte.py` - one value, from the file's German form
   into the one the answers document stores.
-- `backend/app/protokolle/einlesen/leser.py` - the version gate, the values, the result.
+- `backend/app/protokolle/einlesen/version.py` - which form version the file is.
+- `backend/app/protokolle/einlesen/antworten.py` - the walk, and `Einleseergebnis`.
+- `backend/app/protokolle/einlesen/protokoll.py` - the three of them in one order, and
+  the picture count.
 - `backend/app/protokolle/einlesen/fehler.py` - why a file is not an importable protocol.
+- `backend/app/formular/beispiele.py` and
+  `backend/app/protokolle/einlesen/beispiele.py` - the test material: the real form
+  files, the three fixtures built from them, and one blank form's own contents. Named
+  modules rather than fixtures inside a test file, because three test modules need the
+  same ones, which is why `app/protokolle/formregeln/beispiele.py` already exists.
 - Test files beside each, following the project's `*_test.py` convention.
+
+  **This was one module, `leser.py`, until the review pass.** Split three ways because
+  it had grown to hold the version gate, the walk, the value unwrapping and the picture
+  count, which is four reasons for one file to change, and because its tests had already
+  split themselves three ways along exactly those lines.
 
 **Changed**
 
@@ -268,7 +296,9 @@ green.
 @dataclass(frozen=True, slots=True)
 class Einleseergebnis:
     #: The form version the file declares, as the application writes it: "20260609".
-    version: str
+    #: Empty until lies_protokoll stamps it, since the walk that fills the rest
+    #: must not depend on a version the gate ahead of it has already settled.
+    version: str = ""
 
     #: The answers, nested exactly as the answers document is: strings only, blanks
     #: left out. Ready for speichere_antworten without reshaping.

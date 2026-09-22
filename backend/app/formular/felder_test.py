@@ -18,6 +18,7 @@ from app.formular.felder import (
     Feldformat,
     Formatart,
     FormularDefinitionFehlt,
+    Trennung,
     formular,
     lade,
 )
@@ -164,19 +165,19 @@ def test_liest_wie_die_felder_ihre_werte_schreiben() -> None:
     assert formate["messdaten.uhrzeit"] == Feldformat(art=Formatart.ZEIT)
     # The catch table and 369 others: whole numbers, thousands grouped with a dot.
     assert formate["arten.art1.klasse_1"] == Feldformat(
-        art=Formatart.ZAHL, stellen=0, trennung=2
+        art=Formatart.ZAHL, stellen=0, trennung=Trennung.PUNKT_GRUPPIERT
     )
     assert formate["probestrecke.laenge"] == Feldformat(
-        art=Formatart.ZAHL, stellen=0, trennung=2
+        art=Formatart.ZAHL, stellen=0, trennung=Trennung.PUNKT_GRUPPIERT
     )
     assert formate["messdaten.temperatur"] == Feldformat(
-        art=Formatart.ZAHL, stellen=1, trennung=2
+        art=Formatart.ZAHL, stellen=1, trennung=Trennung.PUNKT_GRUPPIERT
     )
     assert formate["hydrologie.breite_schaetzwert"] == Feldformat(
-        art=Formatart.ZAHL, stellen=1, trennung=3
+        art=Formatart.ZAHL, stellen=1, trennung=Trennung.KOMMA_DEZIMAL
     )
     assert formate["bewirschaftung.besatz1_jahr"] == Feldformat(
-        art=Formatart.ZAHL, stellen=0, trennung=1
+        art=Formatart.ZAHL, stellen=0, trennung=Trennung.PUNKT_DEZIMAL
     )
 
 
@@ -200,6 +201,28 @@ def test_meldet_ein_unlesbares_format(tmp_path: Path) -> None:
             "version": "20260609",
             "anzahl": 1,
             "felder": [{"name": "datum", "format": {"art": "kalender"}}],
+        },
+    )
+
+    with pytest.raises(FormularDefinitionFehlt):
+        lade(tmp_path)
+
+
+def test_meldet_eine_unbekannte_zifferntrennung(tmp_path: Path) -> None:
+    """A punctuation style none of Acrobat's four is.
+
+    Refused where the seed is read rather than quietly treated as one of the
+    four. The consequence of guessing is not a crash: it is a catch of 1234 fish
+    stored as 1.2.
+    """
+    schreibe(
+        tmp_path,
+        {
+            "version": "20260609",
+            "anzahl": 1,
+            "felder": [
+                {"name": "datum", "format": {"art": "zahl", "stellen": 0, "trennung": 7}}
+            ],
         },
     )
 

@@ -11,19 +11,24 @@ Here rather than in a test file for the same reason
 packages need the same material, and the import path has to be sayable from all
 of them.
 
-Nothing in the running application reads these. A deployment has the form
-definition in `database/seed/`, which is where `felder.py` looks.
+**Nothing in the running application reads this module**, and nothing may. The
+paths below resolve in a source checkout and nowhere else: inside the container
+the package sits in site-packages, with no repository around it. That is the same
+caveat `app/config.py` carries for `REPO_WURZEL`, which is imported here rather
+than worked out a second time, and it is why the Dockerfile hands the seed
+directory to the application through an environment variable instead.
 """
 
 from collections.abc import Mapping
 from io import BytesIO
-from pathlib import Path
 from typing import Any
 
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import ArrayObject, DecodedStreamObject, NameObject
 
-RESSOURCEN = Path(__file__).resolve().parents[3] / "Resources" / "Fiaka_Resources"
+from app.config import REPO_WURZEL
+
+RESSOURCEN = REPO_WURZEL / "Resources" / "Fiaka_Resources"
 
 #: The form this application replaces, and the one the import reads.
 FORMULAR_PDF = RESSOURCEN / "Formular_Protokoll_E-Befischung_V20260609.pdf"

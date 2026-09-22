@@ -178,11 +178,6 @@ RADIO_LABELS: dict[str, dict[str, str | None]] = {
 # frontend and the seed README already refer to it that way.
 RADIO_LIST_NAMES: dict[str, str] = {"probestrecke.gewaessertyp": "gewaessertyp"}
 
-# decode and walk used to live here. Feature 23a moved them to
-# app/formular/pdf.py, because the PDF import reads the same fields out of a
-# filled-in copy of this form and two copies of the walk would be two answers to
-# what a field is called.
-
 
 def options(field: DictionaryObject) -> list[dict[str, str]] | None:
     """Read a dropdown's options as export value plus display label."""

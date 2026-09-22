@@ -14,62 +14,13 @@ from pypdf.generic import DictionaryObject, NameObject, TextStringObject
 from app.formular.beispiele import formular_bytes, gefuellt
 from app.formular.felder import FormularDefinition, formular
 from app.formular.pdf import oeffne
-from app.protokolle.einlesen.leser import lies_antworten, wert_aus
+from app.protokolle.einlesen.antworten import lies_antworten, wert_aus
+from app.protokolle.einlesen.beispiele import AUSGEFUELLT, VORBELEGT
 from app.protokolle.regeln import MAX_ZEICHEN_PRO_ANTWORT, pruefe_antworten
-
-#: What the blank form itself carries: the defaults FFS ships it with.
-#:
-#: The blank form is not empty, which is worth knowing before anybody imports
-#: one. Twelve numeric fields sit at 0, the Anlass at "best" and the cathode at
-#: "Kupferlitze". None of that is invented by the reader: the file really does
-#: say so, and a 0 that the form shipped cannot be told apart from a 0 a
-#: surveyor meant. The `probestrecke.laenge` of 0 is then refused by the form
-#: rules, loudly, which is the right place for that judgement.
-VORBELEGT: dict[str, Any] = {
-    "anlass": "best",
-    "probestrecke": {"laenge": "0"},
-    "strukturen": {
-        "totholz": "0",
-        "wurzeln_strukturen": "0",
-        "aeste": "0",
-        "schilf": "0",
-        "submerse_makrophyten": "0",
-        "schwimmblattpflanzen": "0",
-        "emerse_makrophyten": "0",
-        "sonstige_strukturen": "0",
-    },
-    "ausruestung": {
-        "ringanoden": "0",
-        "streifenanoden": "0",
-        "kathode": "Kupferlitze",
-    },
-    "befischte_bereiche": {
-        "ges_gew_laenge": "0",
-        "ges_gew_breite": "0",
-        "ufer_laenge": "0",
-        "ufer_breite": "0",
-    },
-}
-
-#: A protocol as the legacy form holds one. Radio and checkbox values carry the
-#: leading slash, because that is how the PDF stores them.
-AUSGEFUELLT = {
-    "datum": "04.05.2026",
-    "messdaten.uhrzeit": "14:30",
-    "messdaten.temperatur": "12,5",
-    "bearbeiter.name": "Käthe Müller",
-    "probestrecke.gewaesser.gewaessername": "Schwarzer Regen",
-    "probestrecke.gewaesser.vorfluter1": "Donau",
-    "probestrecke.gewaessertyp": "/13",
-    "einfluesse.wasserkraft": "/Ja",
-    "arten.art1.name": "BFOR",
-    "arten.art1.klasse_3": "1.234",
-    "bemerkungen.sonstige_bemerkungen": "Zeile eins\nZeile zwei",
-}
 
 
 def test_die_leere_form_ergibt_genau_ihre_vorbelegung() -> None:
-    """Nineteen answers, and not one the reader made up.
+    """Seventeen answers, and not one the reader made up.
 
     Pinned as a whole document rather than field by field, so a form version
     that ships different defaults fails here and somebody looks at it.

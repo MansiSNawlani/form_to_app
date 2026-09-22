@@ -12,24 +12,24 @@ felder.json after the extraction script recorded them.
 
 import pytest
 
-from app.formular.felder import Feldformat, Formatart
+from app.formular.felder import Feldformat, Formatart, Trennung
 from app.protokolle.einlesen.werte import umwandle
 
 DATUM = Feldformat(art=Formatart.DATUM, muster="dd.mm.yyyy")
 ZEIT = Feldformat(art=Formatart.ZEIT)
 
 #: arten.art1.klasse_1 and 369 others: whole numbers, dot groups the thousands.
-ZAEHLUNG = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=2)
+ZAEHLUNG = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=Trennung.PUNKT_GRUPPIERT)
 #: messdaten.temperatur: one decimal, comma marks it, dot groups.
-TEMPERATUR = Feldformat(art=Formatart.ZAHL, stellen=1, trennung=2)
+TEMPERATUR = Feldformat(art=Formatart.ZAHL, stellen=1, trennung=Trennung.PUNKT_GRUPPIERT)
 #: hydrologie.breite_schaetzwert: one decimal, comma marks it, no grouping.
-SCHAETZWERT = Feldformat(art=Formatart.ZAHL, stellen=1, trennung=3)
+SCHAETZWERT = Feldformat(art=Formatart.ZAHL, stellen=1, trennung=Trennung.KOMMA_DEZIMAL)
 #: probestrecke.utm_rw_unten: whole, no grouping. A coordinate is not grouped.
-KOORDINATE = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=3)
+KOORDINATE = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=Trennung.KOMMA_DEZIMAL)
 #: bewirschaftung.besatz1_jahr: whole, no grouping, dot would mark decimals.
-JAHR = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=1)
+JAHR = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=Trennung.PUNKT_DEZIMAL)
 #: ufer.erlen: the one field in the form where a comma groups the thousands.
-ERLEN = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=0)
+ERLEN = Feldformat(art=Formatart.ZAHL, stellen=0, trennung=Trennung.KOMMA_GRUPPIERT)
 
 
 @pytest.mark.parametrize(

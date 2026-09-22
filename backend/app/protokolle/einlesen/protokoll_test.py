@@ -9,9 +9,9 @@ import pytest
 
 from app.formular.beispiele import formular_bytes, gefuellt, krebs_bytes, mit_bild
 from app.formular.fehler import PdfNichtLesbar
-from app.protokolle.einlesen.antworten_test import AUSGEFUELLT, VORBELEGT
+from app.protokolle.einlesen.beispiele import AUSGEFUELLT, VORBELEGT
 from app.protokolle.einlesen.fehler import FormularversionPasstNicht
-from app.protokolle.einlesen.leser import lies_protokoll
+from app.protokolle.einlesen.protokoll import lies_protokoll
 
 
 def test_ein_ausgefuelltes_protokoll_wird_eingelesen() -> None:

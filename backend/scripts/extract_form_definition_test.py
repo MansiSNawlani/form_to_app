@@ -9,6 +9,7 @@ the real form rather than against the transcription that produced it.
 
 from __future__ import annotations
 
+import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -17,6 +18,7 @@ import pytest
 from extract_form_definition import (
     RADIO_LABELS,
     export_values,
+    extract,
     feldformat,
     radio_options,
 )
@@ -163,3 +165,28 @@ def test_jedes_formatskript_der_echten_form_wird_erkannt() -> None:
 
     assert len(formate) == 540
     assert arten == {"zahl": 383, "datum": 1, "zeit": 1}
+
+
+def test_die_ausgelieferte_definition_ist_die_erzeugte() -> None:
+    """The committed seed is what this script produces from the committed PDF.
+
+    The generator and its output, checked against each other. Two things this
+    catches, and both have happened to generated files elsewhere: a seed
+    hand-edited rather than regenerated, and a change to this script that nobody
+    re-ran it after. It also holds the claim feature 23a made when it added the
+    formats, that regenerating changed nothing else.
+    """
+    seed = Path(__file__).resolve().parents[2] / "database" / "seed" / "form_version_20260609"
+    _, felder = extract(PDF)
+    committed = json.loads((seed / "felder.json").read_text(encoding="utf-8"))
+
+    assert felder == committed
+
+
+def test_die_ausgelieferten_optionslisten_sind_die_erzeugten() -> None:
+    """The same for the option lists, which the whole form depends on."""
+    seed = Path(__file__).resolve().parents[2] / "database" / "seed" / "form_version_20260609"
+    optionslisten, _ = extract(PDF)
+    committed = json.loads((seed / "optionslisten.json").read_text(encoding="utf-8"))
+
+    assert optionslisten == committed

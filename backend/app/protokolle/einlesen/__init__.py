@@ -9,16 +9,19 @@ what makes a *filled-in* copy of that form into an answers document: which
 fields carry answers, which form version the file is, and what its German dates
 and numbers mean.
 
-`lies_protokoll` is the whole of it. Everything else is exported because the
-tests and, later, 23e read it, not because a caller should need it.
+`lies_protokoll` is the whole of it, and it lives in `protokoll.py`. The three
+modules under it are the three things reading a file means: `version.py` decides
+what the file is, `antworten.py` turns its fields into a document, and
+`werte.py` turns one of its values into one of ours.
 """
 
+from app.protokolle.einlesen.antworten import Einleseergebnis
 from app.protokolle.einlesen.fehler import (
     EinleseFehler,
     FormularversionFehlt,
     FormularversionPasstNicht,
 )
-from app.protokolle.einlesen.leser import Einleseergebnis, lies_protokoll
+from app.protokolle.einlesen.protokoll import lies_protokoll
 
 __all__ = [
     "EinleseFehler",

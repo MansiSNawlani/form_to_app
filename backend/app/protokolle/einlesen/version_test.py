@@ -14,7 +14,7 @@ from app.protokolle.einlesen.fehler import (
     FormularversionFehlt,
     FormularversionPasstNicht,
 )
-from app.protokolle.einlesen.leser import lies_version
+from app.protokolle.einlesen.version import lies_version
 
 
 def test_die_echte_form_nennt_ihre_version() -> None:

@@ -28,20 +28,12 @@ import re
 from dataclasses import dataclass
 from datetime import date
 
-from app.formular.felder import Feldformat, Formatart
+from app.formular.felder import Feldformat, Formatart, Trennung
 from app.protokolle.formregeln.regel import ZAHL
 
 #: How the form writes a date, and how we store one.
 DEUTSCHES_DATUM = re.compile(r"^(\d{2})\.(\d{2})\.(\d{4})$")
 ISO_DATUM = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
-
-#: Acrobat's separator styles, as the thousands separator each one uses. An empty
-#: string means that style does not group at all, so a dot in such a field can
-#: only ever be a decimal point.
-GRUPPENTRENNER = {0: ",", 1: "", 2: ".", 3: ""}
-
-#: The same four styles, as the character each uses to mark the decimals.
-DEZIMALTRENNER = {0: ".", 1: ".", 2: ",", 3: ","}
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,7 +91,7 @@ def _falls_echt(wert: str, *, jahr: str, monat: str, tag: str) -> Umwandlung:
     return Umwandlung(f"{jahr}-{monat}-{tag}")
 
 
-def _zahl(wert: str, *, stellen: int, trennung: int) -> Umwandlung:
+def _zahl(wert: str, *, stellen: int, trennung: Trennung) -> Umwandlung:
     """The German writing of a number, turned into ours.
 
     Ours is what `ZAHL` in `app/protokolle/formregeln/regel.py` accepts: a dot
@@ -107,8 +99,8 @@ def _zahl(wert: str, *, stellen: int, trennung: int) -> Umwandlung:
     restated, so there is one answer in the backend to what a number is.
     """
     text = wert.strip()
-    dezimal = DEZIMALTRENNER.get(trennung, ".")
-    gruppe = GRUPPENTRENNER.get(trennung, "")
+    dezimal = trennung.dezimaltrenner
+    gruppe = trennung.gruppentrenner
 
     if dezimal in text:
         ganz, _, bruch = text.partition(dezimal)

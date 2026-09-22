@@ -20,7 +20,7 @@ files and there is exactly one version.
 
 import json
 from dataclasses import dataclass, field
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -71,6 +71,40 @@ class Formatart(StrEnum):
     ZAHL = "zahl"
 
 
+class Trennung(IntEnum):
+    """Acrobat's four ways of punctuating a number, as its own numbers 0 to 3.
+
+    An enum rather than a bare int so that the two separators are read off the
+    style itself instead of from a pair of lookup tables somewhere else, and so
+    that a style this application has never heard of is refused where the seed is
+    read rather than quietly treated as one of these four. Getting that wrong is
+    not a crash: it is a catch of 1234 fish stored as 1.2.
+    """
+
+    #: 1,234.56 - the American one. One field in this form uses it.
+    KOMMA_GRUPPIERT = 0
+    #: 1234.56 - no grouping, dot decimals. The four stocking years.
+    PUNKT_DEZIMAL = 1
+    #: 1.234,56 - the German one, and 373 of this form's 383 numbers.
+    PUNKT_GRUPPIERT = 2
+    #: 1234,56 - no grouping, comma decimals. The coordinates and one Schätzwert.
+    KOMMA_DEZIMAL = 3
+
+    @property
+    def gruppentrenner(self) -> str:
+        """What separates the thousands, or nothing where this style groups none.
+
+        Where it is empty, a dot in the value can only ever be a decimal point,
+        which is what makes those two styles the safe ones.
+        """
+        return {Trennung.KOMMA_GRUPPIERT: ",", Trennung.PUNKT_GRUPPIERT: "."}.get(self, "")
+
+    @property
+    def dezimaltrenner(self) -> str:
+        """What marks the decimals."""
+        return "," if self in (Trennung.PUNKT_GRUPPIERT, Trennung.KOMMA_DEZIMAL) else "."
+
+
 @dataclass(frozen=True, slots=True)
 class Feldformat:
     """How one field writes its value, as the extraction script read it.
@@ -83,12 +117,8 @@ class Feldformat:
     art: Formatart
     #: Decimal places. Numbers only, and never more than one in this form.
     stellen: int = 0
-    #: Acrobat's separator style, 0 to 3. Numbers only. 0 groups thousands with a
-    #: comma and marks decimals with a dot, 1 has no grouping and a dot decimal
-    #: point, 2 groups with a dot and marks decimals with a comma, 3 has no
-    #: grouping and a comma decimal point. 373 of this form's fields are style 2,
-    #: which is why an imported number needs converting at all.
-    trennung: int = 0
+    #: How the number is punctuated. Numbers only.
+    trennung: Trennung = Trennung.KOMMA_GRUPPIERT
     #: The declared date pattern. Dates only.
     muster: str = ""
 
@@ -169,7 +199,7 @@ def _formate(pfad: Path, felder: list[Any]) -> dict[str, Feldformat]:
             formate[feld["name"]] = Feldformat(
                 art=Formatart(roh["art"]),
                 stellen=int(roh.get("stellen", 0)),
-                trennung=int(roh.get("trennung", 0)),
+                trennung=Trennung(int(roh.get("trennung", 0))),
                 muster=str(roh.get("muster", "")),
             )
         except (KeyError, TypeError, ValueError) as fehler:
