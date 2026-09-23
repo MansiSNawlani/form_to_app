@@ -1,7 +1,7 @@
 # Feature: 23e - Das Protokoll als PDF
 
 **From build-plan:** feature 23, sub-feature 23e
-**Status:** not started
+**Status:** built, steps 1 to 6 done
 
 ## Goal
 
@@ -90,7 +90,7 @@ split it.
       answer paths outside the catch table has a label. **Done:** 174 labels, the extra being
       `bearbeiter.ort`, which the app has and the printed form does not.
 
-- [ ] **Step 2 - Das Dokument, als Text.** A new `backend/app/protokolle/ausgabe/` package with
+- [x] **Step 2 - Das Dokument, als Text.** A new `backend/app/protokolle/ausgabe/` package with
       one function taking a protocol, its answers and the labels, and returning PDF bytes.
       ReportLab, added as a runtime dependency. Title block, then the sections in screen order,
       then each answered field as label and value. A field nobody answered is left out rather
@@ -102,7 +102,7 @@ split it.
       out with pypdf, and finds the Gewaesser name, a section heading, a label and its value;
       and a field left blank does not appear anywhere in it.
 
-- [ ] **Step 3 - Die Prozentbloecke und die Fangtabelle.** The two parts needing real table
+- [x] **Step 3 - Die Prozentbloecke und die Fangtabelle.** The two parts needing real table
       layout. Each percentage block prints as a short table with its total. The catch table
       prints as species down the side and the ten size classes across, with row totals, the way
       the screen shows it. A protocol with no species prints the "no detection" code rather
@@ -110,7 +110,7 @@ split it.
       *Done when:* a pytest test finds a species code, a size class count and a row total in
       the extracted text, and a percentage block prints its eight shares and the total 100.
 
-- [ ] **Step 4 - Die Bilder.** The Kartenausschnitt and the photographs, read out of the
+- [x] **Step 4 - Die Bilder.** The Kartenausschnitt and the photographs, read out of the
       existing `Anlagenspeicher` and placed in the document, scaled to the page width and
       captioned with the file name. The section prints the count first, so a document is honest
       about pictures it could not read. A picture whose row has outlived its file is skipped
@@ -118,7 +118,7 @@ split it.
       *Done when:* a pytest test with a real small PNG in a temporary store produces a document
       whose page count grows, and a document for a protocol with no attachments still builds.
 
-- [ ] **Step 5 - Der Endpunkt.** `GET /api/v1/protokolle/{protokoll_id}/pdf`, reaching the
+- [x] **Step 5 - Der Endpunkt.** `GET /api/v1/protokolle/{protokoll_id}/pdf`, reaching the
       protocol through `hole_sichtbares_protokoll` so reviewers and Datenpfleger get the same
       answer they get everywhere else and a stranger gets the same refusal as always.
       `Content-Disposition: attachment` with a name built from the Gewaesser and the date,
@@ -128,11 +128,46 @@ split it.
       somebody else's protocol, another Einreicher gets the same 404 as for any protocol that
       is not theirs, and a test proves each of the three.
 
-- [ ] **Step 6 - Der Knopf.** A download control on the protocol page, German strings in
+- [x] **Step 6 - Der Knopf.** A download control on the protocol page, German strings in
       `de.json` with the English keys present and empty, and a Playwright test that presses it
       and catches the file.
       *Done when:* pressing it saves a PDF, the control is reachable by keyboard and announced
       by its accessible name, and `npm run e2e` proves it.
+
+## What building it changed
+
+Written down because the spec was drafted before the code was read, and five things
+turned out differently.
+
+- **The generated file carries the whole outline, not only the labels.** A flat map of
+  path to label cannot say which heading a field prints under or in what order, and that
+  knowledge lives in the screens as much as the wording does. So
+  `beschriftungen.json` also holds the sections, their blocks, the six percentage runs,
+  the German status words, and the two fields the title block prints. One source for all
+  of it rather than a second table hand-written on the backend.
+- **The script is TypeScript run by node**, not a `.ts` compiled by something new. Node 24
+  runs TypeScript directly, so the script is typed, importable by its test, and needs no
+  script runner added to the project.
+- **`en.json` was left alone.** The spec said to add empty English keys; the file in this
+  project holds only what has actually been translated, and feature 17 fills it. Following
+  the codebase rather than the spec line.
+- **Pictures are shrunk before they are embedded.** An attachment may be 10 MB and a
+  protocol may carry 21, so the untouched originals would mean 200 MB of memory per
+  download and a file nobody could email. They are reduced to about 150 dpi across the
+  page first.
+- **Each percentage total prints under its own run**, not at the foot of the block. Seen on
+  a screenshot: section 3's Ufer block holds three runs, and three totals stacked
+  underneath all of them leaves a reader counting rows upwards.
+
+Two things worth knowing for the next run:
+
+- **The browser tests need the backend container rebuilt.** The dev server proxies to the
+  container, not to the working tree, so a new endpoint is a 404 until
+  `docker compose up -d --build backend`. That cost the first browser run.
+- **Two throwaway accounts were added** for the browser tests, `ausgabe23e@test.de` and
+  `ausgabe23e-pruefer@test.de`, because the password of the documented pair is not in this
+  environment. Development accounts on a throwaway database, like the ones features 11 and
+  12 left behind.
 
 ## Files / areas
 

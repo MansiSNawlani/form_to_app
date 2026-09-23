@@ -158,3 +158,38 @@ export async function apiAnfrage<T>(
     throw new ApiFehler(ANTWORT_UNLESBAR, { status: antwort.status, ursache })
   }
 }
+
+/* One API call that answers with a file rather than with JSON.
+ *
+ * Separate from apiAnfrage above rather than a flag on it, because the two
+ * differ in what a success is: that one parses a body and this one must not
+ * touch it. The refusal path is shared, so a 404 on a download is the same
+ * typed ApiFehler as a 404 anywhere else and the screen already knows how to
+ * say it.
+ *
+ * Fetched rather than linked. An <a href> pointed at the endpoint would download
+ * the file just as well, and it would show a raw JSON error page when the answer
+ * was a refusal. Going through here means a refused download says what went
+ * wrong in German, beside the button that was pressed.
+ */
+export async function apiDatei(
+  pfad: string,
+  { fetchImpl = standardFetch() }: Pick<AnfrageOptionen, 'fetchImpl'> = {},
+): Promise<{ blob: Blob; verfuegung: string }> {
+  let antwort: Response
+  try {
+    antwort = await fetchImpl(BASIS + pfad, {
+      method: 'GET',
+      credentials: 'same-origin',
+    })
+  } catch (ursache) {
+    throw new ApiFehler(NETZWERK_FEHLER, { ursache })
+  }
+
+  if (!antwort.ok) throw await ablehnung(antwort)
+
+  return {
+    blob: await antwort.blob(),
+    verfuegung: antwort.headers.get('Content-Disposition') ?? '',
+  }
+}

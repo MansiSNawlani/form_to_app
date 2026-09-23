@@ -2,6 +2,399 @@
   "version": "20260609",
   "quelle": "frontend/src/protokoll, gelesen von frontend/scripts/beschriftungen.ts",
   "anzahl": 174,
+  "abschnitte": [
+    {
+      "titel": "Anlass und Probestrecke",
+      "bloecke": [
+        {
+          "titel": "Anlass der Befischung",
+          "fangtabelle": false,
+          "pfade": [
+            "anlass",
+            "z.rp",
+            "z.quelle",
+            "z.ps_nummer"
+          ]
+        },
+        {
+          "titel": "Bearbeiter",
+          "fangtabelle": false,
+          "pfade": [
+            "bearbeiter.name",
+            "bearbeiter.firma",
+            "bearbeiter.strasse",
+            "bearbeiter.plz",
+            "bearbeiter.ort",
+            "bearbeiter.telefon",
+            "bearbeiter.email"
+          ]
+        },
+        {
+          "titel": "Probestrecke",
+          "fangtabelle": false,
+          "pfade": [
+            "probestrecke.monitoringnummer",
+            "probestrecke.gewaesser.gewaessername",
+            "probestrecke.gewaessertyp",
+            "probestrecke.laenge",
+            "probestrecke.ortsangabe",
+            "probestrecke.gewaesser.vorfluter1",
+            "probestrecke.gewaesser.vorfluter2",
+            "probestrecke.gewaesser.vorfluter3",
+            "probestrecke.gewaesser.vorfluter4",
+            "probestrecke.gewaesser.vorfluter5",
+            "probestrecke.untere",
+            "probestrecke.utm_rw_unten",
+            "probestrecke.utm_hw_unten",
+            "probestrecke.obere",
+            "probestrecke.utm_rw_oben",
+            "probestrecke.utm_hw_oben"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "Messdaten und Hydrologie",
+      "bloecke": [
+        {
+          "titel": "Messdaten",
+          "fangtabelle": false,
+          "pfade": [
+            "messdaten.temperatur",
+            "messdaten.leitfaehigkeit",
+            "messdaten.sichttiefe",
+            "messdaten.regenfaelle",
+            "messdaten.truebung",
+            "messdaten.schaumbildung"
+          ]
+        },
+        {
+          "titel": "Hydrologie",
+          "fangtabelle": false,
+          "pfade": [
+            "hydrologie.breite",
+            "hydrologie.breite_schaetzwert",
+            "hydrologie.tiefe",
+            "hydrologie.tiefe_schaetzwert",
+            "hydrologie.tiefenvarianz",
+            "hydrologie.mit_flachstellen",
+            "hydrologie.mit_gumpen",
+            "hydrologie.linienfuehrung",
+            "hydrologie.furkationen",
+            "hydrologie.stroemung",
+            "hydrologie.rueckstroemung",
+            "hydrologie.fliessgeschwindigkeit",
+            "hydrologie.wasserfuehrung",
+            "hydrologie.stillwasserbereich",
+            "hydrologie.gesamtprofil"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "Umland, Ufer und Sohle",
+      "bloecke": [
+        {
+          "titel": "Umland",
+          "fangtabelle": false,
+          "pfade": [
+            "umland.nadelwald",
+            "umland.mischwald",
+            "umland.laubwald",
+            "umland.auwald",
+            "umland.wiese",
+            "umland.kulturland_acker",
+            "umland.feuchtgebiet_moor",
+            "umland.siedlungsgebiet"
+          ]
+        },
+        {
+          "titel": "Ufer",
+          "fangtabelle": false,
+          "pfade": [
+            "ufer.randstreifen",
+            "ufer.streckenanteil_geschuetteter_damm",
+            "ufer.neigung",
+            "ufer.buhnenbereich",
+            "ufer.wurzeln",
+            "ufer.sonstiger_bewuchs_text",
+            "ufer.sonstiger_uferverbau_text",
+            "ufer.flachufer",
+            "ufer.schraegufer",
+            "ufer.abbruch",
+            "ufer.unterspuelung",
+            "ufer.ohne_bewuchs",
+            "ufer.graeser",
+            "ufer.schilf_rohr",
+            "ufer.krautige_blattpflanzen",
+            "ufer.straeucher",
+            "ufer.weiden",
+            "ufer.erlen",
+            "ufer.andere_baeume",
+            "ufer.sonstiger_bewuchs",
+            "ufer.uferverbau_keiner",
+            "ufer.mauer_unverfugt",
+            "ufer.faschinen",
+            "ufer.drahtnetze",
+            "ufer.ueberwachsen",
+            "ufer.mauer_verfugt",
+            "ufer.steinwurf",
+            "ufer.sonstiger_uferverbau"
+          ]
+        },
+        {
+          "titel": "Gewässersohle",
+          "fangtabelle": false,
+          "pfade": [
+            "gewaessersohle.kolmatierte_sohle",
+            "gewaessersohle.eisenocker",
+            "gewaessersohle.treibsand",
+            "gewaessersohle.faulschlamm",
+            "gewaessersohle.schlamm",
+            "gewaessersohle.lehm",
+            "gewaessersohle.sonstiges_erdreich",
+            "gewaessersohle.sand",
+            "gewaessersohle.kies",
+            "gewaessersohle.grobkies",
+            "gewaessersohle.steine",
+            "gewaessersohle.felsen",
+            "gewaessersohle.keine_sohlverbauung",
+            "gewaessersohle.rasensteine",
+            "gewaessersohle.drahtnetze_sohlverbauung",
+            "gewaessersohle.steinschuettung",
+            "gewaessersohle.pflasterung",
+            "gewaessersohle.betonschale"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "Struktur und Bewirtschaftung",
+      "bloecke": [
+        {
+          "titel": "Natürliche Strukturen im Wasser",
+          "fangtabelle": false,
+          "pfade": [
+            "strukturen.sonstige_strukturen_text",
+            "strukturen.totholz",
+            "strukturen.wurzeln_strukturen",
+            "strukturen.aeste",
+            "strukturen.schilf",
+            "strukturen.submerse_makrophyten",
+            "strukturen.schwimmblattpflanzen",
+            "strukturen.emerse_makrophyten",
+            "strukturen.sonstige_strukturen"
+          ]
+        },
+        {
+          "titel": "Nutzungsbedingte Einflüsse",
+          "fangtabelle": false,
+          "pfade": [
+            "einfluesse.sonstige_nutzung_text",
+            "einfluesse.keine_einfluesse",
+            "einfluesse.unbekannt_einfluesse",
+            "einfluesse.wasserkraft",
+            "einfluesse.stauhaltung",
+            "einfluesse.schwallbetrieb",
+            "einfluesse.schifffahrt",
+            "einfluesse.bewaesserung",
+            "einfluesse.entwaesserung",
+            "einfluesse.hochwasserrueckhaltung",
+            "einfluesse.hochwasserablauf",
+            "einfluesse.badebetrieb",
+            "einfluesse.viehtraenke",
+            "einfluesse.holzberieselung",
+            "einfluesse.trinkwasserversorgung",
+            "einfluesse.sonstige_Nutzung"
+          ]
+        },
+        {
+          "titel": "Fischereiliche Bewirtschaftung",
+          "fangtabelle": false,
+          "pfade": [
+            "bewirschaftung.besatz_fischart1",
+            "bewirschaftung.besatz_fischart2",
+            "bewirschaftung.besatz_fischart3",
+            "bewirschaftung.besatz_fischart4",
+            "bewirschaftung.besatz1_groessenklassen",
+            "bewirschaftung.besatz2_groessenklassen",
+            "bewirschaftung.besatz3_groessenklassen",
+            "bewirschaftung.besatz4_groessenklassen",
+            "bewirschaftung.besatz1_jahr",
+            "bewirschaftung.besatz2_jahr",
+            "bewirschaftung.besatz3_jahr",
+            "bewirschaftung.besatz4_jahr",
+            "bewirschaftung.fischereiausübungsberechtigter",
+            "bewirschaftung.angelfischerei",
+            "bewirschaftung.berufsfischerei",
+            "bewirschaftung.teichspeisung",
+            "bewirschaftung.teichablauf"
+          ]
+        },
+        {
+          "titel": "Sonstiges",
+          "fangtabelle": false,
+          "pfade": [
+            "bemerkungen.sonstige_bemerkungen"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "Ausrüstung und Bereiche",
+      "bloecke": [
+        {
+          "titel": "Eingesetzte Ausrüstung",
+          "fangtabelle": false,
+          "pfade": [
+            "ausruestung.egeraet",
+            "ausruestung.spannung",
+            "ausruestung.leistung",
+            "ausruestung.bauweise",
+            "ausruestung.ringanoden",
+            "ausruestung.ringanoden_durchmesser",
+            "ausruestung.streifenanoden",
+            "ausruestung.kathode",
+            "ausruestung.kiemennetz",
+            "ausruestung.stoppnetz"
+          ]
+        },
+        {
+          "titel": "Anodenführer",
+          "fangtabelle": false,
+          "pfade": [
+            "anodenfuehrer.vorname",
+            "anodenfuehrer.nachname"
+          ]
+        },
+        {
+          "titel": "Befischte Bereiche",
+          "fangtabelle": false,
+          "pfade": [
+            "befischte_bereiche.ges_gew_laenge",
+            "befischte_bereiche.ufer_laenge",
+            "befischte_bereiche.ges_gew_breite",
+            "befischte_bereiche.ufer_breite",
+            "befischte_bereiche.ges_gew_stromauf",
+            "befischte_bereiche.ges_gew_stromab",
+            "befischte_bereiche.ges_gew_vom_boot",
+            "befischte_bereiche.ges_gew_watend",
+            "befischte_bereiche.ges_gew_vom_ufer",
+            "befischte_bereiche.ufer_stromauf",
+            "befischte_bereiche.ufer_stromab",
+            "befischte_bereiche.ufer_vom_boot",
+            "befischte_bereiche.ufer_watend",
+            "befischte_bereiche.ufer_vom_ufer"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "Fänge",
+      "bloecke": [
+        {
+          "titel": "Nachgewiesene Arten und Größenklassen",
+          "fangtabelle": true,
+          "pfade": []
+        },
+        {
+          "titel": "Ergänzende Anmerkungen",
+          "fangtabelle": false,
+          "pfade": [
+            "bemerkungen.bemerkung_fische"
+          ]
+        }
+      ]
+    }
+  ],
+  "gruppen": [
+    {
+      "titel": "Nutzung des Umlands",
+      "pfade": [
+        "umland.nadelwald",
+        "umland.mischwald",
+        "umland.laubwald",
+        "umland.auwald",
+        "umland.wiese",
+        "umland.kulturland_acker",
+        "umland.feuchtgebiet_moor",
+        "umland.siedlungsgebiet"
+      ]
+    },
+    {
+      "titel": "Neigung",
+      "pfade": [
+        "ufer.flachufer",
+        "ufer.schraegufer",
+        "ufer.abbruch",
+        "ufer.unterspuelung"
+      ]
+    },
+    {
+      "titel": "Uferbewuchs oberhalb der Wasserlinie",
+      "pfade": [
+        "ufer.ohne_bewuchs",
+        "ufer.graeser",
+        "ufer.schilf_rohr",
+        "ufer.krautige_blattpflanzen",
+        "ufer.straeucher",
+        "ufer.weiden",
+        "ufer.erlen",
+        "ufer.andere_baeume",
+        "ufer.sonstiger_bewuchs"
+      ]
+    },
+    {
+      "titel": "Uferverbauung",
+      "pfade": [
+        "ufer.uferverbau_keiner",
+        "ufer.mauer_unverfugt",
+        "ufer.faschinen",
+        "ufer.drahtnetze",
+        "ufer.ueberwachsen",
+        "ufer.mauer_verfugt",
+        "ufer.steinwurf",
+        "ufer.sonstiger_uferverbau"
+      ]
+    },
+    {
+      "titel": "Substratverteilung",
+      "pfade": [
+        "gewaessersohle.schlamm",
+        "gewaessersohle.lehm",
+        "gewaessersohle.sonstiges_erdreich",
+        "gewaessersohle.sand",
+        "gewaessersohle.kies",
+        "gewaessersohle.grobkies",
+        "gewaessersohle.steine",
+        "gewaessersohle.felsen"
+      ]
+    },
+    {
+      "titel": "Sohlverbauung",
+      "pfade": [
+        "gewaessersohle.keine_sohlverbauung",
+        "gewaessersohle.rasensteine",
+        "gewaessersohle.drahtnetze_sohlverbauung",
+        "gewaessersohle.steinschuettung",
+        "gewaessersohle.pflasterung",
+        "gewaessersohle.betonschale"
+      ]
+    }
+  ],
+  "status": {
+    "DRAFT": "Entwurf",
+    "SUBMITTED": "Eingereicht",
+    "IN_REVIEW": "In Prüfung",
+    "NEEDS_CHANGES": "Änderung erforderlich",
+    "REJECTED": "Abgelehnt",
+    "ACCEPTED": "Angenommen",
+    "LOCKED": "Abgeschlossen"
+  },
+  "kopffelder": [
+    "datum",
+    "messdaten.uhrzeit"
+  ],
   "beschriftungen": {
     "anlass": "Anlass",
     "anodenfuehrer.nachname": "Nachname",

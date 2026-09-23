@@ -139,6 +139,9 @@ class FormularDefinition:
     #: Read by the PDF import, which is the only thing that meets a value written
     #: the form's way rather than ours.
     formate: dict[str, Feldformat] = field(default_factory=dict)
+    #: Which option list a field picks from, for the fields that pick from one.
+    #: Read by the PDF download, which has to print what a stored code is called.
+    optionslisten: dict[str, str] = field(default_factory=dict)
 
 
 def lade(verzeichnis: Path) -> FormularDefinition:
@@ -184,6 +187,11 @@ def lade(verzeichnis: Path) -> FormularDefinition:
         version=version,
         pfade=namen | ZUSAETZLICHE_PFADE,
         formate=_formate(pfad, felder),
+        optionslisten={
+            feld["name"]: feld["optionsliste"]
+            for feld in felder
+            if isinstance(feld, dict) and isinstance(feld.get("optionsliste"), str)
+        },
     )
 
 

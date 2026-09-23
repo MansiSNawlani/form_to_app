@@ -45,7 +45,7 @@ def test_jedes_antwortfeld_hat_eine_beschriftung() -> None:
     labels, which would otherwise surface as a PDF printing a dotted path at a
     surveyor months later.
     """
-    beschriftungen = lade(FORMULAR_SEED)
+    beschriftungen = lade(FORMULAR_SEED).beschriftungen
 
     ohne = sorted(beschriftete_antwortfelder() - beschriftungen.keys())
 
@@ -62,7 +62,7 @@ def test_beschriftet_nichts_was_kein_feld_ist() -> None:
     and a postcode but no town, and app/formular/felder.py lists it as an
     addition of ours with a question on the record.
     """
-    beschriftungen = lade(FORMULAR_SEED)
+    beschriftungen = lade(FORMULAR_SEED).beschriftungen
 
     unbekannt = sorted(beschriftungen.keys() - set(formular().pfade))
 
@@ -76,13 +76,13 @@ def test_die_fangtabelle_ist_nicht_einzeln_beschriftet() -> None:
     If the catch table ever does need them, that is a decision about how the
     document lays the table out, and it should change this test first.
     """
-    beschriftungen = lade(FORMULAR_SEED)
+    beschriftungen = lade(FORMULAR_SEED).beschriftungen
 
     assert [pfad for pfad in beschriftungen if pfad.startswith(FANGTABELLE)] == []
 
 
 def test_liest_die_ausgelieferte_datei() -> None:
-    beschriftungen = lade(FORMULAR_SEED)
+    beschriftungen = lade(FORMULAR_SEED).beschriftungen
 
     assert beschriftungen["hydrologie.breite"] == "mittlere Breite"
     assert beschriftungen["probestrecke.gewaesser.gewaessername"] != ""
@@ -100,9 +100,15 @@ def test_fehlende_datei_nennt_den_erzeuger(tmp_path: Path) -> None:
     ("inhalt", "grund"),
     [
         ([], "its top level is not an object"),
-        ({"anzahl": 1}, "it holds no labels"),
-        ({"anzahl": 1, "beschriftungen": {"a.b": ""}}, "a label is empty or is not text"),
-        ({"anzahl": 2, "beschriftungen": {"a.b": "B"}}, "claims 2 labels and holds 1"),
+        ({"version": "1", "anzahl": 1}, "it has no version or no labels"),
+        (
+            {"version": "1", "anzahl": 1, "beschriftungen": {"a.b": ""}},
+            "a label is empty or is not text",
+        ),
+        (
+            {"version": "1", "anzahl": 2, "beschriftungen": {"a.b": "B"}},
+            "claims 2 labels and holds 1",
+        ),
     ],
 )
 def test_kaputte_datei_sagt_warum(tmp_path: Path, inhalt: object, grund: str) -> None:

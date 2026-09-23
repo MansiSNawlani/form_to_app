@@ -51,6 +51,18 @@ dependencies = [
     # though the password is empty.
     "pypdf>=6.0",
     "cryptography>=44",
+    # Draws the PDF a submitter downloads. Feature 23e writes a document of our
+    # own rather than filling the legacy form, so pypdf above, which reads and
+    # fills existing forms, is the wrong tool for it.
+    #
+    # ReportLab rather than WeasyPrint, which would have laid the page out from
+    # HTML and CSS. WeasyPrint needs Pango and Cairo installed as system
+    # libraries: the container could carry them, but development here happens on
+    # Windows and that is where pytest runs, so a document test would only ever
+    # pass in Docker. This is a pure Python wheel and behaves the same in both
+    # places. Pillow comes with it, and is what puts a photograph on a page.
+    "reportlab>=4.2",
+    "pillow>=11.0",
 ]
 
 [project.optional-dependencies]
@@ -94,6 +106,13 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 python_version = "3.12"
 strict = true
+
+# ReportLab ships no type information and has no stub package on typeshed. The
+# document builder is the only module that imports it, and it keeps the untyped
+# surface to the few calls that draw the page; everything it hands over is typed.
+[[tool.mypy.overrides]]
+module = ["reportlab.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["app", "scripts"]

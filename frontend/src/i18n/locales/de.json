@@ -195,6 +195,11 @@
     }
   },
   "protokoll": {
+    "ausgabe": {
+      "knopf": "Als PDF herunterladen",
+      "laeuft": "Wird erstellt ...",
+      "fehler": "Das Protokoll konnte nicht heruntergeladen werden. Bitte versuchen Sie es noch einmal."
+    },
     "kopf": {
       "alleProtokolle": "Alle Protokolle",
       "entwurf": "Entwurf",

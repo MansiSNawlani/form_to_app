@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import HerunterladenKnopf from './ausgabe/HerunterladenKnopf'
 import ProtokollTitel from './ProtokollTitel'
 import SpeicherAnzeige from './SpeicherAnzeige'
 import type { SaveState } from './entwurf/useAutoSave'
@@ -40,6 +41,10 @@ function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
       </div>
       <div className="page__head-actions">
         <SpeicherAnzeige {...saveState} />
+        {/* Only once the server has made the record. Before that there is
+            nothing to download and no id to ask for it with, which is the same
+            condition the creation date above is printed under. */}
+        {entwurf.form_version !== '' && <HerunterladenKnopf protokollId={entwurf.id} />}
         <Button component={Link} to="/" size="small" variant="outlined">
           {t('protokoll.kopf.alleProtokolle')}
         </Button>
