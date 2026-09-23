@@ -174,27 +174,103 @@ These are not features and are not tracked here. They happen first.
   Decided when it was split: **FFS staff land on the Pruefliste after signing in**, which is
   what project-overview.md already describes and what 12b builds. A reviewer's own protocols
   stay one click away on Meine Protokolle.
-- [ ] 23. Import a filled PDF: read a completed Protokoll E-Befischung out of the legacy
-      Acrobat form and open it as a draft with the answers already in place, checked by
-      exactly the same rules as anything typed in. Added on 2026-09-15
+- [ ] 23. Die PDF in beide Richtungen: read a completed Protokoll E-Befischung out of the
+      legacy Acrobat form and open it as a draft with the answers already in place, checked
+      by exactly the same rules as anything typed in, and hand a filed protocol back as a
+      PDF its author can download, keep and print. Added on 2026-09-15; the export folded
+      in on 2026-09-22
+  - [x] 23a. Aus der PDF lesen: the reader, as plain functions over bytes. Decrypt the file,
+        walk its fields, decode the umlauts the way the extraction script already has to,
+        turn `/13` into `13` and `/Ja` into `Ja`, leave out everything the form carries that
+        is not an answer, and refuse a file that is not this form version
+  - [ ] 23b. Der Einlese-Endpunkt: the upload endpoint, its size and type limits, the draft
+        it creates for whoever uploaded it, and the answer listing everything already wrong
+        with the protocol, the attachments the file carries included
 
-  Two audiences, decided on 2026-09-15: the backlog first, a permanent route in second. The
-  immediate job is the protocols FFS already holds as Acrobat files. Whether the Acrobat
-  form stays a lasting alternative to the website, which overlaps feature 22, is decided
-  once the backlog is in and people have used it.
+    **Which form versions are accepted, decided on 2026-09-22.** 23a's gate accepts one
+    version and refuses every other, which would have refused all three of the real
+    protocols supplied that day. It accepts **any version whose field names match ours**
+    instead.
 
-  **Built after the review features, 11e and 12, and before the rest of the MVP.** Its
-  first job is to produce realistic protocols to test the review workflow with, so the
-  review screens are built first and validated properly afterwards. The number is 23
-  because numbering follows what is next unused, never where an item sits; the same rule
-  the 2026-09-01 reordering above follows.
+    The evidence for that being safe, measured rather than assumed. All three real files
+    carry 540 fields under exactly our names. The one from January 2024 differs from our
+    June 2026 form in nothing at all: same fields, same buttons, same option lists, same
+    number formats. The two from February 2023 differ in one respect, in nine places: each
+    hydrology group lacks the extra unlabelled `0` button that means "hydrology does not
+    apply to this water", which FFS added sometime before January 2024. A button a file
+    does not have is a button nobody could have ticked, so it cannot produce a value the
+    reader chokes on; a 2023 protocol for a standing water instead arrives with hydrology
+    answers our rules then flag, which is what the problem panel is for.
 
-  Nothing about it is speculative: pypdf is already a backend dependency,
-  `backend/scripts/extract_form_definition.py` already opens this exact encrypted form, and
-  every PDF field name is already the name this application stores that answer under. An
-  imported protocol is never trusted: the legacy form has known validation bugs
+    **An old template does not mean an old survey**, and this is why the tolerance is
+    needed at all. All three of those files record surveys carried out in August and
+    September 2026 on templates from 2023 and 2024, because people keep filling in whatever
+    copy of the PDF they downloaded years ago. The version stamp says nothing about the age
+    of the survey and is never a reason to treat a protocol differently.
+  - [ ] 23c. PDF einlesen auf dem Bildschirm: the control on Meine Protokolle, the file
+        picker, the busy, refused and failed states, and landing in the new draft with the
+        problem panel already populated
+  - [ ] 23d. Die Bilder aus der PDF: the Kartenausschnitt and the four photo slots, which
+        the legacy form holds as button icons rather than as attachments, turned into real
+        Anlagen. Last, because it is the one part that may not work
+  - [ ] 23e. Das Protokoll als PDF: the download, built by writing the answers into the
+        official form's own boxes
+
+  **What this is for, settled on 2026-09-22, and it is the opposite of what this item
+  assumed on 2026-09-15.** That note put the backlog first: the stack of completed
+  protocols FFS already holds as Acrobat files. That premise is wrong, because those
+  surveys are already in FiaKa and importing them achieves nothing.
+
+  The real job is the one the old note listed second. A surveyor who would rather fill in
+  the Acrobat form in the field should not have to type the whole protocol again because
+  the reviewers at FFS now work in the application. They import their file instead. So this
+  is a permanent route into the app rather than a migration tool, it overlaps feature 22,
+  and the question of whether the Acrobat form stays a lasting alternative is answered:
+  yes, for as long as people keep using it.
+
+  **Every import is a new survey.** An ordinary draft, owned by whoever uploaded it,
+  stamped with the form version this application serves, and held to today's rules before
+  it can be submitted. Nothing imported is a historical record being preserved, so nothing
+  imported is exempt from the current rulebook.
+
+  **Built after the review features, 11e and 12, and before the rest of the MVP.** The
+  reason given on 2026-09-15 was that an import would produce realistic protocols to test
+  the review workflow with. That still holds, and three real protocols supplied on
+  2026-09-22 now do the same job directly, so the ordering stands on the plainer ground
+  that this is a route real surveyors will use and the review screens it feeds already
+  exist. The number is 23 because numbering follows what is next unused, never where an
+  item sits; the same rule the 2026-09-01 reordering above follows.
+
+  Nothing about the import is speculative. `backend/scripts/extract_form_definition.py`
+  already opens this exact encrypted form, every PDF field name is already the name this
+  application stores that answer under, and filling the form and reading the values back
+  was proven against the real file on 2026-09-22. One correction to the note this item
+  carried from 2026-09-15: pypdf is a **dev** dependency today, used by that one script, so
+  23a is where it becomes a runtime one. An imported protocol is never trusted: the legacy
+  form has known validation bugs
   ([../docs/ffs-defect-list.md](../docs/ffs-defect-list.md)), so an import lands as a draft
   with the problem panel populated, never as a submission.
+
+  **Split into five on 2026-09-22, when the export was folded in.** The export was item 20,
+  after MVP, and was pulled forward because a submitter needs a copy of what they filed, to
+  keep, to print, and to send to somebody who is not going to be given an account. It is a
+  sub-feature of this item rather than an item of its own because it is the same file format
+  read the other way round: it writes the answers into the same 540 boxes 23a reads them out
+  of, which also means 23e gives 23a its test material and 23a gives 23e its proof.
+
+  Two decisions taken when it was folded in:
+
+  - **The export fills the official form rather than drawing its own document.** The output
+    is the Protokoll E-Befischung as FFS has always had it on paper, which is what somebody
+    printing it for a meeting needs, and it costs almost nothing because every field name
+    already matches. The form's own JavaScript is stripped on the way out: it carries the
+    hard-coded FFS addresses of
+    [defect 5](../docs/ffs-defect-list.md) and validation we have deliberately replaced.
+    What the paper cannot hold is named in the spec rather than quietly dropped: there is no
+    box for the Bearbeiter's town, no room past the fourth photo, and nowhere to print the
+    status or the Verlauf.
+  - **Item 20 stays where it is.** What is left of it once 23e ships is the part that needs
+    feature 18: the map excerpt drawn from stored geometry rather than uploaded as a picture.
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
 - [ ] 15. Audit trail
@@ -206,6 +282,8 @@ These are not features and are not tracked here. They happen first.
 - [ ] 18. Map picker: MapLibre, the official water body dataset, snapping with override, water body
       search, and backfilling identifiers onto existing submissions
 - [ ] 19. Transfer to FiaKa: JSON payload, machine account, safe to retry, transfer log
-- [ ] 20. PDF generation, with the map excerpt drawn from stored geometry
+- [ ] 20. PDF generation, with the map excerpt drawn from stored geometry. Feature 23e
+      ships the download itself, by filling the official form; what is left here is the
+      map excerpt drawn rather than uploaded, which needs feature 18
 - [ ] 21. Protokoll Krebs, reusing the Probestrecke characterisation sections
 - [ ] 22. Offline field use

@@ -4,6 +4,11 @@ Extracted from `Resources/Fiaka_Resources/Formular_Protokoll_E-Befischung_V20260
 `backend/scripts/extract_form_definition.py`. `optionslisten.json` and `felder.json` are
 generated files: re-run the script rather than editing them.
 
+**The form itself is not in the repository.** `Resources/` is untracked, so these generated
+files are the only copy of the form's definition that a checkout has, which is why they are
+committed and why nothing in the application reads the PDF. To regenerate them you need the
+form; AGENTS.md, under Commands, says where it goes.
+
 **`pflichtfelder.json` is the exception. It is hand-authored and is edited by hand.** The
 PDF's field definition carries no required flag at all, only a name, a type and an option
 list, so which answers a finished protocol must carry is a decision this project took rather
@@ -62,6 +67,26 @@ sum-to-100 blocks and the tick-group rules are enforced.
 **`felder.json`** - all 540 terminal fields with their legacy dotted paths and PDF types (`Tx`
 text, `Ch` dropdown, `Btn` radio or checkbox). Radio groups carry their export values. This is
 the reference for naming fields as each form part is built.
+
+385 of them also carry a `format`, added in feature 23a, saying how the form writes that field's
+value. `{"art": "datum", "muster": "dd.mm.yyyy"}` on the one date, `{"art": "zeit"}` on the one
+time, and `{"art": "zahl", "stellen": 1, "trennung": 2}` on each of the 383 numbers, where
+`stellen` is the decimal places and `trennung` is Acrobat's separator style:
+
+| `trennung` | Thousands | Decimals | Fields |
+|---|---|---|---|
+| 0 | comma | dot | 1, `ufer.erlen` alone |
+| 1 | not grouped | dot | 4, the `besatz` years |
+| 2 | dot | comma | 373 |
+| 3 | not grouped | comma | 5, the four UTM coordinates and one Schätzwert |
+
+**This is why an imported number cannot be taken at face value.** Under style 2 a catch of 1234
+fish is written `1.234`, which a dot-decimal parser reads as 1.2, and a temperature of twelve and
+a half is written `12,5`, which such a parser refuses outright. The conversion lives in
+`backend/app/protokolle/einlesen/werte.py` and reads these entries rather than a hand-written
+table of 383 field names. The format is read out of each field's own Acrobat format script, so a
+form version that changes one changes this file too, and an unrecognised script stops the
+extraction rather than producing a seed that claims to know how a field is written.
 
 ## Three things to know
 

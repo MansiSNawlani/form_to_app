@@ -27,7 +27,11 @@
     },
     {
       "name": "datum",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "datum",
+        "muster": "dd.mm.yyyy"
+      }
     },
     {
       "name": "check_ok_sohlverbau",
@@ -178,11 +182,21 @@
     },
     {
       "name": "probestrecke.utm_rw_unten",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 3
+      }
     },
     {
       "name": "probestrecke.utm_hw_unten",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 3
+      }
     },
     {
       "name": "probestrecke.obere",
@@ -190,11 +204,21 @@
     },
     {
       "name": "probestrecke.utm_rw_oben",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 3
+      }
     },
     {
       "name": "probestrecke.utm_hw_oben",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 3
+      }
     },
     {
       "name": "probestrecke.gewaessertyp",
@@ -213,7 +237,12 @@
     },
     {
       "name": "probestrecke.laenge",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "probestrecke.monitoringnummer",
@@ -222,19 +251,37 @@
     },
     {
       "name": "messdaten.uhrzeit",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zeit"
+      }
     },
     {
       "name": "messdaten.temperatur",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 1,
+        "trennung": 2
+      }
     },
     {
       "name": "messdaten.leitfaehigkeit",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "messdaten.sichttiefe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "messdaten.regenfaelle",
@@ -287,7 +334,12 @@
     },
     {
       "name": "hydrologie.breite_schaetzwert",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 1,
+        "trennung": 3
+      }
     },
     {
       "name": "hydrologie.tiefe",
@@ -306,7 +358,12 @@
     },
     {
       "name": "hydrologie.tiefe_schaetzwert",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 1,
+        "trennung": 2
+      }
     },
     {
       "name": "hydrologie.tiefenvarianz",
@@ -425,35 +482,75 @@
     },
     {
       "name": "umland.nadelwald",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.mischwald",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.laubwald",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.auwald",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.wiese",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.kulturland_acker",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.feuchtgebiet_moor",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "umland.siedlungsgebiet",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.randstreifen",
@@ -467,27 +564,57 @@
     },
     {
       "name": "ufer.flachufer",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.schraegufer",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.abbruch",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.unterspuelung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.streckenanteil_geschuetteter_damm",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.neigung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.buhnenbereich",
@@ -498,43 +625,93 @@
     },
     {
       "name": "ufer.wurzeln",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.ohne_bewuchs",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.graeser",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.schilf_rohr",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.krautige_blattpflanzen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.straeucher",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.weiden",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.erlen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 0
+      }
     },
     {
       "name": "ufer.andere_baeume",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.sonstiger_bewuchs",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.sonstiger_bewuchs_text",
@@ -542,35 +719,75 @@
     },
     {
       "name": "ufer.uferverbau_keiner",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.mauer_unverfugt",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.faschinen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.drahtnetze",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.ueberwachsen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.mauer_verfugt",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.steinwurf",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.sonstiger_uferverbau",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ufer.sonstiger_uferverbau_text",
@@ -578,59 +795,129 @@
     },
     {
       "name": "gewaessersohle.schlamm",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.lehm",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.sonstiges_erdreich",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.sand",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.kies",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.grobkies",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.steine",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.felsen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.keine_sohlverbauung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.rasensteine",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.drahtnetze_sohlverbauung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.steinschuettung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.pflasterung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.betonschale",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "gewaessersohle.kolmatierte_sohle",
@@ -662,35 +949,75 @@
     },
     {
       "name": "strukturen.totholz",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.wurzeln_strukturen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.aeste",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.schilf",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.submerse_makrophyten",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.schwimmblattpflanzen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.emerse_makrophyten",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.sonstige_strukturen",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "strukturen.sonstige_strukturen_text",
@@ -848,7 +1175,12 @@
     },
     {
       "name": "bewirschaftung.besatz1_jahr",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 1
+      }
     },
     {
       "name": "bewirschaftung.besatz_fischart2",
@@ -861,7 +1193,12 @@
     },
     {
       "name": "bewirschaftung.besatz2_jahr",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 1
+      }
     },
     {
       "name": "bewirschaftung.besatz_fischart3",
@@ -874,7 +1211,12 @@
     },
     {
       "name": "bewirschaftung.besatz3_jahr",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 1
+      }
     },
     {
       "name": "bewirschaftung.besatz_fischart4",
@@ -887,7 +1229,12 @@
     },
     {
       "name": "bewirschaftung.besatz4_jahr",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 1
+      }
     },
     {
       "name": "bemerkungen.sonstige_bemerkungen",
@@ -911,11 +1258,21 @@
     },
     {
       "name": "ausruestung.spannung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "ausruestung.leistung",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 1,
+        "trennung": 2
+      }
     },
     {
       "name": "ausruestung.bauweise",
@@ -1045,51 +1402,111 @@
     },
     {
       "name": "arten.art1.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art1.name",
@@ -1098,51 +1515,111 @@
     },
     {
       "name": "arten.art2.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art2.name",
@@ -1151,51 +1628,111 @@
     },
     {
       "name": "arten.art3.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art3.name",
@@ -1204,51 +1741,111 @@
     },
     {
       "name": "arten.art4.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art4.name",
@@ -1257,55 +1854,120 @@
     },
     {
       "name": "arten.gesamtsumme",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art5.name",
@@ -1314,51 +1976,111 @@
     },
     {
       "name": "arten.art6.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art6.name",
@@ -1367,51 +2089,111 @@
     },
     {
       "name": "arten.art7.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art7.name",
@@ -1420,51 +2202,111 @@
     },
     {
       "name": "arten.art8.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art8.name",
@@ -1473,51 +2315,111 @@
     },
     {
       "name": "arten.art9.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art9.name",
@@ -1526,51 +2428,111 @@
     },
     {
       "name": "arten.art10.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art10.name",
@@ -1579,51 +2541,111 @@
     },
     {
       "name": "arten.art11.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art11.name",
@@ -1632,51 +2654,111 @@
     },
     {
       "name": "arten.art12.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art12.name",
@@ -1685,51 +2767,111 @@
     },
     {
       "name": "arten.art13.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art13.name",
@@ -1738,51 +2880,111 @@
     },
     {
       "name": "arten.art14.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art14.name",
@@ -1791,51 +2993,111 @@
     },
     {
       "name": "arten.art15.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art15.name",
@@ -1844,51 +3106,111 @@
     },
     {
       "name": "arten.art16.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art16.name",
@@ -1897,51 +3219,111 @@
     },
     {
       "name": "arten.art17.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art17.name",
@@ -1950,51 +3332,111 @@
     },
     {
       "name": "arten.art18.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art18.name",
@@ -2003,51 +3445,111 @@
     },
     {
       "name": "arten.art19.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art19.name",
@@ -2056,51 +3558,111 @@
     },
     {
       "name": "arten.art20.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art20.name",
@@ -2109,51 +3671,111 @@
     },
     {
       "name": "arten.art21.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art21.name",
@@ -2162,51 +3784,111 @@
     },
     {
       "name": "arten.art22.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art22.name",
@@ -2215,51 +3897,111 @@
     },
     {
       "name": "arten.art23.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art23.name",
@@ -2268,51 +4010,111 @@
     },
     {
       "name": "arten.art24.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art24.name",
@@ -2321,51 +4123,111 @@
     },
     {
       "name": "arten.art25.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art25.name",
@@ -2374,51 +4236,111 @@
     },
     {
       "name": "arten.art26.klasse_1",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_2",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_3",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_4",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_5",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_6",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_7",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_8",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_9",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.klasse_10",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.summe",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.0plus",
-      "typ": "Tx"
+      "typ": "Tx",
+      "format": {
+        "art": "zahl",
+        "stellen": 0,
+        "trennung": 2
+      }
     },
     {
       "name": "arten.art26.name",

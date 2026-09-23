@@ -209,6 +209,35 @@ in the shell history and be visible to anyone who can list running processes.
 `--rolle` may be given more than once. A `REGIERUNGSPRAESIDIUM` account also needs
 `--regierungspraesidium` with a number from 1 to 4.
 
+**The FFS source material is not in the repository.** `Resources/` is untracked by
+decision on 2026-09-22, and holds two kinds of file that both belong outside git. The
+blank forms and their embedded JavaScript are FFS's own documents rather than this
+project's work. The filled-in protocols under `Resources/echte-protokolle/`, used to test
+the PDF import against files this project did not write, carry the surveyor's name, postal
+address, telephone number and e-mail address, and nobody consented to that being
+published.
+
+Nothing the application or the container runs needs any of it. The field and option
+definition is generated from the blank form into `database/seed/`, and those generated
+files are committed, which is what `FORMULAR_SEED_DIR` points at.
+
+What needs it is the tests that read a form, and a fresh checkout without the files
+**skips** them with a message naming what to fetch, the same way the database tests skip
+when no database is running. To run them, get these two from FFS and put them in
+`Resources/Fiaka_Resources/`:
+
+- `Formular_Protokoll_E-Befischung_V20260609.pdf`, the form this application replaces
+- `Formular_Protokoll_Krebs_V20230622.pdf`, the crayfish form, which the import tests use
+  as a real "wrong file"
+
+Then `pytest` from `backend/` runs the full set. Without them the run reports "60 skipped"
+rather than failing, and the two tests that hold the committed seed against freshly
+generated output are among those that do not run.
+
+Feature 23e, the PDF download, will need the blank form at **run time** rather than only
+in tests, because it fills that form. How a deployment gets it is open and is noted under
+item 23 in `blueprint/build-plan.md`.
+
 **Backend tests use a real database.** Added in feature 2a. `pytest` creates a
 separate `befischung_test` database, migrates it to head, and runs each test in a
 transaction it rolls back, so the development database is never touched. Tests

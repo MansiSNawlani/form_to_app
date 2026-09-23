@@ -19,9 +19,11 @@ files and there is exactly one version.
 """
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import IntEnum, StrEnum
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from app.config import get_settings
 
@@ -58,6 +60,69 @@ class FormularDefinitionFehlt(RuntimeError):
         )
 
 
+class Formatart(StrEnum):
+    """The three ways this form writes a value that is not plain text."""
+
+    #: A date, by a pattern the form declares. Always dd.mm.yyyy in this version.
+    DATUM = "datum"
+    #: A time as HH:MM, which is already how the application stores one.
+    ZEIT = "zeit"
+    #: A number, with decimal places and a separator style.
+    ZAHL = "zahl"
+
+
+class Trennung(IntEnum):
+    """Acrobat's four ways of punctuating a number, as its own numbers 0 to 3.
+
+    An enum rather than a bare int so that the two separators are read off the
+    style itself instead of from a pair of lookup tables somewhere else, and so
+    that a style this application has never heard of is refused where the seed is
+    read rather than quietly treated as one of these four. Getting that wrong is
+    not a crash: it is a catch of 1234 fish stored as 1.2.
+    """
+
+    #: 1,234.56 - the American one. One field in this form uses it.
+    KOMMA_GRUPPIERT = 0
+    #: 1234.56 - no grouping, dot decimals. The four stocking years.
+    PUNKT_DEZIMAL = 1
+    #: 1.234,56 - the German one, and 373 of this form's 383 numbers.
+    PUNKT_GRUPPIERT = 2
+    #: 1234,56 - no grouping, comma decimals. The coordinates and one Schätzwert.
+    KOMMA_DEZIMAL = 3
+
+    @property
+    def gruppentrenner(self) -> str:
+        """What separates the thousands, or nothing where this style groups none.
+
+        Where it is empty, a dot in the value can only ever be a decimal point,
+        which is what makes those two styles the safe ones.
+        """
+        return {Trennung.KOMMA_GRUPPIERT: ",", Trennung.PUNKT_GRUPPIERT: "."}.get(self, "")
+
+    @property
+    def dezimaltrenner(self) -> str:
+        """What marks the decimals."""
+        return "," if self in (Trennung.PUNKT_GRUPPIERT, Trennung.KOMMA_DEZIMAL) else "."
+
+
+@dataclass(frozen=True, slots=True)
+class Feldformat:
+    """How one field writes its value, as the extraction script read it.
+
+    Only the parts that decide what a value means. Acrobat's number format also
+    carries a currency and a style for negatives, and neither changes which
+    digits the value has.
+    """
+
+    art: Formatart
+    #: Decimal places. Numbers only, and never more than one in this form.
+    stellen: int = 0
+    #: How the number is punctuated. Numbers only.
+    trennung: Trennung = Trennung.KOMMA_GRUPPIERT
+    #: The declared date pattern. Dates only.
+    muster: str = ""
+
+
 @dataclass(frozen=True)
 class FormularDefinition:
     """One form version's field list."""
@@ -65,6 +130,10 @@ class FormularDefinition:
     version: str
     #: Every path an answers document may carry, the additions above included.
     pfade: frozenset[str]
+    #: How a field writes its value, for the 385 that do not write plain text.
+    #: Read by the PDF import, which is the only thing that meets a value written
+    #: the form's way rather than ours.
+    formate: dict[str, Feldformat] = field(default_factory=dict)
 
 
 def lade(verzeichnis: Path) -> FormularDefinition:
@@ -106,7 +175,38 @@ def lade(verzeichnis: Path) -> FormularDefinition:
             pfad, f"it claims {anzahl} fields and holds {len(namen)} distinct usable names"
         )
 
-    return FormularDefinition(version=version, pfade=namen | ZUSAETZLICHE_PFADE)
+    return FormularDefinition(
+        version=version,
+        pfade=namen | ZUSAETZLICHE_PFADE,
+        formate=_formate(pfad, felder),
+    )
+
+
+def _formate(pfad: Path, felder: list[Any]) -> dict[str, Feldformat]:
+    """How each field writes its value, for the ones that declare it.
+
+    Generated alongside the names by the same script, so a malformed entry here
+    means the file was hand-edited or truncated. That fails at startup with the
+    path, like every other problem with this file, rather than surfacing later as
+    an imported date in the wrong order.
+    """
+    formate: dict[str, Feldformat] = {}
+    for feld in felder:
+        roh = feld.get("format") if isinstance(feld, dict) else None
+        if roh is None:
+            continue
+        try:
+            formate[feld["name"]] = Feldformat(
+                art=Formatart(roh["art"]),
+                stellen=int(roh.get("stellen", 0)),
+                trennung=Trennung(int(roh.get("trennung", 0))),
+                muster=str(roh.get("muster", "")),
+            )
+        except (KeyError, TypeError, ValueError) as fehler:
+            raise FormularDefinitionFehlt(
+                pfad, f"the format of {feld.get('name')!r} is not readable"
+            ) from fehler
+    return formate
 
 
 @lru_cache

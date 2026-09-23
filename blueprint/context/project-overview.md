@@ -66,13 +66,27 @@ everything else exists to support them. Item 9 carries the most risk.
 10. **Attachments** - photo and map excerpt upload.
 11. **Review workflow** - the state machine, rejection reasons, change requests, locking.
 12. **Review queue** - list, filter and search, including by species.
-23. **Import a filled PDF** - read a completed protocol out of the legacy Acrobat form and open
-    it as a draft with the answers already in place, checked by exactly the same rules as
-    anything typed in. Added on 2026-09-15 and numbered 23 because numbering follows what is
-    next unused, never where an item sits. **Built here, after 12 and before 13**, because its
-    first job is to produce realistic protocols to test the review workflow with. An imported
-    protocol is never trusted: the legacy form has known validation bugs, so an import lands as
-    a draft with its problems listed, never as a submission.
+23. **The PDF in both directions** - read a completed protocol out of the legacy Acrobat form
+    and open it as a draft with the answers already in place, checked by exactly the same rules
+    as anything typed in, and hand a filed protocol back as a PDF its author can download, keep
+    and print. Added on 2026-09-15 and numbered 23 because numbering follows what is next
+    unused, never where an item sits. **Built here, after 12 and before 13**, because the
+    import's first job is to produce realistic protocols to test the review workflow with. An
+    imported protocol is never trusted: the legacy form has known validation bugs, so an import
+    lands as a draft with its problems listed, never as a submission.
+
+    Five sub-features: the reader (23a), the upload endpoint (23b), the screen (23c), the
+    images the legacy form holds as button icons (23d), and the download (23e).
+
+    The export was item 20, after MVP, and was folded in here on 2026-09-22 because a submitter
+    needs a copy of what they filed, to keep, to print, and to send to somebody who will never
+    have an account. It is the same file format read the other way round: it writes the answers
+    into the same boxes the import reads them out of, which is also why one gives the other its
+    test material. **It fills the official form rather than drawing its own document**, so the
+    output is the Protokoll E-Befischung as FFS has always had it on paper, with the form's own
+    JavaScript stripped out. What the paper cannot hold is stated rather than quietly dropped:
+    no box for the Bearbeiter's town, no room past the fourth photo, and nowhere to print the
+    status or the Verlauf.
 13. **Regional access** - the Regierungspräsidium read-only role.
 14. **Notifications** - email on submission and status change, plus a weekly digest, via a
     background worker.
@@ -80,8 +94,9 @@ everything else exists to support them. Item 9 carries the most risk.
 16. **User administration** - account and role management.
 17. **English translation** - the second locale filled in.
 
-After MVP: the map picker and official water body dataset (18), transfer to FiaKa (19), PDF
-generation (20), the Protokoll Krebs (21), offline field use (22).
+After MVP: the map picker and official water body dataset (18), transfer to FiaKa (19), the map
+excerpt drawn from stored geometry rather than uploaded (20, the remainder of PDF generation once
+23e ships the download), the Protokoll Krebs (21), offline field use (22).
 
 ### Why item 9 is still the riskiest
 
@@ -344,11 +359,13 @@ Ordered by how much they could still change.
    building, but the `Person` and `Submission` split already assumes personal details can be
    anonymised independently of the survey record. If FFS decides otherwise, revisit.
 
-4. **`project-plan.md` §3 is now two features behind `build-plan.md`.** It does not list user
-   administration, though §2 gives Super Admins that job and the build plan has it as item 16, and
-   it does not list the PDF import added as item 23 on 2026-09-15. Neither changes what is being
-   built, since `build-plan.md` is what `/feature` reads, but the plan's own feature list should
-   gain both lines.
+4. **`project-plan.md` §3 is now three features behind `build-plan.md`, and on one point it
+   contradicts it.** It does not list user administration, though §2 gives Super Admins that job
+   and the build plan has it as item 16, and it does not list the PDF import added as item 23 on
+   2026-09-15. The contradiction is the third: §3 defers PDF generation to after the first
+   release, and the download was folded into item 23 on 2026-09-22, which puts it in the MVP.
+   None of this changes what is being built, since `build-plan.md` is what `/feature` reads, but
+   §3 should gain the two missing lines and move the PDF download out of its deferred list.
 
 Not a plan conflict, but worth restating: the original requirements document makes the mapping
 features mandatory for the first release. Both plans deliberately defer them to feature 18, with
