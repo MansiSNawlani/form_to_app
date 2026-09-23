@@ -73,8 +73,8 @@ SUMMEN = frozenset({f"arten.art{nummer}.summe" for nummer in range(1, 27)}) | {
 
 #: Three fields the form keeps for itself.
 #:
-#: version is its own version stamp, read-only, and what lies_version reads to
-#: decide whether this is a protocol we can import at all. hydrologie_box is the
+#: version is its own version stamp, read-only, and what pruefe_formular reads
+#: to say which template a file was filled in on. hydrologie_box is the
 #: sentence "Angaben zur Hydrologie sind bei stehenden Gewaessern nicht
 #: relevant", which the form shows and hides as the Gewaessertyp changes.
 #: bemerkungen.default is ticked in the blank form and belongs to its workings;

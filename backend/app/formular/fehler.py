@@ -14,7 +14,16 @@ wrong in plain words, and say what to do instead.
 
 
 class PdfFehler(Exception):
-    """Base for everything here, so a caller can catch the family."""
+    """Base for everything here, so a caller can catch the family.
+
+    The filename is empty on the way out of this module and stays that way: a
+    reader that takes bytes has never been told what the file was called. It is
+    the import service that fills it in, once, for all of these at the point
+    where the name is known, so that a refusal can open with the file it is
+    about the way the attachment refusals already do.
+    """
+
+    dateiname: str = ""
 
 
 class PdfNichtLesbar(PdfFehler):

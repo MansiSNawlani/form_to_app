@@ -183,7 +183,7 @@ These are not features and are not tracked here. They happen first.
         walk its fields, decode the umlauts the way the extraction script already has to,
         turn `/13` into `13` and `/Ja` into `Ja`, leave out everything the form carries that
         is not an answer, and refuse a file that is not this form version
-  - [ ] 23b. Der Einlese-Endpunkt: the upload endpoint, its size and type limits, the draft
+  - [x] 23b. Der Einlese-Endpunkt: the upload endpoint, its size and type limits, the draft
         it creates for whoever uploaded it, and the answer listing everything already wrong
         with the protocol, the attachments the file carries included
 

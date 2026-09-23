@@ -38,7 +38,12 @@ from app.models import Base
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers=False, which is not the default. Alembic runs in
+    # this process during the tests, and the default silences every logger that
+    # already exists, so nothing the application logged afterwards could be seen
+    # or asserted on. Feature 23b found that when the first log line in the
+    # backend turned out to be invisible to the test that wanted it.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # What autogenerate compares the live database against.
 target_metadata = Base.metadata

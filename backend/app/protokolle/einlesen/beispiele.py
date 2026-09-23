@@ -1,12 +1,22 @@
 """One blank form's own contents and one filled-in protocol, for tests.
 
-Here rather than in a test file because three test modules in this package need
+Here rather than in a test file because four test modules in this package need
 the same two, and a second copy of a whole protocol is a second thing to keep in
 step with the form. The same reason `app/protokolle/formregeln/beispiele.py`
 exists.
+
+`als_formularwerte` at the foot is the third thing: it takes a document written
+the way this application stores one, such as the complete protocol in
+`app/protokolle/formregeln/beispiele.py`, and writes it the way the PDF would.
+That is what lets a test import a protocol the form rules are known to be happy
+with, rather than a second copy of one transcribed by hand into the form's own
+writing.
 """
 
+from collections.abc import Mapping
 from typing import Any
+
+from app.formular.beispiele import knopffelder
 
 #: What the blank form itself carries: the defaults FFS ships it with.
 #:
@@ -57,3 +67,39 @@ AUSGEFUELLT = {
     "arten.art1.klasse_3": "1.234",
     "bemerkungen.sonstige_bemerkungen": "Zeile eins\nZeile zwei",
 }
+
+
+def als_formularwerte(dokument: Mapping[str, Any]) -> dict[str, str]:
+    """An answers document, written the way the form itself writes one.
+
+    Our nested document flattened back to the legacy dotted paths, with a slash
+    put in front of every value belonging to a tick box or a radio group, which
+    is how the PDF holds one. Without the slash pypdf writes nothing at all and
+    the box stays unticked, so a fixture that forgot it would quietly test a
+    protocol with three answers missing.
+
+    Only the two shapes that differ. Numbers and dates go across untouched,
+    because `werte.py` is written to read a value that is already in our own
+    writing as well as one in the form's: `12.5` and `12,5` both mean 12.5. That
+    is a deliberate property of the reader rather than a convenience here, and a
+    round trip through this helper is one of the things that proves it.
+
+    Not the export half of feature 23e. That one fills the official form for a
+    person to keep, and has to write German dates and grouped numbers back out
+    for a human to read; this only has to produce something the reader accepts.
+    """
+    werte: dict[str, str] = {}
+    knoepfe = knopffelder()
+
+    def geh(teil: Mapping[str, Any], praefix: str) -> None:
+        for name, wert in teil.items():
+            pfad = f"{praefix}{name}"
+            if isinstance(wert, Mapping):
+                geh(wert, f"{pfad}.")
+            elif pfad in knoepfe:
+                werte[pfad] = f"/{wert}"
+            else:
+                werte[pfad] = str(wert)
+
+    geh(dokument, "")
+    return werte

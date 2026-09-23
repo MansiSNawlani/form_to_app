@@ -1,8 +1,24 @@
 """Deciding whether a file is a protocol this application can import.
 
-The gate everything else runs behind, and it runs first. A protocol is never
-migrated between form versions (ADR 0004), so answers read under the wrong
-version's rules would be answers nobody ever checked.
+The gate everything else runs behind, and it runs first.
+
+**It asks what the file is, not which version it is.** Until 2026-09-22 it asked
+the second question and refused every answer but one, which refused all three
+real protocols FFS supplied that day: people fill in whatever copy of the PDF
+they downloaded years ago, and all three recorded surveys carried out in 2026 on
+templates from 2023 and 2024. An old template is not an old survey, and every
+import is a new survey held to today's rules, so the version the file declares is
+a fact about the file rather than a condition it has to meet.
+
+What is checked instead is the field names, and that is safe to trust because it
+was measured rather than assumed. The January 2024 form differs from ours in
+nothing: same 540 fields, same buttons, same option lists, same number formats.
+The February 2023 form differs in nine places, each hydrology group lacking the
+unlabelled "0" button FFS added later, and a button a file does not have is a
+button nobody could have ticked, so it cannot produce a value the reader chokes
+on. A 2023 protocol for a standing water instead arrives carrying hydrology
+answers, and the form rules then say so, which is what the import's report is
+for.
 """
 
 import re
@@ -10,17 +26,14 @@ from typing import Any
 
 from pypdf import PdfReader
 
-from app.formular.felder import formular
+from app.formular.felder import ZUSAETZLICHE_PFADE, formular
 from app.formular.pdf import decode, felder
 from app.protokolle.einlesen.fehler import (
     FormularversionFehlt,
-    FormularversionPasstNicht,
+    KeinBefischungsformular,
 )
 
 VERSIONSFELD = "version"
-
-#: What an unticked box and an unchosen radio group hold.
-AUS = "Off"
 
 # What the form stamps into that field: "Version 2026-06-09". The application
 # writes the same version as "20260609", which is what felder.json records and
@@ -28,23 +41,41 @@ AUS = "Off"
 VERSIONSTEXT = re.compile(r"^Version (\d{4})-(\d{2})-(\d{2})$")
 
 
-def lies_version(leser: PdfReader) -> str:
-    """Which form version this file is, or a refusal.
+def pruefe_formular(leser: PdfReader) -> str:
+    """This is the Protokoll E-Befischung, and this is the version it says it is.
 
-    Read out of the file's own read-only version stamp rather than guessed from
-    which fields it has. The Protokoll Krebs has 350 fields with names that look
-    much like these, so "it has fields called bearbeiter.name" identifies
-    nothing.
+    Or a refusal. The two checks are in this order because they fail differently:
+    a file with no version stamp at all is not a form of ours whatever its fields
+    say, and the Protokoll Krebs has a perfectly good version stamp and is still
+    the wrong form.
 
-    Compared against the version this deployment serves rather than against a
-    constant written here, so the day a second form version exists this function
-    needs no change: `formular()` already reads the version out of the seed.
+    The version that comes back is the **file's**, and the caller is expected to
+    keep it apart from the version the imported protocol is stamped with, which
+    is always this deployment's own.
     """
-    gefunden = _version_aus(_versionstext(leser))
-    erwartet = formular().version
-    if gefunden != erwartet:
-        raise FormularversionPasstNicht(gefunden, erwartet)
-    return gefunden
+    version = _version_aus(_versionstext(leser))
+
+    fehlend = _erwartete_felder() - {name for name, _ in felder(leser)}
+    if fehlend:
+        raise KeinBefischungsformular(len(fehlend))
+
+    return version
+
+
+def _erwartete_felder() -> frozenset[str]:
+    """Every field name a copy of this form has to carry to be one.
+
+    Our own additions taken back out. `bearbeiter.ort` is a question this
+    application asks that the printed form has no box for, so no file that ever
+    came out of Acrobat can have it, and leaving it in would refuse every
+    protocol ever filled in.
+
+    Only the names the form must **have**. A file carrying more than these is
+    not refused: an extra field is what a later form version looks like, and
+    `lies_antworten` already collects those under `unbekannt` rather than
+    choking on them.
+    """
+    return formular().pfade - ZUSAETZLICHE_PFADE
 
 
 def _versionstext(leser: PdfReader) -> str | None:
@@ -60,8 +91,8 @@ def _version_aus(text: str | None) -> str:
     """Turn "Version 2026-06-09" into "20260609", or refuse.
 
     Deliberately strict. A looser read would let a file carrying "Version 2026"
-    or a hand-edited stamp through, and what follows would then check a protocol
-    against the wrong version's option lists while reporting the right one.
+    or a hand-edited stamp through, and the import's report would then name a
+    source version that the file never actually declared.
     """
     if text is None:
         raise FormularversionFehlt("the file has no version field")

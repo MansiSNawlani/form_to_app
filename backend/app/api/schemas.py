@@ -443,6 +443,60 @@ class VerstossAntwort(BaseModel):
     schluessel: str
 
 
+class EinleseAntwort(BaseModel):
+    """What an import produced, beyond the protocol itself.
+
+    The report 23c draws beside a freshly imported draft. Three different things,
+    deliberately kept apart rather than merged into one list of problems, because
+    the person can do something different about each: the rules' complaints are
+    theirs to fix, an answer that could not be taken over is theirs to retype, and
+    a picture the file carries is something they have to attach again.
+
+    **unbekannt is deliberately not here.** A field the file holds that this
+    application has no home for means our definition and the file disagree, which
+    is our problem rather than something the person uploading can act on. It is
+    logged instead, and this project's rule is that a message somebody sees has to
+    tell them what to do.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    #: The version the **file** declared, which is not the version the protocol
+    #: carries. Every import is a new survey stamped with the version this
+    #: deployment serves, so this says which template was filled in, nothing more.
+    quellversion: str = Field(validation_alias="version")
+
+    #: Answers the file held that could not be taken over, as field paths. A date
+    #: written in a way this application cannot read is the usual one. The value
+    #: is in the protocol exactly as the file wrote it, so nothing is lost; it
+    #: simply has to be looked at.
+    unbrauchbar: list[str]
+
+    #: How many pictures the file carries. They did not come with the answers,
+    #: and an attachment is part of the protocol rather than a decoration on it,
+    #: so the person has to be told rather than left to notice. Feature 23d is
+    #: what reads them out into real Anlagen.
+    bilder: int
+
+    #: Everything the rules say is wrong or missing, exactly as a refused Absenden
+    #: reports it. An empty list means the protocol could be submitted as it
+    #: stands, which is a real answer and not a failure to check.
+    verstoesse: list[VerstossAntwort]
+
+
+class EingelesenesProtokoll(BaseModel):
+    """What the import endpoint answers with: the draft, and what came of it.
+
+    The protocol in the shape the create and read routes already answer with, so
+    the browser can go straight to the form with a document it knows how to hold,
+    and the report beside it rather than inside it: one is the protocol, the other
+    is about the import that made it, and only one of the two is worth keeping.
+    """
+
+    protokoll: ProtokollAntwort
+    bericht: EinleseAntwort
+
+
 class FehlerAntwort(BaseModel):
     """The shape every refusal from this API takes, including a 422.
 
