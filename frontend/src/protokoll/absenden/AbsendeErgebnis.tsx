@@ -58,7 +58,9 @@ function AbsendeErgebnis({
       <Alert
         severity="success"
         action={
-          <Button component={Link} to="/protokolle" size="small" color="inherit">
+          /* "/" and not "/protokolle": the list is the index route. See the note
+             on UEBERSICHT in useAbsenden.ts. */
+          <Button component={Link} to="/" size="small" color="inherit">
             {t('protokoll.absenden.bereitsAbgesendet.zurUebersicht')}
           </Button>
         }

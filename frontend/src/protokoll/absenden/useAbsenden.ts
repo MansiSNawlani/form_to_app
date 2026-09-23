@@ -24,8 +24,15 @@ import { absendeProtokoll } from '../entwurf/api'
 import { protokolleKey } from '../entwurf/abfragen'
 import { pruefungsStore } from './gemerkt'
 
-/** Where the list of a person's own protocols lives. */
-const UEBERSICHT = '/protokolle'
+/* Where the list of a person's own protocols lives.
+ *
+ * The site root, not /protokolle. There is no /protokolle route: routes.tsx puts
+ * the list at the index and gives the addresses below it an id, so /protokolle on
+ * its own fell through to the catch-all and drew "Seite nicht gefunden". The
+ * protocol had been submitted perfectly well, and the surveyor was shown a
+ * missing page as their receipt. Wrong here since feature 11c, found on
+ * 2026-09-23. The header's own link has always used "/". */
+const UEBERSICHT = '/'
 
 export interface AbsendenOptionen {
   entwurfId: string
