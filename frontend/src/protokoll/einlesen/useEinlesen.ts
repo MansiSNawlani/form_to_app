@@ -29,17 +29,12 @@ export interface Einlesen {
      makes already carries German written to name the file, say why in ordinary
      words and say what to do instead. */
   fehler: unknown
-  /* The name of the file that was refused, so the message can say which one. A
-     surveyor who picked the wrong PDF out of a folder of four needs to be told
-     which of them this is about. */
-  dateiname: string | null
 }
 
 export function useEinlesen(): Einlesen {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [fehler, setFehler] = useState<unknown>(null)
-  const [dateiname, setDateiname] = useState<string | null>(null)
 
   const { mutate, isPending } = useMutation({
     mutationFn: (datei: File) => leseProtokollEin({ datei }),
@@ -57,9 +52,10 @@ export function useEinlesen(): Einlesen {
         pruefungsStore.schreib(protokoll.id, bericht.verstoesse)
       }
 
-      /* And the two things that panel has no shape for. An empty report stores
-         nothing, which is what keeps a clean import from carrying a banner
-         saying nothing went wrong on every reload forever. */
+      /* And the two things that panel has no shape for, written for every
+         import including one with nothing wrong with it: the arrival banner is
+         drawn from this, and somebody opening the protocol has to be told it
+         came out of a PDF and is a draft nobody has submitted. */
       berichtstore.schreib(protokoll.id, {
         quellversion: bericht.quellversion,
         unbrauchbar: bericht.unbrauchbar,
@@ -88,7 +84,6 @@ export function useEinlesen(): Einlesen {
          from the previous pick, sitting above a file that is still going up,
          reads as though this one had failed too. */
       setFehler(null)
-      setDateiname(datei.name)
       mutate(datei)
     },
     [mutate],
@@ -96,8 +91,7 @@ export function useEinlesen(): Einlesen {
 
   const verwerfen = useCallback(() => {
     setFehler(null)
-    setDateiname(null)
   }, [])
 
-  return { einlesen, verwerfen, laeuft: isPending, fehler, dateiname }
+  return { einlesen, verwerfen, laeuft: isPending, fehler }
 }

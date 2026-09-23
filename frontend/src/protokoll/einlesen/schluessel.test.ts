@@ -40,7 +40,6 @@ const LISTENSCHLUESSEL = [
   'protokolle.einlesen.laeuft',
   'protokolle.einlesen.laeuftHinweis',
   'protokolle.einlesen.fehler.titel',
-  'protokolle.einlesen.fehler.titelMitDatei',
   'protokolle.einlesen.fehler.text',
   'protokolle.einlesen.fehler.schliessen',
 ]
@@ -83,10 +82,9 @@ describe('die deutschen Texte des Imports', () => {
     expect(text).toContain('{{quellversion}}')
   })
 
-  /* The refusal names the file back to the person, which is the whole reason
-     there are two titles rather than one: a surveyor who picked the wrong PDF
-     out of a folder of four needs to be told which of them this is about. */
-  it('nennt in der Ablehnung den Dateinamen', () => {
-    expect(de.protokolle.einlesen.fehler.titelMitDatei).toContain('{{dateiname}}')
+  /* The file is named once, by the backend's own sentence, which is written to
+     carry it. A title naming it again read the name twice, one line apart. */
+  it('nennt den Dateinamen nicht noch einmal im Titel', () => {
+    expect(de.protokolle.einlesen.fehler.titel).not.toContain('{{dateiname}}')
   })
 })

@@ -7,8 +7,6 @@ import { useFehlertext } from '../../api/useFehlertext'
 
 interface EinleseFehlerProps {
   fehler: unknown
-  /** The file that was refused, so the message can say which one. */
-  dateiname: string | null
   onSchliessen: () => void
 }
 
@@ -27,21 +25,25 @@ interface EinleseFehlerProps {
  * backend's sentence for any code we have no wording of our own for, which also
  * covers a refusal added to the API after this file was last read.
  *
+ * The title is deliberately generic, and the file is named once rather than
+ * twice. Every one of these refusals arrives with the filename already at the
+ * front of the backend's own sentence, so a title repeating it read "«keine.pdf»
+ * konnte nicht eingelesen werden" directly above "keine.pdf: Diese Datei konnte
+ * nicht geöffnet werden". Found by looking at the screen on 2026-09-23. One
+ * name, in the sentence that was written to carry it, which is also how
+ * liste/Ladefehler.tsx composes its own.
+ *
  * Nothing about the list moves. A refused import leaves the page, the table and
  * the scroll position exactly where they were, because nothing happened to the
  * protocols: one file was not read.
  */
-function EinleseFehler({ fehler, dateiname, onSchliessen }: EinleseFehlerProps) {
+function EinleseFehler({ fehler, onSchliessen }: EinleseFehlerProps) {
   const { t } = useTranslation()
   const fehlertext = useFehlertext(fehler)
 
   return (
     <Alert severity="error" role="alert" className="einlesen__fehler">
-      <AlertTitle>
-        {dateiname === null
-          ? t('protokolle.einlesen.fehler.titel')
-          : t('protokolle.einlesen.fehler.titelMitDatei', { dateiname })}
-      </AlertTitle>
+      <AlertTitle>{t('protokolle.einlesen.fehler.titel')}</AlertTitle>
       <Typography variant="body2" className="hinweis__text">
         {fehlertext ?? t('protokolle.einlesen.fehler.text')}
       </Typography>

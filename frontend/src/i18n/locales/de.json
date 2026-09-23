@@ -125,7 +125,6 @@
       "laeuftHinweis": "Die Datei wird gelesen. Das dauert bei einem vollständigen Protokoll einen Moment.",
       "fehler": {
         "titel": "Die Datei konnte nicht eingelesen werden",
-        "titelMitDatei": "«{{dateiname}}» konnte nicht eingelesen werden",
         "text": "Die Datei konnte nicht gelesen werden. Bitte prüfen Sie, ob es das ausgefüllte Protokoll E-Befischung ist, und versuchen Sie es noch einmal.",
         "schliessen": "Schließen"
       }

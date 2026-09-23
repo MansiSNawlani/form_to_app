@@ -109,11 +109,7 @@ function ProtokolleSeite() {
       )}
 
       {einlesen.fehler !== null && (
-        <EinleseFehler
-          fehler={einlesen.fehler}
-          dateiname={einlesen.dateiname}
-          onSchliessen={einlesen.verwerfen}
-        />
+        <EinleseFehler fehler={einlesen.fehler} onSchliessen={einlesen.verwerfen} />
       )}
 
       {loeschen.fehlgeschlagen !== null && (
