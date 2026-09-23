@@ -1,4 +1,5 @@
 import AbsendenBlock from '../absenden/AbsendenBlock'
+import FehlendeBilder from '../einlesen/FehlendeBilder'
 import type { Bereitsteller } from '../entwurf/bereitstellen'
 import type { Anlagenzustand } from '../entwurf/speicherzustand'
 import FotosBlock from './teil7/FotosBlock'
@@ -27,6 +28,9 @@ interface Abschnitt7Props {
      would not survive being held in one. */
   absenden: () => void
   absendenLaeuft: boolean
+  /* How many pictures an imported PDF carries that did not come with it. Zero
+     for every protocol that was typed in rather than imported. */
+  fehlendeBilder: number
 }
 
 function Abschnitt7({
@@ -35,9 +39,14 @@ function Abschnitt7({
   melde,
   absenden,
   absendenLaeuft,
+  fehlendeBilder,
 }: Abschnitt7Props) {
   return (
     <>
+      {/* Above the blocks, because it is about what is not there yet rather
+          than about what has been attached. */}
+      <FehlendeBilder anzahl={fehlendeBilder} />
+
       {/* Both blocks report to the same indicator. In practice a person works in
           one of them at a time, so the last report is the current one. */}
       <KartenausschnittBlock

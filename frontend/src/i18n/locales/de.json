@@ -879,6 +879,12 @@
       "unbrauchbar": {
         "titel": "Aus der PDF-Datei nicht übernommen",
         "text": "Der Wert steht so im Protokoll, wie die PDF-Datei ihn geschrieben hat, konnte hier aber nicht gelesen werden. Bitte sehen Sie sich das Feld an und tragen Sie den Wert neu ein."
+      },
+      "bilder": {
+        "titel_one": "1 Bild aus der PDF-Datei fehlt hier noch",
+        "titel_other": "{{count}} Bilder aus der PDF-Datei fehlen hier noch",
+        "text_one": "Die eingelesene PDF-Datei enthält 1 Bild. Bilder werden beim Einlesen noch nicht übernommen. Bitte speichern Sie es aus der PDF-Datei und laden Sie es hier als Kartenausschnitt oder Foto hoch.",
+        "text_other": "Die eingelesene PDF-Datei enthält {{count}} Bilder. Bilder werden beim Einlesen noch nicht übernommen. Bitte speichern Sie sie aus der PDF-Datei und laden Sie sie hier als Kartenausschnitt oder Fotos hoch."
       }
     }
   }

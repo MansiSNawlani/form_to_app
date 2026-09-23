@@ -199,6 +199,7 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
             melde={setAnlagenZustand}
             absenden={absendung.absenden}
             absendenLaeuft={absendung.laeuft}
+            fehlendeBilder={einlesen.bericht?.bilder ?? 0}
           />
         </form>
 

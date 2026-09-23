@@ -17,6 +17,9 @@ interface AbschnittInhaltProps {
      and for the same reason as the two above it. */
   absenden: () => void
   absendenLaeuft: boolean
+  /* Section 7's as well: how many pictures an imported PDF carries that did not
+     come with it. Zero for every protocol nobody imported. */
+  fehlendeBilder: number
 }
 
 /* One section of the form, with everything section 7 needs to upload a file.
@@ -37,6 +40,7 @@ function AbschnittInhalt({
   melde,
   absenden,
   absendenLaeuft,
+  fehlendeBilder,
 }: AbschnittInhaltProps) {
   if (abschnitt.nr === 7) {
     return (
@@ -46,6 +50,7 @@ function AbschnittInhalt({
         melde={melde}
         absenden={absenden}
         absendenLaeuft={absendenLaeuft}
+        fehlendeBilder={fehlendeBilder}
       />
     )
   }
