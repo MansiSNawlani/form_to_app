@@ -140,6 +140,11 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
 - Preview the build: `npm run preview`
 - Lint: `npm run lint`
 - Tests: `npm test` (vitest, added in feature 4a)
+- Regenerate the field labels: `npm run beschriftungen` (added in feature 23e). Reads the
+  German label of every answer out of the form components into
+  `database/seed/form_version_20260609/beschriftungen.json`, which the backend reads to
+  print a protocol as a PDF. Run it after renaming a label or adding a field; the vitest
+  test beside the script fails when the committed file is out of date.
 - Browser tests: `npm run e2e` (Playwright, added in feature 12b)
 
 **The browser tests need the stack running and two accounts.** They drive the real

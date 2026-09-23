@@ -21,7 +21,11 @@ export default defineConfig({
        draft store, which takes its storage as an argument precisely so it needs
        no DOM. Add an environment here when a test genuinely needs one. */
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    /* scripts/ as well as src/: the label reader in scripts/beschriftungen.ts
+       is node-side build tooling, so it sits outside the app's TypeScript
+       project, and coding-standards.md puts a test file beside the code it
+       covers. */
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
   },
   server: {
     // The alias above points outside the project root, which the dev server

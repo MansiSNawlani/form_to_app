@@ -71,17 +71,24 @@ split it.
 
 ## Build steps
 
-- [ ] **Step 1 - Die Beschriftungen aus der Oberflaeche holen.** A script under
-      `frontend/scripts/` that writes every answer path together with its German label to
-      `database/seed/form_version_20260609/beschriftungen.json`, plus the committed file it
-      produces. The labels sit in three places today and the script reads all three: the `name`
-      and `labelKey` pairs written out in the 26 block components, the declared tables such as
-      `abschnitte/teil3/gruppen.ts`, and `i18n/locales/de.json`, which turns a label key into
-      words. Option labels are left alone: `optionslisten.json` already holds them and the
-      backend already reads it.
-      *Done when:* running the script produces a file covering every one of the 485 answer
-      paths in `felder.json`, a vitest test fails if any path is missing from it, and the file
-      is committed.
+- [x] **Step 1 - Die Beschriftungen aus der Oberflaeche holen.** `frontend/scripts/beschriftungen.ts`
+      writes every answer path together with its German label to
+      `database/seed/form_version_20260609/beschriftungen.json`, and the backend reads that
+      file. The script parses the components with the TypeScript compiler, which is already a
+      dependency, rather than importing them: rendering React would need a DOM environment this
+      project deliberately does not have.
+      Three shapes of declaration, all three deliberate in the form: written out in a component
+      (`name="hydrologie.breite"` beside its `labelKey`), declared as data
+      (`{ pfad, labelKey }` in `teil3/gruppen.ts` and its siblings), and a row mapped over a
+      table, where the path and the label meet only through the destructured property name.
+      Option labels are left alone: `optionslisten.json` already holds them.
+      **The catch table is deliberately not labelled.** Its 312 `arten.artN.klasse_M` fields
+      have no individual labels on screen either; the table names its columns once across the
+      top, and step 3 prints it the same way.
+      *Done when:* `npm run beschriftungen` produces the file, a vitest test beside the script
+      fails when the committed copy is stale, and a pytest test proves every one of the 173
+      answer paths outside the catch table has a label. **Done:** 174 labels, the extra being
+      `bearbeiter.ort`, which the app has and the printed form does not.
 
 - [ ] **Step 2 - Das Dokument, als Text.** A new `backend/app/protokolle/ausgabe/` package with
       one function taking a protocol, its answers and the labels, and returning PDF bytes.
