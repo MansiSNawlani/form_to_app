@@ -2,7 +2,8 @@ import Button from '@mui/material/Button'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AnlagenMeldungen from './AnlagenMeldungen'
-import AnlagenPicker from './AnlagenPicker'
+import DateiPicker from '../../../components/DateiPicker'
+import { ERLAUBTE_TYPEN } from '../../anlagen/regeln'
 import AnlagenVorschau from './AnlagenVorschau'
 import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
@@ -56,7 +57,8 @@ function KartenausschnittBlock({ entwurfId, bereitstellen, melde }: Kartenaussch
       <AnlagenZustand status={status} />
 
       {status === 'loaded' && karte === undefined && (
-        <AnlagenPicker
+        <DateiPicker
+          akzeptiert={ERLAUBTE_TYPEN.join(',')}
               gesperrt={laeuft}
           ref={picker}
           beschriftung={t('protokoll.abschnitt7.kartenausschnitt.waehlen')}
@@ -75,7 +77,8 @@ function KartenausschnittBlock({ entwurfId, bereitstellen, melde }: Kartenaussch
           {/* Replacing does not ask first: the button says what it does, and
               the picker that opens is a second chance to change your mind.
               Removing does ask, because nothing takes the file's place. */}
-          <AnlagenPicker
+          <DateiPicker
+          akzeptiert={ERLAUBTE_TYPEN.join(',')}
               gesperrt={laeuft}
             beschriftung={t('protokoll.abschnitt7.ersetzen')}
             onDateien={(dateien) => void ersetzen(dateien[0])}

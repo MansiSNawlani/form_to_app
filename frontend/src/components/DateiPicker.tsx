@@ -1,11 +1,16 @@
 import Button from '@mui/material/Button'
 import { useId, type Ref } from 'react'
-import { ERLAUBTE_TYPEN } from '../../anlagen/regeln'
 
-interface AnlagenPickerProps {
+interface DateiPickerProps {
   /** The button's own text, already translated. */
   beschriftung: string
   mehrere?: boolean
+  /* What to offer in the file dialog, as a media type list. A hint, never a
+     check: it is bypassed by choosing "all files" and ignored by a browser that
+     has never heard of the type, so the rules decide in every case. Required
+     rather than defaulted, because a picker that silently offers the wrong
+     kind of file is worse than one that will not compile. */
+  akzeptiert: string
   onDateien: (dateien: File[]) => void
   /* Set while a pick is still going up. Without it a slow upload looks exactly
      like a click that did nothing, and the obvious response is to pick the same
@@ -19,14 +24,21 @@ interface AnlagenPickerProps {
   ref?: Ref<HTMLInputElement>
 }
 
-/* The one control on this form that is a native element by necessity rather
- * than by choice.
+/* The one control on this application that is a native element by necessity
+ * rather than by choice.
  *
  * coding-standards.md says to reach for MUI before writing a native control,
  * and MUI has no file input at all: opening the operating system's file dialog
  * is something only <input type="file"> can do. So the input carries the
  * behaviour and an MUI Button carries the look, which is MUI's own documented
  * pattern for this case.
+ *
+ * Lived in abschnitte/teil7/ as AnlagenPicker until feature 23c, which picks a
+ * PDF on Meine Protokolle and needs the same control. Moved rather than copied,
+ * because the three paragraphs below are the whole reason this file exists and a
+ * second copy would drift from them by the first bug fix. Its focus-ring rule
+ * moved to shell.css with it, which is the stylesheet every page loads; in
+ * protokoll.css it would not have reached the list.
  *
  * The input is visually hidden rather than display:none. A hidden input is
  * still the labelled, focusable control a screen reader announces, and
@@ -39,16 +51,17 @@ interface AnlagenPickerProps {
  * to a single pixel where a focus ring cannot be seen. The input keeps the
  * focus, because it is the real control; the label is taken out of the tab
  * order with tabIndex -1 and wears the ring on the input's behalf, through the
- * :has() rule in protokoll.css. tabIndex -1 still allows focus() to be called
- * on it, which is why the restore above targets the input rather than this.
+ * :has() rule in shell.css. tabIndex -1 still allows focus() to be called on
+ * it, which is why a restore targets the input rather than this.
  */
-function AnlagenPicker({
+function DateiPicker({
   beschriftung,
   mehrere = false,
+  akzeptiert,
   onDateien,
   gesperrt = false,
   ref,
-}: AnlagenPickerProps) {
+}: DateiPickerProps) {
   const id = useId()
 
   return (
@@ -57,7 +70,7 @@ function AnlagenPicker({
       htmlFor={id}
       variant="outlined"
       tabIndex={-1}
-      className="anlagen-picker"
+      className="datei-picker"
       disabled={gesperrt}
     >
       {beschriftung}
@@ -67,10 +80,7 @@ function AnlagenPicker({
         type="file"
         multiple={mehrere}
         disabled={gesperrt}
-        /* A hint to the file dialog, never a check. The rules decide, because
-           this attribute is trivially bypassed by choosing "all files" and
-           because a browser that has never heard of a type ignores it. */
-        accept={ERLAUBTE_TYPEN.join(',')}
+        accept={akzeptiert}
         className="visually-hidden"
         onChange={(event) => {
           const dateien = [...(event.target.files ?? [])]
@@ -85,4 +95,4 @@ function AnlagenPicker({
   )
 }
 
-export default AnlagenPicker
+export default DateiPicker
