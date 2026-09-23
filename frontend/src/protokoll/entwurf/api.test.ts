@@ -10,6 +10,7 @@ import {
   absendeProtokoll,
   holeEntwurf,
   legeEntwurfAn,
+  leseProtokollEin,
   listeProtokolle,
   loescheEntwurf,
   speichereAntworten,
@@ -298,5 +299,147 @@ describe('absendeProtokoll', () => {
       { pfad: 'datum', schluessel: 'protokoll.regeln.fehlt' },
     ])
     expect((fehler as ApiFehler).nachricht).toBe('Nicht abgesendet.')
+  })
+})
+
+describe('leseProtokollEin', () => {
+  /* A real protocol is 1 to 2 MB of encrypted PDF. None of that matters here:
+     what the backend contract is made of is the method, the path and the part
+     name, and nothing in the browser looks at a single byte of the file. */
+  function pdf(name = 'Protokoll_Schussen_2026-09-12.pdf') {
+    return new File([new Uint8Array([0x25, 0x50, 0x44, 0x46])], name, {
+      type: 'application/pdf',
+    })
+  }
+
+  const EINGELESEN = {
+    protokoll: { id: 'p1', status: 'DRAFT', version: 1, antworten: {} },
+    bericht: { quellversion: '20230225', unbrauchbar: [], bilder: 0, verstoesse: [] },
+  }
+
+  it('posts the file as multipart form data under the part name the endpoint expects', async () => {
+    const fetchImpl = fakeFetch(EINGELESEN, 201)
+
+    await leseProtokollEin({ datei: pdf(), fetchImpl })
+
+    const [pfad, optionen] = fetchImpl.mock.calls[0]
+    expect(pfad).toBe('/api/v1/protokolle/einlesen')
+    expect(optionen?.method).toBe('POST')
+
+    const koerper = optionen?.body as FormData
+    expect(koerper).toBeInstanceOf(FormData)
+    const gesendet = koerper.get('datei') as File
+    expect(gesendet.name).toBe('Protokoll_Schussen_2026-09-12.pdf')
+  })
+
+  /* The browser must not set it: the boundary in the header has to match the one
+     it invented for the body, so naming Content-Type ourselves would name no
+     boundary and the backend would find no parts at all. */
+  it('leaves Content-Type to the browser', async () => {
+    const fetchImpl = fakeFetch(EINGELESEN, 201)
+
+    await leseProtokollEin({ datei: pdf(), fetchImpl })
+
+    const kopf = new Headers(fetchImpl.mock.calls[0][1]?.headers)
+    expect(kopf.has('Content-Type')).toBe(false)
+  })
+
+  it('returns the new draft and its report', async () => {
+    const fetchImpl = fakeFetch(
+      {
+        ...EINGELESEN,
+        bericht: {
+          quellversion: '20230225',
+          unbrauchbar: ['datum'],
+          bilder: 1,
+          verstoesse: [{ pfad: 'probestrecke.gewaesser.name', schluessel: 'pflicht' }],
+        },
+      },
+      201,
+    )
+
+    const { protokoll, bericht } = await leseProtokollEin({ datei: pdf(), fetchImpl })
+
+    expect(protokoll.id).toBe('p1')
+    /* The file's version, never the protocol's. The protocol is stamped with the
+       version this deployment serves, because every import is a new survey. */
+    expect(bericht.quellversion).toBe('20230225')
+    expect(bericht.unbrauchbar).toEqual(['datum'])
+    expect(bericht.bilder).toBe(1)
+    expect(bericht.verstoesse).toHaveLength(1)
+  })
+
+  /* A protocol with plenty wrong with it is still imported. The import is
+     refused only for not being a readable copy of this form at all, which is the
+     whole design: it lands as a draft with its problems listed. */
+  it('resolves for a protocol the rules have plenty to say about', async () => {
+    const fetchImpl = fakeFetch(
+      {
+        ...EINGELESEN,
+        bericht: {
+          quellversion: '20260609',
+          unbrauchbar: [],
+          bilder: 0,
+          verstoesse: [
+            { pfad: 'datum', schluessel: 'pflicht' },
+            { pfad: 'umland', schluessel: 'summe100' },
+          ],
+        },
+      },
+      201,
+    )
+
+    const { bericht } = await leseProtokollEin({ datei: pdf(), fetchImpl })
+
+    expect(bericht.verstoesse).toHaveLength(2)
+  })
+
+  /* Not this form, not a PDF, locked with a password, no form in it, no version
+     stamp. The browser branches on none of them: each arrives with a German
+     sentence written to name the file, say why and say what to do, and showing
+     that beats a second wording of our own that would drift from it. */
+  it('rejects with the backend sentence when the file is not this form', async () => {
+    const fetchImpl = fakeFetch(
+      {
+        code: 'FORMULAR_PASST_NICHT',
+        nachricht:
+          'Diese Datei ist ein PDF-Formular, aber nicht das Protokoll E-Befischung.',
+      },
+      422,
+    )
+
+    const fehler = await leseProtokollEin({ datei: pdf(), fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect(fehler).toBeInstanceOf(ApiFehler)
+    expect((fehler as ApiFehler).code).toBe('FORMULAR_PASST_NICHT')
+    expect((fehler as ApiFehler).nachricht).toContain('nicht das Protokoll E-Befischung')
+  })
+
+  it('rejects when the file is larger than the endpoint accepts', async () => {
+    const fetchImpl = fakeFetch(
+      { code: 'DATEI_ZU_GROSS', nachricht: 'Diese Datei ist zu groß.' },
+      413,
+    )
+
+    const fehler = await leseProtokollEin({ datei: pdf(), fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect(fehler).toBeInstanceOf(ApiFehler)
+    expect((fehler as ApiFehler).status).toBe(413)
+  })
+
+  /* The session running out mid-upload is not an import failure and gets no
+     sentence about the PDF: SitzungsWaechter already owns what happens next. */
+  it('rejects with NICHT_ANGEMELDET when the session has run out', async () => {
+    const fetchImpl = fakeFetch({ code: NICHT_ANGEMELDET, nachricht: 'Bitte anmelden.' }, 401)
+
+    const fehler = await leseProtokollEin({ datei: pdf(), fetchImpl }).catch(
+      (grund: unknown) => grund,
+    )
+
+    expect((fehler as ApiFehler).code).toBe(NICHT_ANGEMELDET)
   })
 })

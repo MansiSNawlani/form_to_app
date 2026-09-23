@@ -7,6 +7,7 @@
  */
 
 import type { FieldPathByValue } from 'react-hook-form'
+import type { Verstoss } from '../../api/typen'
 
 /* There is no FORM_VERSION constant here any more. The server stamps a protocol
    with the version it was started under and sends it back on Entwurf.form_version
@@ -603,4 +604,53 @@ export interface AbsendenAntwort {
   status: Status
   version: number
   submitted_at: string
+}
+
+/* What an import produced, beyond the protocol itself:
+ * backend/app/api/schemas.py's EinleseAntwort, under the same name.
+ *
+ * Three different things, deliberately kept apart rather than folded into one
+ * list of problems, because the person does something different about each. A
+ * rule's complaint is theirs to fix, an answer that could not be taken over is
+ * theirs to retype, and a photograph the file carries is theirs to attach again.
+ * Merging them would tell them the wrong thing about all three.
+ *
+ * The backend's `unbekannt`, a field the file holds that this application has no
+ * home for, is deliberately not in this shape. It means our definition and the
+ * file disagree, which is our problem rather than anything the person uploading
+ * can act on, so the backend logs it and never sends it.
+ */
+export interface EinleseAntwort {
+  /* The version the **file** declared, which is not the version the protocol
+     carries. Every import is a new survey stamped with the version this
+     deployment serves, so this says which template was filled in and nothing
+     more. An old template is not an old survey: people fill in whatever copy of
+     the PDF they downloaded years ago. */
+  quellversion: string
+  /* Answers the file held that could not be taken over, as field paths, such as
+     a date written in a way this application cannot read. The value is in the
+     protocol exactly as the file wrote it, so nothing is lost; it simply has to
+     be looked at. Every one of these is a path verortung.ts can place. */
+  unbrauchbar: string[]
+  /* How many pictures the file carries. They did **not** come with the answers,
+     and an attachment is part of the protocol rather than a decoration on it, so
+     the person has to be told rather than left to notice. Feature 23d is what
+     reads them out into real Anlagen. */
+  bilder: number
+  /* Everything the rules say is wrong or missing, in exactly the shape a refused
+     Absenden reports it, which is what lets the existing panel draw it. An empty
+     list means the protocol could be submitted as it stands, which is a real
+     answer and not a failure to check. */
+  verstoesse: Verstoss[]
+}
+
+/* What POST /protokolle/einlesen answers with: the new draft, and the report
+ * beside it. backend/app/api/schemas.py's EingelesenesProtokoll.
+ *
+ * The protocol is an ordinary Entwurf, the same shape create and read already
+ * answer with, so the form opens on a document it already knows how to hold.
+ */
+export interface EingelesenesProtokoll {
+  protokoll: Entwurf
+  bericht: EinleseAntwort
 }
