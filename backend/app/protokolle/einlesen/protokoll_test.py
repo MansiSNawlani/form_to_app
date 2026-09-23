@@ -10,7 +10,7 @@ import pytest
 from app.formular.beispiele import FEHLT, formular_bytes, gefuellt, krebs_bytes, mit_bild, vorhanden
 from app.formular.fehler import PdfNichtLesbar
 from app.protokolle.einlesen.beispiele import AUSGEFUELLT, VORBELEGT
-from app.protokolle.einlesen.fehler import FormularversionPasstNicht
+from app.protokolle.einlesen.fehler import KeinBefischungsformular
 from app.protokolle.einlesen.protokoll import lies_protokoll
 
 # The forms are not in the repository, so a checkout without them skips this
@@ -50,13 +50,13 @@ def test_bilder_werden_gezaehlt_und_die_antworten_trotzdem_gelesen() -> None:
 
 
 def test_ein_krebsprotokoll_wird_abgelehnt_bevor_etwas_gelesen_wird() -> None:
-    """The version gate comes first, and this proves the order.
+    """The gate comes first, and this proves the order.
 
     A Krebs protocol has 350 fields with familiar-looking names. Reading its
     answers and then deciding would mean a document half-built out of the wrong
     form, and a refusal that arrives with somebody's data already in hand.
     """
-    with pytest.raises(FormularversionPasstNicht):
+    with pytest.raises(KeinBefischungsformular):
         lies_protokoll(krebs_bytes())
 
 

@@ -31,9 +31,16 @@ from io import BytesIO
 from typing import Any
 
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import ArrayObject, DecodedStreamObject, NameObject
+from pypdf.generic import (
+    ArrayObject,
+    DecodedStreamObject,
+    DictionaryObject,
+    NameObject,
+    TextStringObject,
+)
 
 from app.config import REPO_WURZEL
+from app.formular.pdf import felder
 
 RESSOURCEN = REPO_WURZEL / "Resources" / "Fiaka_Resources"
 
@@ -82,6 +89,23 @@ def _leser() -> PdfReader:
     return leser
 
 
+def knopffelder() -> frozenset[str]:
+    """Which of the form's fields hold a name rather than text.
+
+    The 81 radio groups and tick boxes. Needed because pypdf writes a button's
+    value only when it is given the way the PDF holds it, with a leading slash,
+    so a fixture that hands one over as plain "Ja" silently writes nothing at
+    all and the test then proves the wrong thing.
+
+    Read out of the file rather than listed, for the reason felder.py gives
+    about the field names themselves: a list of 81 written out by hand is 81
+    chances to miss one, and a missed one is a box that never gets ticked.
+    """
+    return frozenset(
+        name for name, feld in felder(_leser()) if str(feld.get("/FT", "")) == "/Btn"
+    )
+
+
 def gefuellt(werte: Mapping[str, str]) -> bytes:
     """The real form with those answers written into its own boxes.
 
@@ -119,6 +143,35 @@ def ohne_feld(name: str) -> bytes:
     if len(behalten) == len(acroform["/Fields"]):
         raise AssertionError(f"{name} is not a top-level field of this form")
     acroform[NameObject("/Fields")] = ArrayObject(behalten)
+    puffer = BytesIO()
+    schreiber.write(puffer)
+    return puffer.getvalue()
+
+
+def mit_zusatzfeld(name: str, wert: str) -> bytes:
+    """The real form with one field added that this application has never heard of.
+
+    What a later form version looks like from here: FFS add a question, somebody
+    fills it in, and the file arrives carrying a name our definition has no home
+    for. The import collects those rather than choking on them, and this is the
+    only way to produce one, since every field a filled copy can hold is a field
+    we already know about.
+
+    A bare text field with a value, not attached to any page. Nothing that reads
+    the form looks at where a field is drawn, and a widget positioned on a page
+    would be several more lines saying nothing.
+    """
+    schreiber = PdfWriter(clone_from=_leser())
+    acroform: Any = schreiber._root_object["/AcroForm"]
+    feld = DictionaryObject()
+    feld.update(
+        {
+            NameObject("/T"): TextStringObject(name),
+            NameObject("/FT"): NameObject("/Tx"),
+            NameObject("/V"): TextStringObject(wert),
+        }
+    )
+    acroform["/Fields"].append(schreiber._add_object(feld))
     puffer = BytesIO()
     schreiber.write(puffer)
     return puffer.getvalue()

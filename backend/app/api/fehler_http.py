@@ -13,11 +13,12 @@ it looks: feature 2c sends a 401 to the login page, and must not do that for a
 403, or somebody without a role gets bounced to a login form they are already
 past.
 
-There are two tables, one per exception family, because the protocol refusals
-have to say a number or a list of field paths and a table of fixed sentences
-cannot. The field paths are safe to print: they come from our own form
+There are four tables, one per exception family, because three of the families
+have to say a number, a filename or a list of field paths, and a table of fixed
+sentences cannot. The field paths are safe to print: they come from our own form
 definition, not from the request, so naming them cannot repeat a person's answers
-back at them.
+back at them. A filename is safe for a different reason: it is the person's own,
+and it is what they will look for on their own machine.
 
 The account table below covers only what a route in this feature can raise. Every other
 member of the BenutzerFehler family falls to 500, which is the right answer while
@@ -48,6 +49,18 @@ from app.benutzer.fehler import (
     KontoNichtInteraktiv,
     NichtAngemeldet,
     RolleFehlt,
+)
+from app.formular.fehler import (
+    PdfFehler,
+    PdfGesperrt,
+    PdfNichtLesbar,
+    PdfOhneFormular,
+)
+from app.protokolle.einlesen.fehler import (
+    DateiZuGross,
+    EinleseFehler,
+    FormularversionFehlt,
+    KeinBefischungsformular,
 )
 from app.protokolle.fehler import (
     AntwortenNichtLesbar,
@@ -516,8 +529,127 @@ def _verstoesse(fehler: ProtokollFehler) -> tuple[Formverstoss, ...] | None:
     return fehler.verstoesse if isinstance(fehler, ProtokollUnvollstaendig) else None
 
 
+# The import refusals, a fourth table. Two families in one, because the person
+# uploading a file cannot tell them apart and should not have to: whether the
+# trouble is that the PDF would not open or that it opened and turned out to be
+# the crayfish protocol, what they get back is one sentence about the file they
+# just picked.
+#
+# None of them is 500. Every one is something about the file rather than
+# something broken here, so every one has a way out, and the way out is the half
+# of the message that matters.
+#
+# **An import is never refused for what the protocol says.** A protocol with
+# problems in it is exactly what this endpoint produces, so there is no entry
+# here for an incomplete or implausible survey: that travels back as a report
+# beside a perfectly real draft.
+EINLESE_UEBERSETZUNG: dict[type[Exception], tuple[str, int, str]] = {
+    PdfNichtLesbar: (
+        "PDF_NICHT_LESBAR",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Diese Datei konnte nicht geöffnet werden. Entweder ist sie keine"
+        " PDF-Datei, oder beim Kopieren oder Versenden ist etwas schiefgegangen."
+        " Bitte öffnen Sie die Datei einmal selbst; wenn sie sich auch bei Ihnen"
+        " nicht öffnen lässt, laden Sie das Protokoll noch einmal aus Ihrem"
+        " E-Mail-Programm oder von Ihrem Gerät herunter und versuchen Sie es"
+        " erneut.",
+    ),
+    # Kept apart from "not readable" deliberately. The file is fine and the
+    # person almost certainly knows the password, so the useful thing to say is
+    # how to take it off.
+    PdfGesperrt: (
+        "PDF_GESPERRT",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Diese PDF-Datei ist mit einem Passwort geschützt, deshalb kann sie hier"
+        " nicht gelesen werden. Bitte öffnen Sie sie in Acrobat, speichern Sie"
+        " eine Fassung ohne Passwortschutz und laden Sie diese hoch.",
+    ),
+    # Almost always a scan or a print-to-PDF. The answers were never in the file
+    # as data, so there is nothing to read out of it however long we look.
+    PdfOhneFormular: (
+        "PDF_OHNE_FORMULAR",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Diese PDF-Datei enthält keine ausfüllbaren Formularfelder. Das ist meist"
+        " ein Scan oder ein Ausdruck des Protokolls: darin stehen die Antworten"
+        " nur als Bild und können nicht übernommen werden. Bitte laden Sie die"
+        " Acrobat-Datei hoch, in die Sie das Protokoll eingetragen haben. Wenn es"
+        " die nicht mehr gibt, legen Sie das Protokoll bitte hier neu an.",
+    ),
+    # Overwhelmingly the Protokoll Krebs, which FFS distributes alongside this
+    # one. Named rather than guessed at: the message says what the file is not
+    # and offers the one thing it most likely is.
+    KeinBefischungsformular: (
+        "KEIN_BEFISCHUNGSFORMULAR",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Diese Datei ist ein PDF-Formular, aber nicht das Protokoll"
+        " E-Befischung. Meist ist es das Protokoll Krebs, das die"
+        " Fischereiforschungsstelle daneben herausgibt und das diese Anwendung"
+        " noch nicht annimmt. Bitte laden Sie das ausgefüllte Protokoll"
+        " E-Befischung hoch.",
+    ),
+    FormularversionFehlt: (
+        "FORMULARVERSION_FEHLT",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "In dieser Datei fehlt die Versionsangabe, die jedes Protokoll"
+        " E-Befischung oben rechts trägt. Die Datei wurde also vermutlich nicht"
+        " mit Acrobat gespeichert, sondern mit einem anderen Programm"
+        " weiterverarbeitet. Bitte laden Sie die Fassung hoch, die Sie in Acrobat"
+        " ausgefüllt und gespeichert haben.",
+    ),
+    DateiZuGross: (
+        "DATEI_ZU_GROSS",
+        status.HTTP_413_CONTENT_TOO_LARGE,
+        "Diese Datei ist zu groß.",
+    ),
+}
+
+
+def _einlese_zusatz(fehler: Exception) -> str:
+    """The part of the message that depends on this particular file."""
+    if isinstance(fehler, DateiZuGross):
+        # The limit only, never the file's own size. The read stops the moment
+        # the cap is passed, so what was counted is not what the file holds.
+        return (
+            f" Ein Protokoll darf höchstens {_megabyte(fehler.hoechstens)} MB groß"
+            " sein, und ein ausgefülltes Protokoll ist normalerweise 1 bis 2 MB."
+            " So groß wird es meist durch eingefügte Fotos. Bitte entfernen Sie"
+            " die Bilder aus der PDF-Datei und laden Sie sie hier einzeln als"
+            " Anlagen hoch."
+        )
+    return ""
+
+
+async def behandle_einlesefehler(request: Request, fehler: Exception) -> Response:
+    """Registered for both families the PDF import can raise.
+
+    Two registrations, one handler. A file that will not open and a file that
+    opens and is the wrong form are the same kind of event to the person who
+    picked it, and splitting them across two handlers would mean two places to
+    keep the shape of that answer.
+
+    The filename leads the message, the way it does for an attachment. It is the
+    person's own, it is what they will look for on their own machine, and
+    app/anlagen/fehler.py takes the control characters and the excess length out
+    of it on the way through. Nothing else from the file is ever quoted back.
+    """
+    if not isinstance(fehler, PdfFehler | EinleseFehler):
+        raise fehler
+
+    for klasse in type(fehler).__mro__:
+        if klasse in EINLESE_UEBERSETZUNG:
+            code, status_code, nachricht = EINLESE_UEBERSETZUNG[klasse]
+            volltext = nachricht + _einlese_zusatz(fehler)
+            if fehler.dateiname:
+                volltext = f"{fehler.dateiname}: {volltext}"
+            return _antwort(code, status_code, volltext)
+
+    return _antwort(*UNBEKANNT)
+
+
 def registriere_fehlerbehandlung(app: FastAPI) -> None:
     app.add_exception_handler(BenutzerFehler, behandle_benutzerfehler)
     app.add_exception_handler(ProtokollFehler, behandle_protokollfehler)
     app.add_exception_handler(AnlageFehler, behandle_anlagenfehler)
+    app.add_exception_handler(PdfFehler, behandle_einlesefehler)
+    app.add_exception_handler(EinleseFehler, behandle_einlesefehler)
     app.add_exception_handler(RequestValidationError, behandle_anfragefehler)

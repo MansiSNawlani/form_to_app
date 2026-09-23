@@ -19,7 +19,7 @@ submitted one is survey data.
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.speicher import Anlagenspeicher, get_speicher
@@ -28,6 +28,8 @@ from app.api.schemas import (
     AbsendenAnfrage,
     AbsendenAntwort,
     AntwortenSpeichern,
+    EingelesenesProtokoll,
+    EinleseAntwort,
     EntscheidungAnfrage,
     FehlerAntwort,
     ProtokollAntwort,
@@ -47,6 +49,8 @@ from app.protokolle.dienst import (
     loesche_protokoll,
     speichere_antworten,
 )
+from app.protokolle.einlesen.dienst import MAX_PDF_BYTES, importiere
+from app.protokolle.einlesen.fehler import DateiZuGross
 from app.protokolle.uebergang.dienst import fuehre_uebergang_aus, lies_verlauf
 from app.protokolle.uebergang.regeln import PRUEFERROLLEN, Aktion
 
@@ -74,6 +78,15 @@ BEIM_AENDERN: dict[int | str, dict[str, Any]] = {
 # in the document, which a save never is: a draft is half-finished by definition.
 BEIM_ABSENDEN: dict[int | str, dict[str, Any]] = {
     **BEIM_AENDERN,
+    status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": FehlerAntwort},
+}
+
+# An import can be refused for what the file is (422) or for how big it is (413),
+# and for nothing else: it is never refused for what the protocol says, which is
+# the whole design of the import.
+BEIM_EINLESEN: dict[int | str, dict[str, Any]] = {
+    **ANGEMELDET,
+    status.HTTP_413_CONTENT_TOO_LARGE: {"model": FehlerAntwort},
     status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": FehlerAntwort},
 }
 
@@ -112,6 +125,73 @@ async def anlegen(
     # yet; the rest of the envelope is null on the row itself.
     return ProtokollAntwort.model_validate(
         Protokollansicht.aus(entwurf, eingereicht_von=benutzer.email, regierungspraesidium=None)
+    )
+
+
+# Big enough that a 2 MB protocol is a handful of reads, small enough that the
+# cap below is reached long before an over-sized upload is all in memory.
+LESEBLOCK = 256 * 1024
+
+
+async def _gelesen(datei: UploadFile) -> bytes:
+    """The upload, with the cap enforced while it is read rather than after.
+
+    A block at a time, so a 30 MB file is refused at 25 and the rest of it is
+    never taken. app/anlagen/dienst.py does the same thing for a photograph and
+    for the same reason.
+    """
+    daten = bytearray()
+    while block := await datei.read(LESEBLOCK):
+        daten += block
+        if len(daten) > MAX_PDF_BYTES:
+            raise DateiZuGross(datei.filename or "", MAX_PDF_BYTES)
+    return bytes(daten)
+
+
+# Declared before the routes that take an id. Not load-bearing, since no other
+# POST here is a single fixed segment, but it keeps the reading of this file in
+# step with the matching.
+@router.post("/einlesen", status_code=status.HTTP_201_CREATED, responses=BEIM_EINLESEN)
+async def einlesen(
+    benutzer: AngemeldeterBenutzer,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    datei: Annotated[UploadFile, File()],
+) -> EingelesenesProtokoll:
+    """Read a protocol out of the legacy Acrobat form and open it as a draft.
+
+    One file per request. The surveyor who would rather fill the PDF in on a
+    laptop in a field office should not have to type it all again because the
+    reviewers now work in the application, and this is that path.
+
+    **The draft belongs to whoever uploaded it**, and lands as a draft whatever
+    the rules make of it. An imported protocol is never trusted: the legacy form
+    has known validation bugs, so what comes back beside the protocol is
+    everything wrong with it, and submitting it is a separate decision the person
+    makes afterwards. It is refused only for not being a readable copy of this
+    form at all.
+
+    **Any version of the form is accepted**, not only the one this deployment
+    serves. People fill in whatever copy of the PDF they downloaded years ago,
+    and an old template is not an old survey; the protocol is stamped with our
+    own form version and the file's travels in the report.
+    """
+    entwurf, bericht = await importiere(
+        session,
+        daten=await _gelesen(datei),
+        # UploadFile.filename is None when a client sends no name at all. Empty
+        # rather than invented, exactly as the attachment upload does it: the
+        # refusals have a placeholder for that, and making one up would name a
+        # file the person never had.
+        dateiname=datei.filename or "",
+        besitzer=benutzer,
+    )
+    return EingelesenesProtokoll(
+        protokoll=ProtokollAntwort.model_validate(
+            Protokollansicht.aus(
+                entwurf, eingereicht_von=benutzer.email, regierungspraesidium=None
+            )
+        ),
+        bericht=EinleseAntwort.model_validate(bericht),
     )
 
 

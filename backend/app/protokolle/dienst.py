@@ -103,15 +103,27 @@ async def lege_entwurf_an(session: AsyncSession, *, besitzer: User) -> Submissio
     here, so there is one place that knows which version this is. ADR 0004 never
     migrates a submission to a later one.
     """
-    entwurf = Submission(
+    entwurf = neuer_entwurf(besitzer)
+    session.add(entwurf)
+    await session.commit()
+    return entwurf
+
+
+def neuer_entwurf(besitzer: User) -> Submission:
+    """The row a new draft starts as, before anything is written.
+
+    Split out of the function above in feature 23b so the PDF import can create a
+    draft and fill it in one transaction. Two transactions would leave an empty
+    protocol behind whenever the second failed, which is exactly the litter
+    feature 3c went and removed when it made a protocol come into existence on
+    the first thing typed into it.
+    """
+    return Submission(
         owner_user_id=besitzer.id,
         status=Status.DRAFT,
         form_version=formular().version,
         antworten={},
     )
-    session.add(entwurf)
-    await session.commit()
-    return entwurf
 
 
 def beruehre(protokoll: Submission) -> None:
@@ -346,7 +358,26 @@ async def speichere_antworten(
     protocol exactly as it was.
     """
     protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
+    uebernimm_antworten(protokoll, antworten=antworten, version=version)
+    await session.commit()
+    return protokoll
 
+
+def uebernimm_antworten(protokoll: Submission, *, antworten: Any, version: int) -> None:
+    """Check a document and put it into a protocol, without committing.
+
+    The three checks and the two writes of a save, with the looking-up and the
+    committing left to the caller. Split out in feature 23b so the PDF import
+    stores its answers down this path rather than beside it: this is what knows
+    that only a draft may be written to, what the document has to look like, and
+    that the version moves on afterwards. An import assigning `antworten` itself
+    would be a second way to write a protocol, and the first one to drift.
+
+    It deliberately does not authorise. Whose protocol this is belongs to the
+    caller, and the two callers answer it differently: a save looks the protocol
+    up under the account asking, while an import has just created the row and
+    knows.
+    """
     pruefe_aenderbar(protokoll.status)
     pruefe_version(version, protokoll.version)
     pruefe_antworten(antworten)
@@ -359,8 +390,6 @@ async def speichere_antworten(
     # The client asked to save, so the version it holds has to move on, or its
     # next save would arrive claiming a version that is already behind.
     protokoll.version += 1
-    await session.commit()
-    return protokoll
 
 
 async def loesche_protokoll(

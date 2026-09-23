@@ -63,8 +63,8 @@ def lies_antworten(
     """Every answer the file holds, as an answers document.
 
     The definition is an argument so a test can narrow it. In the running
-    application it is always the one this deployment serves, which `lies_version`
-    has already checked the file against.
+    application it is always the one this deployment serves, whose field names
+    `pruefe_formular` has already found in the file.
 
     The version and the picture count in the result are left at their defaults.
     `lies_protokoll` fills them in, because it is the one thing here that knows

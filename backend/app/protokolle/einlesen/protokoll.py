@@ -13,20 +13,24 @@ from pypdf import PdfReader
 from app.formular.pdf import felder, oeffne
 from app.protokolle.einlesen.antworten import Einleseergebnis, lies_antworten
 from app.protokolle.einlesen.felder import BILDER
-from app.protokolle.einlesen.version import lies_version
+from app.protokolle.einlesen.version import pruefe_formular
 
 
 def lies_protokoll(daten: bytes) -> Einleseergebnis:
     """One uploaded file, read as far as it can be read.
 
     In this order, and the order is the whole design. The file is opened, then
-    identified, and only then are its answers touched. A protocol whose form
-    version we do not know is one whose rules we do not know, so reading its
-    answers first would mean building a document out of the wrong form and then
-    refusing it with somebody's data already in hand.
+    identified, and only then are its answers touched. Reading the answers of a
+    file that turns out to be the Protokoll Krebs would mean building a document
+    out of the wrong form and then refusing it with somebody's data already in
+    hand.
+
+    The version that comes back is the one the **file** declares. 23b stamps the
+    protocol it creates with this deployment's own version instead, because an
+    import is a new survey rather than a historical record being preserved.
     """
     leser = oeffne(daten)
-    version = lies_version(leser)
+    version = pruefe_formular(leser)
     lesung = lies_antworten(leser)
 
     # replace rather than a fresh Einleseergebnis listing all five fields, so the
