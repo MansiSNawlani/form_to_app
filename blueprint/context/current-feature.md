@@ -1,7 +1,7 @@
 # Feature: PDF einlesen auf dem Bildschirm
 
 **From build-plan:** feature 23c
-**Status:** not started
+**Status:** built, all six steps done, verified in the browser against the three real protocols
 
 ## Goal
 
@@ -83,7 +83,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 Steps 1 and 2 are provable by `npm test` alone. From step 3 there is a button on the
 screen and a real PDF can be dropped through it end to end.
 
-- [ ] **Step 1 - The call, and the types it answers with** - `EingelesenesProtokoll`
+- [x] **Step 1 - The call, and the types it answers with** - `EingelesenesProtokoll`
       and `EinleseAntwort` mirrored into `frontend/src/api/typen.ts` beside the
       shapes already there, and `leseProtokollEin(datei)` in
       `protokoll/entwurf/api.ts` posting a `FormData` to
@@ -102,7 +102,7 @@ screen and a real PDF can be dropped through it end to end.
       carrying the code on a 422 and on a 413. `npm run lint` and `npm run build`
       pass.
 
-- [ ] **Step 2 - What an import leaves behind for the draft to find** -
+- [x] **Step 2 - What an import leaves behind for the draft to find** -
       `protokoll/einlesen/bericht.ts`: a per-protocol store for the two things the
       submit panel has no home for, `unbrauchbar` and `bilder`, built exactly the
       way `absenden/gemerkt.ts` is built, taking its storage and its clock as
@@ -133,7 +133,7 @@ screen and a real PDF can be dropped through it end to end.
       picture count untouched, and that one protocol's report is independent of
       another's. `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 3 - The button, and the three things that can happen** - the control on
+- [x] **Step 3 - The button, and the three things that can happen** - the control on
       `liste/ProtokolleSeite.tsx`, beside "Neues Protokoll". `AnlagenPicker` is
       reused rather than copied, gaining an `accept` prop with the image list as its
       default so section 7 is untouched: it already solved the hidden input, the
@@ -160,7 +160,7 @@ screen and a real PDF can be dropped through it end to end.
       is going up. A screenshot of the page, the busy state and the refusal.
       `npm run lint` and `npm run build` pass.
 
-- [ ] **Step 4 - The answers that could not be read, in the section they live in** -
+- [x] **Step 4 - The answers that could not be read, in the section they live in** -
       the rules' violations need no work at all: step 3 wrote them into
       `pruefungsStore` and `AbsendeProbleme` already reads that on the way in. This
       step proves that, and adds the one thing the panel has no shape for.
@@ -190,7 +190,7 @@ screen and a real PDF can be dropped through it end to end.
       shows the count; a reload keeps both; typing a date ticks it off. `npm run lint`
       and `npm run build` pass, plus a screenshot of a panel showing both groups.
 
-- [ ] **Step 5 - The photographs that did not come with the file** - `bilder`
+- [x] **Step 5 - The photographs that did not come with the file** - `bilder`
       reported on section 7, beside the attachments: how many pictures the file
       carries, and that they have to be attached again by hand until 23d reads them
       out.
@@ -206,7 +206,7 @@ screen and a real PDF can be dropped through it end to end.
       the banner. `npm test`, `npm run lint` and `npm run build` pass, plus a
       screenshot of section 7.
 
-- [ ] **Step 6 - The banner, the German, and the pass over the whole thing** - the
+- [x] **Step 6 - The banner, the German, and the pass over the whole thing** - the
       arrival banner on the protocol: this came out of a PDF, it is a draft nobody
       has submitted, here is what came over and what did not, and it is dismissable
       because it is an explanation rather than a problem. Dismissing it sets
@@ -355,6 +355,37 @@ accounts and a password nobody commits, and it would additionally need a protoco
 PDF, which is untracked by decision. A browser test that skips on every fresh
 checkout is worth less than the screenshots this spec already asks for. Raise it
 again when 23e can generate the file the test would upload.
+
+## What changed while it was built
+
+Five things the spec got wrong, each found by building or by looking at the screen.
+
+1. **No new refusal codes.** Step 1 asked for six constants in `api/fehler.ts`. That file
+   argues against them itself, in the comment explaining why the attachment refusals have
+   none: nothing branches on them, and `fehlertext` already falls through to the backend's
+   own German. Six exports nothing imports. Dropped.
+2. **The types went to `protokoll/entwurf/typen.ts`, not `api/typen.ts`.** `api/typen.ts`
+   says outright that the protocol endpoints' shapes live beside `Antworten`, because each
+   of them carries or describes that document.
+3. **`AnlagenPicker` was moved, not given a prop.** It is now `components/DateiPicker.tsx`,
+   with its focus-ring rule moved from `protokoll.css` to `shell.css`. The list page never
+   loads the protocol stylesheet, so leaving the rule where it was would have shipped a
+   picker with no visible focus on the new screen. `accept` became a required prop rather
+   than one defaulting to images, because a picker silently offering the wrong kind of file
+   is worse than one that will not compile.
+4. **An unusable answer never ticks off.** The spec said typing a date would tick it off,
+   the way a violation does. It cannot: the backend stores the unreadable value in its
+   field exactly as the PDF wrote it, so the box is full on arrival and the "no longer
+   empty" test would clear the entry before anybody had looked at it. The one thing the
+   surveyor has to do is precisely what that test cannot see. They now stay listed until a
+   fresh Absenden, which is the rule the block-level violations already live by.
+5. **Every import is stored, including a clean one.** Step 2 said an empty report stores
+   nothing; step 6 said a clean import still gets the banner. Both could not be true. The
+   banner won: an import that worked must not look identical to one that quietly did
+   nothing. `bannerGelesen` is what stops it repeating.
+
+And one found only by looking at the screen: the refusal named the file twice, once in the
+title and once at the front of the backend's sentence. The title is generic now.
 
 ## Notes for the AI
 
