@@ -830,6 +830,17 @@
   color: inherit;
 }
 
+/* The heading over the answers an import could not read.
+
+   A heading rather than a run-on list, because the two groups say different
+   things: above it are answers the rules refused, here are answers that are
+   present and could not be understood. Without a break between them somebody
+   reads one sentence about their date and looks for the wrong problem. */
+.absende-probleme__gruppe {
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
 .absende-probleme__aktionen {
   margin-top: 0.75rem;
 }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import AbschnittNav from './AbschnittNav'
+import { useEinlesebericht } from './einlesen/useEinlesebericht'
 import AbschnittWechsel from './AbschnittWechsel'
 import ProtokollKopf from './ProtokollKopf'
 import AbschnittInhalt from './abschnitte/AbschnittInhalt'
@@ -80,6 +81,10 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
      list held inside section 7 was destroyed by the first link somebody
      followed. Found by Mansi on 2026-09-12. */
   const absendung = useAbsenden({ entwurfId, bereitZumAbsenden })
+  /* What an import left behind, for the protocols that came out of a PDF. Read
+     here rather than in each of the three places that want it, so one read per
+     protocol serves the banner, the step bar and the panel. */
+  const einlesen = useEinlesebericht(entwurfId)
 
   /* Built once for the life of the form, so both blocks in section 7 share one
      in-flight request. Two of them each checking and then creating would leave a
@@ -161,6 +166,7 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
         entwurfId={entwurf.id}
         aktuelleNr={abschnitt.nr}
         verstoesse={absendung.verstoesse}
+        unbrauchbarePfade={einlesen.unbrauchbarePfade}
       />
 
       {/* Above the section rather than inside it: the offer is about the whole
@@ -176,6 +182,7 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
         entwurfId={entwurfId}
         aktuelleNr={abschnitt.nr}
         absendung={absendung}
+        unbrauchbarePfade={einlesen.unbrauchbarePfade}
       />
 
       <section className="card" ref={card} tabIndex={-1} aria-label={titel}>

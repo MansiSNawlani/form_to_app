@@ -874,6 +874,12 @@
         "LOCKED": "Angenommen und gesperrt",
         "unbekannt": "Status geändert"
       }
+    },
+    "einlesen": {
+      "unbrauchbar": {
+        "titel": "Aus der PDF-Datei nicht übernommen",
+        "text": "Der Wert steht so im Protokoll, wie die PDF-Datei ihn geschrieben hat, konnte hier aber nicht gelesen werden. Bitte sehen Sie sich das Feld an und tragen Sie den Wert neu ein."
+      }
     }
   }
 }

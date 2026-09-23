@@ -37,6 +37,15 @@ export interface Abschnittsgruppe {
   nr: Abschnittsnummer
   titelKey: ParseKeys
   probleme: Problem[]
+  /* Answers an import could not take over, which are not the same thing as a
+     rule complaining and are never merged into the list above.
+     
+     A violation means the answer is wrong or missing. This means the answer is
+     there, exactly as the PDF wrote it, and this application could not make
+     sense of it. Telling somebody their date is missing when it is sitting in
+     the box in front of them sends them looking for the wrong problem. Empty
+     for a protocol nobody imported, which is nearly all of them. */
+  unbrauchbar: Problem[]
 }
 
 export interface Problemliste {
@@ -52,49 +61,100 @@ export interface Problemliste {
   offen: number
 }
 
+/* The key every unusable answer carries, since they all say the same thing:
+   the value is in the protocol as the file wrote it and could not be read.
+   A constant rather than a field on Problem, because unlike a violation there
+   is nothing per-entry to say. */
+export const UNBRAUCHBAR_SCHLUESSEL = 'protokoll.einlesen.unbrauchbar.text'
+
 export function gruppiere(
   verstoesse: readonly Verstoss[],
   /* The paths somebody has put something into since the refusal. Passed in
      rather than read here, so this stays a plain function over values and the
      component decides what counts as filled in. */
   erledigtePfade: ReadonlySet<string> = new Set(),
+  /* Field paths an import could not take over. Empty for every protocol that
+     was typed in rather than imported, which is nearly all of them. */
+  unbrauchbarePfade: readonly string[] = [],
 ): Problemliste {
   /* A fresh object each time rather than a shared empty one. The arrays in it
      are mutable, so a single shared instance handed out repeatedly is one
      accidental push away from every later empty result carrying somebody else's
      problems. */
-  if (verstoesse.length === 0) {
+  if (verstoesse.length === 0 && unbrauchbarePfade.length === 0) {
     return { gruppen: [], unverortet: [], anzahl: 0, offen: 0 }
   }
 
   const gruppen = new Map<Abschnittsnummer, Abschnittsgruppe>()
   const unverortet: Problem[] = []
 
-  for (const verstoss of verstoesse) {
-    const { abschnitt, labelKey } = verorte(verstoss.pfad)
-    const problem: Problem = {
-      pfad: verstoss.pfad,
-      schluessel: verstoss.schluessel,
-      labelKey,
-      artnummer: artnummerAus(verstoss.pfad),
-      erledigt: erledigtePfade.has(verstoss.pfad),
-    }
-
+  /* One place that files an entry, so a violation and an unusable answer can
+     never end up sorted, counted or placed by two different rules. */
+  function lege(problem: Problem, abschnitt: Abschnittsnummer | null, spalte: 'probleme' | 'unbrauchbar') {
     if (abschnitt === null) {
       unverortet.push(problem)
-      continue
+      return
     }
 
-    const vorhanden = gruppen.get(abschnitt)
-    if (vorhanden === undefined) {
-      gruppen.set(abschnitt, {
-        nr: abschnitt,
-        titelKey: titelVon(abschnitt),
-        probleme: [problem],
-      })
-    } else {
-      vorhanden.probleme.push(problem)
+    let gruppe = gruppen.get(abschnitt)
+    if (gruppe === undefined) {
+      gruppe = { nr: abschnitt, titelKey: titelVon(abschnitt), probleme: [], unbrauchbar: [] }
+      gruppen.set(abschnitt, gruppe)
     }
+    gruppe[spalte].push(problem)
+  }
+
+  for (const verstoss of verstoesse) {
+    const { abschnitt, labelKey } = verorte(verstoss.pfad)
+    lege(
+      {
+        pfad: verstoss.pfad,
+        schluessel: verstoss.schluessel,
+        labelKey,
+        artnummer: artnummerAus(verstoss.pfad),
+        erledigt: erledigtePfade.has(verstoss.pfad),
+      },
+      abschnitt,
+      'probleme',
+    )
+  }
+
+  /* After the violations, so a field that is both unreadable and refused by a
+     rule keeps its rule entry in the list people read first.
+     
+     Both are shown rather than one suppressed: they say different things, and
+     an unreadable value that also breaks a rule needs retyping for both
+     reasons. */
+  for (const pfad of unbrauchbarePfade) {
+    const { abschnitt, labelKey } = verorte(pfad)
+    lege(
+      {
+        pfad,
+        schluessel: UNBRAUCHBAR_SCHLUESSEL,
+        labelKey,
+        artnummer: artnummerAus(pfad),
+        /* Never ticks off, unlike a violation, and this is the one place the
+           two genuinely have to behave differently.
+
+           A violation ticks off when its box stops being empty, which is a fair
+           signal that somebody has dealt with it. That signal says nothing here:
+           the backend stores the unreadable value in the field exactly as the
+           PDF wrote it, so the box is already full on arrival and the entry
+           would tick itself off before anybody had looked at it. The one thing
+           the surveyor must do is precisely the thing the emptiness test cannot
+           see.
+
+           Telling them apart would need the imported value to compare against,
+           and this store deliberately holds no answers. So an unusable answer
+           stays listed until a fresh Absenden, where the server either accepts
+           the value or says what is wrong with it. That is the same rule the
+           block-level violations already live by, and the panel's own rule that
+           only a fresh check replaces the list with the truth. */
+        erledigt: false,
+      },
+      abschnitt,
+      'unbrauchbar',
+    )
   }
 
   return {
@@ -104,8 +164,12 @@ export function gruppiere(
        put part 2 ahead of part 1 in the list. */
     gruppen: [...gruppen.values()].sort((eine, andere) => eine.nr - andere.nr),
     unverortet,
-    anzahl: verstoesse.length,
-    offen: verstoesse.filter((verstoss) => !erledigtePfade.has(verstoss.pfad)).length,
+    anzahl: verstoesse.length + unbrauchbarePfade.length,
+    /* Unusable answers always count as open: see the note above about why the
+       "box is no longer empty" test cannot see the work they need. */
+    offen:
+      verstoesse.filter((verstoss) => !erledigtePfade.has(verstoss.pfad)).length +
+      unbrauchbarePfade.length,
   }
 }
 
@@ -135,12 +199,27 @@ function titelVon(nr: Abschnittsnummer): ParseKeys {
 export function offeneJeAbschnitt(
   verstoesse: readonly Verstoss[],
   erledigtePfade: ReadonlySet<string> = new Set(),
+  /* Counted alongside the violations rather than separately, so a section whose
+     only outstanding work is a date the import could not read still carries a
+     marker. Without it that section reads as finished and the value sits there
+     unlooked at until a reviewer finds it. */
+  unbrauchbarePfade: readonly string[] = [],
 ): ReadonlyMap<Abschnittsnummer, number> {
   const offen = new Map<Abschnittsnummer, number>()
 
   for (const verstoss of verstoesse) {
     if (erledigtePfade.has(verstoss.pfad)) continue
     const { abschnitt } = verorte(verstoss.pfad)
+    if (abschnitt === null) continue
+    offen.set(abschnitt, (offen.get(abschnitt) ?? 0) + 1)
+  }
+
+  /* Never filtered by erledigtePfade, for the reason gruppiere states: the
+     backend stores an unreadable value in its field, so the box is full on
+     arrival and the emptiness test would clear the marker before anybody had
+     looked at it. */
+  for (const pfad of unbrauchbarePfade) {
+    const { abschnitt } = verorte(pfad)
     if (abschnitt === null) continue
     offen.set(abschnitt, (offen.get(abschnitt) ?? 0) + 1)
   }

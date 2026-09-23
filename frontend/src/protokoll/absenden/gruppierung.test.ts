@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gruppiere, offeneJeAbschnitt } from './gruppierung'
+import { UNBRAUCHBAR_SCHLUESSEL, gruppiere, offeneJeAbschnitt } from './gruppierung'
 
 const fehlt = (pfad: string) => ({ pfad, schluessel: 'protokoll.regeln.fehlt' })
 
@@ -179,5 +179,122 @@ describe('offeneJeAbschnitt', () => {
     const offen = offeneJeAbschnitt([fehlt('gibt.es.nicht')])
 
     expect(offen.size).toBe(0)
+  })
+})
+
+/* Antworten, die ein Import nicht uebernehmen konnte.
+ *
+ * Etwas anderes als ein Verstoss, und deshalb eine eigene Liste je Abschnitt.
+ * Ein Verstoss heisst: die Antwort fehlt oder ist falsch. Das hier heisst: die
+ * Antwort steht im Protokoll, genau so wie die PDF sie geschrieben hat, und
+ * diese Anwendung konnte sie nicht lesen. Wer ein Datum sucht, das vor ihm im
+ * Feld steht, sucht den falschen Fehler.
+ */
+describe('unbrauchbare Antworten aus einem Import', () => {
+  it('legt sie in den Abschnitt, in dem das Feld steht', () => {
+    const liste = gruppiere([], new Set(), ['datum'])
+
+    expect(liste.gruppen.map((gruppe) => gruppe.nr)).toEqual([1])
+    expect(liste.gruppen[0].unbrauchbar.map((problem) => problem.pfad)).toEqual(['datum'])
+  })
+
+  it('haelt sie von den Verstoessen getrennt', () => {
+    const liste = gruppiere([fehlt('anlass')], new Set(), ['datum'])
+
+    const abschnitt1 = liste.gruppen[0]
+    expect(abschnitt1.probleme.map((problem) => problem.pfad)).toEqual(['anlass'])
+    expect(abschnitt1.unbrauchbar.map((problem) => problem.pfad)).toEqual(['datum'])
+  })
+
+  it('gibt ihnen den Schluessel, der fuer alle gilt', () => {
+    const liste = gruppiere([], new Set(), ['datum'])
+
+    expect(liste.gruppen[0].unbrauchbar[0].schluessel).toBe(UNBRAUCHBAR_SCHLUESSEL)
+  })
+
+  it('findet den Feldnamen genauso wie fuer einen Verstoss', () => {
+    const liste = gruppiere([], new Set(), ['datum'])
+
+    expect(liste.gruppen[0].unbrauchbar[0].labelKey).not.toBeNull()
+  })
+
+  it('zaehlt sie mit', () => {
+    const liste = gruppiere([fehlt('anlass')], new Set(), ['datum', 'uhrzeit'])
+
+    expect(liste.anzahl).toBe(3)
+    expect(liste.offen).toBe(3)
+  })
+
+  /* Hakt sich nie ab, anders als ein Verstoss.
+  
+     Ein Verstoss hakt sich ab, sobald sein Feld nicht mehr leer ist. Hier sagt
+     das nichts: das Backend legt den unlesbaren Wert genau so ab, wie die PDF
+     ihn geschrieben hat, das Feld ist also schon bei der Ankunft gefuellt, und
+     der Eintrag haette sich abgehakt, bevor jemand hingesehen hat. Er bleibt
+     stehen, bis ein frisches Absenden sagt, was der Server von dem Wert haelt. */
+  it('hakt sich nicht ab, nur weil im Feld etwas steht', () => {
+    const liste = gruppiere([], new Set(['datum']), ['datum'])
+
+    expect(liste.gruppen[0].unbrauchbar[0].erledigt).toBe(false)
+    expect(liste.offen).toBe(1)
+    expect(liste.anzahl).toBe(1)
+  })
+
+  /* Beides, nicht eines von beiden unterdrueckt: die zwei sagen Verschiedenes,
+     und ein unlesbarer Wert, der ausserdem eine Regel bricht, muss aus beiden
+     Gruenden neu getippt werden. */
+  it('zeigt ein Feld, das beides ist, in beiden Listen', () => {
+    const liste = gruppiere([fehlt('datum')], new Set(), ['datum'])
+
+    expect(liste.gruppen[0].probleme).toHaveLength(1)
+    expect(liste.gruppen[0].unbrauchbar).toHaveLength(1)
+  })
+
+  /* Ein Pfad, den verortung.ts nicht kennt, wird aufgelistet statt fallen
+     gelassen: eine Antwort, die niemand sehen kann, ist schlimmer als eine,
+     die niemand anklicken kann. */
+  it('listet einen Pfad ohne Abschnitt statt ihn fallen zu lassen', () => {
+    const liste = gruppiere([], new Set(), ['gibtesnicht.feld'])
+
+    expect(liste.gruppen).toEqual([])
+    expect(liste.unverortet.map((problem) => problem.pfad)).toEqual(['gibtesnicht.feld'])
+  })
+
+  it('macht ohne Verstoesse und ohne Unbrauchbares weiterhin nichts', () => {
+    const liste = gruppiere([], new Set(), [])
+
+    expect(liste.anzahl).toBe(0)
+    expect(liste.gruppen).toEqual([])
+  })
+
+  it('gibt jeder Gruppe eine leere Liste, wenn nichts eingelesen wurde', () => {
+    const liste = gruppiere([fehlt('anlass')])
+
+    expect(liste.gruppen[0].unbrauchbar).toEqual([])
+  })
+})
+
+/* Ohne das liest sich ein Abschnitt, dessen einzige offene Arbeit ein nicht
+   lesbares Datum ist, als fertig, und der Wert bleibt liegen, bis ein Pruefer
+   ihn findet. */
+describe('offeneJeAbschnitt mit unbrauchbaren Antworten', () => {
+  it('zaehlt sie neben den Verstoessen', () => {
+    const offen = offeneJeAbschnitt([fehlt('anlass')], new Set(), ['datum'])
+
+    expect(offen.get(1)).toBe(2)
+  })
+
+  it('markiert einen Abschnitt, in dem nur etwas Unlesbares steht', () => {
+    const offen = offeneJeAbschnitt([], new Set(), ['datum'])
+
+    expect(offen.get(1)).toBe(1)
+  })
+
+  /* Aus demselben Grund: das Feld ist schon gefuellt, und genau das ist die
+     Arbeit, die niemand sieht. */
+  it('behaelt die Markierung, auch wenn im Feld etwas steht', () => {
+    const offen = offeneJeAbschnitt([], new Set(['datum']), ['datum'])
+
+    expect(offen.get(1)).toBe(1)
   })
 })
