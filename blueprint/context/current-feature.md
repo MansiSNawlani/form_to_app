@@ -236,38 +236,62 @@ screen and a real PDF can be dropped through it end to end.
 
 ## Files / areas
 
+Corrected after the build to what was actually touched. Three differences from the
+draft, all explained under "What changed while it was built": there is no
+`UnbrauchbareFelder.tsx`, there is a `useEinlesebericht.ts` the draft did not
+foresee, and `AnlagenPicker.tsx` was moved rather than edited in place.
+
 **New**
 
 - `frontend/src/protokoll/einlesen/bericht.ts` - the per-protocol store for what
   could not be carried over, plus `bericht.test.ts`.
-- `frontend/src/protokoll/einlesen/useEinlesen.ts` - post, store, navigate.
+- `frontend/src/protokoll/einlesen/useEinlesen.ts` - post, store both reports,
+  refresh the list, navigate.
+- `frontend/src/protokoll/einlesen/useEinlesebericht.ts` - reads that store once per
+  protocol, so the banner, the step bar and the panel share one read rather than
+  reaching for storage on a form of roughly 338 fields.
 - `frontend/src/protokoll/einlesen/EinleseFehler.tsx` - the refusal on the list page.
 - `frontend/src/protokoll/einlesen/EinleseBanner.tsx` - the arrival banner.
-- `frontend/src/protokoll/einlesen/UnbrauchbareFelder.tsx` - the second group in the
-  section panel.
 - `frontend/src/protokoll/einlesen/FehlendeBilder.tsx` - the picture count on
   section 7.
+- `frontend/src/protokoll/einlesen/schluessel.test.ts` - every new key pinned to
+  `de.json`.
+- `frontend/src/components/DateiPicker.tsx` - `abschnitte/teil7/AnlagenPicker.tsx`
+  moved here, since two unrelated screens now open a file dialog.
+
+**No `UnbrauchbareFelder.tsx`.** The draft expected one. The group turned out to be
+nine lines of JSX inside `AbsendeProbleme.tsx`, next to the list it has to sit
+beside and share a `Collapse` with, and a component for it would have been a file
+whose only job was to be a file.
 
 **Changed**
 
-- `frontend/src/api/typen.ts` - `EingelesenesProtokoll` and `EinleseAntwort`.
-- `frontend/src/api/fehler.ts` - the six new refusal codes.
-- `frontend/src/protokoll/entwurf/api.ts` - `leseProtokollEin`.
+- `frontend/src/protokoll/entwurf/typen.ts` - `EingelesenesProtokoll` and
+  `EinleseAntwort`, here rather than in `api/typen.ts`, which says so itself.
+- `frontend/src/protokoll/entwurf/api.ts` - `leseProtokollEin`, plus its tests.
 - `frontend/src/protokoll/liste/ProtokolleSeite.tsx` - the control and its states.
-- `frontend/src/protokoll/abschnitte/teil7/AnlagenPicker.tsx` - an `accept` prop,
-  defaulting to today's image list.
-- `frontend/src/protokoll/absenden/gruppierung.ts` - the unusable answers filed
-  per section beside the violations, and counted. **The logic-bearing change in this
+- `frontend/src/protokoll/abschnitte/teil7/FotosBlock.tsx` and
+  `KartenausschnittBlock.tsx` - pointed at the moved picker, passing `accept`.
+- `frontend/src/protokoll/absenden/gruppierung.ts` - the unusable answers filed per
+  section beside the violations, and counted. **The logic-bearing change in this
   feature**, and `gruppierung.test.ts` grows with it.
 - `frontend/src/protokoll/absenden/AbsendeProbleme.tsx` - the second group printed.
+- `frontend/src/protokoll/absenden/AbsendeErgebnis.tsx` - passes the paths through.
 - `frontend/src/protokoll/AbschnittNav.tsx` - the step bar's per-section count,
-  which today reads `offeneJeAbschnitt(verstoesse, erledigt)` and must include the
+  which read `offeneJeAbschnitt(verstoesse, erledigt)` and had to include the
   unusable answers or a section owing one reads as finished.
-- `frontend/src/protokoll/ProtokollSeite.tsx` - the banner, and passing the report
-  down to the nav and the panel.
-- `frontend/src/protokoll/abschnitte/teil7/` - the picture count beside the
-  attachment block.
+- `frontend/src/protokoll/ProtokollFormular.tsx` - the banner, and the one read of
+  the report that feeds the nav, the panel and section 7. **Not `ProtokollSeite.tsx`**,
+  which the draft named: the form is where the section and the panel actually live.
+- `frontend/src/protokoll/abschnitte/AbschnittInhalt.tsx` and `Abschnitt7.tsx` - the
+  picture count through to the attachments.
+- `frontend/src/components/shell.css` - the picker's focus-ring rule, moved out of
+  `protokoll.css`, which the list page never loads.
+- `frontend/src/protokoll/protokoll.css` - that rule removed, the panel's group
+  heading added.
 - `frontend/src/i18n/locales/de.json` - every string.
+
+**`api/fehler.ts` is not in this list**, though the draft had it. See deviation 1.
 
 ## Data / contracts
 
