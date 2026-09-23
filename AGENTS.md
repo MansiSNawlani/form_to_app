@@ -234,10 +234,6 @@ Then `pytest` from `backend/` runs the full set. Without them the run reports "6
 rather than failing, and the two tests that hold the committed seed against freshly
 generated output are among those that do not run.
 
-Feature 23e, the PDF download, will need the blank form at **run time** rather than only
-in tests, because it fills that form. How a deployment gets it is open and is noted under
-item 23 in `blueprint/build-plan.md`.
-
 **Backend tests use a real database.** Added in feature 2a. `pytest` creates a
 separate `befischung_test` database, migrates it to head, and runs each test in a
 transaction it rolls back, so the development database is never touched. Tests
