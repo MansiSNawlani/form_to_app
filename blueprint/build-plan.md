@@ -207,7 +207,7 @@ These are not features and are not tracked here. They happen first.
     September 2026 on templates from 2023 and 2024, because people keep filling in whatever
     copy of the PDF they downloaded years ago. The version stamp says nothing about the age
     of the survey and is never a reason to treat a protocol differently.
-  - [ ] 23c. PDF einlesen auf dem Bildschirm: the control on Meine Protokolle, the file
+  - [x] 23c. PDF einlesen auf dem Bildschirm: the control on Meine Protokolle, the file
         picker, the busy, refused and failed states, and landing in the new draft with the
         problem panel already populated
   - [ ] 23d. Die Bilder aus der PDF: the Kartenausschnitt and the four photo slots, which
