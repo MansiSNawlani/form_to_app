@@ -24,7 +24,7 @@ from app.anlagen.dienst import liste_anlagen
 from app.anlagen.speicher import Anlagenspeicher
 from app.models.benutzer import User
 from app.protokolle.ausgabe.beschriftungen import gliederung
-from app.protokolle.ausgabe.dokument import Bild, Protokollkopf, baue, verkleinere
+from app.protokolle.ausgabe.dokument import Bild, Protokollkopf, baue, hole, verkleinere
 from app.protokolle.dienst import hole_sichtbares_protokoll
 
 #: Where the title block's facts sit in the answers document.
@@ -123,12 +123,9 @@ def _sicher(wert: str) -> str:
 
 
 def _text(antworten: dict[str, Any], pfad: str) -> str:
-    hier: Any = antworten
-    for teil in pfad.split("."):
-        if not isinstance(hier, dict):
-            return ""
-        hier = hier.get(teil)
-    return str(hier).strip() if hier is not None else ""
+    """One answer as plain text, through the document's own walk."""
+    wert = hole(antworten, pfad)
+    return str(wert).strip() if wert is not None else ""
 
 
 def _datum(wert: str) -> date | None:

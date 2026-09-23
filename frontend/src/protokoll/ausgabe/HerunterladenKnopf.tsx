@@ -35,9 +35,11 @@ function HerunterladenKnopf({ protokollId }: HerunterladenKnopfProps) {
         variant="outlined"
         onClick={herunterladen}
         disabled={laeuft}
-        /* Named for what it does rather than for the file format. "PDF" alone
-           is what the button shows on a narrow head, and a screen reader
-           reading "PDF" out of a row of buttons says nothing at all. */
+        /* The accessible name stays put while the visible text switches to
+           "Wird erstellt ...". Without this, a screen reader user who moved
+           focus here mid-download would be told the control is called something
+           else, and a control that renames itself under the cursor is one
+           nobody can refer to. */
         aria-label={t('protokoll.ausgabe.knopf')}
       >
         {laeuft ? t('protokoll.ausgabe.laeuft') : t('protokoll.ausgabe.knopf')}

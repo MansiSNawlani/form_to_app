@@ -33,7 +33,7 @@ ANTWORTEN = {
     "umland": {"nadelwald": "40", "wiese": "60"},
     "arten": {
         "art1": {"name": "BFOR", "klasse_1": "12", "klasse_2": "3", "0plus": "5"},
-        "art2": {"name": "AAAL", "klasse_4": "2"},
+        "art2": {"name": "ANGU", "klasse_4": "2"},
     },
 }
 
@@ -129,10 +129,27 @@ def test_fangtabelle_zeigt_klassen_und_zeilensummen() -> None:
     text = text_von(baue(KOPF, ANTWORTEN))
 
     assert "BFOR" in text
-    assert "AAAL" in text
+    assert "ANGU" in text
     # 12 + 3, and the five 0+ fish are already among them rather than extra.
     assert "15" in text
     assert "Gesamtsumme: 17" in text
+
+
+def test_fangtabelle_nennt_die_art_beim_namen() -> None:
+    """The screen prints "Bachforelle" with the code under it, and a printed
+    protocol that said only BFOR would be the one place in the application that
+    does not name the fish."""
+    text = text_von(baue(KOPF, ANTWORTEN))
+
+    assert "Bachforelle" in text
+    assert "Aal" in text
+
+
+def test_eine_unbekannte_art_behaelt_ihren_code() -> None:
+    """An unknown species in a filed protocol is still what the protocol holds."""
+    text = text_von(baue(KOPF, {"arten": {"art1": {"name": "XXXX", "klasse_1": "1"}}}))
+
+    assert "XXXX" in text
 
 
 def test_fangtabelle_ohne_arten_sagt_das() -> None:

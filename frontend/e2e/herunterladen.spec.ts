@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { expect, test, type Page } from '@playwright/test'
 import { anmelden, FEHLENDE_KONTEN, konto } from './konten'
 
@@ -49,11 +50,15 @@ test('die gespeicherte Datei ist wirklich eine PDF', async ({ page }) => {
     page.getByRole('button', { name: 'Als PDF herunterladen' }).click(),
   ])
 
+  /* The bytes that actually landed on disk, not a second request to the
+     endpoint. What is being proved here is the browser half: that the blob
+     survives the object URL and the download attribute intact. Asking the API
+     again would prove the API, which app/api/ausgabe_test.py already does. */
   const datei = await download.path()
   expect(datei).not.toBeNull()
-  const kopf = await page.request.fetch(`/api/v1/protokolle/${id}/pdf`)
-  expect(kopf.headers()['content-type']).toBe('application/pdf')
-  expect((await kopf.body()).subarray(0, 5).toString()).toBe('%PDF-')
+  const inhalt = await readFile(datei!)
+  expect(inhalt.subarray(0, 5).toString()).toBe('%PDF-')
+  expect(inhalt.byteLength).toBeGreaterThan(1000)
 })
 
 test('der Knopf ist mit der Tastatur erreichbar', async ({ page }) => {

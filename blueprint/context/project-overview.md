@@ -84,8 +84,9 @@ everything else exists to support them. Item 9 carries the most risk.
     decided on 2026-09-23 and reversing the choice made when it was folded in. The backend
     builds it and serves it as a file with a proper name, so every copy looks the same wherever
     it was saved from. Nothing of the legacy file is reused, so the blank form is not needed at
-    run time, and our own page has room for everything the paper had no box for: the
-    Bearbeiter's town, photos past the fourth, and the status and the Verlauf.
+    run time, and our own page has room for what the paper had no box for: the Bearbeiter's
+    town, photos past the fourth, and the status, printed on every page. The Verlauf stays out;
+    a download is a copy of the protocol, not a record of what was done to it.
 13. **Regional access** - the Regierungspräsidium read-only role.
 14. **Notifications** - email on submission and status change, plus a weekly digest, via a
     background worker.

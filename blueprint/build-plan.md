@@ -272,8 +272,9 @@ These are not features and are not tracked here. They happen first.
     [defect 5](../docs/ffs-defect-list.md), never comes into it, because nothing of the old
     file is reused. And what the paper cannot hold stops being a constraint at all: our own
     document has room for the Bearbeiter's town, for every photo past the fourth, and for the
-    status and the Verlauf. The spec decides what belongs on the page rather than what fits
-    on it.
+    status, which it prints on every page. The spec decides what belongs on the page rather
+    than what fits on it, and it leaves the Verlauf out: a download is a copy of the protocol,
+    not a record of what was done to it, which is feature 15's.
   - **Item 20 stays where it is.** What is left of it once 23e ships is the part that needs
     feature 18: the map excerpt drawn from stored geometry rather than uploaded as a picture.
 - [ ] 13. Regierungspräsidium access: regional read-only role

@@ -21,7 +21,7 @@ as it does in the container.
 """
 
 import io
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import date, time
 from decimal import Decimal, InvalidOperation
@@ -68,8 +68,8 @@ LABELBREITE = 62 * mm
 #: The ten size class columns of the catch table, part 6.
 KLASSEN = tuple(f"klasse_{nummer}" for nummer in range(1, 11))
 
-#: What an unticked box holds, and what the import writes for one.
-JA = "Ja"
+#: Which option list names the species. The 123 entries the picker offers.
+ARTENLISTE = "arten"
 
 #: How many pixels wide a picture is worth keeping. An attachment may be 10 MB
 #: and a protocol may carry 21 of them, so embedding them untouched would mean
@@ -230,7 +230,7 @@ def _kopfblock(kopf: Protokollkopf, stile: _Stile) -> Iterable[Any]:
     yield Spacer(1, 4)
 
 
-def _fusszeile(kopf: Protokollkopf):  # type: ignore[no-untyped-def]
+def _fusszeile(kopf: Protokollkopf) -> Callable[[Any, Any], None]:
     """The page number and what the document is, on every page.
 
     Worth the room: a protocol runs to several pages and they get separated. The
@@ -267,9 +267,6 @@ def _abschnitt(
 
 
 def _block(block: Block, antworten: dict[str, Any], plan: Gliederung, stile: _Stile) -> list[Any]:
-    if block.fangtabelle:
-        return _fangtabelle(block.titel, antworten, stile)
-
     """The fields of one block, with each run of shares closed by its own total.
 
     The total follows the last share of its run rather than waiting for the end
@@ -277,6 +274,9 @@ def _block(block: Block, antworten: dict[str, Any], plan: Gliederung, stile: _St
     three totals in a stack underneath all of them leaves a reader counting rows
     upwards to work out which belongs to which.
     """
+    if block.fangtabelle:
+        return _fangtabelle(block.titel, antworten, stile)
+
     # Which group, if any, each path closes. Built once rather than searched per
     # row, and only for groups this block actually holds.
     schliesst: dict[str, Gruppe] = {}
@@ -356,12 +356,12 @@ def _fangtabelle(titel: str, antworten: dict[str, Any], stile: _Stile) -> list[A
 
     daten = [kopf]
     gesamt = 0
-    for name, klassen, nullplus in zeilen:
+    for code, name, klassen, nullplus in zeilen:
         summe = sum(wert or 0 for wert in klassen)
         gesamt += summe
         daten.append(
             [
-                Paragraph(name, stile.zelle),
+                Paragraph(_art(code, name), stile.zelle),
                 *(Paragraph(_ganz(wert), stile.zelle) for wert in klassen),
                 Paragraph(_ganz(nullplus), stile.zelle),
                 Paragraph(str(summe), stile.kopfzelle),
@@ -392,7 +392,7 @@ def _fangtabelle(titel: str, antworten: dict[str, Any], stile: _Stile) -> list[A
     ]
 
 
-def _artzeilen(arten: dict[str, Any]) -> Iterable[tuple[str, list[int | None], int | None]]:
+def _artzeilen(arten: dict[str, Any]) -> Iterable[tuple[str, str, list[int | None], int | None]]:
     """The catch rows that hold anything, in the form's own row order.
 
     art1 to art26, sorted by number rather than by name, so art2 does not print
@@ -402,12 +402,33 @@ def _artzeilen(arten: dict[str, Any]) -> Iterable[tuple[str, list[int | None], i
         zeile = arten.get(f"art{nummer}")
         if not isinstance(zeile, dict):
             continue
-        name = str(zeile.get("name") or "").strip()
+        code = str(zeile.get("name") or "").strip()
         klassen = [_ganzzahl(zeile.get(klasse)) for klasse in KLASSEN]
         nullplus = _ganzzahl(zeile.get("0plus"))
-        if not name and not any(wert is not None for wert in (*klassen, nullplus)):
+        if not code and not any(wert is not None for wert in (*klassen, nullplus)):
             continue
-        yield name or "ohne Artangabe", klassen, nullplus
+        yield (
+            code,
+            optionen().etikett(ARTENLISTE, code) if code else "ohne Artangabe",
+            klassen,
+            nullplus,
+        )
+
+
+def _art(code: str, name: str) -> str:
+    """A species as the table prints it: the German name, then its code.
+
+    Both, the way nurlesen/ArtenNurLesen.tsx prints both on screen. The name is
+    what a reader needs; the code is what FiaKa and every other FFS document
+    call the fish, so a protocol that dropped it would be harder to match up
+    than one that only ever showed it.
+
+    The code alone when nothing names it. An unknown species in a filed protocol
+    is still what the protocol holds, and the download is a copy of it.
+    """
+    if not code:
+        return name
+    return name if name == code else f"{name}<br/><font size=6>{code}</font>"
 
 
 def _anlagenblock(kopf: Protokollkopf, bilder: Sequence[Bild], stile: _Stile) -> list[Any]:
@@ -524,13 +545,13 @@ def _wert(pfad: str, antworten: dict[str, Any], plan: Gliederung) -> str:
 
     - a coded option becomes what it is called, so "wrrl" prints as
       "Fischmonitoring gemaess WRRL";
-    - a ticked box becomes "Ja", because "Ja" on its own beside a label reads as
-      an answer and the stored value is not always that word;
-    - everything else prints exactly as stored. Numbers keep the application's
-      own writing, 12.5 and never 12,5, which is the writing every other part of
-      this application uses.
+    - everything else prints exactly as stored, a ticked box included: a
+      checkbox holds the word "Ja" already, which is what FeldHaken.tsx writes,
+      and beside its label that is the whole answer. Numbers keep the
+      application's own writing, 12.5 and never 12,5, which is the writing every
+      other part of this application uses.
     """
-    roh = _hole(antworten, pfad)
+    roh = hole(antworten, pfad)
     if roh is None:
         return ""
 
@@ -539,14 +560,16 @@ def _wert(pfad: str, antworten: dict[str, Any], plan: Gliederung) -> str:
         return ""
 
     liste = formular().optionslisten.get(pfad)
-    if liste:
-        return optionen().etikett(liste, wert)
-
-    return JA if wert == JA else wert
+    return optionen().etikett(liste, wert) if liste else wert
 
 
-def _hole(antworten: dict[str, Any], pfad: str) -> Any:
-    """One value out of the nested answers document, by its dotted path."""
+def hole(antworten: dict[str, Any], pfad: str) -> Any:
+    """One value out of the nested answers document, by its dotted path.
+
+    Public because the service above needs the same walk to read the title
+    block's facts out of the same document, and two walks would be two answers
+    to what probestrecke.gewaesser.gewaessername means.
+    """
     hier: Any = antworten
     for teil in pfad.split("."):
         if not isinstance(hier, dict):
@@ -556,7 +579,7 @@ def _hole(antworten: dict[str, Any], pfad: str) -> Any:
 
 
 def _zahl(antworten: dict[str, Any], pfad: str) -> Decimal | None:
-    roh = _hole(antworten, pfad)
+    roh = hole(antworten, pfad)
     if roh is None or str(roh).strip() == "":
         return None
     try:

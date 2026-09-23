@@ -159,6 +159,18 @@ turned out differently.
   a screenshot: section 3's Ufer block holds three runs, and three totals stacked
   underneath all of them leaves a reader counting rows upwards.
 
+Two more the branch review surfaced, both agreed after it:
+
+- **An empty catch table says "Keine Arten eingetragen." rather than printing a "no
+  detection" code.** Step 3 asked for the code, and the code cannot be there: the four
+  no-detection codes (`OFAN`, `OFAF`, `KNKR`, `KNMU`) are stored as a species row's own
+  name, so a protocol with no rows at all has no code to print. A protocol that did file
+  one prints it like any other species.
+- **The control sits on both heads**, the form and the filed-protocol view, rather than on
+  the protocol page alone. A reviewer pulling a copy of somebody else's protocol is one of
+  the three reasons the Goal gives for building this on the backend at all, so leaving it
+  off the view they actually read from would have missed the point.
+
 Two things worth knowing for the next run:
 
 - **The browser tests need the backend container rebuilt.** The dev server proxies to the
