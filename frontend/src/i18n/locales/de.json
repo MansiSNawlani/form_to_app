@@ -885,6 +885,10 @@
         "titel_other": "{{count}} Bilder aus der PDF-Datei fehlen hier noch",
         "text_one": "Die eingelesene PDF-Datei enthält 1 Bild. Bilder werden beim Einlesen noch nicht übernommen. Bitte speichern Sie es aus der PDF-Datei und laden Sie es hier als Kartenausschnitt oder Foto hoch.",
         "text_other": "Die eingelesene PDF-Datei enthält {{count}} Bilder. Bilder werden beim Einlesen noch nicht übernommen. Bitte speichern Sie sie aus der PDF-Datei und laden Sie sie hier als Kartenausschnitt oder Fotos hoch."
+      },
+      "banner": {
+        "titel": "Dieses Protokoll wurde aus einer PDF-Datei eingelesen",
+        "text": "Die Antworten stammen aus einer ausgefüllten PDF-Datei (Formularstand {{quellversion}}). Das Protokoll ist ein Entwurf und wurde noch nicht eingereicht. Es gelten dieselben Regeln wie für ein hier eingetipptes Protokoll, deshalb prüfen Sie die Angaben bitte, bevor Sie es absenden."
       }
     }
   }

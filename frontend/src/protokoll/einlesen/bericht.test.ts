@@ -53,17 +53,19 @@ describe('createBerichtstore', () => {
     expect(store().lies('p1')).toBeNull()
   })
 
-  /* Otherwise every clean import leaves a banner saying nothing went wrong, on
-     every reload, forever. The arrival banner is drawn from a report existing,
-     so an empty report and no report have to be the same thing. */
-  it('stores nothing for an import with nothing to report', () => {
+  /* An import the rules were happy with is still an import, and whoever opens
+     the protocol still has to be told it came out of a PDF and is a draft nobody
+     has submitted. An import that worked must not look identical to one that
+     quietly did nothing. */
+  it('writes a report even when there was nothing wrong with the file', () => {
     const storage = memoryStorage()
     const s = store(storage)
 
     s.schreib('p1', { quellversion: '20260609', unbrauchbar: [], bilder: 0 })
 
-    expect(s.lies('p1')).toBeNull()
-    expect(storage.getItem(KEY_PREFIX + 'p1')).toBeNull()
+    expect(s.lies('p1')?.quellversion).toBe('20260609')
+    expect(s.lies('p1')?.bannerGelesen).toBe(false)
+    expect(storage.getItem(KEY_PREFIX + 'p1')).not.toBeNull()
   })
 
   it('keeps a report that has only pictures to report', () => {

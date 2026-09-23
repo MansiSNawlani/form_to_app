@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import AbschnittNav from './AbschnittNav'
+import EinleseBanner from './einlesen/EinleseBanner'
 import { useEinlesebericht } from './einlesen/useEinlesebericht'
 import AbschnittWechsel from './AbschnittWechsel'
 import ProtokollKopf from './ProtokollKopf'
@@ -168,6 +169,11 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
         verstoesse={absendung.verstoesse}
         unbrauchbarePfade={einlesen.unbrauchbarePfade}
       />
+
+      {/* First, and above the section for the same reason as everything else
+          here: it explains where this whole protocol came from, and somebody
+          landing on any section needs that before they read a word of it. */}
+      <EinleseBanner bericht={einlesen.bericht} onGelesen={einlesen.bannerGelesen} />
 
       {/* Above the section rather than inside it: the offer is about the whole
           protocol, and it has to be seen whichever section the URL opened on. */}

@@ -89,17 +89,6 @@ function istBericht(wert: unknown): wert is GemerkterBericht {
   )
 }
 
-/* An import with nothing to report is stored as nothing at all.
- *
- * Otherwise every clean import would leave a banner saying that nothing went
- * wrong, on every reload, forever. The arrival banner is drawn from the fact
- * that a report exists, so "no report" and "a report with nothing in it" have to
- * be the same thing to everything reading this.
- */
-function lohntSichNicht(bericht: Einlesebericht): boolean {
-  return bericht.unbrauchbar.length === 0 && bericht.bilder === 0
-}
-
 export function createBerichtstore({ storage, now }: StoreOptions): Berichtstore {
   /* Every read is wrapped, not only the JSON parse. Private browsing, blocked
      site data and a locked-down profile all make the accessor itself throw, and
@@ -133,8 +122,14 @@ export function createBerichtstore({ storage, now }: StoreOptions): Berichtstore
        must not also break the import the person just did: the protocol is on the
        server with its answers in it either way, which is the part that matters. */
     schreib(id, bericht) {
-      if (lohntSichNicht(bericht)) return
-
+      /* Every import is written down, including one with nothing wrong with it.
+         The banner is the reason: somebody opening this protocol has to be told
+         it came out of a PDF and is a draft nobody has submitted, and that is
+         just as true of a file the rules were happy with. An import that worked
+         must not be indistinguishable from one that quietly did nothing.
+         
+         It does not repeat forever, because bannerGelesen ends it at the click;
+         what is deliberately not ended is the rest of the report. */
       try {
         const gemerkt: GemerkterBericht = {
           id,
