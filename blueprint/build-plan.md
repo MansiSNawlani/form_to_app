@@ -213,7 +213,7 @@ These are not features and are not tracked here. They happen first.
   - [ ] 23d. Die Bilder aus der PDF: the Kartenausschnitt and the four photo slots, which
         the legacy form holds as button icons rather than as attachments, turned into real
         Anlagen. Last, because it is the one part that may not work
-  - [ ] 23e. Das Protokoll als PDF: the download, a readable document of our own that the
+  - [x] 23e. Das Protokoll als PDF: the download, a readable document of our own that the
         backend builds and hands over as a file
 
   **What this is for, settled on 2026-09-22, and it is the opposite of what this item
