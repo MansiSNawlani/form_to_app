@@ -763,18 +763,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* The file picker's focus ring.
-
-   The control is the <input type="file"> inside this label, because that is
-   what opens the file dialog and what a screen reader announces. It is clipped
-   to a single pixel, so its own ring would be invisible; the label wears it
-   instead. The label is out of the tab order (tabIndex -1 in AnlagenPicker), so
-   one control means one tab stop. */
-.anlagen-picker:has(input:focus-visible) {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-
 /* The chevron on the compact section button. Points down when the menu is
    closed and up when it is open. */
 .steps-kompakt__pfeil {
@@ -840,6 +828,17 @@
 
 .absende-probleme__erledigt a {
   color: inherit;
+}
+
+/* The heading over the answers an import could not read.
+
+   A heading rather than a run-on list, because the two groups say different
+   things: above it are answers the rules refused, here are answers that are
+   present and could not be understood. Without a break between them somebody
+   reads one sentence about their date and looks for the wrong problem. */
+.absende-probleme__gruppe {
+  margin-top: 0.75rem;
+  color: var(--muted);
 }
 
 .absende-probleme__aktionen {

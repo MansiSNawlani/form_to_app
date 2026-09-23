@@ -3,7 +3,8 @@ import Typography from '@mui/material/Typography'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AnlagenMeldungen from './AnlagenMeldungen'
-import AnlagenPicker from './AnlagenPicker'
+import DateiPicker from '../../../components/DateiPicker'
+import { ERLAUBTE_TYPEN } from '../../anlagen/regeln'
 import AnlagenVorschau from './AnlagenVorschau'
 import AnlagenZustand from './AnlagenZustand'
 import EntfernenDialog from './EntfernenDialog'
@@ -66,7 +67,8 @@ function FotosBlock({ entwurfId, bereitstellen, melde }: FotosBlockProps) {
       {status === 'loaded' && (
         <>
           <div className="anlagen__kopf">
-            <AnlagenPicker
+            <DateiPicker
+          akzeptiert={ERLAUBTE_TYPEN.join(',')}
               gesperrt={laeuft}
               ref={picker}
               beschriftung={t('protokoll.abschnitt7.fotos.waehlen')}

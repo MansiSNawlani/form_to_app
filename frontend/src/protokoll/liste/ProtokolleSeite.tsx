@@ -3,6 +3,9 @@ import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import DateiPicker from '../../components/DateiPicker'
+import EinleseFehler from '../einlesen/EinleseFehler'
+import { useEinlesen } from '../einlesen/useEinlesen'
 import { protokolleAbfrage } from '../entwurf/abfragen'
 import { zaehlungen } from './anzeige'
 import Ladefehler from './Ladefehler'
@@ -12,6 +15,11 @@ import Loeschfehler from './Loeschfehler'
 import ProtokollTabelle from './ProtokollTabelle'
 import { useLoeschen } from './useLoeschen'
 import './liste.css'
+
+/* A hint to the file dialog, never a check. The rules live on the server, which
+   is the only thing that can know whether a PDF is this form at all; a second
+   opinion here could only ever be the wrong one. */
+const PDF_TYP = 'application/pdf'
 
 /* The home page: this account's own protocols.
  *
@@ -29,6 +37,7 @@ function ProtokolleSeite() {
 
   const { data: zeilen, isPending, error, refetch, isFetching } = useQuery(protokolleAbfrage())
   const loeschen = useLoeschen()
+  const einlesen = useEinlesen()
 
   const zahlen = zeilen === undefined ? undefined : zaehlungen(zeilen)
 
@@ -55,6 +64,19 @@ function ProtokolleSeite() {
           )}
         </div>
         <div className="page__head-actions">
+          {/* Beside "Neues Protokoll" rather than below it: both start a
+              protocol, and the only difference is whether the answers are typed
+              here or were typed into the Acrobat form in a field office. */}
+          <DateiPicker
+            beschriftung={
+              einlesen.laeuft
+                ? t('protokolle.einlesen.laeuft')
+                : t('protokolle.einlesen.waehlen')
+            }
+            akzeptiert={PDF_TYP}
+            gesperrt={einlesen.laeuft}
+            onDateien={(dateien) => einlesen.einlesen(dateien[0])}
+          />
           <Button component={Link} to="/protokolle/neu" variant="contained">
             {t('protokolle.list.new')}
           </Button>
@@ -75,6 +97,19 @@ function ProtokolleSeite() {
           both alarming and untrue. */}
       {error !== null && zeilen === undefined && (
         <Ladefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
+      )}
+
+      {/* A live region, because the button's own label changing is not
+          something a screen reader announces, and a 2 MB protocol takes a
+          noticeable moment to go up and be read. */}
+      {einlesen.laeuft && (
+        <Typography variant="body1" role="status">
+          {t('protokolle.einlesen.laeuftHinweis')}
+        </Typography>
+      )}
+
+      {einlesen.fehler !== null && (
+        <EinleseFehler fehler={einlesen.fehler} onSchliessen={einlesen.verwerfen} />
       )}
 
       {loeschen.fehlgeschlagen !== null && (

@@ -28,6 +28,9 @@ interface AbsendeProblemeProps {
   /** Which section is open. Only its problems are listed here. */
   aktuelleNr: number
   verstoesse: readonly Verstoss[]
+  /* Field paths an import could not take over, from einlesen/bericht.ts. Empty
+     for every protocol that was typed in rather than imported. */
+  unbrauchbarePfade: readonly string[]
   /* The species codes actually in the catch table, by row, so a refused cell can
      be named by its fish rather than by its row number. */
   artnamen: Record<number, string | undefined>
@@ -70,6 +73,7 @@ function AbsendeProbleme({
   geprueftAm,
   aktuelleNr,
   verstoesse,
+  unbrauchbarePfade,
   artnamen,
   onErneutPruefen,
   laeuft,
@@ -90,12 +94,16 @@ function AbsendeProbleme({
 
   const erledigt = useErledigtePfade(verstoesse)
 
-  const { gruppen, unverortet, anzahl, offen } = gruppiere(verstoesse, erledigt)
+  const { gruppen, unverortet, anzahl, offen } = gruppiere(verstoesse, erledigt, unbrauchbarePfade)
 
   /* This section's entries, and nothing else. The rest are still counted, so the
      line below can say how much is left elsewhere without listing any of it. */
   const hier = gruppen.find((gruppe) => gruppe.nr === aktuelleNr)
-  const offenHier = hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0
+  /* The unusable answers are counted in full: none of them ever ticks off, for
+     the reason gruppierung.ts explains. */
+  const offenHier =
+    (hier?.probleme.filter((problem) => !problem.erledigt).length ?? 0) +
+    (hier?.unbrauchbar.length ?? 0)
   const woanders = offen - offenHier
 
   /* Everything this section was pulled up on has since been filled in, so its
@@ -152,7 +160,7 @@ function AbsendeProbleme({
       </Typography>
 
       <Collapse in={ausgeklappt}>
-        {hier !== undefined && !hierErledigt && (
+        {hier !== undefined && !hierErledigt && hier.probleme.length > 0 && (
           <section>
             <List dense disablePadding>
               {hier.probleme.map((problem) => (
@@ -171,6 +179,33 @@ function AbsendeProbleme({
                   {problem.erledigt
                     ? t('protokoll.absenden.probleme.ausgefuellt')
                     : meldung(problem.schluessel)}
+                </ListItem>
+              ))}
+            </List>
+          </section>
+        )}
+
+        {/* Its own group under its own heading, never folded into the list
+            above. A violation says the answer is wrong or missing; this says the
+            answer is there, exactly as the PDF wrote it, and could not be read.
+            Somebody told their date is missing, while looking straight at it,
+            goes hunting for the wrong problem. */}
+        {hier !== undefined && hier.unbrauchbar.length > 0 && (
+          <section>
+            <Typography variant="subtitle2" component="h3" className="absende-probleme__gruppe">
+              {t('protokoll.einlesen.unbrauchbar.titel')}
+            </Typography>
+            <List dense disablePadding>
+              {hier.unbrauchbar.map((problem) => (
+                <ListItem key={`unbrauchbar:${problem.pfad}`} disableGutters>
+                  <Link
+                    component={RouterLink}
+                    to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
+                  >
+                    {benenne(problem, artnamen, t)}
+                  </Link>
+                  {': '}
+                  {t('protokoll.einlesen.unbrauchbar.text')}
                 </ListItem>
               ))}
             </List>

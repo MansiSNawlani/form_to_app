@@ -20,6 +20,7 @@ import type {
   AbsendenAnfrage,
   Antworten,
   AntwortenSpeichern,
+  EingelesenesProtokoll,
   Entwurf,
   SpeicherAntwort,
   Uebersicht,
@@ -132,6 +133,46 @@ export function absendeProtokoll({
   const koerper: AbsendenAnfrage = { version }
 
   return apiAnfrage<AbsendenAntwort>(`${PFAD}/${encodeURIComponent(id)}/absenden`, {
+    methode: 'POST',
+    koerper,
+    fetchImpl,
+  })
+}
+
+/* Read a protocol out of the legacy Acrobat form and open it as a draft.
+ *
+ * The one call on this module that starts a protocol from something other than
+ * an empty document. A surveyor who would rather fill the PDF in on a laptop in
+ * a field office should not have to type the whole thing again because the
+ * reviewers at FFS now work in the application, and this is that path.
+ *
+ * multipart/form-data, the one case where the browser must set Content-Type
+ * itself, because the boundary in the header has to match the one it invented
+ * for the body. api/client.ts leaves a FormData alone for exactly that reason.
+ *
+ * **Nothing is checked here before sending.** No size, no type, no peek at the
+ * bytes. Whether a PDF is this form is something only the server can know, it
+ * answers with a sentence saying what to do about it, and a second opinion in
+ * the browser could only ever be the wrong one.
+ *
+ * Rejects with an ApiFehler whose nachricht is the backend's own German: not a
+ * PDF, locked with a password, no form in it, not this form, no version stamp,
+ * or too big. None of those are branched on, so none has a constant in
+ * api/fehler.ts, exactly as the attachment refusals do not: every one arrives
+ * with a sentence that already names the file, says why and says what to do.
+ */
+export function leseProtokollEin({
+  datei,
+  fetchImpl,
+}: MitFetch & { datei: File }): Promise<EingelesenesProtokoll> {
+  const koerper = new FormData()
+  /* The filename travels as the third argument rather than being left to the
+     File, so it is the name the surveyor picked: the refusals name the file back
+     to them, and a request with no name at all makes the backend say "die Datei"
+     instead. It is stored as data and never as a path. */
+  koerper.append('datei', datei, datei.name)
+
+  return apiAnfrage<EingelesenesProtokoll>(`${PFAD}/einlesen`, {
     methode: 'POST',
     koerper,
     fetchImpl,

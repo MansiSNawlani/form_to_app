@@ -13,6 +13,10 @@ interface AbschnittNavProps {
      which is why the bar carries no markers on a protocol nobody has tried to
      send yet. */
   verstoesse: readonly Verstoss[]
+  /* Field paths an import could not take over. Counted beside the violations,
+     so a section whose only outstanding work is a date the import could not
+     read still carries a marker instead of reading as finished. */
+  unbrauchbarePfade: readonly string[]
 }
 
 /* The step bar. Every section is a real link, so all of them are reachable in
@@ -38,10 +42,15 @@ interface AbschnittNavProps {
    The subscription lives here rather than in ProtokollFormular deliberately: this
    bar is a sibling of the open section, so redrawing it on a keystroke costs
    seven links rather than the 312 controls of the catch table. */
-function AbschnittNav({ entwurfId, aktuelleNr, verstoesse }: AbschnittNavProps) {
+function AbschnittNav({
+  entwurfId,
+  aktuelleNr,
+  verstoesse,
+  unbrauchbarePfade,
+}: AbschnittNavProps) {
   const { t } = useTranslation()
   const erledigt = useErledigtePfade(verstoesse)
-  const offen = offeneJeAbschnitt(verstoesse, erledigt)
+  const offen = offeneJeAbschnitt(verstoesse, erledigt, unbrauchbarePfade)
 
   return (
     <>

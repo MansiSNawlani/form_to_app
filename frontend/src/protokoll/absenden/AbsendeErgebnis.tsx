@@ -13,6 +13,9 @@ interface AbsendeErgebnisProps {
   /** Which section is open, so the panel lists only that one's problems. */
   aktuelleNr: number
   absendung: Absenden
+  /* Field paths an import could not take over. Empty for every protocol that
+     was typed in rather than imported. */
+  unbrauchbarePfade: readonly string[]
 }
 
 /* Whatever the last attempt to submit came back with.
@@ -24,7 +27,12 @@ interface AbsendeErgebnisProps {
  * Rendered above the open section. The panel inside it is a list of links to
  * other sections, so anything holding it has to outlive the trip it invites.
  */
-function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisProps) {
+function AbsendeErgebnis({
+  entwurfId,
+  aktuelleNr,
+  absendung,
+  unbrauchbarePfade,
+}: AbsendeErgebnisProps) {
   const { t } = useTranslation()
   const { getValues } = useFormContext<Antworten>()
   const {
@@ -50,7 +58,9 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
       <Alert
         severity="success"
         action={
-          <Button component={Link} to="/protokolle" size="small" color="inherit">
+          /* "/" and not "/protokolle": the list is the index route. See the note
+             on UEBERSICHT in useAbsenden.ts. */
+          <Button component={Link} to="/" size="small" color="inherit">
             {t('protokoll.absenden.bereitsAbgesendet.zurUebersicht')}
           </Button>
         }
@@ -74,6 +84,7 @@ function AbsendeErgebnis({ entwurfId, aktuelleNr, absendung }: AbsendeErgebnisPr
       geprueftAm={geprueftAm}
       aktuelleNr={aktuelleNr}
       verstoesse={verstoesse}
+      unbrauchbarePfade={unbrauchbarePfade}
       /* Read once per render rather than watched. The panel watches the paths it
          actually lists, which is what keeps a keystroke from redrawing it; the
          species names only matter for rows already in the list. */
