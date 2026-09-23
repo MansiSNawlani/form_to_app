@@ -80,13 +80,13 @@ everything else exists to support them. Item 9 carries the most risk.
 
     The export was item 20, after MVP, and was folded in here on 2026-09-22 because a submitter
     needs a copy of what they filed, to keep, to print, and to send to somebody who will never
-    have an account. It is the same file format read the other way round: it writes the answers
-    into the same boxes the import reads them out of, which is also why one gives the other its
-    test material. **It fills the official form rather than drawing its own document**, so the
-    output is the Protokoll E-Befischung as FFS has always had it on paper, with the form's own
-    JavaScript stripped out. What the paper cannot hold is stated rather than quietly dropped:
-    no box for the Bearbeiter's town, no room past the fourth photo, and nowhere to print the
-    status or the Verlauf.
+    have an account. **It is a document of our own rather than a copy of the official form**,
+    decided on 2026-09-23 and reversing the choice made when it was folded in. The backend
+    builds it and serves it as a file with a proper name, so every copy looks the same wherever
+    it was saved from. Nothing of the legacy file is reused, so the blank form is not needed at
+    run time, and our own page has room for what the paper had no box for: the Bearbeiter's
+    town, photos past the fourth, and the status, printed on every page. The Verlauf stays out;
+    a download is a copy of the protocol, not a record of what was done to it.
 13. **Regional access** - the Regierungspräsidium read-only role.
 14. **Notifications** - email on submission and status change, plus a weekly digest, via a
     background worker.

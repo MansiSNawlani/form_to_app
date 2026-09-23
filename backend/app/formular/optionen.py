@@ -15,7 +15,7 @@ anybody; it answers with an i18n key and the browser does the rest.
 """
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
@@ -31,6 +31,21 @@ class Optionslisten:
 
     version: str
     listen: dict[str, frozenset[str]]
+    #: What each value is called, per list. Needed by the PDF download, which
+    #: prints "Fischmonitoring gemaess WRRL" where a protocol stores "wrrl".
+    #: Separate from the values above, which only answer whether a value is
+    #: allowed: the E-Geraet list offers one value under two labels, so a single
+    #: mapping could not serve both questions.
+    etiketten: dict[str, dict[str, str]] = field(default_factory=dict)
+
+    def etikett(self, liste: str, wert: str) -> str:
+        """What that value is called, or the value itself when nothing names it.
+
+        The stored value rather than a blank or a raise. An unknown code in a
+        filed protocol is something a reader should still see, because it is
+        what the protocol actually holds.
+        """
+        return self.etiketten.get(liste, {}).get(wert, wert)
 
     def werte(self, name: str) -> frozenset[str]:
         """What that list offers, or nothing at all if there is no such list.
@@ -67,7 +82,35 @@ def lade_optionen(verzeichnis: Path) -> Optionslisten:
     if not isinstance(version, str) or not isinstance(listen, dict):
         raise FormularDefinitionFehlt(pfad, "it has no version or no lists")
 
-    return Optionslisten(version=version, listen=_werte_je_liste(pfad, listen))
+    return Optionslisten(
+        version=version,
+        listen=_werte_je_liste(pfad, listen),
+        etiketten=_etiketten_je_liste(listen),
+    )
+
+
+def _etiketten_je_liste(listen: dict[str, object]) -> dict[str, dict[str, str]]:
+    """What each value is called. Checked by _werte_je_liste already, so this
+    only has to read what that proved was there.
+
+    The first label wins where a list offers one value twice, which is the
+    E-Geraet list and defect 12. "keine Angabe" is the entry the form prints
+    first and the one a surveyor is likelier to have meant.
+    """
+    etiketten: dict[str, dict[str, str]] = {}
+    for name, eintraege in listen.items():
+        if not isinstance(eintraege, list):
+            continue
+        je_wert: dict[str, str] = {}
+        for eintrag in eintraege:
+            if not isinstance(eintrag, dict):
+                continue
+            wert = eintrag.get("wert")
+            label = eintrag.get("label")
+            if isinstance(wert, str) and isinstance(label, str) and wert not in je_wert:
+                je_wert[wert] = label
+        etiketten[name] = je_wert
+    return etiketten
 
 
 def _werte_je_liste(pfad: Path, listen: dict[str, object]) -> dict[str, frozenset[str]]:

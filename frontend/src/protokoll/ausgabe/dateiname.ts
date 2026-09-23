@@ -1,0 +1,61 @@
+/* What the downloaded file should be called.
+ *
+ * The backend already decided, and says so in Content-Disposition. Reading it
+ * back rather than building a second name here is what keeps the file the same
+ * whether it was saved from this button or by opening the address directly.
+ *
+ * RFC 6266's filename* carries UTF-8 as percent-encoded bytes, which is how
+ * "Weissenau" survives a header that is Latin-1. app/api/anlagen.py writes it
+ * and explains why; this undoes exactly that.
+ */
+
+/** Used when the header is missing, empty, or not something we can read. */
+export const ERSATZNAME = 'protokoll.pdf'
+
+const MIT_STERN = /filename\*=UTF-8''([^;]+)/i
+const SCHLICHT = /filename="?([^";]+)"?/i
+
+/* C0 and DEL, dropped by code point rather than by a character class.
+
+   Two reasons, both about the next person to read this. Putting the real bytes
+   in the source makes git call the file binary, and a file that shows up as
+   "Bin 0 -> 1830 bytes" is one nobody can review. Writing them as escapes
+   inside a regular expression is still a control character to a linter, which
+   is what no-control-regex exists to say. A comparison says it plainly. */
+function ohneSteuerzeichen(wert: string): string {
+  return [...wert]
+    .filter((zeichen) => {
+      const punkt = zeichen.codePointAt(0) ?? 0
+      return punkt > 31 && punkt !== 127
+    })
+    .join('')
+}
+
+export function dateinameAus(verfuegung: string): string {
+  const kodiert = MIT_STERN.exec(verfuegung)?.[1]
+  if (kodiert !== undefined) {
+    try {
+      return saeubere(decodeURIComponent(kodiert))
+    } catch {
+      /* A percent sign that begins no valid escape. Nothing we send produces
+         one, so this is a proxy having rewritten the header, and a sensible
+         default beats a thrown error between the file and the person. */
+      return ERSATZNAME
+    }
+  }
+
+  const schlicht = SCHLICHT.exec(verfuegung)?.[1]
+  return schlicht === undefined ? ERSATZNAME : saeubere(schlicht)
+}
+
+/* A name out of a header never becomes a path.
+ *
+ * The browser would not let a download escape the Downloads folder anyway, but
+ * the name reaches an <a download> attribute, and a value with a slash in it is
+ * treated differently by different browsers. One rule here beats finding out.
+ */
+function saeubere(name: string): string {
+  const letzter = name.split(/[\\/]/).pop() ?? ''
+  const sauber = ohneSteuerzeichen(letzter).trim()
+  return sauber === '' || sauber === '.' || sauber === '..' ? ERSATZNAME : sauber
+}

@@ -19,11 +19,12 @@ submitted one is survey data.
 import uuid
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.speicher import Anlagenspeicher, get_speicher
 from app.api.abhaengigkeiten import AngemeldeterBenutzer, erfordert_rollen
+from app.api.anlagen import dateiname_header
 from app.api.schemas import (
     AbsendenAnfrage,
     AbsendenAntwort,
@@ -41,6 +42,7 @@ from app.api.schemas import (
 from app.db import get_session
 from app.models.benutzer import User
 from app.protokolle.absenden import sende_ab
+from app.protokolle.ausgabe.dienst import baue_ausgabe
 from app.protokolle.dienst import (
     Protokollansicht,
     hole_protokollansicht,
@@ -346,6 +348,47 @@ async def verlauf(
     """
     eintraege = await lies_verlauf(session, protokoll_id=protokoll_id, benutzer=benutzer)
     return [VerlaufEintrag.model_validate(eintrag) for eintrag in eintraege]
+
+
+@router.get(
+    "/{protokoll_id}/pdf",
+    responses={**MIT_PROTOKOLL, 200: {"content": {"application/pdf": {}}}},
+    response_class=Response,
+)
+async def als_pdf(
+    protokoll_id: uuid.UUID,
+    benutzer: AngemeldeterBenutzer,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    speicher: Annotated[Anlagenspeicher, Depends(get_speicher)],
+) -> Response:
+    """The protocol as a PDF to keep, print, or send to somebody without an account.
+
+    A document of our own rather than a copy of the legacy Acrobat form, decided
+    on 2026-09-23; build-plan.md item 23 carries the reasoning.
+
+    **Any status, drafts included.** A copy of an unfinished protocol is a
+    perfectly reasonable thing to want, and the document prints the status at the
+    top of every page so a draft cannot be mistaken for a filed one.
+
+    Whoever may read the protocol may download it, which is the same rule the
+    reviewer's screen uses, so a stranger gets the same 404 as ever. Built whole
+    rather than streamed: the document does not exist until the last page is laid
+    out, so there is nothing to send in pieces.
+    """
+    ausgabe = await baue_ausgabe(
+        session, protokoll_id=protokoll_id, benutzer=benutzer, speicher=speicher
+    )
+    return Response(
+        content=ausgabe.daten,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": dateiname_header(ausgabe.dateiname),
+            "X-Content-Type-Options": "nosniff",
+            # Never cached. The answers change until a protocol is filed, and a
+            # stale copy of somebody's survey is worse than a slow one.
+            "Cache-Control": "no-store",
+        },
+    )
 
 
 @router.delete("/{protokoll_id}", status_code=status.HTTP_204_NO_CONTENT, responses=BEIM_AENDERN)

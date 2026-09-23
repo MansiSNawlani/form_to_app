@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { darfPruefen } from '../../auth/startseite'
 import { useSitzung } from '../../auth/useSitzung'
 import Statusabzeichen from '../Statusabzeichen'
+import HerunterladenKnopf from '../ausgabe/HerunterladenKnopf'
 import { protokollTitel } from '../entwurf/titel'
 import { datumAnzeige } from '../liste/anzeige'
 import { abfrageAus } from '../pruefliste/parameter'
@@ -88,6 +89,7 @@ function Kopfzeile({ protokoll }: { protokoll: Entwurf }) {
       </div>
       <div className="page__head-actions">
         <Statusabzeichen status={protokoll.status} />
+        <HerunterladenKnopf protokollId={protokoll.id} />
         {ausDerPruefliste && <Listennavigation id={protokoll.id} abfrage={abfrage} />}
         {/* The crumb is this reader's way back, so a second one beside it would
             be two links to two different lists. Everybody else keeps theirs. */}

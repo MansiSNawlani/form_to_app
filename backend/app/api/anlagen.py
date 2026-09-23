@@ -130,7 +130,7 @@ async def liste(
     return [AnlageAntwort.model_validate(anlage) for anlage in anlagen]
 
 
-def _dateiname_header(dateiname: str) -> str:
+def dateiname_header(dateiname: str) -> str:
     """A Content-Disposition that survives an umlaut and cannot forge a header.
 
     Two problems, one line. A header is Latin-1, so "Weißenau.jpg" cannot go in
@@ -191,7 +191,7 @@ async def herunterladen(
         media_type=anlage.mime_type,
         headers={
             "Content-Length": str(anlage.groesse),
-            "Content-Disposition": _dateiname_header(anlage.dateiname),
+            "Content-Disposition": dateiname_header(anlage.dateiname),
             "X-Content-Type-Options": "nosniff",
             # An attachment's bytes never change: replacing the map excerpt makes
             # a new row with a new id, so this address always answers with the

@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
+    "beschriftungen": "node scripts/beschriftungen.ts",
     "preview": "vite preview",
     "e2e": "playwright test"
   },

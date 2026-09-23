@@ -213,8 +213,8 @@ These are not features and are not tracked here. They happen first.
   - [ ] 23d. Die Bilder aus der PDF: the Kartenausschnitt and the four photo slots, which
         the legacy form holds as button icons rather than as attachments, turned into real
         Anlagen. Last, because it is the one part that may not work
-  - [ ] 23e. Das Protokoll als PDF: the download, built by writing the answers into the
-        official form's own boxes
+  - [x] 23e. Das Protokoll als PDF: the download, a readable document of our own that the
+        backend builds and hands over as a file
 
   **What this is for, settled on 2026-09-22, and it is the opposite of what this item
   assumed on 2026-09-15.** That note put the backlog first: the stack of completed
@@ -254,21 +254,27 @@ These are not features and are not tracked here. They happen first.
   **Split into five on 2026-09-22, when the export was folded in.** The export was item 20,
   after MVP, and was pulled forward because a submitter needs a copy of what they filed, to
   keep, to print, and to send to somebody who is not going to be given an account. It is a
-  sub-feature of this item rather than an item of its own because it is the same file format
-  read the other way round: it writes the answers into the same 540 boxes 23a reads them out
-  of, which also means 23e gives 23a its test material and 23a gives 23e its proof.
+  sub-feature of this item rather than an item of its own because it is the other half of the
+  same job: the file a protocol can arrive as, and the file it can leave as.
 
-  Two decisions taken when it was folded in:
+  - **The export is a document of our own, not a copy of the official form.** Decided on
+    2026-09-23, reversing the decision taken when the export was folded in a day earlier. What
+    a submitter needs is a readable copy they can save, print, and pass to somebody without an
+    account, and reproducing the legacy sheet box for box is not worth what it costs. The
+    backend builds the document and serves it as a file with a proper name, rather than leaving
+    it to the browser's print dialogue, so every copy looks the same wherever it was saved from
+    and feature 14 can attach one to an email later.
 
-  - **The export fills the official form rather than drawing its own document.** The output
-    is the Protokoll E-Befischung as FFS has always had it on paper, which is what somebody
-    printing it for a meeting needs, and it costs almost nothing because every field name
-    already matches. The form's own JavaScript is stripped on the way out: it carries the
-    hard-coded FFS addresses of
-    [defect 5](../docs/ffs-defect-list.md) and validation we have deliberately replaced.
-    What the paper cannot hold is named in the spec rather than quietly dropped: there is no
-    box for the Bearbeiter's town, no room past the fourth photo, and nowhere to print the
-    status or the Verlauf.
+    Three things fall away with the replica. The blank
+    `Formular_Protokoll_E-Befischung_V20260609.pdf` is no longer needed at run time, which
+    matters because `Resources/` is deliberately untracked and no deployment has a copy of it.
+    The legacy form's embedded JavaScript, with the hard-coded FFS addresses of
+    [defect 5](../docs/ffs-defect-list.md), never comes into it, because nothing of the old
+    file is reused. And what the paper cannot hold stops being a constraint at all: our own
+    document has room for the Bearbeiter's town, for every photo past the fourth, and for the
+    status, which it prints on every page. The spec decides what belongs on the page rather
+    than what fits on it, and it leaves the Verlauf out: a download is a copy of the protocol,
+    not a record of what was done to it, which is feature 15's.
   - **Item 20 stays where it is.** What is left of it once 23e ships is the part that needs
     feature 18: the map excerpt drawn from stored geometry rather than uploaded as a picture.
 - [ ] 13. Regierungspräsidium access: regional read-only role
@@ -283,7 +289,7 @@ These are not features and are not tracked here. They happen first.
       search, and backfilling identifiers onto existing submissions
 - [ ] 19. Transfer to FiaKa: JSON payload, machine account, safe to retry, transfer log
 - [ ] 20. PDF generation, with the map excerpt drawn from stored geometry. Feature 23e
-      ships the download itself, by filling the official form; what is left here is the
-      map excerpt drawn rather than uploaded, which needs feature 18
+      ships the download itself; what is left here is the map excerpt drawn rather than
+      uploaded, which needs feature 18
 - [ ] 21. Protokoll Krebs, reusing the Probestrecke characterisation sections
 - [ ] 22. Offline field use
