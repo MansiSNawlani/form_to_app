@@ -298,7 +298,7 @@ These are not features and are not tracked here. They happen first.
 - [ ] 15. Audit trail
 - [ ] 16. Benutzerverwaltung: accounts and roles managed in the application rather than
       only at the command line
-  - [ ] 16a. Die Konten-Endpunkte: every account read, created, changed, locked and
+  - [x] 16a. Die Konten-Endpunkte: every account read, created, changed, locked and
         unlocked over the API, Super Admin only, and the rule that no change may leave
         the application without an active Super Admin
   - [ ] 16b. Die Benutzerliste: the /verwaltung/benutzer screen, the table of accounts
