@@ -53,20 +53,30 @@ from app.security.passwoerter import (
 EMAIL_INDEX = "uq_users_email"
 
 
-class _Unveraendert:
+class Unveraendert:
     """The absence of a value, told apart from the value None.
 
     aendere_benutzer changes any subset of five fields, and one of them,
     regierungspraesidium, is genuinely nullable. "Leave the region alone" and
     "clear the region" are different instructions, and a default of None cannot
     express both. This sentinel is the difference.
+
+    Public, because the router has to name the type to hand values in. There is
+    exactly one instance, UNVERAENDERT below, and nothing should ever make a
+    second: the checks are isinstance rather than identity so that a second one
+    would still behave, but two of them would make the repr below a lie.
     """
 
     def __repr__(self) -> str:
         return "UNVERAENDERT"
 
 
-UNVERAENDERT = _Unveraendert()
+UNVERAENDERT = Unveraendert()
+
+
+def _oder[T](wert: T | Unveraendert, bisher: T) -> T:
+    """The value that was given, or the one the account already has."""
+    return bisher if isinstance(wert, Unveraendert) else wert
 
 
 async def lege_benutzer_an(
@@ -215,11 +225,11 @@ async def aendere_benutzer(
     benutzer: User,
     *,
     handelnder: User,
-    email: str | _Unveraendert = UNVERAENDERT,
-    rollen: Sequence[Rolle] | _Unveraendert = UNVERAENDERT,
-    regierungspraesidium: int | None | _Unveraendert = UNVERAENDERT,
-    locale: Locale | _Unveraendert = UNVERAENDERT,
-    ist_aktiv: bool | _Unveraendert = UNVERAENDERT,
+    email: str | Unveraendert = UNVERAENDERT,
+    rollen: Sequence[Rolle] | Unveraendert = UNVERAENDERT,
+    regierungspraesidium: int | None | Unveraendert = UNVERAENDERT,
+    locale: Locale | Unveraendert = UNVERAENDERT,
+    ist_aktiv: bool | Unveraendert = UNVERAENDERT,
 ) -> User:
     """Change any subset of an account's fields, or raise saying what was wrong.
 
@@ -234,17 +244,15 @@ async def aendere_benutzer(
     Everything is checked before anything is written, like lege_benutzer_an, so a
     refused change leaves the row exactly as it was.
     """
-    neue_email = benutzer.email if isinstance(email, _Unveraendert) else normalisiere_email(email)
+    # The two that normalise keep their own line, because what they do to a given
+    # value is part of the rule rather than a default. The other three are plain.
+    neue_email = benutzer.email if isinstance(email, Unveraendert) else normalisiere_email(email)
     neue_rollen = (
-        list(benutzer.rollen) if isinstance(rollen, _Unveraendert) else normalisiere_rollen(rollen)
+        list(benutzer.rollen) if isinstance(rollen, Unveraendert) else normalisiere_rollen(rollen)
     )
-    neues_rp = (
-        benutzer.regierungspraesidium
-        if isinstance(regierungspraesidium, _Unveraendert)
-        else regierungspraesidium
-    )
-    neue_locale = benutzer.locale if isinstance(locale, _Unveraendert) else locale
-    neu_aktiv = benutzer.ist_aktiv if isinstance(ist_aktiv, _Unveraendert) else ist_aktiv
+    neues_rp = _oder(regierungspraesidium, benutzer.regierungspraesidium)
+    neue_locale = _oder(locale, benutzer.locale)
+    neu_aktiv = _oder(ist_aktiv, benutzer.ist_aktiv)
 
     # Taking the regional role away without clearing its number is refused rather
     # than fixed up. Dropping the number quietly would be this layer deciding

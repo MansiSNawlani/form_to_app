@@ -16,7 +16,7 @@ from datetime import date, datetime
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.anlage import Anlagenart
 from app.models.benutzer import Locale, Rolle
@@ -82,9 +82,15 @@ class KontoAnlegenAnfrage(BaseModel):
     wrong shape or an unreasonable size before any of that runs.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     email: str = Field(min_length=1, max_length=EMAIL_HOECHSTLAENGE)
     passwort: str = Field(min_length=1, max_length=PASSWORT_HOECHSTLAENGE)
-    rollen: list[Rolle] = Field(min_length=1)
+    # No min_length. An empty list is refused by normalisiere_rollen, which says
+    # why and what to do about it, and nothing is written before it does. Refusing
+    # it here instead would answer with the generic "wrong format" message and
+    # make ROLLEN_LEER a documented code no caller can ever receive.
+    rollen: list[Rolle]
     regierungspraesidium: int | None = None
     locale: Locale = Locale.DE
 
@@ -118,7 +124,7 @@ class KontoAendernAnfrage(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     email: str | None = Field(default=None, min_length=1, max_length=EMAIL_HOECHSTLAENGE)
-    rollen: list[Rolle] | None = Field(default=None, min_length=1)
+    rollen: list[Rolle] | None = None
     regierungspraesidium: int | None = None
     locale: Locale | None = None
     ist_aktiv: bool | None = None
@@ -132,19 +138,24 @@ class KontoAendernAnfrage(BaseModel):
         """
         return feld in self.model_fields_set
 
-    @model_validator(mode="after")
-    def _kein_ausdrueckliches_null(self) -> "KontoAendernAnfrage":
-        ohne_leerwert = ("email", "rollen", "locale", "ist_aktiv")
-        geleert = [
-            feld
-            for feld in ohne_leerwert
-            if feld in self.model_fields_set and getattr(self, feld) is None
-        ]
-        if geleert:
-            raise ValueError(
-                "Diese Felder koennen nicht geleert werden: " + ", ".join(geleert)
-            )
-        return self
+    @field_validator("email", "rollen", "locale", "ist_aktiv", mode="before")
+    @classmethod
+    def _kein_ausdrueckliches_null(cls, wert: object) -> object:
+        """Refuse a null on the four fields where null means nothing.
+
+        Per field rather than over the whole model, so the refusal carries the
+        field it came from. A model-wide validator produces an error with no
+        location, and behandle_anfragefehler then answers with a sentence that
+        names nothing, which is the least useful refusal this API can give.
+
+        A field left out never reaches this: Pydantic does not validate a default
+        it did not have to parse. Only a null that was actually sent does.
+        """
+        if wert is None:
+            # Never read. behandle_anfragefehler rebuilds the sentence from the
+            # field location, so what matters here is that this raises at all.
+            raise ValueError("null is not a value for this field")
+        return wert
 
 
 class PasswortAnfrage(BaseModel):
@@ -159,6 +170,8 @@ class PasswortAnfrage(BaseModel):
     anything looks at it, and it sits above the policy's maximum so the policy is
     what refuses a long password.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     passwort: str = Field(min_length=1, max_length=PASSWORT_HOECHSTLAENGE)
 

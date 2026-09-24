@@ -162,12 +162,19 @@ async def test_wer_sich_nicht_anmeldet_bekommt_401_und_nicht_403(
     somebody signed out with no way to sign in, and answering 404 would tell an
     unauthenticated caller whether an account exists.
     """
+    fremde_id = uuid.uuid4()
     antworten = [
         await client.get(PFAD),
-        await client.get(f"{PFAD}/{uuid.uuid4()}"),
+        await client.get(f"{PFAD}/{fremde_id}"),
         await client.post(PFAD, json=_neues_konto()),
+        await client.patch(f"{PFAD}/{fremde_id}", json={"ist_aktiv": False}),
+        await client.put(f"{PFAD}/{fremde_id}/passwort", json={"passwort": NEUES_PASSWORT}),
     ]
 
+    # All five, not only the ones that read. The two that write are where a 404
+    # leaking to an unauthenticated caller would matter most, because the caller
+    # chooses the id and could walk a list of them.
+    assert len(antworten) == 5
     for antwort in antworten:
         assert antwort.status_code == 401, (antwort.request.url, antwort.text)
         assert antwort.json()["code"] == "NICHT_ANGEMELDET"
@@ -480,6 +487,46 @@ async def test_ein_passwort_fuer_ein_unbekanntes_konto_ist_nicht_gefunden(
 
     assert antwort.status_code == 404
     assert antwort.json()["code"] == "KONTO_NICHT_GEFUNDEN"
+
+
+async def test_ohne_rollen_wird_mit_eigener_meldung_abgelehnt(
+    client: AsyncClient,
+    als_admin: Callable[[], Awaitable[User]],
+    anlegen: Callable[..., Awaitable[User]],
+) -> None:
+    """ROLLEN_LEER is a published code, so it has to be one a caller can receive.
+
+    Refusing the empty list in the request model instead would answer with the
+    generic "wrong format" sentence, and 16c could not tell this apart from any
+    other malformed body. Nothing is written before the rule runs either way.
+    """
+    await als_admin()
+    frisch = await anlegen(email="extern@buero.de")
+
+    angelegt = await client.post(PFAD, json=_neues_konto(rollen=[]))
+    geaendert = await client.patch(f"{PFAD}/{frisch.id}", json={"rollen": []})
+
+    for antwort in (angelegt, geaendert):
+        assert antwort.status_code == 422, antwort.text
+        assert antwort.json()["code"] == "ROLLEN_LEER"
+        assert "Rolle" in antwort.json()["nachricht"]
+
+
+async def test_ein_ausdrueckliches_null_nennt_das_feld(
+    client: AsyncClient,
+    als_admin: Callable[[], Awaitable[User]],
+    anlegen: Callable[..., Awaitable[User]],
+) -> None:
+    """Null is refused on the four fields where it means nothing, and the refusal
+    has to name which one. A model-wide validator produces an error with no field
+    location, and the reply then names nothing at all."""
+    await als_admin()
+    frisch = await anlegen(email="extern@buero.de")
+
+    antwort = await client.patch(f"{PFAD}/{frisch.id}", json={"rollen": None})
+
+    assert antwort.status_code == 422
+    assert "rollen" in antwort.json()["nachricht"]
 
 
 async def test_ein_unbekanntes_feld_wird_abgelehnt(

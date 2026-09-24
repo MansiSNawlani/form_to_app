@@ -34,6 +34,7 @@ from app.api.schemas import (
 )
 from app.benutzer.dienst import (
     UNVERAENDERT,
+    Unveraendert,
     aendere_benutzer,
     finde_nach_id,
     lege_benutzer_an,
@@ -53,12 +54,37 @@ ABLEHNUNGEN: dict[int | str, dict[str, Any]] = {
     status.HTTP_403_FORBIDDEN: {"model": FehlerAntwort},
 }
 
-# The same, plus the refusals a route that names one account can produce.
-ABLEHNUNGEN_MIT_KONTO: dict[int | str, dict[str, Any]] = {
+# Plus 404, for the three routes that name one account by id.
+#
+# Documented per route rather than once for all of them, because a status listed
+# on a route that cannot produce it is a contract nobody reviewed, which is the
+# objection app/api/fehler_http.py makes about its own table. Creating an account
+# names no id and so can never be a 404; reading one or setting its password
+# cannot be a 409.
+MIT_KONTO: dict[int | str, dict[str, Any]] = {
     **ABLEHNUNGEN,
     status.HTTP_404_NOT_FOUND: {"model": FehlerAntwort},
+}
+
+# Plus 409, for the routes that can be refused by a rule rather than by a value:
+# an address already in use, and the two safety rules.
+MIT_KONFLIKT: dict[int | str, dict[str, Any]] = {
+    **ABLEHNUNGEN,
     status.HTTP_409_CONFLICT: {"model": FehlerAntwort},
 }
+
+MIT_KONTO_UND_KONFLIKT: dict[int | str, dict[str, Any]] = {**MIT_KONTO, **MIT_KONFLIKT}
+
+
+def _oder_unveraendert[T](wert: T | None) -> T | Unveraendert:
+    """A value that was sent, or the sentinel meaning it was not.
+
+    For the four fields where null is refused by the request model, so "is not
+    None" already means "was sent". regierungspraesidium is the exception and
+    does not come through here: on that one field a sent null is an instruction.
+    """
+    return UNVERAENDERT if wert is None else wert
+
 
 # Super Admin alone, and deliberately not FFS_ROLLEN.
 #
@@ -101,7 +127,7 @@ async def konten(
     return [BenutzerAntwort.model_validate(konto) for konto in await liste_benutzer(session)]
 
 
-@router.get("/{benutzer_id}", responses=ABLEHNUNGEN_MIT_KONTO)
+@router.get("/{benutzer_id}", responses=MIT_KONTO)
 async def konto(
     handelnder: Annotated[User, NUR_SUPER_ADMIN],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -111,7 +137,7 @@ async def konto(
     return BenutzerAntwort.model_validate(await _konto(session, benutzer_id))
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, responses=ABLEHNUNGEN_MIT_KONTO)
+@router.post("", status_code=status.HTTP_201_CREATED, responses=MIT_KONFLIKT)
 async def anlegen(
     handelnder: Annotated[User, NUR_SUPER_ADMIN],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -133,7 +159,7 @@ async def anlegen(
     return BenutzerAntwort.model_validate(angelegt)
 
 
-@router.patch("/{benutzer_id}", responses=ABLEHNUNGEN_MIT_KONTO)
+@router.patch("/{benutzer_id}", responses=MIT_KONTO_UND_KONFLIKT)
 async def aendern(
     handelnder: Annotated[User, NUR_SUPER_ADMIN],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -152,20 +178,20 @@ async def aendern(
         session,
         await _konto(session, benutzer_id),
         handelnder=handelnder,
-        email=anfrage.email if anfrage.email is not None else UNVERAENDERT,
-        rollen=anfrage.rollen if anfrage.rollen is not None else UNVERAENDERT,
+        email=_oder_unveraendert(anfrage.email),
+        rollen=_oder_unveraendert(anfrage.rollen),
         regierungspraesidium=(
             anfrage.regierungspraesidium
             if anfrage.wurde_gesetzt("regierungspraesidium")
             else UNVERAENDERT
         ),
-        locale=anfrage.locale if anfrage.locale is not None else UNVERAENDERT,
-        ist_aktiv=anfrage.ist_aktiv if anfrage.ist_aktiv is not None else UNVERAENDERT,
+        locale=_oder_unveraendert(anfrage.locale),
+        ist_aktiv=_oder_unveraendert(anfrage.ist_aktiv),
     )
     return BenutzerAntwort.model_validate(geaendert)
 
 
-@router.put("/{benutzer_id}/passwort", responses=ABLEHNUNGEN_MIT_KONTO)
+@router.put("/{benutzer_id}/passwort", responses=MIT_KONTO)
 async def passwort(
     handelnder: Annotated[User, NUR_SUPER_ADMIN],
     session: Annotated[AsyncSession, Depends(get_session)],

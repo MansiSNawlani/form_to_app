@@ -66,11 +66,18 @@ class TestKontoAendernAnfrage:
             for feld in ("email", "rollen", "regierungspraesidium", "locale", "ist_aktiv")
         )
 
-    def test_eine_leere_rollenliste_wird_abgelehnt(self) -> None:
-        """Refused with the request rather than after a database round trip.
-        normalisiere_rollen still checks it, because this is not the only way in."""
-        with pytest.raises(ValidationError):
-            KontoAendernAnfrage.model_validate({"rollen": []})
+    def test_eine_leere_rollenliste_kommt_bis_zur_regel_durch(self) -> None:
+        """Deliberately not refused here, which was the first draft's mistake.
+
+        A min_length bound on the field refuses the empty list with the generic
+        "wrong format" message, and ROLLEN_LEER then becomes a documented code no
+        caller can ever receive. normalisiere_rollen refuses it instead, with the
+        message that says what to do about it, and nothing is written before it
+        runs, so the round trip the bound appeared to save did not exist.
+        """
+        anfrage = KontoAendernAnfrage.model_validate({"rollen": []})
+
+        assert anfrage.rollen == []
 
     def test_ein_ausdrueckliches_null_auf_einem_pflichtfeld_wird_abgelehnt(self) -> None:
         """Null means nothing on these four, so it is a mistake rather than an

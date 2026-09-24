@@ -106,6 +106,16 @@ lock the last Super Admin as well, and it needs a message saying so. The escape 
 open either way: `befischung benutzer anlegen --rolle SUPER_ADMIN` still works and is the
 documented recovery.
 
+**Over HTTP this rule is nearly subsumed by the narrower one, and that is worth knowing
+rather than discovering.** Measured during the branch review. To reach any of these routes
+the caller must be an active Super Admin, so whenever the target is somebody else there is
+by definition one left: the caller. `LETZTER_SUPER_ADMIN` can therefore only ever fire on
+the caller's own account. The rule still earns its place, in two ways: it is what holds the
+command line, where there is no caller at all, and it is the check that would still refuse
+if a route here ever lost its role requirement. What it means for the tests is that one
+claiming to lock "the last Super Admin" through a route would be asserting against a state
+it cannot reach.
+
 **One limit, named rather than hidden.** Two Super Admins locking each other at the same
 instant could both pass the count and both commit, leaving zero. It needs two
 administrators acting inside the same few milliseconds, the damage is recoverable at the
@@ -297,6 +307,27 @@ contracts rather than names a refactor may change:
 | `KONTO_NICHT_GEFUNDEN` | 404 | No account with that id |
 | `LETZTER_SUPER_ADMIN` | 409 | The change would leave none active |
 | `SELBSTENTZUG_UNZULAESSIG` | 409 | Taking your own access away |
+
+**Every code above has to be one a caller can actually receive.** Found during the branch
+review and worth writing down, because the first draft of the request models broke it.
+`rollen` had `min_length=1` on both of them, so an empty list was refused by Pydantic with
+the generic "wrong format" sentence and `ROLLEN_LEER` became a documented code that could
+never leave the API. The bound is gone and `normalisiere_rollen` refuses the empty list
+instead, with the message that says what to do about it. Nothing is written before it runs,
+so the round trip the bound was saving did not exist.
+
+**Null is refused on the four fields where it means nothing**, added during implementation
+rather than asked for by this spec, and recorded here because 16b, 16c and 16d inherit it.
+`email`, `rollen`, `locale` and `ist_aktiv` have no state in which they are empty, so a
+request sending one as `null` is a mistake rather than an instruction. Ignoring it would be
+worse than refusing it: the change would appear to be accepted and nothing would happen,
+which reads as the server losing the edit. All three request models also set
+`extra="forbid"`, so a misspelled field name is refused rather than silently dropped.
+
+The refusal is declared per field rather than over the whole model, which is not a style
+choice. A model-wide validator produces an error carrying no field location, and
+`behandle_anfragefehler` builds its sentence from that location, so the reply named nothing
+at all until it was moved.
 
 **Mapping `BenutzerNichtGefunden` to 404 needs the comment at the top of `fehler_http.py`
 updated, not ignored.** That comment warns, correctly, that a 404 would tell an
