@@ -22,9 +22,24 @@ function ausUmgebung(schluessel: string): string | undefined {
   return wert === undefined || wert === '' ? undefined : wert
 }
 
+/* The accounts, one environment variable each, and one shared password.
+ *
+ * admin arrived with feature 16b, which is the first screen only a Super Admin may
+ * see. The three accounts deliberately share one E2E_PASSWORT: they are
+ * development accounts on a throwaway database, and a variable per password would
+ * be three more things to set for no more safety.
+ */
+type Rollenkonto = 'pruefer' | 'einreicher' | 'admin'
+
+const UMGEBUNGSVARIABLE: Record<Rollenkonto, string> = {
+  pruefer: 'E2E_EMAIL_PRUEFER',
+  einreicher: 'E2E_EMAIL_EINREICHER',
+  admin: 'E2E_EMAIL_ADMIN',
+}
+
 /** Null when the environment does not carry the credentials, never a guess. */
-export function konto(rolle: 'pruefer' | 'einreicher'): Konto | null {
-  const email = ausUmgebung(rolle === 'pruefer' ? 'E2E_EMAIL_PRUEFER' : 'E2E_EMAIL_EINREICHER')
+export function konto(rolle: Rollenkonto): Konto | null {
+  const email = ausUmgebung(UMGEBUNGSVARIABLE[rolle])
   const passwort = ausUmgebung('E2E_PASSWORT')
 
   return email !== undefined && passwort !== undefined ? { email, passwort } : null
@@ -32,8 +47,8 @@ export function konto(rolle: 'pruefer' | 'einreicher'): Konto | null {
 
 /** What to print when they are missing, so a skip says how to stop skipping. */
 export const FEHLENDE_KONTEN =
-  'Keine E2E-Konten konfiguriert. E2E_EMAIL_PRUEFER, E2E_EMAIL_EINREICHER und' +
-  ' E2E_PASSWORT setzen. Siehe AGENTS.md, Abschnitt Commands.'
+  'Keine E2E-Konten konfiguriert. E2E_EMAIL_PRUEFER, E2E_EMAIL_EINREICHER,' +
+  ' E2E_EMAIL_ADMIN und E2E_PASSWORT setzen. Siehe AGENTS.md, Abschnitt Commands.'
 
 /* A session without going through the login screen.
  *

@@ -1,0 +1,58 @@
+/* Only what the shared list table does not already give.
+   tabelle--liste in theme/muiTheme.ts carries the table itself. */
+
+/* The address is the account's only name, so it reads as the row's subject
+   rather than as one cell among five. */
+.benutzer__email {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.benutzer__sie {
+  margin-left: 0.5rem;
+}
+
+/* Roles sit side by side and wrap together rather than butting up against each
+   other.
+
+   The container is what is styled, never .role-tag itself: that class is the
+   header's too, and "theme a component once, not per use" means a feature's own
+   stylesheet does not reach into a shared one to add a margin. */
+.benutzer__rollen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+/* "Keine Rolle", which is a statement about the account rather than a value it
+   holds, so it reads quieter than the tags it stands in for. */
+.benutzer__leer {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* The search box and its count, side by side on a wide screen and stacked on a
+   narrow one. The count sits at the baseline of the field rather than under its
+   label, so it reads as a statement about the table below. */
+.benutzer__suche {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.benutzer__suche .MuiFormControl-root {
+  min-width: min(22rem, 100%);
+}
+
+.benutzer__treffer {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+}
+
+/* Matches the review queue's loading line: quiet, and in the flow rather than
+   replacing the card, so the page does not jump when the rows arrive. */
+.benutzer__laedt {
+  color: var(--muted);
+}

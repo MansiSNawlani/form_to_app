@@ -124,6 +124,21 @@ rail on the right.
 A reviewer can accept, reject, or request changes. Rejecting and requesting changes both require a
 reason, which the submitter sees. Accepting locks the protocol.
 
+### Accounts
+
+There is no sign-up. Every account is made by an administrator, and the **Benutzerverwaltung**
+is where they are read: who holds which role, which regional authority a regional account
+belongs to, whether it can still be signed in to, and when it was made. The search narrows the
+list by address. The administrator's own row is marked, because there are things they may not
+do to it.
+
+![The account list](docs/screenshots/13-benutzerverwaltung.png)
+
+![The same list in dark](docs/screenshots/14-benutzerverwaltung-dunkel.png)
+
+An account is never deleted, only locked: deleting one would take the owner of every protocol
+it filed with it, and those records have to stay readable.
+
 > The screenshots are of the real application driven through a browser, not mockups. The survey
 > data in them is invented. See [docs/screenshots/](docs/screenshots/).
 

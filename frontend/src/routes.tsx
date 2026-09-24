@@ -7,6 +7,7 @@ import ProtokolleSeite from './protokoll/liste/ProtokolleSeite'
 import PrueflisteSeite from './protokoll/pruefliste/PrueflisteSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import PruefungsSeite from './protokoll/pruefung/PruefungsSeite'
+import BenutzerlisteSeite from './verwaltung/benutzer/BenutzerlisteSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { NEU } from './protokoll/entwurf/neu'
 
@@ -67,6 +68,18 @@ export const router = createBrowserRouter([
            * is what lets a filtered queue be shared as a link and what feature
            * 12d needs to walk the list from a protocol's own URL. */
           { path: 'pruefung', element: <PrueflisteSeite /> },
+          /* Every account in the application, for the Super Admin alone.
+           *
+           * No role requirement here either, and for the third time for the same
+           * reason: the endpoints behind it admit SUPER_ADMIN and nobody else, and
+           * the page turns that refusal into words with a way onward. A check here
+           * would be a second opinion that can only ever be the wrong one.
+           *
+           * Nested under /verwaltung rather than sitting at /benutzer, because
+           * feature 16 is the first of what project-overview.md lists as an
+           * administration area and the address should say which part of the
+           * application somebody is in. */
+          { path: 'verwaltung/benutzer', element: <BenutzerlisteSeite /> },
           { path: '*', element: <NotFound /> },
         ],
       },

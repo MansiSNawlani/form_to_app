@@ -6,7 +6,7 @@
  */
 
 import { queryOptions } from '@tanstack/react-query'
-import { ApiFehler, NICHT_ANGEMELDET, ROLLE_FEHLT } from '../../api/fehler'
+import { sollWiederholen } from '../../api/wiederholen'
 import { holePruefliste } from './api'
 import { alsEndpunktParameter, type Prueflistenabfrage } from './parameter'
 
@@ -24,23 +24,6 @@ import { alsEndpunktParameter, type Prueflistenabfrage } from './parameter'
  */
 export function prueflisteKey(abfrage: Prueflistenabfrage) {
   return ['pruefliste', alsEndpunktParameter(abfrage).toString()] as const
-}
-
-/* Whether a failed read is worth trying again.
- *
- * Its own exported function so it can be held to its promise without React,
- * which is what coding-standards.md asks wherever a wrong answer is possible.
- * Both wrong answers cost something here. Retrying a refusal makes somebody wait
- * through three requests to be told the same no, and the message they are
- * waiting for is not even an error they can act on. Giving up on a dropped
- * request shows a failure to somebody whose next attempt would have worked.
- */
-export function sollWiederholen(anzahl: number, fehler: Error): boolean {
-  if (fehler instanceof ApiFehler) {
-    // Both are settled answers about the caller rather than about the request.
-    if (fehler.code === ROLLE_FEHLT || fehler.code === NICHT_ANGEMELDET) return false
-  }
-  return anzahl < 2
 }
 
 export function prueflisteAbfrage(abfrage: Prueflistenabfrage) {
