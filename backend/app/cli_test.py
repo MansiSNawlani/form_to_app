@@ -343,6 +343,38 @@ def test_unbekanntes_konto_sperren_wird_gemeldet() -> None:
     assert "benutzer liste" in ergebnis.output
 
 
+def test_letzter_super_admin_kann_nicht_gesperrt_werden(
+    eigene_sessions: async_sessionmaker[AsyncSession],
+) -> None:
+    """The rule lives in the service layer, so the command line inherits it.
+
+    Worth a test here as well as in dienst_test.py, because what this checks is
+    not the rule but the message: without a case of its own in
+    _sperrstatus_setzen the refusal would escape _ausfuehren as a traceback.
+    """
+    _anlegen("--email", "chefin@ffs.de", "--rolle", "SUPER_ADMIN")
+
+    ergebnis = _sperren("deaktivieren", "chefin@ffs.de")
+
+    assert ergebnis.exit_code == 1
+    assert "SUPER_ADMIN" in ergebnis.output
+    # The way out, which is what separates a refusal from a dead end.
+    assert "benutzer anlegen" in ergebnis.output
+    assert "Traceback" not in ergebnis.output
+
+    konto = _konto(eigene_sessions, "chefin@ffs.de")
+    assert konto is not None and konto.ist_aktiv is True
+
+
+def test_mit_einer_vertretung_laesst_sich_der_super_admin_sperren() -> None:
+    _anlegen("--email", "chefin@ffs.de", "--rolle", "SUPER_ADMIN")
+    _anlegen("--email", "vertretung@ffs.de", "--rolle", "SUPER_ADMIN")
+
+    ergebnis = _sperren("deaktivieren", "chefin@ffs.de")
+
+    assert ergebnis.exit_code == 0, ergebnis.output
+
+
 def test_ungueltige_adresse_beim_sperren_wird_gemeldet() -> None:
     ergebnis = _sperren("aktivieren", "anna")
 

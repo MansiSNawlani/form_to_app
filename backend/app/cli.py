@@ -38,6 +38,7 @@ from app.benutzer.fehler import (
     BenutzerNichtGefunden,
     EmailBereitsVergeben,
     EmailUngueltig,
+    LetzterSuperAdmin,
     RegierungspraesidiumAusserhalbBereich,
     RegierungspraesidiumFehlt,
     RegierungspraesidiumUnzulaessig,
@@ -351,6 +352,17 @@ def _sperrstatus_setzen(email: str, aktiv: bool) -> None:
             "",
             "Vielleicht ist die Adresse anders geschrieben als gedacht.",
             "Alle vorhandenen Konten zeigt: befischung benutzer liste",
+        )
+    except LetzterSuperAdmin:
+        _abbrechen(
+            f"{normalisiere_email(email)} ist das letzte aktive Konto mit der Rolle"
+            " SUPER_ADMIN, deshalb wurde nichts geändert.",
+            "",
+            "Ohne ein solches Konto könnte niemand mehr Konten anlegen oder Rollen",
+            "vergeben, auch nicht in der Anwendung selbst.",
+            "",
+            "Erst ein zweites anlegen, dann dieses sperren:",
+            "    befischung benutzer anlegen --email <adresse> --rolle SUPER_ADMIN",
         )
 
     if geaendert:

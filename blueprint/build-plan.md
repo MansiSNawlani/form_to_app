@@ -43,6 +43,22 @@ These are not features and are not tracked here. They happen first.
 > first and gains its backend half later, so the "written twice" rule in `coding-standards.md` is
 > temporarily half-met. Features 2 and 3 close that gap.
 
+> **Build order changed again on 2026-09-23.** Items 16 and 17 come next, ahead of 23d, 13, 14
+> and 15. Those four keep their numbers and their place in the list; only the order they are
+> built in changed, the same rule the 2026-09-01 reordering above follows.
+>
+> A priority call rather than a dependency one. Nothing in 16 or 17 waits on the four items it
+> overtakes, and building 16 first helps 13 rather than hindering it: a Regierungspraesidium
+> account can only be created at the command line today, and 16 is what lets somebody make one
+> in the application before 13 gives it a view of its own.
+>
+> Two consequences, both accepted knowingly. Feature 15, the audit trail, now lands after the
+> screen that changes roles rather than before it, so a role change made between 16 and 15 is
+> not recorded anywhere; 16 deliberately does not build half an audit trail to paper over that.
+> And feature 17 fills in the English locale while 23d, 13, 14 and 15 are still unbuilt, so from
+> 17 onward a new screen adds its strings to both locale files rather than only to the German
+> one.
+
 - [x] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
@@ -280,7 +296,32 @@ These are not features and are not tracked here. They happen first.
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
 - [ ] 15. Audit trail
-- [ ] 16. User administration
+- [ ] 16. Benutzerverwaltung: accounts and roles managed in the application rather than
+      only at the command line
+  - [ ] 16a. Die Konten-Endpunkte: every account read, created, changed, locked and
+        unlocked over the API, Super Admin only, and the rule that no change may leave
+        the application without an active Super Admin
+  - [ ] 16b. Die Benutzerliste: the /verwaltung/benutzer screen, the table of accounts
+        with their roles, region and status, the search box, the header link, and the
+        loading, empty, error and refused states
+  - [ ] 16c. Ein Konto anlegen: the form for a new account, the role picker with the
+        Regierungspraesidium coupling, the first password, and what the administrator is
+        told to pass on to its owner
+  - [ ] 16d. Ein Konto aendern: changing the email, roles, region and language of an
+        existing account, locking and unlocking it, and setting a new password for
+        somebody who has lost theirs
+
+  **Why this is four and not one.** The command line already creates accounts and turns
+  them on and off, so what is genuinely new here is the other half: changing an account
+  that exists, and doing any of it as a signed-in person rather than as whoever has shell
+  access on the server. The endpoints are one reviewable unit because they share one
+  permission rule and one safety rule. The three screens are separate because reading a
+  list, filling in a new account and changing an existing one fail in different ways and
+  are worth reviewing apart.
+
+  **Accounts are never deleted here**, only locked. That is the data model's decision, not
+  this feature's: a deleted account takes the owner of every protocol it filed with it, and
+  those records have to stay readable. `app/benutzer/dienst.py` has said so since 2a.
 - [ ] 17. English translation
 
 ## After MVP

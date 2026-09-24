@@ -18,10 +18,12 @@ from email_validator import validate_email as _validate_email
 
 from app.benutzer.fehler import (
     EmailUngueltig,
+    LetzterSuperAdmin,
     RegierungspraesidiumAusserhalbBereich,
     RegierungspraesidiumFehlt,
     RegierungspraesidiumUnzulaessig,
     RollenLeer,
+    SelbstEntzugUnzulaessig,
 )
 from app.models.benutzer import Rolle
 
@@ -105,3 +107,61 @@ def pruefe_regierungspraesidium(
 
     if regierungspraesidium is not None and regierungspraesidium not in REGIERUNGSPRAESIDIEN:
         raise RegierungspraesidiumAusserhalbBereich(regierungspraesidium)
+
+
+def pruefe_super_admin_bleibt(
+    *,
+    war_aktiver_super_admin: bool,
+    ist_aktiver_super_admin_danach: bool,
+    andere_aktive_super_admins: int,
+) -> None:
+    """At least one active Super Admin has to survive the change.
+
+    Three ways to break that and one rule covering all of them, which is why the
+    arguments describe the state before and after rather than which operation was
+    asked for: locking an account, taking SUPER_ADMIN off it, and doing both at
+    once all reach the same place.
+
+    Keyword arguments only. Three booleans in a row are trivially swapped, and
+    two of the swaps produce a rule that refuses nothing.
+
+    The first branch is not an optimisation. Without it, a database whose only
+    account is a SUBMITTER, which is a state the command line can create, would
+    refuse every edit to that account on the grounds that a Super Admin has to
+    survive, when this change never had one to lose. The rule is about losing the
+    last one, so an account that was never one is none of its business.
+    """
+    if not war_aktiver_super_admin:
+        return
+
+    if ist_aktiver_super_admin_danach:
+        return
+
+    if andere_aktive_super_admins > 0:
+        return
+
+    raise LetzterSuperAdmin
+
+
+def pruefe_kein_selbstentzug(
+    *,
+    ist_eigenes_konto: bool,
+    verliert_super_admin: bool,
+    wird_gesperrt: bool,
+) -> None:
+    """Nobody takes their own access away, even when somebody else still has it.
+
+    Narrower than pruefe_super_admin_bleibt and not implied by it: with three
+    other Super Admins on the system that rule is satisfied, and locking your own
+    account still signs you out of the screen you are standing on with nothing
+    left that can undo it.
+
+    Inert wherever there is no signed-in account to compare against, which is
+    what makes the command line unaffected: ist_eigenes_konto is false there and
+    always will be.
+    """
+    if not ist_eigenes_konto:
+        return
+
+    if verliert_super_admin or wird_gesperrt:
+        raise SelbstEntzugUnzulaessig
