@@ -1,7 +1,7 @@
 # Feature: Die Konten-Endpunkte
 
 **From build-plan:** feature 16a
-**Status:** spec written, not started
+**Status:** built, all seven steps done, walked through against the running backend
 
 ## Goal
 
@@ -183,7 +183,7 @@ so split it.
 
 ## Build steps
 
-- [ ] **Step 1 - The two new rules** - `LetzterSuperAdmin` and `SelbstEntzugUnzulaessig` in
+- [x] **Step 1 - The two new rules** - `LetzterSuperAdmin` and `SelbstEntzugUnzulaessig` in
       `app/benutzer/fehler.py`, and two plain functions in `app/benutzer/regeln.py` that
       raise them. No database, no HTTP, values in and nothing out.
       *Done when:* `pytest` covers both, including the boundary that matters. Removing the
@@ -191,7 +191,7 @@ so split it.
       when none exists is refused, and locking an account that is not a Super Admin at all
       is something the rule has nothing to say about.
 
-- [ ] **Step 2 - The guard on what already exists** - a service function counting the
+- [x] **Step 2 - The guard on what already exists** - a service function counting the
       active Super Admins other than one account, `finde_nach_id`, `setze_aktiv` calling
       the rule before it writes, and the command line's `deaktivieren` gaining the message
       for the new refusal.
@@ -200,7 +200,7 @@ so split it.
       `befischung benutzer deaktivieren` on the only Super Admin prints a refusal that says
       what to do instead rather than a traceback.
 
-- [ ] **Step 3 - Changing an account, in the service** - `aendere_benutzer` taking any
+- [x] **Step 3 - Changing an account, in the service** - `aendere_benutzer` taking any
       subset of email, roles, region, language and locked state, reusing
       `normalisiere_email`, `normalisiere_rollen` and `pruefe_regierungspraesidium` rather
       than restating them, and `setze_passwort` reusing `hashe_passwort`.
@@ -211,7 +211,7 @@ so split it.
       through this path as well, and a password set whose hash verifies and differs from
       the old one.
 
-- [ ] **Step 4 - The shapes and the refusals** - `KontoAnlegenAnfrage`,
+- [x] **Step 4 - The shapes and the refusals** - `KontoAnlegenAnfrage`,
       `KontoAendernAnfrage` and `PasswortAnfrage` in `app/api/schemas.py`, `created_at`
       added to `BenutzerAntwort` and to `frontend/src/api/typen.ts`, and a line in
       `app/api/fehler_http.py`'s `UEBERSETZUNG` for every account error these routes can
@@ -220,21 +220,21 @@ so split it.
       "field set to null" for `regierungspraesidium`, and every new error producing its
       documented code and status rather than falling through to 500.
 
-- [ ] **Step 5 - Reading accounts** - the router, mounted in `app/main.py`, with
+- [x] **Step 5 - Reading accounts** - the router, mounted in `app/main.py`, with
       `GET /api/v1/benutzer` and `GET /api/v1/benutzer/{id}`.
       *Done when:* signed in as a Super Admin both answer 200 with no `password_hash`
       anywhere in the body, a `REVIEWER` and a `SUBMITTER` each get 403 from both, an
       unauthenticated caller gets 401, an account that does not exist gets 404, and
       `/api/v1/docs` lists the routes.
 
-- [ ] **Step 6 - Creating an account** - `POST /api/v1/benutzer`.
+- [x] **Step 6 - Creating an account** - `POST /api/v1/benutzer`.
       *Done when:* a created account can sign in with the password given, 201 comes back
       with the account and no hash, a duplicate email is refused with `EMAIL_VERGEBEN` and
       409, a `REGIERUNGSPRAESIDIUM` role with no number and a number with no regional role
       are each refused with their own code, a password under twelve characters is refused,
       and a `REVIEWER` gets 403.
 
-- [ ] **Step 7 - Changing an account and its password** - `PATCH /api/v1/benutzer/{id}` and
+- [x] **Step 7 - Changing an account and its password** - `PATCH /api/v1/benutzer/{id}` and
       `PUT /api/v1/benutzer/{id}/passwort`.
       *Done when:* a role change takes effect on the target account's very next request, a
       locked account is refused at sign-in, the last active Super Admin cannot be locked or

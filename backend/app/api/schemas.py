@@ -16,7 +16,7 @@ from datetime import date, datetime
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.anlage import Anlagenart
 from app.models.benutzer import Locale, Rolle
@@ -57,6 +57,110 @@ class BenutzerAntwort(BaseModel):
     regierungspraesidium: int | None
     locale: Locale
     ist_aktiv: bool
+    # When the account was made. Feature 16b's list shows it so an administrator
+    # can tell a long-standing account from one created this morning.
+    #
+    # updated_at is deliberately absent. _erneuere_hash_falls_noetig writes to
+    # the row on any sign in where the hashing settings have moved on, so the
+    # column is not a "last edited" date, and a column labelled one that is not
+    # one is worse than no column at all.
+    created_at: datetime
+
+
+class KontoAnlegenAnfrage(BaseModel):
+    """A new account, as feature 16c's form sends it.
+
+    Deliberately not AnmeldungAnfrage with extra fields. Sign-in treats a
+    malformed address like a wrong password, so that nothing about the request
+    tells somebody probing whether an address exists; creating an account is done
+    by a Super Admin who is already signed in, and there the opposite is true:
+    "that is not an address" is exactly what they need to be told. The two shapes
+    look alike and answer to different rules.
+
+    The roles, the region and the password are checked by the rules in
+    app/benutzer, not here. What this model does is refuse a request that is the
+    wrong shape or an unreasonable size before any of that runs.
+    """
+
+    email: str = Field(min_length=1, max_length=EMAIL_HOECHSTLAENGE)
+    passwort: str = Field(min_length=1, max_length=PASSWORT_HOECHSTLAENGE)
+    rollen: list[Rolle] = Field(min_length=1)
+    regierungspraesidium: int | None = None
+    locale: Locale = Locale.DE
+
+
+class KontoAendernAnfrage(BaseModel):
+    """A change to an account, as feature 16d's form sends it.
+
+    Every field is optional, and a field that is left out is left alone. That is
+    what makes the shape usable for a screen where somebody edits one thing.
+
+    **The difference between absent and null is load-bearing, and it applies to
+    exactly one field.** regierungspraesidium is genuinely nullable, so "do not
+    touch the region" and "clear the region" are different instructions and a
+    default of None cannot express both. model_fields_set is what tells them
+    apart, and wurde_gesetzt below is how the router reads it.
+
+    On the other four, null means nothing. An account has no state in which it
+    has no email or no language, so a request sending one explicitly is a mistake
+    rather than an instruction, and the validator below refuses it. Ignoring it
+    instead would be worse than refusing: the change would appear to be accepted
+    and nothing would happen, which reads as the server losing the edit. Refusing
+    it is also what lets the router narrow these to "a value or nothing" without
+    a cast.
+
+    rollen has min_length=1 rather than allowing an empty list, so "no roles at
+    all" is refused here with the request rather than after a database round
+    trip. It is still checked again by normalisiere_rollen, because this model is
+    not the only way into that service function.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    email: str | None = Field(default=None, min_length=1, max_length=EMAIL_HOECHSTLAENGE)
+    rollen: list[Rolle] | None = Field(default=None, min_length=1)
+    regierungspraesidium: int | None = None
+    locale: Locale | None = None
+    ist_aktiv: bool | None = None
+
+    def wurde_gesetzt(self, feld: str) -> bool:
+        """Whether the request actually carried this field.
+
+        Only regierungspraesidium needs this, because it is the only field where
+        a sent null means something. For the rest the validator below has already
+        ruled null out, so "is not None" and "was sent" are the same question.
+        """
+        return feld in self.model_fields_set
+
+    @model_validator(mode="after")
+    def _kein_ausdrueckliches_null(self) -> "KontoAendernAnfrage":
+        ohne_leerwert = ("email", "rollen", "locale", "ist_aktiv")
+        geleert = [
+            feld
+            for feld in ohne_leerwert
+            if feld in self.model_fields_set and getattr(self, feld) is None
+        ]
+        if geleert:
+            raise ValueError(
+                "Diese Felder koennen nicht geleert werden: " + ", ".join(geleert)
+            )
+        return self
+
+
+class PasswortAnfrage(BaseModel):
+    """A new password for an account, set by an administrator.
+
+    Its own request rather than a field of KontoAendernAnfrage. A password must
+    never travel beside values that get echoed back in a validation error, and
+    keeping it in a body of its own is what makes that easy to keep true.
+
+    The length policy lives in app/security/passwoerter.py and produces its own
+    message. The bound here is only a cap on how large a request may be before
+    anything looks at it, and it sits above the policy's maximum so the policy is
+    what refuses a long password.
+    """
+
+    passwort: str = Field(min_length=1, max_length=PASSWORT_HOECHSTLAENGE)
 
 
 class ProtokollAntwort(BaseModel):

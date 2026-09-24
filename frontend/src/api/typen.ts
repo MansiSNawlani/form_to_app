@@ -38,6 +38,12 @@ export interface BenutzerAntwort {
   regierungspraesidium: number | null
   locale: Locale
   ist_aktiv: boolean
+  /* When the account was made, as an ISO timestamp. Feature 16b's list shows it.
+   *
+   * updated_at deliberately has no counterpart here, because the backend does not
+   * send one: it moves whenever a sign in upgrades the stored password hash, so
+   * it is not a "last edited" date and a screen must not offer it as one. */
+  created_at: string
 }
 
 /* The shape every refusal from this API takes.
