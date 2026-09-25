@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { MEINE_PROTOKOLLE, PRUEFLISTE, startseite, zielNachAnmeldung } from './startseite'
+import {
+  darfVerwalten,
+  MEINE_PROTOKOLLE,
+  PRUEFLISTE,
+  startseite,
+  zielNachAnmeldung,
+} from './startseite'
 
 describe('startseite', () => {
   it('sends the three FFS roles to the review queue', () => {
@@ -25,6 +31,29 @@ describe('startseite', () => {
      own list is one click away in the header. */
   it('sends an account that both files and reviews to the queue', () => {
     expect(startseite(['SUBMITTER', 'REVIEWER'])).toBe(PRUEFLISTE)
+  })
+})
+
+describe('darfVerwalten', () => {
+  it('admits the Super Admin', () => {
+    expect(darfVerwalten(['SUPER_ADMIN'])).toBe(true)
+  })
+
+  /* Narrower than darfPruefen on purpose. A Data Steward corrects survey data and a
+     Reviewer decides on protocols; neither job involves handing somebody a role, and
+     the endpoint behind the screen admits the Super Admin alone. Drawing the link for
+     either of them would offer a page that turns them away. */
+  it('does not admit the other five roles, FFS staff included', () => {
+    expect(darfVerwalten(['DATA_STEWARD'])).toBe(false)
+    expect(darfVerwalten(['REVIEWER'])).toBe(false)
+    expect(darfVerwalten(['SUBMITTER'])).toBe(false)
+    expect(darfVerwalten(['REGIERUNGSPRAESIDIUM'])).toBe(false)
+    expect(darfVerwalten(['INTEGRATION'])).toBe(false)
+    expect(darfVerwalten([])).toBe(false)
+  })
+
+  it('admits an account that administers as well as something else', () => {
+    expect(darfVerwalten(['SUBMITTER', 'SUPER_ADMIN'])).toBe(true)
   })
 })
 

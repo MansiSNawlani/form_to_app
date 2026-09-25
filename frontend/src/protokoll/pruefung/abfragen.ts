@@ -11,8 +11,8 @@
  */
 
 import { queryOptions } from '@tanstack/react-query'
+import { sollWiederholen as sollListeWiederholen } from '../../api/wiederholen'
 import { sollWiederholen } from '../entwurf/abfragen'
-import { sollWiederholen as sollListeWiederholen } from '../pruefliste/abfragen'
 import type { Prueflistenabfrage } from '../pruefliste/parameter'
 import { holeNachbarn, holeVerlauf, nachbarnParameter } from './api'
 

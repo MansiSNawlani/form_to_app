@@ -147,20 +147,23 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
   test beside the script fails when the committed file is out of date.
 - Browser tests: `npm run e2e` (Playwright, added in feature 12b)
 
-**The browser tests need the stack running and two accounts.** They drive the real
+**The browser tests need the stack running and three accounts.** They drive the real
 application through Chromium against the real backend, so `docker compose up -d` and a
 dev server have to be up; `npm run e2e` reuses a dev server that is already running and
-starts one otherwise. Create the accounts once, from the repository root, with any
-password of at least 12 characters:
+starts one otherwise. Create the accounts once, from the repository root, giving all
+three **the same** password of at least 12 characters, since one variable carries it:
 
 - `docker compose exec backend befischung benutzer anlegen --email e2e-pruefer@test.de --rolle REVIEWER`
 - `docker compose exec backend befischung benutzer anlegen --email e2e-einreicher@test.de --rolle SUBMITTER`
+- `docker compose exec backend befischung benutzer anlegen --email e2e-admin@test.de --rolle SUPER_ADMIN`
 
-Then set `E2E_EMAIL_PRUEFER`, `E2E_EMAIL_EINREICHER` and `E2E_PASSWORT` in the
-environment. No password is committed: without the three variables the suite skips with a
-sentence saying what to set, the same way the backend tests report "not run here" rather
-than passing when no database is reachable. These are development accounts on a throwaway
-database and nothing else.
+The third arrived in feature 16b, whose screen only a Super Admin may see.
+
+Then set `E2E_EMAIL_PRUEFER`, `E2E_EMAIL_EINREICHER`, `E2E_EMAIL_ADMIN` and
+`E2E_PASSWORT` in the environment. No password is committed: without the four variables
+the suite skips with a sentence saying what to set, the same way the backend tests report
+"not run here" rather than passing when no database is reachable. These are development
+accounts on a throwaway database and nothing else.
 
 **Backend** (from `backend/`)
 

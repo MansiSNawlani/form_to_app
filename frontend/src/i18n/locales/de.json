@@ -10,7 +10,8 @@
     "nav": {
       "beschriftung": "Hauptnavigation",
       "meineProtokolle": "Meine Protokolle",
-      "pruefliste": "Prüfliste"
+      "pruefliste": "Prüfliste",
+      "benutzerverwaltung": "Benutzerverwaltung"
     },
     "footer": {
       "legalNavLabel": "Rechtliches",
@@ -128,6 +129,52 @@
         "text": "Die Datei konnte nicht gelesen werden. Bitte prüfen Sie, ob es das ausgefüllte Protokoll E-Befischung ist, und versuchen Sie es noch einmal.",
         "schliessen": "Schließen"
       }
+    }
+  },
+  "benutzerverwaltung": {
+    "titel": "Benutzerverwaltung",
+    "anzahl_one": "{{count}} Konto",
+    "anzahl_other": "{{count}} Konten",
+    "tabelle": {
+      "beschriftung": "Alle Konten dieser Anwendung",
+      "email": "E-Mail-Adresse",
+      "rollen": "Rollen",
+      "regierungspraesidium": "Regierungspräsidium",
+      "status": "Status",
+      "angelegt": "Angelegt"
+    },
+    "status": {
+      "aktiv": "Aktiv",
+      "gesperrt": "Gesperrt"
+    },
+    "sie": "Sie",
+    "sieHinweis": "Ihr eigenes Konto",
+    "ohneRollen": "Keine Rolle",
+    "suche": {
+      "beschriftung": "Nach E-Mail-Adresse suchen",
+      "platzhalter": "Name oder Domain",
+      "treffer_one": "{{count}} von {{gesamt}} Konto wird angezeigt",
+      "treffer_other": "{{count}} von {{gesamt}} Konten werden angezeigt",
+      "zuruecksetzen": "Suche zurücksetzen"
+    },
+    "laedt": "Konten werden geladen.",
+    "keineBerechtigung": {
+      "titel": "Diese Seite ist nicht für Ihr Konto",
+      "text": "Konten verwaltet die Administration. Wenn Sie ein Konto anlegen oder ändern lassen möchten, wenden Sie sich an die Fischereiforschungsstelle.",
+      "knopf": "Zu meinen Protokollen"
+    },
+    "ladefehler": {
+      "titel": "Die Konten konnten nicht geladen werden",
+      "text": "Die Liste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "erneut": "Erneut versuchen"
+    },
+    "keineTreffer": {
+      "titel": "Kein Konto passt zu Ihrer Suche",
+      "text": "Keine E-Mail-Adresse enthält, wonach Sie gesucht haben. Prüfen Sie die Schreibweise, oder setzen Sie die Suche zurück."
+    },
+    "leer": {
+      "titel": "Keine Konten vorhanden",
+      "text": "Diese Anwendung hat noch keine Konten. Angelegt werden sie mit dem Befehl befischung benutzer anlegen."
     }
   },
   "pruefliste": {

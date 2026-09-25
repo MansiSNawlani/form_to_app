@@ -1,10 +1,10 @@
 import type { ParseKeys } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
-import { ROLLEN } from '../api/typen'
 import lazbw from '../assets/lazbw.png'
 import AbmeldeKnopf from '../auth/AbmeldeKnopf'
-import { darfPruefen, PRUEFLISTE } from '../auth/startseite'
+import { sortierteRollen } from '../auth/rollen'
+import { BENUTZERVERWALTUNG, darfPruefen, darfVerwalten, PRUEFLISTE } from '../auth/startseite'
 import { useSitzung } from '../auth/useSitzung'
 import ThemeToggle from './ThemeToggle'
 
@@ -59,6 +59,14 @@ function SiteHeader() {
                 {t('shell.nav.pruefliste')}
               </NavLink>
             )}
+            {/* Narrower again: the account list admits the Super Admin alone, so
+                the link is drawn for them alone. Same courtesy, same non-promise
+                as the Pruefliste link above it. */}
+            {darfVerwalten(sitzung.benutzer.rollen) && (
+              <NavLink to={BENUTZERVERWALTUNG} className={navKlasse}>
+                {t('shell.nav.benutzerverwaltung')}
+              </NavLink>
+            )}
           </nav>
         )}
 
@@ -79,8 +87,10 @@ function SiteHeader() {
               </span>
               {/* Walked in the order ROLLEN declares rather than the order the
                   server sent, so two accounts with the same roles always read
-                  the same way round. */}
-              {ROLLEN.filter((rolle) => sitzung.benutzer.rollen.includes(rolle)).map((rolle) => (
+                  the same way round. Lifted into auth/rollen.ts in feature 16b,
+                  when the account list became the second place that prints
+                  somebody's roles and this stopped being the only caller. */}
+              {sortierteRollen(sitzung.benutzer.rollen).map((rolle) => (
                 <span key={rolle} className="role-tag">
                   {t(`common.rollen.${rolle}` satisfies ParseKeys)}
                 </span>

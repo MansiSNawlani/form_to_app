@@ -301,7 +301,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 16a. Die Konten-Endpunkte: every account read, created, changed, locked and
         unlocked over the API, Super Admin only, and the rule that no change may leave
         the application without an active Super Admin
-  - [ ] 16b. Die Benutzerliste: the /verwaltung/benutzer screen, the table of accounts
+  - [x] 16b. Die Benutzerliste: the /verwaltung/benutzer screen, the table of accounts
         with their roles, region and status, the search box, the header link, and the
         loading, empty, error and refused states
   - [ ] 16c. Ein Konto anlegen: the form for a new account, the role picker with the

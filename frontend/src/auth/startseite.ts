@@ -26,6 +26,9 @@ export const MEINE_PROTOKOLLE = '/'
 /** The review queue. */
 export const PRUEFLISTE = '/pruefung'
 
+/** The account list, feature 16b. */
+export const BENUTZERVERWALTUNG = '/verwaltung/benutzer'
+
 /* The three accounts whose job is other people's protocols, the same three
  * FFS_ROLLEN in backend/app/protokolle/dienst.py names and the same three the
  * Pruefliste endpoint admits.
@@ -51,6 +54,27 @@ const FFS_ROLLEN: readonly Rolle[] = ['REVIEWER', 'DATA_STEWARD', 'SUPER_ADMIN']
  */
 export function darfPruefen(rollen: readonly Rolle[]): boolean {
   return rollen.some((rolle) => FFS_ROLLEN.includes(rolle))
+}
+
+/* Whether this account manages other accounts.
+ *
+ * Deliberately narrower than darfPruefen, and deliberately not built on FFS_ROLLEN.
+ * A Data Steward corrects survey data and a Reviewer decides on protocols; neither
+ * job involves handing somebody else a role. The endpoints behind the account list
+ * admit SUPER_ADMIN alone, and this is the one place in the browser where "FFS
+ * staff" is too wide a description to draw a link on.
+ *
+ * **Never a permission**, for the same reason darfPruefen is not one. Hiding a link
+ * is not security. The server refuses an account that has no business with the list
+ * whether or not the link was ever drawn.
+ *
+ * Not part of startseite below. Administering accounts is an errand somebody goes
+ * on, not the thing they open the application to do, and a Super Admin is a reviewer
+ * first: project-overview.md gives them everything, and the queue is where the work
+ * is.
+ */
+export function darfVerwalten(rollen: readonly Rolle[]): boolean {
+  return rollen.includes('SUPER_ADMIN')
 }
 
 export function startseite(rollen: readonly Rolle[]): string {
