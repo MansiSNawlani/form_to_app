@@ -85,7 +85,9 @@ function BenutzerlisteSeite() {
             fail over perfectly good rows, and saying the list could not be loaded
             above a table of it is both alarming and untrue. */}
         {error !== null && konten === undefined && (
-          <Ladefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
+          <div className="benutzer__meldung">
+            <Ladefehler fehler={error} laeuft={isFetching} onErneut={() => void refetch()} />
+          </div>
         )}
 
         {/* The box is drawn as soon as the list is in hand, including when the

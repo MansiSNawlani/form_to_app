@@ -33,13 +33,21 @@
 
 /* The search box and its count, side by side on a wide screen and stacked on a
    narrow one. The count sits at the baseline of the field rather than under its
-   label, so it reads as a statement about the table below. */
+   label, so it reads as a statement about the table below.
+
+   The padding and the rule under it are the review queue's .filters, because
+   .card carries no padding of its own on this project: it is a background, a
+   border and a radius, and every screen inside one supplies its own inset. Left
+   off, the label sits hard against the top and left edges of the card while the
+   table below it is properly inset, which is what this looked like when it was
+   first built. */
 .benutzer__suche {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 1rem;
-  margin-bottom: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .benutzer__suche .MuiFormControl-root {
@@ -51,8 +59,17 @@
   color: var(--muted);
 }
 
-/* Matches the review queue's loading line: quiet, and in the flow rather than
-   replacing the card, so the page does not jump when the rows arrive. */
+/* The two states that sit inside the card rather than replacing it, inset for
+   the same reason the search row above is: .card supplies no padding itself.
+
+   .empty needs none of this, because liste.css already gives it its own. */
+.benutzer__laedt,
+.benutzer__meldung {
+  padding: 1.5rem;
+}
+
+/* Quiet, and in the flow rather than replacing the card, so the page does not
+   jump when the rows arrive. */
 .benutzer__laedt {
   color: var(--muted);
 }
