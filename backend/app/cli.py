@@ -274,7 +274,10 @@ def anlegen(
         int | None,
         typer.Option(
             "--regierungspraesidium",
-            help="1 Stuttgart, 2 Karlsruhe, 3 Freiburg, 4 Tübingen. Nur für regionale Konten.",
+            # Read from the table rather than restated, because a restated copy
+            # is what drifted: this line still said 1 Stuttgart after the table
+            # was corrected in feature 16c.
+            help=f"{_regierungspraesidien_hinweis()}. Nur für regionale Konten.",
         ),
     ] = None,
     locale: Annotated[

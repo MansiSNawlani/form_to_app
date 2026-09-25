@@ -10,12 +10,14 @@ from app.benutzer.fehler import (
     SelbstEntzugUnzulaessig,
 )
 from app.benutzer.regeln import (
+    REGIERUNGSPRAESIDIEN,
     normalisiere_email,
     normalisiere_rollen,
     pruefe_kein_selbstentzug,
     pruefe_regierungspraesidium,
     pruefe_super_admin_bleibt,
 )
+from app.formular.optionen import optionen
 from app.models.benutzer import Rolle
 
 
@@ -135,6 +137,25 @@ def test_regionale_rolle_neben_anderen_verlangt_weiterhin_eine_nummer() -> None:
 def test_super_admin_bekommt_keine_nummer() -> None:
     with pytest.raises(RegierungspraesidiumUnzulaessig):
         pruefe_regierungspraesidium([Rolle.SUPER_ADMIN], 1)
+
+
+@pytest.mark.parametrize("nummer", [1, 2, 3, 4])
+def test_die_namen_stimmen_mit_der_liste_aus_dem_formular_ueberein(nummer: int) -> None:
+    """The number means what FFS's own form says it means, not what is conventional.
+
+    This table was hand-written in feature 2a and paired 1 with Stuttgart, which
+    is the order the four are usually listed in. The z.rp list extracted from the
+    legacy PDF pairs 1 with Karlsruhe, and that list is the authority: the number
+    is what FiaKa receives, and every screen in the application already reads it.
+    Feature 16b found the two disagreeing, so the same account printed as
+    Karlsruhe on screen and as Stuttgart at the command line.
+
+    Held against the extracted file rather than against four literals, so that
+    regenerating the seed from a newer form fails here instead of quietly making
+    the command line wrong again.
+    """
+    etikett = optionen().etikett("z.rp", str(nummer))
+    assert REGIERUNGSPRAESIDIEN[nummer] in etikett, etikett
 
 
 def test_letzter_super_admin_darf_nicht_gesperrt_werden() -> None:
