@@ -8,6 +8,7 @@ import PrueflisteSeite from './protokoll/pruefliste/PrueflisteSeite'
 import ProtokollSeite from './protokoll/ProtokollSeite'
 import PruefungsSeite from './protokoll/pruefung/PruefungsSeite'
 import BenutzerlisteSeite from './verwaltung/benutzer/BenutzerlisteSeite'
+import KontoAnlegenSeite from './verwaltung/benutzer/KontoAnlegenSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { NEU } from './protokoll/entwurf/neu'
 
@@ -80,6 +81,16 @@ export const router = createBrowserRouter([
            * administration area and the address should say which part of the
            * application somebody is in. */
           { path: 'verwaltung/benutzer', element: <BenutzerlisteSeite /> },
+          /* Making one, feature 16c.
+           *
+           * No role requirement, for the same reason as the list above it. The
+           * endpoint behind this page admits SUPER_ADMIN and nobody else, and the
+           * page turns that refusal into words with a way onward.
+           *
+           * Under the list rather than beside it, following protokolle/neu: the
+           * address for making one of a thing sits under the address that lists
+           * them. */
+          { path: 'verwaltung/benutzer/neu', element: <KontoAnlegenSeite /> },
           { path: '*', element: <NotFound /> },
         ],
       },

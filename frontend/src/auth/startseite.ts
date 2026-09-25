@@ -29,6 +29,15 @@ export const PRUEFLISTE = '/pruefung'
 /** The account list, feature 16b. */
 export const BENUTZERVERWALTUNG = '/verwaltung/benutzer'
 
+/* The form for a new account, feature 16c.
+ *
+ * Beside the list rather than derived from it, so that a search for either address
+ * finds the one place it is written. Both are read by routes.tsx and by the list
+ * page's own button, and a template string built from the constant above would put
+ * half of this address somewhere a reader has to assemble it.
+ */
+export const BENUTZER_NEU = '/verwaltung/benutzer/neu'
+
 /* The three accounts whose job is other people's protocols, the same three
  * FFS_ROLLEN in backend/app/protokolle/dienst.py names and the same three the
  * Pruefliste endpoint admits.

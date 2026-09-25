@@ -174,7 +174,47 @@
     },
     "leer": {
       "titel": "Keine Konten vorhanden",
-      "text": "Diese Anwendung hat noch keine Konten. Angelegt werden sie mit dem Befehl befischung benutzer anlegen."
+      "text": "Diese Anwendung hat noch keine Konten. Legen Sie mit \"Neues Konto\" das erste an."
+    },
+    "anlegen": {
+      "knopf": "Neues Konto",
+      "titel": "Neues Konto anlegen",
+      "untertitel": "Das Konto kann sich anmelden, sobald Sie es angelegt haben.",
+      "email": "E-Mail-Adresse",
+      "emailHinweis": "Damit meldet sich das Konto an. Groß- und Kleinschreibung spielt keine Rolle.",
+      "passwort": "Passwort",
+      "passwortHinweis": "Mindestens 12 Zeichen. Sie geben es der Person anschließend selbst weiter.",
+      "passwortAnzeigen": "Anzeigen",
+      "passwortVerbergen": "Verbergen",
+      "rollen": "Rollen",
+      "rollenHinweis": {
+        "REGIERUNGSPRAESIDIUM": "Nur lesend, und nur für das eigene Regierungspräsidium. Die Nummer wählen Sie darunter.",
+        "INTEGRATION": "Für eine andere Anwendung, nicht für einen Menschen. Ein solches Konto kann sich nicht anmelden."
+      },
+      "regierungspraesidium": "Regierungspräsidium",
+      "sprache": "Sprache der Oberfläche",
+      "sprachen": {
+        "de": "Deutsch",
+        "en": "Englisch"
+      },
+      "absenden": "Konto anlegen",
+      "laeuft": "Wird angelegt",
+      "abbrechen": "Abbrechen",
+      "fehlt": {
+        "email": "Bitte eine E-Mail-Adresse eingeben. Mit ihr meldet sich das Konto an.",
+        "emailForm": "Diese Adresse hat kein @ oder enthält ein Leerzeichen. Bitte die Schreibweise prüfen, zum Beispiel name@behoerde.de.",
+        "passwort": "Das Passwort braucht mindestens 12 Zeichen. Bitte ein längeres wählen.",
+        "rollen": "Bitte mindestens eine Rolle ankreuzen. Sie entscheidet, was das Konto tun darf.",
+        "regierungspraesidium": "Bitte ein Regierungspräsidium wählen. Ein Konto mit dieser Rolle sieht genau eines, und ohne Angabe wäre nicht festgelegt welches."
+      },
+      "fertig": {
+        "titel": "Das Konto {{email}} wurde angelegt.",
+        "weitergeben": "Geben Sie diese Zugangsdaten der Person weiter. Die Anwendung verschickt keine E-Mail, und niemand ausser Ihnen kennt das Passwort.",
+        "nurEinmal": "Das Passwort wird nur hier angezeigt. Wenn Sie diese Seite verlassen, ist es nicht mehr abrufbar. Wählen Sie für die Übergabe einen Weg, den nur die Person selbst mitliest, also nicht die unverschlüsselte E-Mail.",
+        "keinWechsel": "Die Person kann ihr Passwort noch nicht selbst ändern. Ist es verloren gegangen oder hat es jemand Falsches gesehen, setzt die Administration ein neues.",
+        "weiteres": "Weiteres Konto anlegen",
+        "zurListe": "Zur Benutzerliste"
+      }
     }
   },
   "pruefliste": {

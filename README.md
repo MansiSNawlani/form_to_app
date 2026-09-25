@@ -136,6 +136,18 @@ do to it.
 
 ![The same list in dark](docs/screenshots/14-benutzerverwaltung-dunkel.png)
 
+**Neues Konto** is where one is made: the address it signs in with, its first password, what it
+may do, and, for a regional account, which Regierungspräsidium it belongs to. The region is asked
+for only when the role that needs it is ticked.
+
+![The form for a new account](docs/screenshots/15-konto-anlegen.png)
+
+The application sends no mail yet, so the administrator passes the address and the password on
+themselves. They are shown together, once, on the screen that made the account, and the password
+is not recoverable afterwards.
+
+![What the administrator passes on](docs/screenshots/16-konto-anlegen-zugangsdaten.png)
+
 An account is never deleted, only locked: deleting one would take the owner of every protocol
 it filed with it, and those records have to stay readable.
 
@@ -281,7 +293,7 @@ deleted account would take the owner of every protocol it filed with it.
 The six roles are `SUBMITTER`, `DATA_STEWARD`, `REVIEWER`, `SUPER_ADMIN`, `REGIERUNGSPRAESIDIUM`
 and `INTEGRATION`. Give `--rolle` more than once for an account that holds several. A
 `REGIERUNGSPRAESIDIUM` account also needs `--regierungspraesidium`, a number from 1 to 4:
-1 Stuttgart, 2 Karlsruhe, 3 Freiburg, 4 Tübingen.
+1 Karlsruhe, 2 Stuttgart, 3 Freiburg, 4 Tübingen, as the legacy form pairs them.
 
 ## Tests
 

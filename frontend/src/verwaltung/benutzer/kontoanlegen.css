@@ -1,0 +1,116 @@
+/* Only what the shared page furniture does not already give.
+
+   .card on this project is a background, a border and a radius and nothing else,
+   so every screen inside one supplies its own inset. Left off, the first label
+   sits hard against the top and left edges of the card. That exact fault has now
+   shipped twice, most recently on feature 16b's own search row, which is why the
+   inset was the first thing in this file rather than something added once the
+   fields were in. */
+.konto-anlegen__inhalt {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+/* Two columns once there is room for them, laid out by the grid rather than by
+   wrapper elements, so the DOM order and therefore the keyboard order stays the
+   reading order at every width.
+
+   The width is used rather than left empty. The alternative, one narrow column
+   in a card that spans the screen, puts every answer in the left third and wraps
+   the sentence under each one to a third of the room it has. */
+@media (min-width: 60rem) {
+  .konto-anlegen__inhalt {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+
+  /* What is about the form as a whole rather than about one answer. The roles are
+     here too, because six of them beside two short fields would leave one column
+     twice the height of the other. */
+  .konto-anlegen__rollen,
+  .konto-anlegen__meldung,
+  .konto-anlegen__aktionen {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Each field is a column of its own: label, hint, control, message. */
+.konto-anlegen__feld {
+  width: 100%;
+}
+
+.konto-anlegen__hinweis {
+  /* Above the control rather than below it, so it is read before the field is
+     filled in rather than after. Margins are reset because MUI's FormHelperText
+     is built to sit underneath. */
+  margin: 0 0 0.4rem;
+  color: var(--muted);
+}
+
+/* The six roles, as one named group. No border of its own: MUI's FormControl
+   resets a fieldset's, and winning that back would take a specificity fight for
+   something the bold group label already says. */
+.konto-anlegen__rollen {
+  gap: 0.25rem;
+}
+
+/* Side by side once there is room, because six stacked checkboxes are the tallest
+   thing on this form and the width is there to be used. */
+.konto-anlegen__rollen .MuiFormGroup-root {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: 0.4rem 2.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Indented to the width of the checkbox and its gap, so the sentence reads as
+   belonging to the label above it rather than to the group. */
+.konto-anlegen__rolle .konto-anlegen__hinweis {
+  margin: 0 0 0 2.6rem;
+}
+
+.konto-anlegen__aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* What the administrator has to pass on. Roomier than the form it replaces,
+   because it is read rather than filled in, and held to a comfortable measure:
+   this is the one place on the screen with real sentences in it, and a line of
+   prose the full width of a desktop card is hard to read back. */
+.konto-anlegen__fertig {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 52rem;
+}
+
+/* The address and the password as labelled pairs, so each can be read off or
+   selected on its own. */
+.konto-anlegen__zugangsdaten {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
+  padding: 1rem;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.konto-anlegen__zugangsdaten dt {
+  color: var(--muted);
+}
+
+.konto-anlegen__zugangsdaten dd {
+  margin: 0;
+  font-weight: 600;
+  /* It gets read out character by character, so the characters have to be told
+     apart: a monospaced face is the difference between l and 1, O and 0. */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* A long password must wrap rather than push the panel sideways. */
+  overflow-wrap: anywhere;
+}
