@@ -20,13 +20,23 @@ definition, not from the request, so naming them cannot repeat a person's answer
 back at them. A filename is safe for a different reason: it is the person's own,
 and it is what they will look for on their own machine.
 
-The account table below covers only what a route in this feature can raise. Every other
-member of the BenutzerFehler family falls to 500, which is the right answer while
-no route can produce it: a status code invented in advance is a contract nobody
-reviewed, and one of them would quietly matter. Mapping BenutzerNichtGefunden to
-404 would tell an unauthenticated caller that an address has no account here, and
-that is exactly what melde_an goes to some trouble to keep unknowable. A feature
-adding a route that raises one of those adds its line here, with the route.
+The account table below covers only what a route can raise. Every other member of
+the BenutzerFehler family falls to 500, which is the right answer while no route
+can produce it: a status code invented in advance is a contract nobody reviewed,
+and one of them would quietly matter. A feature adding a route that raises one of
+those adds its line here, with the route.
+
+BenutzerNichtGefunden became one of those in feature 16a, and the reason it is
+safe is worth reading before a sixth route looks an account up. Until then this
+comment warned that mapping it to 404 would tell an unauthenticated caller
+whether an address has an account here, which is exactly what melde_an goes to
+some trouble to keep unknowable. That still holds. It is safe now because every
+route that can raise it sits behind a SUPER_ADMIN check, so the only callers who
+learn anything already administer every account there is, and because the one
+unauthenticated route that looks an account up raises AnmeldungFehlgeschlagen
+instead, which carries no email on purpose. **An unauthenticated route must never
+be allowed to raise BenutzerNichtGefunden**, and that is now a rule about the
+routes rather than about this table.
 """
 
 from fastapi import FastAPI, Request, Response, status
@@ -45,11 +55,21 @@ from app.api.schemas import FehlerAntwort, VerstossAntwort
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
     BenutzerFehler,
+    BenutzerNichtGefunden,
+    EmailBereitsVergeben,
+    EmailUngueltig,
     KontoDeaktiviert,
     KontoNichtInteraktiv,
+    LetzterSuperAdmin,
     NichtAngemeldet,
+    RegierungspraesidiumAusserhalbBereich,
+    RegierungspraesidiumFehlt,
+    RegierungspraesidiumUnzulaessig,
     RolleFehlt,
+    RollenLeer,
+    SelbstEntzugUnzulaessig,
 )
+from app.benutzer.regeln import REGIERUNGSPRAESIDIEN
 from app.formular.fehler import (
     PdfFehler,
     PdfGesperrt,
@@ -78,6 +98,12 @@ from app.protokolle.fehler import (
     Verstossgrund,
 )
 from app.protokolle.formregeln.regel import Formverstoss
+from app.security.passwoerter import (
+    HOECHSTLAENGE,
+    MINDESTLAENGE,
+    PasswortZuKurz,
+    PasswortZuLang,
+)
 
 AN_ADMINISTRATOR_WENDEN = "Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator."
 
@@ -90,6 +116,13 @@ AN_ADMINISTRATOR_WENDEN = "Bitte wenden Sie sich an Ihre Administratorin oder Ih
 # Every message names the thing, says why in ordinary words and says what to do
 # next, which is the standard this project set on 2026-09-06: a message that only
 # says "no" leaves the person with nowhere to go.
+
+# The four regions named rather than numbered, for the same reason the command
+# line names them: "3" means nothing to somebody filling in a form.
+_REGIERUNGSPRAESIDIEN_TEXT = ", ".join(
+    f"{nummer} {ort}" for nummer, ort in REGIERUNGSPRAESIDIEN.items()
+)
+
 UEBERSETZUNG: dict[type[BenutzerFehler], tuple[str, int, str]] = {
     AnmeldungFehlgeschlagen: (
         "ANMELDUNG_FEHLGESCHLAGEN",
@@ -122,6 +155,84 @@ UEBERSETZUNG: dict[type[BenutzerFehler], tuple[str, int, str]] = {
         "Dieses Konto ist ein technisches Konto für die Datenübergabe und kann"
         " sich hier nicht anmelden. Bitte melden Sie sich mit Ihrem persönlichen"
         " Konto an.",
+    ),
+    EmailUngueltig: (
+        "EMAIL_UNGUELTIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Das ist keine vollständige E-Mail-Adresse. Sie ist zugleich der"
+        " Anmeldename des Kontos, zum Beispiel anna.bergmann@ffs.bwl.de. Bitte"
+        " die Schreibweise prüfen.",
+    ),
+    EmailBereitsVergeben: (
+        "EMAIL_VERGEBEN",
+        status.HTTP_409_CONFLICT,
+        "Für diese Adresse gibt es bereits ein Konto. Eine Adresse kann nur zu"
+        " einem Konto gehören. Bitte in der Benutzerliste nachsehen: ist das"
+        " Konto gesperrt, lässt es sich wieder freischalten.",
+    ),
+    RollenLeer: (
+        "ROLLEN_LEER",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Das Konto hat keine Rolle. Es könnte sich anmelden und sonst nichts"
+        " tun. Bitte mindestens eine Rolle auswählen.",
+    ),
+    RegierungspraesidiumFehlt: (
+        "REGIERUNGSPRAESIDIUM_FEHLT",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Zur Rolle Regierungspräsidium fehlt die Angabe, welches gemeint ist."
+        " Ohne sie würde das Konto alle Regionen sehen statt nur seiner eigenen."
+        f" Bitte eines auswählen: {_REGIERUNGSPRAESIDIEN_TEXT}.",
+    ),
+    RegierungspraesidiumUnzulaessig: (
+        "REGIERUNGSPRAESIDIUM_UNZULAESSIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Ein Regierungspräsidium ist angegeben, aber das Konto hat nicht die"
+        " Rolle Regierungspräsidium. Bei allen anderen Rollen hat die Angabe"
+        " keine Wirkung. Bitte entweder die Angabe entfernen oder die Rolle"
+        " Regierungspräsidium ergänzen.",
+    ),
+    RegierungspraesidiumAusserhalbBereich: (
+        "REGIERUNGSPRAESIDIUM_UNBEKANNT",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "In Baden-Württemberg gibt es vier Regierungspräsidien. Bitte eines"
+        f" davon auswählen: {_REGIERUNGSPRAESIDIEN_TEXT}.",
+    ),
+    PasswortZuKurz: (
+        "PASSWORT_ZU_KURZ",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        f"Das Passwort braucht mindestens {MINDESTLAENGE} Zeichen. Bitte ein"
+        " längeres wählen. Es gibt keine Vorgabe zu Ziffern oder"
+        " Sonderzeichen: mehrere Wörter hintereinander sind leichter zu merken"
+        " und zugleich sicherer als ein kurzes kompliziertes Passwort.",
+    ),
+    PasswortZuLang: (
+        "PASSWORT_ZU_LANG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        f"Das Passwort ist zu lang. Erlaubt sind bis zu {HOECHSTLAENGE} Zeichen."
+        " Vermutlich ist versehentlich etwas anderes in das Feld geraten. Bitte"
+        " die Eingabe prüfen.",
+    ),
+    BenutzerNichtGefunden: (
+        "KONTO_NICHT_GEFUNDEN",
+        status.HTTP_404_NOT_FOUND,
+        "Dieses Konto gibt es nicht mehr. Vielleicht hat es jemand anderes"
+        " inzwischen geändert. Bitte die Benutzerliste neu laden.",
+    ),
+    LetzterSuperAdmin: (
+        "LETZTER_SUPER_ADMIN",
+        status.HTTP_409_CONFLICT,
+        "Das ist das letzte aktive Konto mit der Rolle Super Admin, deshalb"
+        " wurde nichts geändert. Ohne ein solches Konto könnte niemand mehr"
+        " Konten anlegen oder Rollen vergeben. Bitte zuerst ein zweites Konto"
+        " mit dieser Rolle anlegen.",
+    ),
+    SelbstEntzugUnzulaessig: (
+        "SELBSTENTZUG_UNZULAESSIG",
+        status.HTTP_409_CONFLICT,
+        "Sie können sich die eigene Rolle Super Admin nicht nehmen und Ihr"
+        " eigenes Konto nicht sperren. Beides würde Sie sofort aussperren, ohne"
+        " dass Sie es rückgängig machen könnten. Ein anderes Konto mit dieser"
+        " Rolle kann es für Sie tun.",
     ),
 }
 

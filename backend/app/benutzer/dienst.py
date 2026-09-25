@@ -15,9 +15,11 @@ day some feature needs two of these to succeed or fail together is the day to
 move the commit out to the caller, and not before.
 """
 
+import uuid
 from collections.abc import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import Text, cast, func, select
+from sqlalchemy.dialects.postgresql import ARRAY as PgARRAY
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,7 +34,9 @@ from app.benutzer.fehler import (
 from app.benutzer.regeln import (
     normalisiere_email,
     normalisiere_rollen,
+    pruefe_kein_selbstentzug,
     pruefe_regierungspraesidium,
+    pruefe_super_admin_bleibt,
 )
 from app.models.benutzer import Locale, Rolle, User
 from app.security.passwoerter import (
@@ -47,6 +51,32 @@ from app.security.passwoerter import (
 # The unique index from the users migration. Named here so a violation can be
 # told apart from any other constraint failure without guessing.
 EMAIL_INDEX = "uq_users_email"
+
+
+class Unveraendert:
+    """The absence of a value, told apart from the value None.
+
+    aendere_benutzer changes any subset of five fields, and one of them,
+    regierungspraesidium, is genuinely nullable. "Leave the region alone" and
+    "clear the region" are different instructions, and a default of None cannot
+    express both. This sentinel is the difference.
+
+    Public, because the router has to name the type to hand values in. There is
+    exactly one instance, UNVERAENDERT below, and nothing should ever make a
+    second: the checks are isinstance rather than identity so that a second one
+    would still behave, but two of them would make the repr below a lie.
+    """
+
+    def __repr__(self) -> str:
+        return "UNVERAENDERT"
+
+
+UNVERAENDERT = Unveraendert()
+
+
+def _oder[T](wert: T | Unveraendert, bisher: T) -> T:
+    """The value that was given, or the one the account already has."""
+    return bisher if isinstance(wert, Unveraendert) else wert
 
 
 async def lege_benutzer_an(
@@ -121,6 +151,45 @@ async def finde_nach_email(session: AsyncSession, email: str) -> User | None:
     return gefunden
 
 
+async def finde_nach_id(session: AsyncSession, benutzer_id: uuid.UUID) -> User | None:
+    """The account with this id, or None.
+
+    What the endpoints use. They identify an account by id rather than by email
+    because the email is the very field an edit may be changing, and identifying
+    a row by the value being written would make a rename look like a delete
+    followed by a create.
+    """
+    gefunden: User | None = await session.get(User, benutzer_id)
+    return gefunden
+
+
+async def zaehle_andere_aktive_super_admins(
+    session: AsyncSession, *, ausser: uuid.UUID
+) -> int:
+    """How many active Super Admins there are apart from this one account.
+
+    The number pruefe_super_admin_bleibt needs. Counted rather than fetched,
+    because the rule only ever asks whether it is zero and loading the rows to
+    find that out would read every administrator's account to answer it.
+
+    The cast is not decoration. `rollen` is a TypeDecorator over the generic
+    ARRAY type, and the generic type refuses the containment operator because it
+    is not portable; casting to the Postgres array type is what turns this into
+    `rollen @> ARRAY['SUPER_ADMIN']`. Storage is unaffected: the cast exists only
+    inside this query.
+    """
+    anzahl = await session.scalar(
+        select(func.count())
+        .select_from(User)
+        .where(
+            User.id != ausser,
+            User.ist_aktiv,
+            cast(User.rollen, PgARRAY(Text)).contains([Rolle.SUPER_ADMIN.value]),
+        )
+    )
+    return int(anzahl or 0)
+
+
 async def setze_aktiv(session: AsyncSession, email: str, aktiv: bool) -> User:
     """Turn an account on or off.
 
@@ -133,7 +202,127 @@ async def setze_aktiv(session: AsyncSession, email: str, aktiv: bool) -> User:
     if benutzer is None:
         raise BenutzerNichtGefunden(normalisiere_email(email))
 
+    # Checked here rather than only in the endpoints, so the command line is held
+    # to it too. Its own escape hatch stays open: creating another Super Admin
+    # still works, and that is the documented way back.
+    ist_super_admin = Rolle.SUPER_ADMIN in benutzer.rollen
+    pruefe_super_admin_bleibt(
+        war_aktiver_super_admin=ist_super_admin and benutzer.ist_aktiv,
+        ist_aktiver_super_admin_danach=ist_super_admin and aktiv,
+        andere_aktive_super_admins=await zaehle_andere_aktive_super_admins(
+            session, ausser=benutzer.id
+        ),
+    )
+
     benutzer.ist_aktiv = aktiv
+    await session.commit()
+    await session.refresh(benutzer)
+    return benutzer
+
+
+async def aendere_benutzer(
+    session: AsyncSession,
+    benutzer: User,
+    *,
+    handelnder: User,
+    email: str | Unveraendert = UNVERAENDERT,
+    rollen: Sequence[Rolle] | Unveraendert = UNVERAENDERT,
+    regierungspraesidium: int | None | Unveraendert = UNVERAENDERT,
+    locale: Locale | Unveraendert = UNVERAENDERT,
+    ist_aktiv: bool | Unveraendert = UNVERAENDERT,
+) -> User:
+    """Change any subset of an account's fields, or raise saying what was wrong.
+
+    Takes the account rather than an id, because the caller has already loaded it
+    to answer "does this exist" and a second lookup here would ask the same
+    question twice.
+
+    `handelnder` is the account making the change, and it is required rather than
+    optional so that a caller cannot quietly skip the rule that depends on it.
+    The command line never calls this; it has no signed-in account to pass.
+
+    Everything is checked before anything is written, like lege_benutzer_an, so a
+    refused change leaves the row exactly as it was.
+    """
+    # The two that normalise keep their own line, because what they do to a given
+    # value is part of the rule rather than a default. The other three are plain.
+    neue_email = benutzer.email if isinstance(email, Unveraendert) else normalisiere_email(email)
+    neue_rollen = (
+        list(benutzer.rollen) if isinstance(rollen, Unveraendert) else normalisiere_rollen(rollen)
+    )
+    neues_rp = _oder(regierungspraesidium, benutzer.regierungspraesidium)
+    neue_locale = _oder(locale, benutzer.locale)
+    neu_aktiv = _oder(ist_aktiv, benutzer.ist_aktiv)
+
+    # Taking the regional role away without clearing its number is refused rather
+    # than fixed up. Dropping the number quietly would be this layer deciding
+    # what somebody meant, and the number is the one field on the account that
+    # scopes what it can see.
+    pruefe_regierungspraesidium(neue_rollen, neues_rp)
+
+    if neue_email != benutzer.email:
+        vorhanden = await finde_nach_email(session, neue_email)
+        if vorhanden is not None and vorhanden.id != benutzer.id:
+            raise EmailBereitsVergeben(neue_email)
+
+    war_super_admin = Rolle.SUPER_ADMIN in benutzer.rollen
+    bleibt_super_admin = Rolle.SUPER_ADMIN in neue_rollen
+
+    # Before pruefe_kein_selbstentzug on purpose, and the order is the message
+    # rather than the outcome. A sole Super Admin demoting themselves breaks both
+    # rules at once; "create a second one first" is something they can act on,
+    # while "ask another Super Admin" names somebody who does not exist.
+    pruefe_super_admin_bleibt(
+        war_aktiver_super_admin=war_super_admin and benutzer.ist_aktiv,
+        ist_aktiver_super_admin_danach=bleibt_super_admin and neu_aktiv,
+        andere_aktive_super_admins=await zaehle_andere_aktive_super_admins(
+            session, ausser=benutzer.id
+        ),
+    )
+
+    pruefe_kein_selbstentzug(
+        ist_eigenes_konto=handelnder.id == benutzer.id,
+        verliert_super_admin=war_super_admin and not bleibt_super_admin,
+        wird_gesperrt=benutzer.ist_aktiv and not neu_aktiv,
+    )
+
+    benutzer.email = neue_email
+    benutzer.rollen = neue_rollen
+    benutzer.regierungspraesidium = neues_rp
+    benutzer.locale = neue_locale
+    benutzer.ist_aktiv = neu_aktiv
+
+    try:
+        await session.commit()
+    except IntegrityError as fehler:
+        # The same race lege_benutzer_an guards against, from the other
+        # direction: two accounts renamed to one address at the same moment.
+        await session.rollback()
+        if EMAIL_INDEX in str(fehler):
+            raise EmailBereitsVergeben(neue_email) from fehler
+        raise
+
+    await session.refresh(benutzer)
+    return benutzer
+
+
+async def setze_passwort(session: AsyncSession, benutzer: User, *, passwort: str) -> User:
+    """Give an account a new password.
+
+    Its own function rather than a field of aendere_benutzer, because a password
+    must never travel alongside values that get echoed back in a validation
+    error, printed in a log line, or returned in a response.
+
+    hashe_passwort refuses a password that is too short or too long before
+    anything is written, so a refused reset leaves the old one in place.
+
+    It does not end sessions that already exist. The session token is stateless
+    and carries the account id, so one issued before this call stays valid until
+    it expires. Where that matters, locking the account is the answer: it is
+    honoured on the account's very next request, because aktueller_benutzer loads
+    the row every time.
+    """
+    benutzer.password_hash = hashe_passwort(passwort)
     await session.commit()
     await session.refresh(benutzer)
     return benutzer

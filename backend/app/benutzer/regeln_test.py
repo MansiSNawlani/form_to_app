@@ -2,15 +2,19 @@ import pytest
 
 from app.benutzer.fehler import (
     EmailUngueltig,
+    LetzterSuperAdmin,
     RegierungspraesidiumAusserhalbBereich,
     RegierungspraesidiumFehlt,
     RegierungspraesidiumUnzulaessig,
     RollenLeer,
+    SelbstEntzugUnzulaessig,
 )
 from app.benutzer.regeln import (
     normalisiere_email,
     normalisiere_rollen,
+    pruefe_kein_selbstentzug,
     pruefe_regierungspraesidium,
+    pruefe_super_admin_bleibt,
 )
 from app.models.benutzer import Rolle
 
@@ -131,3 +135,76 @@ def test_regionale_rolle_neben_anderen_verlangt_weiterhin_eine_nummer() -> None:
 def test_super_admin_bekommt_keine_nummer() -> None:
     with pytest.raises(RegierungspraesidiumUnzulaessig):
         pruefe_regierungspraesidium([Rolle.SUPER_ADMIN], 1)
+
+
+def test_letzter_super_admin_darf_nicht_gesperrt_werden() -> None:
+    with pytest.raises(LetzterSuperAdmin):
+        pruefe_super_admin_bleibt(
+            war_aktiver_super_admin=True,
+            ist_aktiver_super_admin_danach=False,
+            andere_aktive_super_admins=0,
+        )
+
+
+def test_ein_zweiter_super_admin_genuegt() -> None:
+    """The boundary the rule turns on. One other is enough; none is not."""
+    pruefe_super_admin_bleibt(
+        war_aktiver_super_admin=True,
+        ist_aktiver_super_admin_danach=False,
+        andere_aktive_super_admins=1,
+    )
+
+
+def test_super_admin_der_super_admin_bleibt_ist_kein_problem() -> None:
+    """Changing the email of the only Super Admin takes nothing away."""
+    pruefe_super_admin_bleibt(
+        war_aktiver_super_admin=True,
+        ist_aktiver_super_admin_danach=True,
+        andere_aktive_super_admins=0,
+    )
+
+
+def test_konto_ohne_die_rolle_geht_die_regel_nichts_an() -> None:
+    """A database whose only account is a SUBMITTER must still be editable.
+
+    The command line can create one, so this is reachable rather than
+    theoretical. Without the first branch of the rule, locking that account would
+    be refused for endangering a Super Admin it never was.
+    """
+    pruefe_super_admin_bleibt(
+        war_aktiver_super_admin=False,
+        ist_aktiver_super_admin_danach=False,
+        andere_aktive_super_admins=0,
+    )
+
+
+def test_eigenes_konto_darf_nicht_gesperrt_werden() -> None:
+    with pytest.raises(SelbstEntzugUnzulaessig):
+        pruefe_kein_selbstentzug(
+            ist_eigenes_konto=True, verliert_super_admin=False, wird_gesperrt=True
+        )
+
+
+def test_eigene_super_admin_rolle_darf_nicht_abgegeben_werden() -> None:
+    with pytest.raises(SelbstEntzugUnzulaessig):
+        pruefe_kein_selbstentzug(
+            ist_eigenes_konto=True, verliert_super_admin=True, wird_gesperrt=False
+        )
+
+
+def test_am_eigenen_konto_bleibt_alles_andere_erlaubt() -> None:
+    """Changing your own email or language is not taking your access away."""
+    pruefe_kein_selbstentzug(
+        ist_eigenes_konto=True, verliert_super_admin=False, wird_gesperrt=False
+    )
+
+
+def test_ein_fremdes_konto_darf_gesperrt_werden() -> None:
+    """The narrow rule is about your own account only.
+
+    Whether somebody else may be locked is pruefe_super_admin_bleibt's question,
+    and answering it here as well would be a second opinion.
+    """
+    pruefe_kein_selbstentzug(
+        ist_eigenes_konto=False, verliert_super_admin=True, wird_gesperrt=True
+    )

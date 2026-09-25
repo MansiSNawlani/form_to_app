@@ -83,6 +83,33 @@ class BenutzerNichtGefunden(BenutzerFehler):
         super().__init__(f"No account found for {email}")
 
 
+class LetzterSuperAdmin(BenutzerFehler):
+    """The change would leave the application without an active Super Admin.
+
+    Only a Super Admin can hand out a role, so emptying that role locks everybody
+    out of administering anything. The way back would be a terminal on the
+    machine the database runs on, which is the very dependency feature 16 exists
+    to remove.
+
+    Raised for all three ways to reach the same state: locking the last one,
+    taking the role off the last one, and doing both in one change.
+    """
+
+
+class SelbstEntzugUnzulaessig(BenutzerFehler):
+    """A Super Admin tried to lock their own account or drop their own role.
+
+    One error for both, against the usual rule in this module that an error
+    exists when it has a different way out, because here the way out is the same
+    one: somebody else with the role has to do it. Both also have the same
+    consequence, which is being signed out of the screen you are standing on with
+    nothing left that can undo it.
+
+    Deliberately not covered by LetzterSuperAdmin, which allows this as long as
+    another Super Admin exists. Allowed or not, nobody means to do it.
+    """
+
+
 class AnmeldungFehlgeschlagen(BenutzerFehler):
     """The address and password together do not identify anybody.
 

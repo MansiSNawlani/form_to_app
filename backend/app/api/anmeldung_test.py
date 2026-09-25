@@ -18,7 +18,13 @@ async def test_richtige_anmeldung_gibt_das_konto(anlegen: Anlegen, anmelden: Anm
     antwort = await anmelden()
 
     assert antwort.status_code == 200
-    assert antwort.json() == {
+    koerper = antwort.json()
+    # created_at is checked for presence rather than value, because it is a
+    # timestamp the test cannot know. Everything else is pinned exactly, which is
+    # what makes an accidentally added field fail here rather than reach a
+    # screen unnoticed.
+    assert koerper.pop("created_at")
+    assert koerper == {
         "id": str(angelegt.id),
         "email": "anna@ffs.de",
         "rollen": ["REVIEWER", "SUBMITTER"],
