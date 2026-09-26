@@ -77,7 +77,13 @@ function Kontofeld({
         autoComplete={autoComplete}
         autoFocus={autoFocus}
         {...register(name)}
-        {...feldAria(name, true, hinweisKey, meldung ? labelKey : undefined)}
+        /* Through the input's own slot, never spread onto the component. Anything
+           MUI does not recognise lands on the wrapper element instead, which is
+           where aria-required ended up when this was written the other way: on a
+           div that names nothing and is announced to nobody. Every other field on
+           this project passes the helper the same way, AnmeldungSeite and FeldText
+           included. */
+        slotProps={{ input: feldAria(name, true, hinweisKey, meldung ? labelKey : undefined) }}
         endAdornment={
           istPasswort ? (
             <InputAdornment position="end">

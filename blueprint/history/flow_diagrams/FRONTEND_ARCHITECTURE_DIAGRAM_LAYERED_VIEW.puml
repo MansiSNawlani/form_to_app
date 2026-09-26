@@ -1,0 +1,147 @@
+@startuml FRONTEND_PATTERNS_LAYERED_VIEW
+' ==============================================================================
+' SECOND DIAGRAM: the same codebase, but organised by PATTERN / RESPONSIBILITY
+' instead of by folder. Read this after the folder map above. Each layer only
+' talks to the layer directly below it - that discipline is what makes each
+' layer independently testable and replaceable.
+' ==============================================================================
+skinparam componentStyle rectangle
+skinparam wrapWidth 280
+title FRONTEND ARCHITECTURE - BY LAYER / PATTERN\n(a beginner's map of "why is the code shaped like this")
+
+package "1. ROUTING & GUARD LAYER" as L1 #FFF3CD {
+  component "createBrowserRouter\n(routes.tsx)" as R1
+  component "Layout route pattern\n(<Outlet/> + nested routes)" as R2
+  component "Auth guard component\n(SitzungsWaechter.tsx)" as R3
+  note bottom of L1
+    **Pattern: declarative routing + layout routes.**
+    Instead of "if url == X render Y" scattered around, one data
+    structure lists every URL. A route with no path of its own,
+    just an <Outlet/>, can wrap its children in shared behaviour
+    (a guard, a shell) without every child needing to know about it.
+  end note
+}
+
+package "2. PAGE / CONTAINER LAYER" as L2 #FFDAB9 {
+  component "\"*Seite.tsx\" components\n(ProtokolleSeite, PruefungsSeite, ...)" as P1
+  note bottom of L2
+    **Pattern: Container (a.k.a. \"smart\") components.**
+    A page component's job: read the URL (useParams), fetch data
+    (useQuery), handle top-level loading/error states, and hand
+    clean data down as props. It should contain very little JSX
+    of its own - that's the next layer's job.
+  end note
+}
+
+package "3. FEATURE COMPOSITION LAYER" as L3 #FFDAB9 {
+  component "ProtokollFormular.tsx\n+ AbschnittN.tsx" as F1
+  component "<FormProvider> / <NurLesenContext>" as F2
+  note bottom of L3
+    **Pattern: composition + React Context.**
+    Big screens are built by composing many small components rather
+    than one huge file. Cross-cutting data that many descendants need
+    (the whole form's state; "are we in read-only mode") is put in a
+    Context Provider ONCE near the top, instead of passed down as
+    props through every intermediate component ("prop drilling").
+  end note
+}
+
+package "4. PRESENTATIONAL / REUSABLE UI LAYER" as L4 #D4EDDA {
+  component "felder/ (FeldText, FeldAuswahl, ...)\n+ FeldRahmen wrapper" as U1
+  note bottom of L4
+    **Pattern: presentational (a.k.a. \"dumb\") components +\nshared wrapper (\"compound component\"-ish).**
+    These components don't fetch data and mostly don't hold state -
+    they take props (a field name, a label key) and render UI, wired
+    to the form via a hook (useFormContext). All 338 fields reuse
+    ~7 of these, so a label/ARIA/error fix in FeldRahmen.tsx fixes
+    every field on the site at once.
+  end note
+}
+
+package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
+  component "useAutoSave, useAbsenden,\nuseUebergang, useSitzung,\nuseFeldFehler, useNurLesen" as H1
+  note bottom of L5
+    **Pattern: custom hooks.**
+    React's mechanism for reusing STATEFUL logic across components
+    without inheritance or wrapper components. A hook is just a
+    function whose name starts with "use" and which may call other
+    hooks (useState, useEffect, useQuery...) internally. Each hook
+    above owns exactly one concern and is unit-tested on its own
+    (see *.test.ts next to each one) using fake timers / a stub
+    fetchImpl, with no real browser needed.
+  end note
+}
+
+package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
+  component "regeln/ (schema.ts, prozent.ts,\nhydrologie.ts, vorfluter.ts, ...)" as D1
+  component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts" as D2
+  note bottom of L6
+    **Pattern: pure functions, framework-free.**
+    Deliberately importing nothing from React. A function like
+    sichererWeiterPfad(url) or fehlerZustand(error) takes a value,
+    returns a value, and is tested with plain input/output
+    assertions - no rendering, no mocking a browser. This is the
+    layer coding-standards.md means by "logic where a wrong answer
+    is possible gets a unit test beside it."
+  end note
+}
+
+package "7. DATA / SERVICE LAYER" as L7 #A8DADC {
+  component "api/client.ts (apiAnfrage)\n<- the only fetch() call" as A1
+  component "entwurf/api.ts, absenden's api calls,\n(one small api.ts per feature)" as A2
+  component "TanStack Query\n(useQuery / cache, api/queryClient.ts)" as A3
+  note bottom of L7
+    **Pattern: Service/Repository layer + server-state cache.**
+    Two separate jobs, often confused by beginners:
+      - "How do I talk to the network" -> api/client.ts (mechanics:
+        cookies, JSON, typed errors). Feature api.ts files are thin
+        wrappers naming ONE call each (e.g. speichereAntworten()).
+      - "Where do I cache what the server told me, and how do I know
+        if it's stale" -> TanStack Query. This is explicitly NOT the
+        same thing as component state (useState): server data is
+        cached, shared across components via a queryKey, and can be
+        invalidated/refetched - useState can't do any of that.
+  end note
+}
+
+package "8. CROSS-CUTTING CONCERNS" as L8 #E8F4FD {
+  component "i18n/ (react-i18next)" as C1
+  component "theme/ (tokens.ts, muiTheme.ts)" as C2
+  note bottom of L8
+    **Pattern: externalise anything that changes independently of
+    logic.** Strings move to translation files so a second language
+    (feature 17, English) needs no component changes. Colours/spacing
+    move to CSS custom properties + one MUI theme config so dark mode
+    and the "must not look like stock Material" rule are enforced in
+    ONE file instead of scattered `sx={{color: '#...'}}` overrides.
+  end note
+}
+
+cloud "FastAPI backend" as BE #FDF0E3
+
+L1 --> L2
+L2 --> L3
+L3 --> L4
+L3 --> L5
+L4 --> L5
+L5 --> L6
+L5 --> L7
+L4 --> L8
+L3 --> L8
+L7 --> BE
+
+legend bottom
+  **Reading order for someone new to this codebase:**
+  1. Start at routes.tsx (layer 1) - it is the table of contents for every screen.
+  2. Open the "*Seite.tsx" for the page you care about (layer 2) - see what it fetches.
+  3. Follow that data into its composition components (layer 3) - see how it's laid out.
+  4. Only then look at felder/ (layer 4) if you need to change how ONE kind of
+     input behaves - a change there affects every field of that type, everywhere.
+  5. Hooks (layer 5) and regeln/ (layer 6) are where the actual interesting
+     LOGIC lives, and are the easiest layers to unit-test in isolation - when
+     in doubt about "what does this feature actually DO", read here, not the JSX.
+  6. api/client.ts (layer 7) is the seam between "frontend" and "backend" -
+     see DATA_FLOW_DIAGRAM.puml for what happens the instant a request crosses it.
+endlegend
+
+@enduml

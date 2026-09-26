@@ -4,6 +4,7 @@ import de from './locales/de.json'
 import en from './locales/en.json'
 import { BW_GRENZEN } from '../protokoll/regeln/koordinaten'
 import { ERLAUBTE_FORMATE, MAX_MB } from '../protokoll/anlagen/regeln'
+import { FALLBACK_LOCALE, SUPPORTED_LOCALES, type Locale } from './sprachen'
 
 /* The single place the active locale is decided.
  *
@@ -23,10 +24,9 @@ import { ERLAUBTE_FORMATE, MAX_MB } from '../protokoll/anlagen/regeln'
  * assumed: every key it does not define must render German.
  */
 
-export const SUPPORTED_LOCALES = ['de', 'en'] as const
-export type Locale = (typeof SUPPORTED_LOCALES)[number]
-
-export const FALLBACK_LOCALE: Locale = 'de'
+/* Re-exported rather than declared here, so that a module with no browser in it
+   can ask which locales exist without importing the i18next setup below. */
+export { FALLBACK_LOCALE, SUPPORTED_LOCALES, type Locale } from './sprachen'
 const STORAGE_KEY = 'ffs-locale'
 
 function isLocale(value: string | null): value is Locale {

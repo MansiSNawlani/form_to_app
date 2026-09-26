@@ -13,6 +13,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { ApiFehler, ROLLE_FEHLT } from '../../api/fehler'
+import { SUPPORTED_LOCALES } from '../../i18n/sprachen'
 import { useFehlertext } from '../../api/useFehlertext'
 import { BENUTZERVERWALTUNG } from '../../auth/startseite'
 import { optionen } from '../../protokoll/optionen'
@@ -58,9 +59,6 @@ import './kontoanlegen.css'
  *
  * Nothing here changes an account that exists. That is 16d.
  */
-
-/** The two locales the backend's Locale enum offers. */
-const SPRACHEN = ['de', 'en'] as const
 
 function KontoAnlegenSeite() {
   const { t } = useTranslation()
@@ -110,6 +108,19 @@ function KontoAnlegenSeite() {
   /** The server's sentence, but only under the control it is actually about. */
   const serverMeldung = (feld: Fehlerfeld) =>
     serverFeld === feld ? serverText : undefined
+
+  /* Drop the last refusal from the server as soon as anything is changed.
+   *
+   * A sentence must not outlive the input it was about: the server says an
+   * address is taken, the administrator types a free one, and the message has to
+   * go rather than wait for the next press of the button to be re-asked.
+   *
+   * Guarded, so an ordinary keystroke with nothing outstanding does not re-render
+   * the form for nothing.
+   */
+  const verwerfeServerfehler = () => {
+    if (anlegen.error !== null) anlegen.reset()
+  }
 
   /* The region coupling, read from the live answers rather than held as state of
      its own. Two facts that could otherwise disagree are one fact here: which
@@ -165,12 +176,8 @@ function KontoAnlegenSeite() {
                 reset(LEERES_FORMULAR)
                 anlegen.reset()
                 setAngelegt(null)
-                /* By id rather than through a ref. The field's id is fixed and
-                   ours, because its label points at it with htmlFor, and React
-                   Hook Form's own ref lands on MUI's wrapper rather than on the
-                   input underneath it. Without this the cursor would be left on a
-                   button that has just been replaced. */
-                document.getElementById('email')?.focus()
+                /* Nothing here moves the cursor: the address field's own autoFocus
+                   does it when the form is mounted again. */
               }}
             />
           </div>
@@ -181,6 +188,13 @@ function KontoAnlegenSeite() {
         <form
           className="konto-anlegen__inhalt"
           noValidate
+          /* Covers the two text fields and the six checkboxes in one place,
+             because a real input's change event bubbles to the form.
+             **The two dropdowns are not covered by this** and clear the refusal
+             themselves: MUI's Select is a div with a hidden input and emits no
+             change that arrives here, which a browser check caught as a stale
+             message surviving a change of region. */
+          onChange={verwerfeServerfehler}
           onSubmit={(ereignis) => {
             ereignis.preventDefault()
             void handleSubmit((formular) => {
@@ -263,6 +277,10 @@ function KontoAnlegenSeite() {
                 render={({ field }) => (
                   <Select
                     {...field}
+                    onChange={(ereignis) => {
+                      field.onChange(ereignis)
+                      verwerfeServerfehler()
+                    }}
                     displayEmpty
                     labelId={labelId('regierungspraesidium')}
                     SelectDisplayProps={{ id: 'regierungspraesidium' }}
@@ -303,6 +321,10 @@ function KontoAnlegenSeite() {
               render={({ field }) => (
                 <Select
                   {...field}
+                  onChange={(ereignis) => {
+                    field.onChange(ereignis)
+                    verwerfeServerfehler()
+                  }}
                   /* The control somebody reaches is a div with role="combobox",
                      not an input, so <label for> cannot name it. These two props
                      are the wiring that does; an id passed the ordinary way lands
@@ -310,7 +332,7 @@ function KontoAnlegenSeite() {
                   labelId={labelId('locale')}
                   SelectDisplayProps={{ id: 'locale' }}
                 >
-                  {SPRACHEN.map((sprache) => (
+                  {SUPPORTED_LOCALES.map((sprache) => (
                     <MenuItem key={sprache} value={sprache}>
                       {t(`benutzerverwaltung.anlegen.sprachen.${sprache}` satisfies ParseKeys)}
                     </MenuItem>

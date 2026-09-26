@@ -137,6 +137,12 @@ test.describe('Ein Konto anlegen', () => {
        changes it and presses the button again. */
     await expect(page.getByLabel('E-Mail-Adresse')).toHaveValue(vergeben)
     await expect(page.getByLabel('Passwort', { exact: true })).toHaveValue(PASSWORT)
+
+    /* And the refusal goes away as the thing it is about is corrected, rather
+       than sitting there still saying the address is taken while a free one is
+       on screen. It stayed until the next submit when this was first built. */
+    await page.getByLabel('E-Mail-Adresse').fill(neueAdresse())
+    await expect(meldung).toBeHidden()
   })
 
   test('ein zu kurzes Passwort wird am Feld gemeldet', async ({ page }) => {

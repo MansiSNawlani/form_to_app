@@ -1,6 +1,7 @@
 import type { ParseKeys } from 'i18next'
 import { z } from 'zod'
 import { ROLLEN, type Rolle } from '../../api/typen'
+import { SUPPORTED_LOCALES } from '../../i18n/sprachen'
 import type { KontoAnlegenAnfrage } from './api'
 
 /* What the new-account form holds, and what counts as filled in.
@@ -63,7 +64,9 @@ export const kontoSchema = z.object({
      is the coupling in kontoEingabe rather than anything this field can say alone. */
   regierungspraesidium: z.string(),
 
-  locale: z.enum(['de', 'en']),
+  /* Built from the list i18n exports rather than retyped, so the locales this
+     form offers and the locales the application has are the same set. */
+  locale: z.enum(SUPPORTED_LOCALES),
 })
 
 export type Kontoformular = z.infer<typeof kontoSchema>

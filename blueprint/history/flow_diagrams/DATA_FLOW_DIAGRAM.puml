@@ -1,0 +1,274 @@
+@startuml DATA_FLOW_DIAGRAM
+' ==============================================================================
+' HOW TO RENDER THIS FILE
+' ==============================================================================
+' This is PlantUML text, not an image. Options to turn it into a picture:
+'   1. VS Code: install the "PlantUML" extension (by jebbs), open this file,
+'      press Alt+D for a live preview.
+'   2. Web: paste this whole file into https://www.plantuml.com/plantuml/uml/
+'   3. CLI: `plantuml DATA_FLOW_DIAGRAM.puml` (needs Java + Graphviz), or
+'      `npx node-plantuml` if you prefer not to install anything locally.
+' ==============================================================================
+' WHAT THIS DIAGRAM SHOWS
+' ==============================================================================
+' The complete journey of ONE piece of data: a surveyor typing an answer into
+' the electrofishing protocol form, from the keystroke in the browser all the
+' way to a row updated in PostgreSQL, and the confirmation flowing back.
+'
+' It also shows the session/cookie check, because every single request in
+' this app (including the very first page load) goes through it.
+'
+' Real file names are used throughout so this reads as a map of the actual
+' code, not a generic textbook diagram. Where useful, the note explains WHY
+' the code is shaped that way, not just what it does.
+' ==============================================================================
+
+autonumber "<b>0"
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam BoxPadding 10
+
+actor "Surveyor\n(the user)" as User
+
+box "BROWSER - React app (frontend/src)" #E8F4FD
+  participant "FeldText.tsx\n(protokoll/felder/)" as Feld
+  participant "React Hook Form\n(uncontrolled\nform state)" as RHF
+  participant "Zod resolver\n(protokoll/regeln/schema.ts)" as Zod
+  participant "useAutoSave()\n(protokoll/entwurf/useAutoSave.ts)" as AutoSave
+  participant "sicherungsStore\n(entwurf/sicherung.ts\n-> localStorage)" as LocalBackup
+  participant "entwurf/api.ts\n(speichereAntworten)" as EntwurfApi
+  participant "apiAnfrage()\n(api/client.ts)" as Client
+end box
+
+participant "Browser\n(cookie jar + fetch)" as Browser
+
+box "BACKEND - FastAPI (backend/app)" #FDF0E3
+  participant "PUT /api/v1/protokolle/{id}/antworten\n(api/protokolle.py)" as Route
+  participant "aktueller_benutzer()\n(api/abhaengigkeiten.py)" as AuthDep
+  participant "lies_token()\n(security/token.py)" as JWT
+  participant "AntwortenSpeichern\n(Pydantic schema)" as Pydantic
+  participant "speichere_antworten()\n(protokolle/dienst.py)" as Service
+end box
+
+database "PostgreSQL\n(submissions table)" as DB
+
+' ------------------------------------------------------------------------------
+== 0. Page load - the gate every screen sits behind ==
+' ------------------------------------------------------------------------------
+User -> Browser: opens /protokolle/<id>/abschnitt/1
+Browser -> Route: (elsewhere) GET /api/v1/ich\nCookie: befischung_sitzung=<JWT>
+note right of Route
+  Handled by **SitzungsWaechter.tsx** on the frontend and
+  the **ich()** route on the backend. This is the exact same
+  ""aktueller_benutzer"" dependency chain shown in steps 13-18
+  below. If it fails, React Router renders <Navigate to="/anmeldung">
+  instead of the form, and none of the steps below ever happen.
+  See AUTHENTICATION_EXPLAINED.txt for the full trace of this call.
+end note
+Route --> Browser: 200 OK {benutzer} -> cached by useSitzung.ts\n(React Query key ['sitzung'])
+Browser --> User: form renders, e.g. ProtokollFormular.tsx
+
+' ------------------------------------------------------------------------------
+== 1. Typing - purely local, no network, no re-render of the page ==
+' ------------------------------------------------------------------------------
+User -> Feld: types a character into an <input>
+note right of Feld
+  **This is "where the change is first detected".**
+  ""register(name)"" in FeldText.tsx hands the <input> a ref
+  straight from React Hook Form. RHF listens to the DOM's own
+  native "input" event - React itself is NOT re-rendering
+  anything on each keystroke. This is the "uncontrolled input"
+  pattern, chosen specifically because the form has ~338 fields
+  and re-rendering all of them per keystroke measured at 206ms.
+end note
+Feld -> RHF: native DOM "input" event updates\nRHF's internal values object
+RHF -> Zod: (mode: 'onTouched') validate this field\nagainst antwortenSchema
+Zod --> Feld: errors.<field> set/cleared\n-> inline red helper text
+note right of Zod
+  Zod is a **UX convenience only**. It never blocks a save -
+  ProtokollFormular.tsx's comment says it outright: "Validity
+  never reaches useAutoSave. A half-finished protocol is the
+  normal state of this form and is saved exactly as typed."
+  The real gate is the backend Pydantic model (step 19) and,
+  for SUBMIT specifically, the domain rules in protokolle/regeln.py.
+end note
+
+' ------------------------------------------------------------------------------
+== 2. The real trigger: form.watch() fires on ANY field change ==
+' ------------------------------------------------------------------------------
+RHF -> AutoSave: form.watch(callback) fires\n(subscribed once in useAutoSave's useEffect)
+activate AutoSave
+AutoSave -> AutoSave: pending = true\nUI state -> {status:'saving'}\n(SpeicherAnzeige.tsx shows\n"wird gespeichert")
+AutoSave -> AutoSave: (re)start an 800ms debounce timer\n(DEBOUNCE_MS constant)
+note right of AutoSave
+  Every further keystroke within 800ms just resets this timer
+  and reuses the SAME `pending=true` flag - it does NOT queue
+  extra saves. This is why typing a whole word produces one
+  network call, not eight. If the component unmounts mid-debounce
+  (surveyor navigates away fast), the effect's cleanup function
+  flushes a save synchronously so nothing typed is lost.
+end note
+
+' ------------------------------------------------------------------------------
+== 3. Debounce elapses -> the actual save runs ==
+' ------------------------------------------------------------------------------
+AutoSave -> RHF: form.getValues()\n(reads the WHOLE Antworten document,\nnot just the changed field)
+RHF --> AutoSave: the full answers object
+AutoSave -> LocalBackup: sicherungsStore.schreib({id, version, antworten})
+note right of LocalBackup
+  Written to **localStorage BEFORE the network call**, every
+  single time, on purpose. If the request never arrives (closed
+  laptop, dead wifi, killed tab) this copy is the only place the
+  typing still exists. It is only deleted once the server has
+  confirmed the save (step 32) - see SicherungAngebot.tsx, which
+  offers to restore this copy if the page is reopened and it is
+  still there.
+end note
+
+alt protocol has no server record yet (opened via "Neues Protokoll")
+  AutoSave -> EntwurfApi: legeEntwurfAn()
+  EntwurfApi -> Client: apiAnfrage('/protokolle', {methode:'POST'})
+  Client -> Browser: fetch('/api/v1/protokolle', {credentials:'same-origin'})
+  Browser -> Route: POST /api/v1/protokolle\nCookie: befischung_sitzung=<JWT>
+  Route --> Browser: 201 {id, version} (a real database row now exists)
+  Browser --> Client: parsed JSON
+  Client --> EntwurfApi: Entwurf{id, version}
+  EntwurfApi --> AutoSave: real id + version\n(replaces the placeholder "neu")
+end
+
+AutoSave -> EntwurfApi: speichereAntworten({id, version, antworten})
+EntwurfApi -> Client: apiAnfrage(`/protokolle/${id}/antworten`,\n{methode:'PUT', koerper:{version, antworten}})
+
+' ------------------------------------------------------------------------------
+== 4. Leaving the browser: the ONE place a fetch() call is allowed ==
+' ------------------------------------------------------------------------------
+note over Client
+  **api/client.ts is the only file in the whole frontend that
+  calls fetch().** Every other file (entwurf/api.ts, useSitzung.ts,
+  etc.) goes through apiAnfrage(). That is what keeps 4 concerns
+  centralised instead of repeated at every call site:
+  (a) the cookie is sent, (b) a non-2xx response becomes a typed
+  ApiFehler instead of a silently-resolved promise, (c) the JSON
+  body is stringified, (d) an unreadable response is told apart
+  from a working one.
+end note
+Client -> Browser: fetch('/api/v1/protokolle/{id}/antworten', {\n  method: 'PUT',\n  credentials: 'same-origin',   <-- attaches the cookie\n  headers: {'Content-Type': 'application/json'},\n  body: JSON.stringify({version, antworten})\n})
+Browser -> Browser: browser automatically reads\nthe httpOnly "befischung_sitzung" cookie\nfrom its cookie jar and attaches it
+note right of Browser
+  **JavaScript never touches this cookie.** httpOnly means
+  document.cookie cannot see it, so nothing in the code above
+  this line (not even api/client.ts) ever handles the JWT
+  directly - the browser does it invisibly because of
+  credentials:'same-origin'. This is the whole point of the
+  httpOnly design: a compromised npm package could still make
+  requests, but could never read and exfiltrate the token.
+end note
+Browser -> Route: HTTP PUT /api/v1/protokolle/{id}/antworten\nCookie: befischung_sitzung=<JWT>\nContent-Type: application/json\nBody: {"version": 7, "antworten": {...338 fields...}}
+
+' ------------------------------------------------------------------------------
+== 5. Backend: authenticate FIRST, before any route code runs ==
+' ------------------------------------------------------------------------------
+Route -> AuthDep: FastAPI runs this Depends()\nBEFORE the route body
+activate AuthDep
+AuthDep -> AuthDep: read the "befischung_sitzung"\ncookie value
+alt no cookie present
+  AuthDep --> Route: raise NichtAngemeldet -> 401\n(route body NEVER executes)
+end
+AuthDep -> JWT: lies_token(cookie_value)
+JWT -> JWT: verify HMAC-SHA256 signature\nwith JWT_SECRET, check exp not passed
+alt signature invalid / forged / expired / malformed
+  JWT --> AuthDep: raises TokenFehler subtype
+  AuthDep --> Route: re-raised as NichtAngemeldet -> 401
+end
+JWT --> AuthDep: uuid of the account ("sub" claim)
+AuthDep -> DB: session.get(User, benutzer_id)\n<b>fresh read, every single request</b>
+DB --> AuthDep: the User row (email, rollen, ist_aktiv, ...)
+alt account deleted or ist_aktiv == False
+  AuthDep --> Route: raise NichtAngemeldet -> 401
+end
+AuthDep --> Route: authenticated `benutzer: User`\ninjected as a normal function parameter
+deactivate AuthDep
+note right of AuthDep
+  Roles are **not** read from the JWT - only the account id is.
+  Everything else (roles, active flag) is re-read from Postgres
+  on every request, which is why deactivating someone or removing
+  a role takes effect on their very next click, not after their
+  token eventually expires (up to 8 hours later).
+end note
+
+' ------------------------------------------------------------------------------
+== 6. Structural validation, then business rules, then the write ==
+' ------------------------------------------------------------------------------
+Route -> Pydantic: FastAPI parses the JSON body\ninto AntwortenSpeichern(version:int, antworten:dict)
+alt body does not match the schema (wrong types, missing fields)
+  Pydantic --> Route: 422 ANFRAGE_UNGUELTIG\n(handled centrally by api/fehler_http.py)
+end
+Pydantic --> Route: a typed, structurally-valid request object
+
+Route -> Service: speichere_antworten(session,\n  protokoll_id, besitzer=benutzer,\n  antworten, version)
+activate Service
+Service -> DB: SELECT * FROM submissions\nWHERE id = :protokoll_id\n  AND owner_user_id = :besitzer.id
+note right of Service
+  **Ownership is a WHERE clause, not an "if" after the fetch.**
+  If the id belongs to someone else, this query simply returns
+  no row - the API answers 404 PROTOKOLL_NICHT_GEFUNDEN, the exact
+  same answer as if the id never existed at all, so a stranger
+  can never learn "this id is real, I just can't see it."
+end note
+DB --> Service: the Submission row, or none
+alt no matching row
+  Service --> Route: raise ProtokollNichtGefunden -> 404
+end
+Service -> Service: compare given `version` (7)\nto row.version (must match)
+alt version mismatch (somebody else saved since this tab loaded)
+  Service --> Route: raise ProtokollVeraendert -> 409\n<b>nothing is written</b>
+  note left of Service
+    Optimistic concurrency control. The frontend's SaveState
+    gets a dedicated 'conflict' status (not just 'failed') because
+    retrying can never succeed - see fehlerZustand() in
+    useAutoSave.ts - and the surveyor is told to reload the page.
+  end note
+end
+Service -> Service: schema-validate the `antworten` JSON\nagainst this submission's FormVersion definition\n(the ~338-field business shape, per ADR 0003/0004)
+Service -> DB: UPDATE submissions\nSET antworten = :neu, version = version + 1,\n    updated_at = clock_timestamp()\nWHERE id = :protokoll_id
+DB --> Service: updated row (new version, new updated_at)
+Service --> Route: the updated Submission
+deactivate Service
+
+' ------------------------------------------------------------------------------
+== 7. Response flows back up, UI reflects the confirmed save ==
+' ------------------------------------------------------------------------------
+Route --> Browser: 200 OK\n{"version": 8, "updated_at": "2026-09-21T..."}
+Browser --> Client: Response object
+Client --> EntwurfApi: parsed SpeicherAntwort{version, updated_at}
+EntwurfApi --> AutoSave: resolved promise
+AutoSave -> LocalBackup: sicherungsStore.loesche(id)\n<b>only now</b> is the safety copy removed
+AutoSave -> AutoSave: version.current = 8\nsetState({status:'saved', zeitpunkt: updated_at})
+AutoSave --> User: SpeicherAnzeige.tsx / ProtokollKopf.tsx\nre-render: "Gespeichert um 14:32"
+deactivate AutoSave
+
+' ------------------------------------------------------------------------------
+== Error paths, shown separately for clarity ==
+' ------------------------------------------------------------------------------
+note across
+  **Network failure** (fetch itself rejects - no response at all, e.g. wifi
+  dropped): api/client.ts throws ApiFehler(NETZWERK_FEHLER). useAutoSave's
+  catch block calls fehlerZustand(), which maps this to {status:'failed'}.
+  The local backup from step 3 is deliberately **kept**, and a future
+  keystroke or the next debounce cycle will simply try saving again.
+
+  **502/503/504 from a reverse proxy** (backend container restarting):
+  api/client.ts recognises these specific statuses and reports the same
+  NETZWERK_FEHLER, so it is never confused with "your password is wrong"
+  or any other application-level refusal.
+
+  **401 from ANY call, not just /ich**: useSitzung's cache flips to
+  {zustand:'abgemeldet', grund:'antwort'}, and the NEXT time
+  SitzungsWaechter renders (e.g. user clicks any nav link) they are
+  redirected to /anmeldung?weiter=<where they were>&grund=abgelaufen.
+  The in-flight autosave itself just reports {status:'failed'} - it does
+  not redirect anything by itself, since a background save failing is not
+  the moment to yank a half-typed answer out from under someone.
+end note
+
+@enduml

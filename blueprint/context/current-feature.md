@@ -330,6 +330,23 @@ so split it.
       accessible role and name. Screenshots show the form and the confirmation panel in both
       themes with nothing cut off, and the spacing inside the card is checked by eye.
 
+- [x] **Repair F-01 - a refused address stops being refused once it is corrected** - the
+      mutation's error cleared when the form changes, so no server sentence outlives the input
+      it was about.
+      *Done when:* after a duplicate address is refused, typing a free one removes the message
+      without pressing anything, and pressing the button then creates the account. Covered in
+      `konto-anlegen.spec.ts` so it cannot come back.
+
+- [x] **Repair F-02 - the address and password announced as required** - `feldAria` passed
+      through the input's own slot rather than spread onto the component.
+      *Done when:* the browser shows `aria-required="true"` on the input itself rather than on
+      the wrapper, and the other aria attributes are still where they were.
+
+- [x] **Repair F-03 and F-04 - two cleanups in one diff** - the focus call that cannot run and
+      its comment removed, and the third copy of the locale list replaced by `SUPPORTED_LOCALES`.
+      *Done when:* "Weiteres Konto anlegen" still puts the cursor in the address field, and
+      `SPRACHEN` and the Zod enum both read the i18n module.
+
 ## Files / areas
 
 **New**, all under `frontend/src/verwaltung/benutzer/`:
