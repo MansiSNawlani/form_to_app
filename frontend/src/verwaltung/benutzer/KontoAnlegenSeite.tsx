@@ -122,17 +122,13 @@ function KontoAnlegenSeite() {
     if (anlegen.error !== null) anlegen.reset()
   }
 
-  /* The region coupling, read from the live answers rather than held as state of
-     its own. Two facts that could otherwise disagree are one fact here: which
-     field is drawn, and whether the form can be sent.
+  /* The region coupling, read live from the two fields it depends on, so which
+     field is drawn and whether the form can be sent are one fact rather than two
+     that can disagree. Zod cannot state it, because whether the number is required
+     depends on another answer, so it lives in eingabe.ts and is applied from there.
 
-     Zod cannot express this, because whether the number is required depends on
-     another field, so it lives in eingabe.ts as a plain function and is applied in
-     both places from there. */
-  /* useWatch on the two fields the coupling reads, rather than watch() over the
-     whole form. watch() re-renders this component on every keystroke in every
-     field, which is the habit coding-standards.md warns about at 338 fields and is
-     no more correct at five, and the React compiler cannot memoize around it. */
+     useWatch on those two rather than watch() over everything, which would
+     re-render the form on every keystroke in every field. */
   const rollen = useWatch({ control, name: 'rollen' })
   const gewaehlteRegion = useWatch({ control, name: 'regierungspraesidium' })
   const regional = istRegional(rollen)
