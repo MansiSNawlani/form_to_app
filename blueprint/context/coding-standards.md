@@ -182,7 +182,8 @@ as part of the change that affects them, not refreshed later on request.
 
 - `DATA_FLOW_DIAGRAM.puml` - one answer's journey from a keystroke to a committed row,
   including the session check every request passes through
-- `FRONTEND_ARCHITECTURE_DIAGRAM.puml` - a literal folder map of `frontend/src/**`
+- `FRONTEND_ARCHITECTURE_DIAGRAM.puml` - a literal folder map of `frontend/src/**`, in two
+  diagrams in the one file: the app around the form, then inside `protokoll/`
 - `FRONTEND_ARCHITECTURE_DIAGRAM_LAYERED_VIEW.puml` - the same code by pattern and layer
 
 **A diagram edit belongs in the same branch as the code it describes.** Any of these

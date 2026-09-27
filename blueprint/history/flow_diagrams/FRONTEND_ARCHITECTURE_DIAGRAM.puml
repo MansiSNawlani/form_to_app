@@ -10,8 +10,23 @@
 '      Graphviz).
 '
 ' The companion file FRONTEND_ARCHITECTURE_DIAGRAM_LAYERED_VIEW.puml shows the
-' same code organised by pattern rather than by folder. Read them together: this
-' one answers "where is this file", that one answers "why is it shaped that way".
+' same code organised by pattern rather than by folder. Read them together: these
+' answer "where is this file", that one answers "why is it shaped that way".
+' ==============================================================================
+' THIS FILE HOLDS TWO DIAGRAMS
+' ==============================================================================
+' Search for @startuml to jump between them. The folder map was split in two on
+' 2026-09-27 because a single picture of every folder had grown about 12,800
+' pixels wide and was no longer readable at any zoom.
+'
+'   DIAGRAM 1  THE APP AROUND THE FORM - entry point, routes, shell, auth,
+'              translations, theme, the api layer, and user administration.
+'              protokoll/ appears here as one summary box.
+'   DIAGRAM 2  INSIDE protokoll/ - the eleven folders that make up the survey
+'              form itself, which is where nearly all the code is.
+'
+' Read 1 first. It is the shape of the application; 2 is the shape of its one
+' big feature.
 ' ==============================================================================
 ' KEEPING THIS FILE HONEST
 ' ==============================================================================
@@ -40,7 +55,12 @@ skinparam packageStyle folder
 skinparam wrapWidth 260
 skinparam maxMessageSize 260
 
-title FRONTEND FOLDER MAP - frontend/src/**\n(what lives where, and the one-line job of each folder)
+header FRONTEND FOLDER MAP - frontend/src/**
+title
+  DIAGRAM 1 of 2 - THE APP AROUND THE FORM
+  everything except protokoll/, which is Diagram 2 below
+  (what lives where, and the one-line job of each folder)
+end title
 
 package "main.tsx  (the entry point)" as entry #FFF3CD {
   note as EntryNote
@@ -69,13 +89,14 @@ package "routes.tsx  (route table)" as routes #FFF3CD {
     child route appears.
 
     The routes, as of feature 16c:
-      /                              own protocols, or the review queue
-      /protokolle/neu                redirects to section 1 of "neu"
-      /protokolle/:id/abschnitt/:nr  the form, one section at a time
-      /protokolle/:id/pruefung       a handed-in protocol, read only
-      /pruefung                      the review queue (filters in the URL)
-      /verwaltung/benutzer           every account, Super Admin only
-      /verwaltung/benutzer/neu       creating one
+    |= Path |= Screen |
+    | ""/"" | own protocols, or the review queue |
+    | ""/protokolle/neu"" | redirects to section 1 of "neu" |
+    | ""/protokolle/:id/abschnitt/:nr"" | the form, one section at a time |
+    | ""/protokolle/:id/pruefung"" | a handed-in protocol, read only |
+    | ""/pruefung"" | the review queue, filters in the URL |
+    | ""/verwaltung/benutzer"" | every account, Super Admin only |
+    | ""/verwaltung/benutzer/neu"" | creating one |
 
     **No route carries a role requirement**, deliberately. The server
     decides who may read what, in one place, and a second opinion here
@@ -200,6 +221,94 @@ package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
     by the whole app (created in main.tsx's <QueryClientProvider>).
   end note
 }
+
+
+package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 {
+  [liste/, pruefliste/, pruefung/  - the three list and review screens]
+  [ProtokollSeite + ProtokollFormular, abschnitte/, felder/]
+  [entwurf/ (autosave), regeln/ (validation), absenden/]
+  [einlesen/ (PDF in), ausgabe/ (PDF out), anlagen/, nurlesen/]
+  note bottom of protopkg
+    The survey form and everything around it: eleven folders, drawn
+    in full in **DIAGRAM 2** further down this file. It is a feature
+    area rather than a layer, so it has its own pages, its own api.ts
+    files and its own pure-logic modules, all of which go through
+    api/client.ts like anything else.
+  end note
+}
+
+package "verwaltung/benutzer/  (user administration, feature 16)" as verwaltung #FDEBD0 {
+  [BenutzerlisteSeite.tsx]
+  [BenutzerTabelle.tsx, BenutzerZeile.tsx]
+  [Suchfeld.tsx, suche.ts, anzeige.ts]
+  [KontoAnlegenSeite.tsx, useKontoAnlegen.ts]
+  [Kontofeld.tsx, Rollenauswahl.tsx, Zugangsdaten.tsx]
+  [eingabe.ts, fehlerfelder.ts]
+  [api.ts, abfragen.ts]
+  [KeineBerechtigung.tsx, LeererZustand.tsx, Ladefehler.tsx]
+  note bottom of verwaltung
+    The second feature area, and the first thing under /verwaltung.
+    There is no sign-up page anywhere in this application: every
+    account is created by a Super Admin here (or, for the very first
+    one, by the backend's own CLI). The password is typed by the
+    administrator setting it; the app never invents one.
+
+    Same shape as protokoll/: a *Seite.tsx container per route, pure
+    functions beside them for anything where a wrong answer is
+    possible (eingabe.ts validates what was typed, fehlerfelder.ts
+    maps a server refusal back onto the field that caused it), and one
+    api.ts that goes through api/client.ts.
+  end note
+}
+
+cloud "FastAPI backend\n(see DATA_FLOW_DIAGRAM.puml for what\nhappens the instant a request crosses)" as backend #FDF0E3
+
+' -------- dependency arrows (who calls / imports whom) --------
+entry --> routes
+routes --> shellpkg
+routes --> authpkg
+routes --> verwaltung
+shellpkg --> hookspkg
+shellpkg --> protopkg
+authpkg --> client
+protopkg --> client
+verwaltung --> client
+client --> backend
+protopkg --> i18npkg
+verwaltung --> i18npkg
+shellpkg --> themepkg
+
+legend right
+  |= Colour |= Meaning |
+  | <back:#FFF3CD>   </back> | App wiring / composition root - read these FIRST |
+  | <back:#E8F4FD>   </back> | Cross-cutting concerns, used by nearly everything |
+  | <back:#FDEBD0>   </back> | Feature areas: the protocol form, and administration |
+  | <back:#D4EDDA>   </back> | Reusable building blocks / pure logic (heavily tested) |
+  | <back:#FDF0E3>   </back> | Outside the frontend entirely |
+endlegend
+
+@enduml
+
+@startuml FRONTEND_ARCHITECTURE_DIAGRAM_PROTOKOLL
+' ==============================================================================
+' DIAGRAM 2: inside protokoll/, the survey form itself.
+'
+' This is where nearly all the code is. Diagram 1 above shows this whole package
+' as one box; everything here sits inside it. The one thing drawn from outside is
+' api/client.ts, because every folder here that talks to the server goes through
+' it, and that is the point worth seeing.
+' ==============================================================================
+
+skinparam componentStyle rectangle
+skinparam packageStyle folder
+skinparam wrapWidth 260
+skinparam maxMessageSize 260
+
+header FRONTEND FOLDER MAP - frontend/src/protokoll/**
+title
+  DIAGRAM 2 of 2 - INSIDE protokoll/
+  the survey form: its screens, its fields, its rules, its two PDF directions
+end title
 
 package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 {
 
@@ -482,45 +591,14 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
   }
 }
 
-package "verwaltung/benutzer/  (user administration, feature 16)" as verwaltung #FDEBD0 {
-  [BenutzerlisteSeite.tsx]
-  [BenutzerTabelle.tsx, BenutzerZeile.tsx]
-  [Suchfeld.tsx, suche.ts, anzeige.ts]
-  [KontoAnlegenSeite.tsx, useKontoAnlegen.ts]
-  [Kontofeld.tsx, Rollenauswahl.tsx, Zugangsdaten.tsx]
-  [eingabe.ts, fehlerfelder.ts]
-  [api.ts, abfragen.ts]
-  [KeineBerechtigung.tsx, LeererZustand.tsx, Ladefehler.tsx]
-  note bottom of verwaltung
-    The second feature area, and the first thing under /verwaltung.
-    There is no sign-up page anywhere in this application: every
-    account is created by a Super Admin here (or, for the very first
-    one, by the backend's own CLI). The password is typed by the
-    administrator setting it; the app never invents one.
-
-    Same shape as protokoll/: a *Seite.tsx container per route, pure
-    functions beside them for anything where a wrong answer is
-    possible (eingabe.ts validates what was typed, fehlerfelder.ts
-    maps a server refusal back onto the field that caused it), and one
-    api.ts that goes through api/client.ts.
-  end note
+package "api/  (Diagram 1)" as apipkg #D4EDDA {
+  [client.ts (apiAnfrage, apiDatei)] as client
 }
 
-cloud "FastAPI backend\n(see DATA_FLOW_DIAGRAM.puml for what\nhappens the instant a request crosses)" as backend #FDF0E3
-
 ' -------- dependency arrows (who calls / imports whom) --------
-entry --> routes
-routes --> shellpkg
-routes --> authpkg
-routes --> verwaltung
-shellpkg --> hookspkg
-shellpkg --> liste
-shellpkg --> pruefliste
 liste --> formcore
 liste --> einlesen
 pruefliste --> pruefung
-authpkg --> client
-formcore --> PZustand
 formcore --> abschnitte
 formcore --> useAutoSave
 formcore --> absenden
@@ -537,23 +615,26 @@ useAutoSave --> sicherung
 entwurfApi --> client
 absenden --> client
 pruefung --> client
+pruefliste --> client
+liste --> client
 anlagen --> client
 einlesen --> client
 ausgabe --> client
-verwaltung --> client
-client --> backend
-formcore --> i18npkg
-felder --> i18npkg
-verwaltung --> i18npkg
-shellpkg --> themepkg
+
+' -------- layout only, no meaning: without these the eleven folders land in one
+' -------- row about 10,000 pixels wide. These stack the leaves into a block.
+regeln -[hidden]down- anlagen
+absenden -[hidden]down- einlesen
+einlesen -[hidden]down- ausgabe
+nurlesen -[hidden]down- regeln
 
 legend right
   |= Colour |= Meaning |
-  | <back:#FFF3CD>   </back> | App wiring / composition root - read these FIRST |
-  | <back:#E8F4FD>   </back> | Cross-cutting concerns, used by nearly everything |
-  | <back:#FDEBD0>   </back> | Feature areas: the protocol form, and administration |
+  | <back:#FDEBD0>   </back> | The feature area itself |
   | <back:#D4EDDA>   </back> | Reusable building blocks / pure logic (heavily tested) |
-  | <back:#FDF0E3>   </back> | Outside the frontend entirely |
+  **Where to start:** liste/ or pruefliste/ (a route lands there), then
+  formcore for the form, then felder/ for one kind of input, then
+  entwurf/ and regeln/ for what actually happens.
 endlegend
 
 @enduml
