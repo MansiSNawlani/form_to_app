@@ -1,8 +1,11 @@
+import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { ApiFehler, ROLLE_FEHLT } from '../../api/fehler'
+import { BENUTZER_NEU } from '../../auth/startseite'
 import { useSitzung } from '../../auth/useSitzung'
 import { benutzerAbfrage } from './abfragen'
 import BenutzerTabelle from './BenutzerTabelle'
@@ -67,6 +70,14 @@ function BenutzerlisteSeite() {
               a live region, so the total is stated once and by the element that
               has to keep it current while somebody types. */}
           <Typography variant="h1">{t('benutzerverwaltung.titel')}</Typography>
+        </div>
+        <div className="page__head-actions">
+          {/* Drawn with no condition of its own. Only a Super Admin can see this
+              page at all, so a second check here would be a copy of the one the
+              header already makes and the endpoint already enforces. */}
+          <Button component={Link} to={BENUTZER_NEU} variant="contained">
+            {t('benutzerverwaltung.anlegen.knopf')}
+          </Button>
         </div>
       </div>
 

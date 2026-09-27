@@ -33,9 +33,19 @@ from app.models.benutzer import Rolle
 # nothing to somebody setting the system up and everything to the person whose
 # account it is. The command line prints the names from here, so a fifth region
 # would be one edit plus the table constraint, not three.
+#
+# **The pairing comes from the legacy form, not from convention.** This table was
+# hand-written in feature 2a with 1 as Stuttgart, which is the order the four are
+# conventionally listed in, and that was wrong: the z.rp option list extracted
+# from Formular_Protokoll_E-Befischung_V20260609.pdf pairs 1 with Karlsruhe and 2
+# with Stuttgart. The number is what FiaKa receives, so FFS's own form is the
+# authority on what it means, and every screen already reads the extracted list.
+# Corrected in feature 16c, which is the first place somebody chooses a region on
+# screen rather than only reading one back. Do not "fix" it back to alphabetical
+# or to the official listing order.
 REGIERUNGSPRAESIDIEN = {
-    1: "Stuttgart",
-    2: "Karlsruhe",
+    1: "Karlsruhe",
+    2: "Stuttgart",
     3: "Freiburg",
     4: "Tübingen",
 }

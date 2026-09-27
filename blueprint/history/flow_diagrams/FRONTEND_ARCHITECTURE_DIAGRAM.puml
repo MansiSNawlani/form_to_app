@@ -1,0 +1,308 @@
+@startuml FRONTEND_ARCHITECTURE_DIAGRAM
+' ==============================================================================
+' HOW TO RENDER THIS FILE
+' ==============================================================================
+'   1. VS Code: install the "PlantUML" extension (by jebbs), open this file,
+'      press Alt+D for a live preview (or right-click -> "Preview Current
+'      Diagram"). This is the easiest option while you're learning the code.
+'   2. Web: paste this whole file into https://www.plantuml.com/plantuml/uml/
+'   3. CLI: `plantuml FRONTEND_ARCHITECTURE_DIAGRAM.puml` (needs Java +
+'      Graphviz).
+'
+' This file contains TWO diagrams (search for @startuml to find the second
+' one further down): a literal folder map, and a "conceptual layers" view of
+' the same code with the design patterns named. Read them together: the first
+' answers "where is this file", the second answers "why is it shaped that way".
+' ==============================================================================
+' A NOTE FOR SOMEONE NEW TO FRONTEND DEVELOPMENT
+' ==============================================================================
+' React's whole job is: take some data, and turn it into what's on screen,
+' and turn what the user does back into changed data. Every pattern below
+' exists to answer one of two questions:
+'   (a) WHERE does a piece of data/state live, and who is allowed to change it?
+'   (b) HOW do we avoid writing the same logic (a fetch call, a validation
+'       rule, an accessibility attribute) in twenty different components?
+' Keep those two questions in mind while reading the diagrams; almost every
+' folder below is an answer to one of them.
+' ==============================================================================
+
+skinparam componentStyle rectangle
+skinparam packageStyle folder
+skinparam wrapWidth 260
+skinparam maxMessageSize 260
+
+title FRONTEND FOLDER MAP - frontend/src/**\n(what lives where, and the one-line job of each folder)
+
+package "main.tsx  (the entry point)" as entry #FFF3CD {
+  note as EntryNote
+    Runs ONCE, before anything else. Sets up, from the outside in:
+    ThemeProvider (MUI + our tokens) -> QueryClientProvider (TanStack
+    Query cache, lives ABOVE the router so it survives every
+    navigation) -> DatumsProvider (date-formatting locale context) ->
+    RouterProvider (routes.tsx). Order matters: whatever wraps
+    whatever else is available to it via React Context.
+  end note
+}
+
+package "routes.tsx  (route table)" as routes #FFF3CD {
+  note as RoutesNote
+    A plain data structure (createBrowserRouter([...])) mapping URL
+    paths to components. /anmeldung is the one PUBLIC route; every
+    other route is nested inside <SitzungsWaechter>, so the "you must
+    be signed in" rule is written ONCE here instead of once per page.
+    This nesting is the "layout route" pattern: a parent route renders
+    shared chrome (or, for the guard, a redirect-or-nothing decision)
+    and an <Outlet/> where the matched child route appears.
+  end note
+}
+
+package "components/  (app shell, shared chrome)" as shellpkg #E8F4FD {
+  [Layout.tsx]
+  [AppShell.tsx]
+  [SiteFooter.tsx]
+  [ThemeToggle.tsx]
+  [NotFound.tsx]
+  note bottom of shellpkg
+    Layout.tsx wraps every page in AppShell (header/footer/skip-link)
+    and renders <Outlet/> for whichever page matched. This is why
+    navigating between sections never re-mounts the header: only the
+    <Outlet/>'s content changes.
+  end note
+}
+
+package "auth/  (who is signed in)" as authpkg #E8F4FD {
+  [AnmeldungSeite.tsx] as AnmeldungSeite
+  [SitzungsWaechter.tsx] as Waechter
+  [AbmeldeKnopf.tsx]
+  [useSitzung.ts] as useSitzung
+  [weiter.ts]
+  [startseite.ts]
+  [useKontoSprache.ts]
+  note bottom of authpkg
+    See AUTHENTICATION_EXPLAINED.txt for the full trace. In one line:
+    useSitzung.ts owns a React Query cache entry that mirrors the
+    backend's answer to GET /ich; SitzungsWaechter.tsx is the guard
+    that reads it and redirects or renders <Outlet/>.
+  end note
+}
+
+package "i18n/  (translations)" as i18npkg #E8F4FD {
+  [index.ts]
+  [resources.d.ts]
+  [DatumsProvider.tsx]
+  note bottom of i18npkg
+    react-i18next. No component ever hard-codes a user-facing string;
+    every one is a t('some.key') lookup into a German (later English)
+    resource file. resources.d.ts makes the KEYS themselves type-checked,
+    so t('anmeldung.titeel') (typo) is a compile error, not a blank label.
+  end note
+}
+
+package "theme/  (design tokens -> MUI)" as themepkg #E8F4FD {
+  [tokens.ts]
+  [muiTheme.ts]
+  note bottom of themepkg
+    styles/theme.css defines raw CSS custom properties (colour, radius,
+    spacing) for light AND dark mode. muiTheme.ts reads those tokens
+    ONCE and configures MUI's theme from them, and per-component
+    styling overrides live there too (coding-standards.md: "theme a
+    component once, not per use"). No component should ever hard-code
+    a colour.
+  end note
+}
+
+package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
+  [client.ts] as client
+  [fehler.ts]
+  [useFehlertext.ts]
+  [queryClient.ts]
+  [typen.ts]
+  note bottom of apipkg
+    **client.ts is a tiny hand-built "HTTP service layer".** Every
+    feature-specific api.ts (see entwurf/api.ts below) calls
+    apiAnfrage() here instead of calling fetch() itself. This is the
+    Repository/Service pattern: components and hooks never know HTTP
+    exists, they just call a named function that returns typed data
+    or throws a typed ApiFehler.
+    queryClient.ts creates the ONE TanStack Query cache/client used
+    by the whole app (created in main.tsx's <QueryClientProvider>).
+  end note
+}
+
+package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 {
+
+  package "liste/, pruefliste/, pruefung/  (list & review pages)" as pages {
+    [ProtokolleSeite.tsx]
+    [PrueflisteSeite.tsx]
+    [PruefungsSeite.tsx]
+    note bottom of pages
+      "*Seite.tsx" = **page / route container components**. Each one
+      is what a route in routes.tsx points at. Pattern: a Seite
+      component's job is to fetch data (via useQuery) and hand it down
+      as props to smaller, "dumber" presentational components below -
+      it rarely renders much markup itself. This is the classic
+      "container vs. presentational component" split.
+    end note
+  }
+
+  package "ProtokollSeite.tsx + ProtokollFormular.tsx  (the form itself)" as formcore {
+    [ProtokollSeite.tsx] as PSeite
+    [ProtokollFormular.tsx] as PFormular
+    [AbschnittNav.tsx]
+    [AbschnittWechsel.tsx]
+    [ProtokollKopf.tsx]
+    [SpeicherAnzeige.tsx]
+    note bottom of formcore
+      ProtokollSeite.tsx (a page container) loads the Entwurf via
+      useQuery, then hands it to ProtokollFormular.tsx, which sets up
+      ONE React Hook Form instance for the WHOLE 338-field document
+      (not one form per section) and shares it via <FormProvider> -
+      React's Context API used specifically to avoid "prop drilling"
+      (passing `form` down through 5 layers of components by hand).
+      Any descendant can call useFormContext() to reach it directly.
+    end note
+  }
+
+  package "abschnitte/  (the 6 sections' markup)" as abschnitte {
+    [AbschnittInhalt.tsx]
+    [Abschnitt1.tsx]
+    [Abschnitt2.tsx]
+    [Abschnitt3.tsx]
+    [Abschnitt4.tsx]
+    [Abschnitt5.tsx]
+    [teil3/, teil4/, teil5/, teil6/ subfolders]
+    note bottom of abschnitte
+      Pure composition: these components lay out FeldText/FeldAuswahl/
+      etc. (see felder/ below) into the actual form sections, matching
+      the legacy PDF's layout. They hold almost no logic of their own -
+      logic lives in regeln/ and hooks/, kept OUT of markup so it is
+      unit-testable without rendering anything.
+    end note
+  }
+
+  package "felder/  (reusable, presentational field components)" as felder #D4EDDA {
+    [FeldRahmen.tsx] as Rahmen
+    [FeldText.tsx]
+    [FeldAuswahl.tsx]
+    [FeldProzent.tsx]
+    [FeldRadio.tsx]
+    [FeldDatum.tsx]
+    [FeldHaken.tsx]
+    [Optionssuche.tsx / Suche.tsx]
+    [fehler.ts (useFeldFehler hook)]
+    [rahmen.ts (feldAria, fehlerId helpers)]
+    note bottom of felder
+      **The reusable UI component library for this app**, built on MUI.
+      Every one of the ~338 fields is one of these ~7 components, each
+      wired to React Hook Form via register(name) (an UNCONTROLLED
+      input - see DATA_FLOW_DIAGRAM.puml step 1). FeldRahmen.tsx is
+      shared "chrome" (label + error text + accessibility attributes)
+      that every Feld* wraps itself in, so keyboard/label/ARIA
+      behaviour is written once and inherited everywhere - exactly the
+      "theme/build a component once" rule from coding-standards.md.
+    end note
+  }
+
+  package "entwurf/  (draft persistence: the autosave engine)" as entwurf #D4EDDA {
+    [useAutoSave.ts] as useAutoSave
+    [api.ts (legeEntwurfAn, speichereAntworten)] as entwurfApi
+    [sicherung.ts (localStorage safety copy)]
+    [speicherzustand.ts]
+    [neu.ts, titel.ts, typen.ts, abfragen.ts]
+    note bottom of entwurf
+      The engine traced end-to-end in DATA_FLOW_DIAGRAM.puml.
+      useAutoSave.ts is a **custom hook** - the standard React way to
+      package up stateful logic (a debounce timer, a form.watch()
+      subscription, retry/conflict bookkeeping) so a component can use
+      it with one line, without that logic cluttering the component's
+      own body. Deliberately calls apiAnfrage() directly instead of
+      useMutation() - a documented, reasoned EXCEPTION to the "use
+      TanStack Query for saves" rule, because useMutation's own
+      re-renders were measurably too slow for a 338-field form.
+    end note
+  }
+
+  package "regeln/  (validation rules, mirrors the backend)" as regeln #D4EDDA {
+    [schema.ts (the combined Zod schema)]
+    [prozent.ts, hydrologie.ts, vorfluter.ts]
+    [koordinaten.ts, arten.ts, ausruestung.ts]
+    [einfluesse.ts, monitoring.ts, schaetzwert.ts]
+    [useHydrologieAbgleich.ts, useNachpruefung.ts]
+    note bottom of regeln
+      **Plain, framework-free functions** (no React, no fetch) - the
+      same "logic as pure functions" rule coding-standards.md applies
+      to the backend's own regeln/. Each file here is the CLIENT-SIDE
+      half of a rule the backend also enforces in Pydantic/Python
+      (e.g. "percentages must sum to 100"). Zod = instant feedback
+      only; Pydantic on the backend is the authoritative gate. Being
+      plain functions is what makes every *.test.ts beside them
+      possible without spinning up a browser.
+    end note
+  }
+
+  package "absenden/  (the submit action)" as absenden {
+    [useAbsenden.ts]
+    [AbsendeErgebnis.tsx]
+    [AbsendeProbleme.tsx]
+  }
+
+  package "nurlesen/  (read-only rendering mode)" as nurlesen {
+    [kontext.ts]
+    [Feldwert.tsx]
+    [ProtokollNurLesen.tsx]
+    note bottom of nurlesen
+      kontext.ts is a small React Context ("am I in read-only mode?").
+      Every Feld* component checks useNurLesen() and, if true, renders
+      a plain <Feldwert> instead of an editable input (see FeldText.tsx's
+      own `if (nurLesen) {...}` branch). One flag, read from Context,
+      instead of passing a `readOnly` prop through every layer by hand -
+      the same Context-avoids-prop-drilling pattern FormProvider uses.
+    end note
+  }
+
+  package "anlagen/  (attachment upload rules)" as anlagen {
+    [regeln.ts]
+    [altbestand.ts]
+  }
+}
+
+package "protokoll/pruefung/useUebergang.ts  (reviewer decisions)" as uebergang #D4EDDA {
+}
+
+cloud "FastAPI backend\n(see AUTHENTICATION_EXPLAINED.txt\nand DATA_FLOW_DIAGRAM.puml)" as backend #FDF0E3
+
+' -------- dependency arrows (who calls / imports whom) --------
+entry --> routes
+routes --> shellpkg
+routes --> authpkg
+shellpkg --> pages
+authpkg --> client
+pages --> formcore
+pages --> uebergang
+formcore --> abschnitte
+formcore --> useAutoSave
+formcore --> absenden
+abschnitte --> felder
+felder --> nurlesen
+felder --> regeln
+useAutoSave --> entwurfApi
+useAutoSave --> "sicherung.ts"
+entwurfApi --> client
+absenden --> client
+uebergang --> client
+anlagen --> client
+client --> backend
+formcore --> i18npkg
+felder --> i18npkg
+shellpkg --> themepkg
+
+legend right
+  |= Colour |= Meaning |
+  | <back:#FFF3CD>   </back> | App wiring / composition root - read these FIRST |
+  | <back:#E8F4FD>   </back> | Cross-cutting concerns, used by nearly everything |
+  | <back:#FDEBD0>   </back> | The one big feature: the protocol form |
+  | <back:#D4EDDA>   </back> | Reusable building blocks / pure logic (heavily tested) |
+  | <back:#FDF0E3>   </back> | Outside the frontend entirely |
+endlegend
+
+@enduml

@@ -304,7 +304,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 16b. Die Benutzerliste: the /verwaltung/benutzer screen, the table of accounts
         with their roles, region and status, the search box, the header link, and the
         loading, empty, error and refused states
-  - [ ] 16c. Ein Konto anlegen: the form for a new account, the role picker with the
+  - [x] 16c. Ein Konto anlegen: the form for a new account, the role picker with the
         Regierungspraesidium coupling, the first password, and what the administrator is
         told to pass on to its owner
   - [ ] 16d. Ein Konto aendern: changing the email, roles, region and language of an

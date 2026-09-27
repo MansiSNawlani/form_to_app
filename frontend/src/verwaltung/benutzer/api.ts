@@ -6,7 +6,8 @@
  */
 
 import { apiAnfrage } from '../../api/client'
-import type { BenutzerAntwort } from '../../api/typen'
+import type { Locale } from '../../i18n'
+import type { BenutzerAntwort, Rolle } from '../../api/typen'
 
 /* Every account, ordered by email, with no parameters at all.
  *
@@ -18,4 +19,31 @@ import type { BenutzerAntwort } from '../../api/typen'
  */
 export function holeBenutzer(): Promise<BenutzerAntwort[]> {
   return apiAnfrage<BenutzerAntwort[]>('/benutzer')
+}
+
+/* A new account, exactly as KontoAnlegenAnfrage in backend/app/api/schemas.py
+ * declares it.
+ *
+ * Field for field rather than loosely, because that model sets extra="forbid": a
+ * misspelled name here is refused by the server rather than quietly dropped, and
+ * this type is what makes it a build error instead.
+ *
+ * regierungspraesidium is null rather than absent on an account that has none. On
+ * creation the two mean the same thing, unlike KontoAendernAnfrage, where "leave
+ * it alone" and "clear it" are different instructions. That distinction belongs
+ * to 16d.
+ */
+export interface KontoAnlegenAnfrage {
+  email: string
+  passwort: string
+  rollen: Rolle[]
+  regierungspraesidium: number | null
+  locale: Locale
+}
+
+/* Create it. 201 with the account, and never the password: the API does not
+ * return it, does not log it and does not echo it in a validation error. What the
+ * screen shows afterwards is the value the browser already had in hand. */
+export function legeKontoAn(anfrage: KontoAnlegenAnfrage): Promise<BenutzerAntwort> {
+  return apiAnfrage<BenutzerAntwort>('/benutzer', { methode: 'POST', koerper: anfrage })
 }
