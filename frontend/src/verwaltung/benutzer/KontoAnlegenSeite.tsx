@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -16,8 +15,7 @@ import { ApiFehler, ROLLE_FEHLT } from '../../api/fehler'
 import { SUPPORTED_LOCALES } from '../../i18n/sprachen'
 import { useFehlertext } from '../../api/useFehlertext'
 import { BENUTZERVERWALTUNG } from '../../auth/startseite'
-import { optionen } from '../../protokoll/optionen'
-import { fehlerId, labelId } from '../../protokoll/felder/rahmen'
+import { labelId } from '../../protokoll/felder/rahmen'
 import {
   fehltDieRegion,
   istRegional,
@@ -29,7 +27,9 @@ import {
 import { feldFuerFehler, type Fehlerfeld } from './fehlerfelder'
 import KeineBerechtigung from './KeineBerechtigung'
 import Kontofeld from './Kontofeld'
+import Regionsfeld from './Regionsfeld'
 import Rollenauswahl from './Rollenauswahl'
+import { useFeldmeldung } from './useFeldmeldung'
 import { useKontoAnlegen } from './useKontoAnlegen'
 import Zugangsdaten from './Zugangsdaten'
 /* The page furniture is the list pages': page__head and card. Imported
@@ -91,10 +91,7 @@ function KontoAnlegenSeite() {
     reValidateMode: 'onChange',
   })
 
-  /* The schema's messages are translation keys rather than sentences, so that
-     eingabe.ts stays a plain module with no i18n in it and can be tested without
-     one. This is where they become German. */
-  const meldung = (schluessel?: string) => (schluessel ? t(schluessel as ParseKeys) : undefined)
+  const meldung = useFeldmeldung()
 
   /* What the panel shows once an account has been made, held in this component and
      nowhere else. Never the query cache, never localStorage, never the address:
@@ -259,52 +256,20 @@ function KontoAnlegenSeite() {
               regional role may not carry a number at all, so a field offering one
               would be offering a way to be refused. */}
           {regional && (
-            <FormControl
-              className="konto-anlegen__feld"
-              error={Boolean(regionMeldung)}
-              required
-            >
-              <FormLabel id={labelId('regierungspraesidium')} htmlFor="regierungspraesidium">
-                {t('benutzerverwaltung.felder.regierungspraesidium')}
-              </FormLabel>
-              <Controller
-                name="regierungspraesidium"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    onChange={(ereignis) => {
-                      field.onChange(ereignis)
-                      verwerfeServerfehler()
-                    }}
-                    displayEmpty
-                    labelId={labelId('regierungspraesidium')}
-                    SelectDisplayProps={{ id: 'regierungspraesidium' }}
-                    aria-invalid={regionMeldung ? true : undefined}
-                    aria-describedby={
-                      regionMeldung ? fehlerId('regierungspraesidium', true) : undefined
-                    }
-                  >
-                    <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
-                    {/* The four regions out of the list extracted from the legacy
-                        form, never retyped here. The number is what FiaKa
-                        receives, so the form is the authority on what it means,
-                        and feature 16c step 1 corrected the one hand-written copy
-                        that disagreed. */}
-                    {optionen('z.rp').map((option) => (
-                      <MenuItem key={option.wert} value={option.wert}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-              {regionMeldung && (
-                <FormHelperText id={fehlerId('regierungspraesidium', true)} role="alert">
-                  {regionMeldung}
-                </FormHelperText>
+            <Controller
+              name="regierungspraesidium"
+              control={control}
+              render={({ field }) => (
+                <Regionsfeld
+                  wert={field.value}
+                  onAendern={(gewaehlt) => {
+                    field.onChange(gewaehlt)
+                    verwerfeServerfehler()
+                  }}
+                  meldung={regionMeldung}
+                />
               )}
-            </FormControl>
+            />
           )}
 
           <FormControl className="konto-anlegen__feld">

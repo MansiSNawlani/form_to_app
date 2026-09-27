@@ -426,10 +426,14 @@ big, so split it.
 | `frontend/src/verwaltung/benutzer/Angabenkarte.tsx` | New. The fields card |
 | `frontend/src/verwaltung/benutzer/Zugangskarte.tsx` | New. Locking and unlocking |
 | `frontend/src/verwaltung/benutzer/Passwortkarte.tsx` | New. The new password and its panel |
-| `frontend/src/verwaltung/benutzer/SperrenDialog.tsx` | New. The confirmation for locking |
+| `frontend/src/verwaltung/benutzer/Regionsfeld.tsx` | New. The region field, shared with the create screen rather than written twice |
+| `frontend/src/verwaltung/benutzer/useFeldmeldung.ts` | New. One place that turns a schema message key into German, shared by all three account forms |
 | `frontend/src/verwaltung/benutzer/KeinKonto.tsx` | New. The not-found panel |
 | `frontend/src/verwaltung/benutzer/useKontoAendern.ts` | New. The mutations and what each invalidates |
 | `frontend/src/verwaltung/benutzer/Kontofeld.tsx` | Made generic over the form it belongs to, since the edit form and the password card are different shapes from the create form |
+| `frontend/src/api/fehler.ts` | `KONTO_NICHT_GEFUNDEN`, which this page branches on |
+| `frontend/src/verwaltung/benutzer/Ladefehler.tsx` | An optional title, so one account does not report that "die Konten" could not be loaded |
+| `frontend/src/verwaltung/benutzer/KontoAnlegenSeite.tsx`, `Rollenauswahl.tsx`, `Zugangsdaten.tsx`, `eingabe.ts` | The shared field labels moved out of `benutzerverwaltung.anlegen.*`, and the region field and message helper taken from here rather than copied |
 | `frontend/src/verwaltung/benutzer/kontoaendern.css` | New, if the create screen's stylesheet does not already carry what is needed |
 | `frontend/src/i18n/locales/de.json` | Every string on the screen |
 | `frontend/e2e/konto-aendern.spec.ts` | New. Browser evidence |
@@ -438,6 +442,15 @@ big, so split it.
 
 **No backend file is in that table, and that is the test of this spec.** If a step needs
 one, stop and raise it rather than adding it.
+
+**Two things in that table are 16c's files rather than this feature's**, and both were
+found by the branch review rather than planned here. The shared field labels sat under
+`benutzerverwaltung.anlegen.*` while both screens read them, so an edit screen would have
+been showing labels filed under "creating an account"; and the region field and the
+message helper existed once each and were about to exist twice. Both are the kind of
+small repair `ai-interaction.md` says rides on the current branch. No confirmation dialog
+of this feature's own was needed in the end: `components/BestaetigungsDialog` already
+does exactly this job for the protocol list and the attachments, so locking reuses it.
 
 ## Data / contracts
 

@@ -29,7 +29,11 @@
   margin: 0 0 0.25rem;
 }
 
-.konto-aendern__einleitung {
+.konto-aendern__einleitung,
+/* What is said in place of a button, on your own account. Same treatment as a
+   card's opening sentence, because it is one: a statement about this screen
+   rather than a value the account holds. */
+.konto-aendern__selbst {
   margin: 0;
   color: var(--muted);
   /* Real sentences, held to a comfortable measure. A line of prose the full
@@ -56,19 +60,4 @@
 
 .konto-aendern__status strong {
   color: var(--text);
-}
-
-/* What is said in place of a button, on your own account. Quieter than a
-   sentence about the account, because it is about this screen rather than about
-   the person. */
-.konto-aendern__selbst {
-  margin: 0;
-  color: var(--muted);
-  max-width: 52rem;
-}
-
-/* The message that stands in for a request nobody needs to make. Not an error:
-   nothing went wrong, there was simply nothing to send. */
-.konto-aendern__unveraendert {
-  color: var(--muted);
 }

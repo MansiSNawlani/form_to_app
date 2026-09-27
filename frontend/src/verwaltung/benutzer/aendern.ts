@@ -64,7 +64,6 @@ function unbekannteRollen(konto: BenutzerAntwort): Rolle[] {
   return konto.rollen.filter((rolle) => !bekannt.includes(rolle))
 }
 
-/** Same roles, whatever order each list is in. */
 function gleicheRollen(eine: readonly Rolle[], andere: readonly Rolle[]): boolean {
   return eine.length === andere.length && eine.every((rolle) => andere.includes(rolle))
 }
@@ -119,8 +118,6 @@ export function kontoAenderung(
   const rollen = [...formular.rollen, ...unbekannteRollen(konto)]
   if (!gleicheRollen(rollen, konto.rollen)) anfrage.rollen = rollen
 
-  /* Null once the regional role is gone, the chosen number while it is there, and
-     absent when neither the role nor the number moved. */
   const regierungspraesidium = istRegional(formular.rollen)
     ? Number(formular.regierungspraesidium)
     : null
@@ -135,7 +132,7 @@ export function kontoAenderung(
     : { art: 'aenderung', anfrage }
 }
 
-/* Which of the two protected changes is being attempted on your own account.
+/* Whether this change would take your own SUPER_ADMIN away.
  *
  * Feature 16a's second safety rule, mirrored: a Super Admin may not lock their own
  * account and may not take SUPER_ADMIN off it, even with three other Super Admins
@@ -153,20 +150,17 @@ export function kontoAenderung(
  * fire on the caller's own account anyway, since reaching the route at all proves
  * one active Super Admin exists, so its sentence from the server is what says it.
  *
- * Returns null while eigeneId is still unknown. For that one render nothing is
- * treated as your own account, rather than the wrong thing being treated as it.
+ * False while eigeneId is still unknown. For that one render nothing is treated
+ * as your own account, rather than the wrong thing being treated as it.
  */
-export function selbstschutz(
+export function entziehtSichSuperAdmin(
   konto: BenutzerAntwort,
   eigeneId: string | null,
   neueRollen: readonly Rolle[],
-): 'rollen' | null {
-  if (eigeneId === null || konto.id !== eigeneId) return null
+): boolean {
+  if (eigeneId === null || konto.id !== eigeneId) return false
 
-  const warSuperAdmin = konto.rollen.includes('SUPER_ADMIN')
-  const bleibtSuperAdmin = neueRollen.includes('SUPER_ADMIN')
-
-  return warSuperAdmin && !bleibtSuperAdmin ? 'rollen' : null
+  return konto.rollen.includes('SUPER_ADMIN') && !neueRollen.includes('SUPER_ADMIN')
 }
 
 /* Whether locking this account is something the screen may offer at all.

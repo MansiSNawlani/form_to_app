@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ApiFehler, ROLLE_FEHLT } from '../../api/fehler'
 import type { BenutzerAntwort } from '../../api/typen'
 import { SITZUNGS_KEY } from '../../auth/useSitzung'
 import { BENUTZER_KEY, kontoKey } from './abfragen'
@@ -41,6 +42,28 @@ function useNachDemSchreiben(id: string, istEigenes: boolean) {
   }
 }
 
+/* A write refused because of the caller rather than the request.
+ *
+ * Only reachable one way: the caller's own SUPER_ADMIN was taken off them while
+ * this page was open, by somebody else or in the card above. Reaching the page at
+ * all means the account had the role when it loaded.
+ *
+ * The account is invalidated rather than the refusal being drawn in the card. The
+ * page then refetches, is refused in its turn, and answers with KeineBerechtigung,
+ * which is what the spec's refusal table asks for: a message about the caller
+ * replaces the page instead of sitting inside one of three cards while the other
+ * two still offer buttons that cannot work.
+ */
+function useBeiVerlorenerRolle(id: string) {
+  const queryClient = useQueryClient()
+
+  return (fehler: unknown) => {
+    if (fehler instanceof ApiFehler && fehler.code === ROLLE_FEHLT) {
+      void queryClient.invalidateQueries({ queryKey: kontoKey(id) })
+    }
+  }
+}
+
 /* Change an account.
  *
  * Called once per card that sends a PATCH, so each has its own pending and error
@@ -49,10 +72,12 @@ function useNachDemSchreiben(id: string, istEigenes: boolean) {
  */
 export function useKontoAendern(id: string, istEigenes: boolean) {
   const nachDemSchreiben = useNachDemSchreiben(id, istEigenes)
+  const beiVerlorenerRolle = useBeiVerlorenerRolle(id)
 
   return useMutation<BenutzerAntwort, unknown, KontoAendernAnfrage>({
     mutationFn: (anfrage) => aendereKonto(id, anfrage),
     onSuccess: nachDemSchreiben,
+    onError: beiVerlorenerRolle,
   })
 }
 
@@ -64,9 +89,11 @@ export function useKontoAendern(id: string, istEigenes: boolean) {
  */
 export function useKontoPasswort(id: string, istEigenes: boolean) {
   const nachDemSchreiben = useNachDemSchreiben(id, istEigenes)
+  const beiVerlorenerRolle = useBeiVerlorenerRolle(id)
 
   return useMutation<BenutzerAntwort, unknown, string>({
     mutationFn: (passwort) => setzeKontoPasswort(id, passwort),
     onSuccess: nachDemSchreiben,
+    onError: beiVerlorenerRolle,
   })
 }

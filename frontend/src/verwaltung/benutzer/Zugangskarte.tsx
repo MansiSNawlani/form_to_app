@@ -59,9 +59,9 @@ function Zugangskarte({ konto, eigeneId }: ZugangskarteProps) {
     <section className="card konto-aendern__karte">
       <div className="konto-aendern__kopf">
         <Typography variant="h2">{t('benutzerverwaltung.aendern.zugang.titel')}</Typography>
-        <p className="konto-aendern__einleitung">
+        <Typography variant="body2" className="konto-aendern__einleitung">
           {t('benutzerverwaltung.aendern.zugang.einleitung')}
-        </p>
+        </Typography>
       </div>
 
       <div className="konto-aendern__abschnitt">
@@ -107,9 +107,9 @@ function Zugangskarte({ konto, eigeneId }: ZugangskarteProps) {
              of the screen you are standing on, with no way back except asking
              somebody else. Offering the action and then explaining why it was
              refused would be inviting a mistake in order to describe it. */
-          <p className="konto-aendern__selbst">
+          <Typography variant="body2" className="konto-aendern__selbst">
             {t('benutzerverwaltung.aendern.zugang.eigenes')}
-          </p>
+          </Typography>
         )}
 
         {fehlertext !== undefined && <Alert severity="error">{fehlertext}</Alert>}

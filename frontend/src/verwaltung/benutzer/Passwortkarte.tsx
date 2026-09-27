@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import type { ParseKeys } from 'i18next'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +11,7 @@ import type { BenutzerAntwort } from '../../api/typen'
 import { feldFuerFehler } from './fehlerfelder'
 import Kontofeld from './Kontofeld'
 import { kontoSchema } from './eingabe'
+import { useFeldmeldung } from './useFeldmeldung'
 import { useKontoPasswort } from './useKontoAendern'
 
 /* The create form's password rule, on its own.
@@ -73,15 +73,15 @@ function Passwortkarte({ konto, eigeneId }: PasswortkarteProps) {
      belongs to its owner. */
   const [gesetzt, setGesetzt] = useState<string | null>(null)
 
-  const meldung = (schluessel?: string) => (schluessel ? t(schluessel as ParseKeys) : undefined)
+  const meldung = useFeldmeldung()
 
   return (
     <section className="card konto-aendern__karte">
       <div className="konto-aendern__kopf">
         <Typography variant="h2">{t('benutzerverwaltung.aendern.passwort.titel')}</Typography>
-        <p className="konto-aendern__einleitung">
+        <Typography variant="body2" className="konto-aendern__einleitung">
           {t('benutzerverwaltung.aendern.passwort.einleitung')}
-        </p>
+        </Typography>
       </div>
 
       {gesetzt !== null ? (

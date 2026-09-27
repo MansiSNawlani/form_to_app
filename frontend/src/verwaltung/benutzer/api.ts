@@ -61,17 +61,11 @@ export function holeKonto(id: string): Promise<BenutzerAntwort> {
 /* A change to an account, exactly as KontoAendernAnfrage in
  * backend/app/api/schemas.py declares it.
  *
- * **Every field is optional, and that is the point.** A field left out is left
- * alone, which is what lets this screen send only what somebody actually changed.
- * Sending the whole form every time would mean two administrators editing
- * different fields overwrote each other, and an account has no version column to
- * catch that.
- *
- * **regierungspraesidium is the one field where null is an instruction.** Absent
- * means "leave the region alone" and null means "clear it", and the backend tells
- * them apart with model_fields_set. The other four refuse a null outright, which
- * is why none of them is typed to accept one: a type allowing it would be a type
- * that can express a request the API rejects.
+ * A field left out is left alone, which is what lets this screen send only what
+ * somebody actually changed. regierungspraesidium is the one field where a sent
+ * null is an instruction rather than a mistake: it means "clear the region", and
+ * the backend tells that from "not mentioned" with model_fields_set. The other
+ * four refuse a null outright, so none of them is typed to accept one.
  */
 export interface KontoAendernAnfrage {
   email?: string

@@ -2,13 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 import type { ParseKeys } from 'i18next'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -16,19 +15,20 @@ import { useFehlertext } from '../../api/useFehlertext'
 import type { BenutzerAntwort } from '../../api/typen'
 import { BENUTZERVERWALTUNG } from '../../auth/startseite'
 import { SUPPORTED_LOCALES } from '../../i18n/sprachen'
-import { optionen } from '../../protokoll/optionen'
-import { fehlerId, labelId } from '../../protokoll/felder/rahmen'
+import { labelId } from '../../protokoll/felder/rahmen'
 import {
   formularAusKonto,
   kontoAenderung,
   kontoAendernSchema,
-  selbstschutz,
+  entziehtSichSuperAdmin,
   type Kontoaenderungsformular,
 } from './aendern'
 import { fehltDieRegion, istRegional } from './eingabe'
 import { feldFuerFehler, type Fehlerfeld } from './fehlerfelder'
 import Kontofeld from './Kontofeld'
+import Regionsfeld from './Regionsfeld'
 import Rollenauswahl from './Rollenauswahl'
+import { useFeldmeldung } from './useFeldmeldung'
 import { useKontoAendern } from './useKontoAendern'
 
 interface AngabenkarteProps {
@@ -84,29 +84,6 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
      went wrong, there was simply no request to make. */
   const [unveraendert, setUnveraendert] = useState(false)
 
-  /* The saved answer becomes the new baseline, so "nothing changed" is true again
-   * and a second press of the button sends nothing.
-   *
-   * Keyed on the account rather than run in the success handler, because the page
-   * above re-renders with the fresh account either way and the two must not
-   * disagree about what the form was last filled from.
-   *
-   * **A refetch that changed nothing does not reach here**, which is what makes
-   * this safe to hang on the account. React Query refetches on window focus and
-   * shares the previous object when the new answer is deeply equal to it, so
-   * switching windows and coming back leaves this dependency untouched and does
-   * not throw away what somebody had typed.
-   *
-   * What does reach here is a refetch that really did change: somebody else edited
-   * this account while it was open. The form is then refilled from what is now
-   * true, and an edit in progress is lost. Accepted knowingly, and named in the
-   * spec: an account carries no version and the API has no refusal for a stale
-   * edit, so the alternative is showing a form built on values that are no longer
-   * there and letting it be saved over somebody's change. */
-  useEffect(() => {
-    reset(formularAusKonto(konto))
-  }, [konto, reset])
-
   const verwerfeMeldungen = () => {
     if (aendern.error !== null) aendern.reset()
     if (gespeichert) setGespeichert(false)
@@ -116,9 +93,7 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
   /** The server's sentence, but only under the control it is actually about. */
   const serverMeldung = (feld: Fehlerfeld) => (serverFeld === feld ? serverText : undefined)
 
-  /* The schema's messages are translation keys rather than sentences, so aendern.ts
-     stays a plain module with no i18n in it. This is where they become German. */
-  const meldung = (schluessel?: string) => (schluessel ? t(schluessel as ParseKeys) : undefined)
+  const meldung = useFeldmeldung()
 
   /* Read live from the two fields they depend on, so which field is drawn and
      whether the form can be sent are one fact rather than two that can disagree.
@@ -131,7 +106,7 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
   /* Said as soon as the box is unticked rather than after the server refuses. A
      refusal somebody could have been told about beforehand is a wasted round trip
      and a worse explanation. */
-  const selbstProblem = selbstschutz(konto, eigeneId, rollen)
+  const entmachtetSichSelbst = entziehtSichSuperAdmin(konto, eigeneId, rollen)
 
   /* Said only once the button has been pressed. Revealing the region field and
      marking it wrong in the same instant would be telling somebody off for not
@@ -145,9 +120,7 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
   /* The browser's own rule first, because it needs no round trip, then Zod's, then
      whatever the server said about the roles. */
   const rollenMeldung =
-    (selbstProblem === 'rollen'
-      ? t('benutzerverwaltung.aendern.selbstentzug.rollen')
-      : undefined) ??
+    (entmachtetSichSelbst ? t('benutzerverwaltung.aendern.selbstentzug.rollen') : undefined) ??
     meldung(errors.rollen?.message) ??
     serverMeldung('rollen')
 
@@ -155,9 +128,9 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
     <section className="card konto-aendern__karte">
       <div className="konto-aendern__kopf">
         <Typography variant="h2">{t('benutzerverwaltung.aendern.angaben.titel')}</Typography>
-        <p className="konto-aendern__einleitung">
+        <Typography variant="body2" className="konto-aendern__einleitung">
           {t('benutzerverwaltung.aendern.angaben.einleitung')}
-        </p>
+        </Typography>
       </div>
 
       {/* noValidate, so the browser's own bubbles stay out of the way of the
@@ -194,10 +167,27 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
             /* Refused before the request, because the server would refuse it
                anyway and this way the reason sits under the roles rather than
                beside the button. */
-            if (selbstschutz(konto, eigeneId, formular.rollen) !== null) return
+            if (entziehtSichSuperAdmin(konto, eigeneId, formular.rollen)) return
 
             aendern.mutate(ergebnis.anfrage, {
-              onSuccess: () => {
+              /* The saved answer becomes the new baseline, so "nothing changed" is
+               * true again and a second press of the button sends nothing.
+               *
+               * **Driven by this card's own answer, and by nothing else.** This
+               * used to hang off the account the query holds, which looked
+               * equivalent and was not: locking the account in the card below
+               * writes a fresh account into the same cache entry, and this form
+               * would have refilled from it, throwing away an address somebody had
+               * typed but not yet saved.
+               *
+               * What it deliberately does not do is follow an edit made elsewhere.
+               * Another administrator changing this account while it is open leaves
+               * the form showing what it was opened with, and the next save sends
+               * those values. Accepted knowingly: an account carries no version and
+               * the API has no refusal for a stale edit, so the alternative is
+               * wiping an edit in progress every time anything refetches. */
+              onSuccess: (gespeichertesKonto) => {
+                reset(formularAusKonto(gespeichertesKonto))
                 setGespeichert(true)
                 setUnveraendert(false)
               },
@@ -238,46 +228,20 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
             regional role may not carry a number at all, so a field offering one
             would be offering a way to be refused. */}
         {regional && (
-          <FormControl className="konto-anlegen__feld" error={Boolean(regionMeldung)} required>
-            <FormLabel id={labelId('regierungspraesidium')} htmlFor="regierungspraesidium">
-              {t('benutzerverwaltung.felder.regierungspraesidium')}
-            </FormLabel>
-            <Controller
-              name="regierungspraesidium"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  onChange={(ereignis) => {
-                    field.onChange(ereignis)
-                    verwerfeMeldungen()
-                  }}
-                  displayEmpty
-                  labelId={labelId('regierungspraesidium')}
-                  SelectDisplayProps={{ id: 'regierungspraesidium' }}
-                  aria-invalid={regionMeldung ? true : undefined}
-                  aria-describedby={
-                    regionMeldung ? fehlerId('regierungspraesidium', true) : undefined
-                  }
-                >
-                  <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
-                  {/* The four regions out of the list extracted from the legacy
-                      form, never retyped here: the number is what FiaKa
-                      receives, so the form is the authority on what it means. */}
-                  {optionen('z.rp').map((option) => (
-                    <MenuItem key={option.wert} value={option.wert}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-            />
-            {regionMeldung && (
-              <FormHelperText id={fehlerId('regierungspraesidium', true)} role="alert">
-                {regionMeldung}
-              </FormHelperText>
+          <Controller
+            name="regierungspraesidium"
+            control={control}
+            render={({ field }) => (
+              <Regionsfeld
+                wert={field.value}
+                onAendern={(gewaehlt) => {
+                  field.onChange(gewaehlt)
+                  verwerfeMeldungen()
+                }}
+                meldung={regionMeldung}
+              />
             )}
-          </FormControl>
+          />
         )}
 
         <FormControl className="konto-anlegen__feld">

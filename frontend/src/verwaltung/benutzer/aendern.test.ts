@@ -4,21 +4,23 @@ import {
   formularAusKonto,
   kontoAendernSchema,
   kontoAenderung,
-  selbstschutz,
+  darfSperren,
+  entziehtSichSuperAdmin,
   type Kontoaenderungsformular,
 } from './aendern'
 
 /* The rules behind the edit screen, held to their promises without a browser.
  *
- * Three of them, and each has a way of being wrong that would be expensive:
+ * Each has a way of being wrong that would be expensive:
  *
  * - formularAusKonto filling a field with the wrong value shows an administrator
  *   somebody else's answer and invites them to save it.
  * - kontoAenderung sending a field nobody touched is how two administrators
  *   editing different things overwrite each other, and leaving out the cleared
  *   region is a request the server refuses outright.
- * - selbstschutz getting it backwards either lets somebody sign themselves out
- *   with no way back, or refuses a handover that is perfectly legitimate.
+ * - entziehtSichSuperAdmin and darfSperren getting it backwards either let
+ *   somebody sign themselves out with no way back, or refuse a handover that is
+ *   perfectly legitimate.
  */
 
 function konto(felder: Partial<BenutzerAntwort> = {}): BenutzerAntwort {
@@ -231,38 +233,63 @@ describe('kontoAenderung', () => {
   })
 })
 
-describe('selbstschutz', () => {
-  const EIGENE = 'aaaaaaaa-0000-0000-0000-000000000001'
+const EIGENE = 'aaaaaaaa-0000-0000-0000-000000000001'
+const FREMDE = 'bbbbbbbb-0000-0000-0000-000000000002'
 
-  it('refuses taking SUPER_ADMIN off your own account', () => {
+describe('entziehtSichSuperAdmin', () => {
+  it('is true for taking SUPER_ADMIN off your own account', () => {
     const eigenes = konto({ id: EIGENE, rollen: ['SUPER_ADMIN'] })
 
-    expect(selbstschutz(eigenes, EIGENE, ['SUBMITTER'])).toBe('rollen')
+    expect(entziehtSichSuperAdmin(eigenes, EIGENE, ['SUBMITTER'])).toBe(true)
   })
 
-  it('allows your own account to keep it while something else changes', () => {
+  it('is false while your own account keeps it and something else changes', () => {
     const eigenes = konto({ id: EIGENE, rollen: ['SUPER_ADMIN'] })
 
-    expect(selbstschutz(eigenes, EIGENE, ['SUPER_ADMIN', 'REVIEWER'])).toBeNull()
+    expect(entziehtSichSuperAdmin(eigenes, EIGENE, ['SUPER_ADMIN', 'REVIEWER'])).toBe(false)
   })
 
-  it('allows taking it off somebody else, which is what a handover is', () => {
-    const fremdes = konto({ id: 'bbbbbbbb-0000-0000-0000-000000000002', rollen: ['SUPER_ADMIN'] })
+  it('is false for taking it off somebody else, which is what a handover is', () => {
+    const fremdes = konto({ id: FREMDE, rollen: ['SUPER_ADMIN'] })
 
-    expect(selbstschutz(fremdes, EIGENE, ['SUBMITTER'])).toBeNull()
+    expect(entziehtSichSuperAdmin(fremdes, EIGENE, ['SUBMITTER'])).toBe(false)
   })
 
-  it('says nothing while the session is still being checked', () => {
+  it('is false while the session is still being checked', () => {
     // eigeneId is null for that one render rather than a guess, so no account is
     // treated as yours instead of the wrong one being treated as yours.
     const eigenes = konto({ id: EIGENE, rollen: ['SUPER_ADMIN'] })
 
-    expect(selbstschutz(eigenes, null, ['SUBMITTER'])).toBeNull()
+    expect(entziehtSichSuperAdmin(eigenes, null, ['SUBMITTER'])).toBe(false)
   })
 
-  it('has nothing to say about an account that was never a Super Admin', () => {
+  it('is false for an account that was never a Super Admin', () => {
     const eigenes = konto({ id: EIGENE, rollen: ['SUBMITTER'] })
 
-    expect(selbstschutz(eigenes, EIGENE, ['REVIEWER'])).toBeNull()
+    expect(entziehtSichSuperAdmin(eigenes, EIGENE, ['REVIEWER'])).toBe(false)
+  })
+})
+
+/* The other half of the same rule, and the one that decides whether a button is
+   drawn at all. Inverted, it would offer somebody the one action that signs them
+   out of this screen with no way back. */
+describe('darfSperren', () => {
+  it('refuses your own account', () => {
+    expect(darfSperren(konto({ id: EIGENE }), EIGENE)).toBe(false)
+  })
+
+  it('allows an account that is not yours', () => {
+    expect(darfSperren(konto({ id: FREMDE }), EIGENE)).toBe(true)
+  })
+
+  it('allows it while the session is still being checked', () => {
+    // Nothing is yours for that one render, so no button is wrongly withheld.
+    expect(darfSperren(konto({ id: EIGENE }), null)).toBe(true)
+  })
+
+  it('does not care what roles the account holds', () => {
+    // Locking is about whose account it is, never about what it may do. The
+    // last-active-Super-Admin rule is the server's and is not mirrored here.
+    expect(darfSperren(konto({ id: FREMDE, rollen: ['SUPER_ADMIN'] }), EIGENE)).toBe(true)
   })
 })
