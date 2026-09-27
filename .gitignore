@@ -56,3 +56,11 @@ Thumbs.db
 # logs
 *.log
 npm-debug.log*
+
+# rendered diagrams. blueprint/history/flow_diagrams/ holds the PlantUML source;
+# the pictures are regenerated from it on demand (VS Code's PlantUML extension,
+# or `plantuml <file>.puml`). Committing them would mean a second copy that goes
+# stale the moment a .puml changes, which is exactly what the diagrams already
+# have to be guarded against.
+blueprint/history/flow_diagrams/*.png
+blueprint/history/flow_diagrams/*.svg

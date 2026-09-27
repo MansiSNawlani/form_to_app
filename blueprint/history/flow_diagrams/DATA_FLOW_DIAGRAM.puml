@@ -22,6 +22,16 @@
 ' code, not a generic textbook diagram. Where useful, the note explains WHY
 ' the code is shaped that way, not just what it does.
 ' ==============================================================================
+' KEEPING THIS FILE HONEST
+' ==============================================================================
+' Last checked against the code: 2026-09-27, after feature 16c.
+'
+' Because this diagram quotes real file names, real function names and real
+' constants, a rename elsewhere leaves it looking authoritative while being
+' wrong. Anything that changes the automatic save, api/client.ts, the session
+' dependency chain, or the order of the backend's save-time checks has to change
+' this file in the same branch.
+' ==============================================================================
 
 autonumber "<b>0"
 skinparam sequenceMessageAlign center
@@ -63,7 +73,8 @@ note right of Route
   ""aktueller_benutzer"" dependency chain shown in steps 13-18
   below. If it fails, React Router renders <Navigate to="/anmeldung">
   instead of the form, and none of the steps below ever happen.
-  See AUTHENTICATION_EXPLAINED.txt for the full trace of this call.
+  The code is auth/useSitzung.ts and auth/SitzungsWaechter.tsx on the
+  frontend, backend/app/api/abhaengigkeiten.py on the backend.
 end note
 Route --> Browser: 200 OK {benutzer} -> cached by useSitzung.ts\n(React Query key ['sitzung'])
 Browser --> User: form renders, e.g. ProtokollFormular.tsx
@@ -104,9 +115,28 @@ note right of AutoSave
   Every further keystroke within 800ms just resets this timer
   and reuses the SAME `pending=true` flag - it does NOT queue
   extra saves. This is why typing a whole word produces one
-  network call, not eight. If the component unmounts mid-debounce
-  (surveyor navigates away fast), the effect's cleanup function
-  flushes a save synchronously so nothing typed is lost.
+  network call, not eight.
+
+  Only ever one request is open at a time (the ""laeuft"" flag). A
+  second save sent while the first is still open would carry the
+  version the first is about to spend, so the server would refuse
+  it and the tab would be told it had collided with itself.
+  Anything typed meanwhile is caught by save()'s own ""finally"",
+  which re-fires it.
+
+  If the component unmounts mid-debounce (surveyor navigates away
+  fast), the effect's cleanup function fires one last save. It is
+  deliberately silent - reporting state into a component that is
+  going away is a write to nothing - and the request may well
+  outlive the page, which is exactly why the local copy in step 3
+  is written BEFORE the request rather than after it fails.
+
+  ""SPEICHERT"" and its siblings are module-level constants, not
+  fresh object literals. setState re-renders whenever the new value
+  is not Object.is-equal to the old one, so a literal here
+  re-rendered ProtokollFormular and the whole open section on every
+  keystroke: measured at 206ms per keystroke on 2026-09-04 with all
+  26 catch rows filled. Reusing one object lets React bail out.
 end note
 
 ' ------------------------------------------------------------------------------
@@ -143,8 +173,8 @@ EntwurfApi -> Client: apiAnfrage(`/protokolle/${id}/antworten`,\n{methode:'PUT',
 == 4. Leaving the browser: the ONE place a fetch() call is allowed ==
 ' ------------------------------------------------------------------------------
 note over Client
-  **api/client.ts is the only file in the whole frontend that
-  calls fetch().** Every other file (entwurf/api.ts, useSitzung.ts,
+  **api/client.ts is the only file that calls fetch().**
+  Every other file (entwurf/api.ts, useSitzung.ts,
   etc.) goes through apiAnfrage(). That is what keeps 4 concerns
   centralised instead of repeated at every call site:
   (a) the cookie is sent, (b) a non-2xx response becomes a typed
@@ -207,19 +237,36 @@ Pydantic --> Route: a typed, structurally-valid request object
 
 Route -> Service: speichere_antworten(session,\n  protokoll_id, besitzer=benutzer,\n  antworten, version)
 activate Service
-Service -> DB: SELECT * FROM submissions\nWHERE id = :protokoll_id\n  AND owner_user_id = :besitzer.id
+Service -> DB: hole_protokoll():\nSELECT * FROM submissions\nWHERE id = :protokoll_id\n  AND owner_user_id = :besitzer.id
 note right of Service
   **Ownership is a WHERE clause, not an "if" after the fetch.**
   If the id belongs to someone else, this query simply returns
   no row - the API answers 404 PROTOKOLL_NICHT_GEFUNDEN, the exact
   same answer as if the id never existed at all, so a stranger
   can never learn "this id is real, I just can't see it."
+
+  A **save** looks the protocol up by owner, which is what this
+  query does. **Reading** one goes through a wider clause,
+  ""_sichtbar()"" in the same file, so a Reviewer, Data Steward or
+  Super Admin can open a protocol that has been handed in. A draft
+  stays private to its owner either way.
 end note
 DB --> Service: the Submission row, or none
 alt no matching row
   Service --> Route: raise ProtokollNichtGefunden -> 404
 end
-Service -> Service: compare given `version` (7)\nto row.version (must match)
+note over Service
+  From here the three checks and the two writes are
+  ""uebernimm_antworten()"", split out in feature 23b so the PDF
+  import stores its answers down this same path rather than
+  beside it. The order below is deliberate and is documented in
+  the function's own docstring.
+end note
+Service -> Service: pruefe_aenderbar(protokoll.status)\n(only DRAFT and NEEDS_CHANGES may be written to)
+alt already submitted, accepted or locked
+  Service --> Route: raise ProtokollNichtMehrEntwurf -> 409
+end
+Service -> Service: pruefe_version(): compare given `version` (7)\nto row.version (must match)
 alt version mismatch (somebody else saved since this tab loaded)
   Service --> Route: raise ProtokollVeraendert -> 409\n<b>nothing is written</b>
   note left of Service
@@ -227,10 +274,47 @@ alt version mismatch (somebody else saved since this tab loaded)
     gets a dedicated 'conflict' status (not just 'failed') because
     retrying can never succeed - see fehlerZustand() in
     useAutoSave.ts - and the surveyor is told to reload the page.
+
+    On a conflict useAutoSave sets its ""aufgegeben"" flag and stops
+    sending requests entirely: every later save would carry the same
+    stale version and be refused the same way, which would only
+    overwrite the one message worth reading. It keeps writing the
+    localStorage copy on every keystroke, though, because
+    SpeicherProblem.tsx promises the surveyor their entries are safe
+    in this browser, and that promise has to stay true.
   end note
 end
-Service -> Service: schema-validate the `antworten` JSON\nagainst this submission's FormVersion definition\n(the ~338-field business shape, per ADR 0003/0004)
-Service -> DB: UPDATE submissions\nSET antworten = :neu, version = version + 1,\n    updated_at = clock_timestamp()\nWHERE id = :protokoll_id
+Service -> Service: pruefe_antworten(): check the document itself\n(protokolle/regeln.py)
+note right of Service
+  Three things, in this order (the order is in the docstring):
+  (a) it is a JSON object at all, else ANTWORTEN_NICHT_LESBAR 422;
+  (b) it is under MAX_ZEICHEN_GESAMT = 200_000 characters, else
+      ANTWORTEN_ZU_GROSS 413 - checked before the field rules so a
+      runaway document does not produce a violation list as long as
+      itself;
+  (c) ""finde_verstoesse()"" walks every key against the paths the
+      form version declares (""formular().pfade"", read from
+      database/seed/ - see ADR 0003/0004), rejecting unknown paths,
+      dotted key names and over-deep nesting, else
+      ANTWORTEN_UNGUELTIG 422 carrying a ""verstoesse"" list the
+      screen draws field by field.
+  Walked with an explicit stack, not recursion: the document is
+  untrusted input and a recursive walk over untrusted nesting is a
+  stack overflow waiting to be found.
+end note
+Service -> DB: UPDATE submissions\nSET antworten = :neu, version = version + 1,\n    updated_at = now()\nWHERE id = :protokoll_id
+note right of Service
+  ""antworten"" is **assigned**, never edited in place. SQLAlchemy
+  notices an attribute being set; it does not watch the inside of a
+  plain dict, so mutating the stored document would leave a save
+  that quietly wrote nothing.
+
+  ""version"" is raised on every save, even one whose answers are
+  identical, or the client's next save would arrive claiming a
+  version already behind. ""updated_at"" comes from the model's
+  ""onupdate=func.now()"", so the database's clock stamps it rather
+  than this process's.
+end note
 DB --> Service: updated row (new version, new updated_at)
 Service --> Route: the updated Submission
 deactivate Service
@@ -245,7 +329,39 @@ EntwurfApi --> AutoSave: resolved promise
 AutoSave -> LocalBackup: sicherungsStore.loesche(id)\n<b>only now</b> is the safety copy removed
 AutoSave -> AutoSave: version.current = 8\nsetState({status:'saved', zeitpunkt: updated_at})
 AutoSave --> User: SpeicherAnzeige.tsx / ProtokollKopf.tsx\nre-render: "Gespeichert um 14:32"
+note right of AutoSave
+  Two components read this one SaveState, and they say different
+  things. **SpeicherAnzeige.tsx** is the short indicator, drawn
+  twice on the page (head and foot of the card, only one of them an
+  ARIA live region, or every save would be announced twice).
+  **SpeicherProblem.tsx** appears only on 'failed' or 'conflict' and
+  has room to say what happened and what to do about it.
+end note
 deactivate AutoSave
+
+' ------------------------------------------------------------------------------
+== 8. The two ways out of the debounce: the banner, and submitting ==
+' ------------------------------------------------------------------------------
+note across
+  The hook exposes two escape hatches from the 800ms wait, and they exist for
+  different reasons.
+
+  **""jetztSpeichern()""** is the restore banner's (SicherungAngebot.tsx). When a
+  surveyor accepts the localStorage copy from a previous sitting, the answers are
+  put into the form and saved immediately rather than after a debounce nobody is
+  typing into.
+
+  **""bereitZumAbsenden()""** is the submit button's (absenden/useAbsenden.ts). A
+  submit sends **no answers of its own**: whatever is stored is what gets
+  submitted. So anything still sitting in the debounce would simply be left
+  behind, and somebody who types into the last field and presses the button
+  straight away would submit the protocol as it was one keystroke ago. It waits
+  for the saving to come to rest, in a LOOP rather than awaiting one save, because
+  save() re-fires itself when something was typed while a request was open and the
+  submit has to follow the last of those rather than the first. It answers with
+  the version the protocol is now at, or **null** when the last save failed, so
+  the caller refuses to submit rather than sending a version it knows is wrong.
+end note
 
 ' ------------------------------------------------------------------------------
 == Error paths, shown separately for clarity ==

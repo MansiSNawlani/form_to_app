@@ -1,9 +1,20 @@
 @startuml FRONTEND_PATTERNS_LAYERED_VIEW
 ' ==============================================================================
-' SECOND DIAGRAM: the same codebase, but organised by PATTERN / RESPONSIBILITY
-' instead of by folder. Read this after the folder map above. Each layer only
-' talks to the layer directly below it - that discipline is what makes each
-' layer independently testable and replaceable.
+' THE SAME CODEBASE, but organised by PATTERN / RESPONSIBILITY instead of by
+' folder. Read this after FRONTEND_ARCHITECTURE_DIAGRAM.puml, which is the
+' literal folder map. Each layer only talks to the layer directly below it -
+' that discipline is what makes each layer independently testable and
+' replaceable.
+' ==============================================================================
+' KEEPING THIS FILE HONEST
+' ==============================================================================
+' Last checked against frontend/src: 2026-09-27, after feature 16c.
+'
+' This diagram names real modules as examples of each pattern, so a rename or a
+' new feature area leaves it quietly wrong. Anything that adds a page, a hook, a
+' rules module or a feature api.ts should be reflected here in the same branch,
+' and so should anything that breaks the "a layer only calls the one below it"
+' rule, because that is the claim this diagram actually makes.
 ' ==============================================================================
 skinparam componentStyle rectangle
 skinparam wrapWidth 280
@@ -19,17 +30,30 @@ package "1. ROUTING & GUARD LAYER" as L1 #FFF3CD {
     structure lists every URL. A route with no path of its own,
     just an <Outlet/>, can wrap its children in shared behaviour
     (a guard, a shell) without every child needing to know about it.
+
+    The guard answers exactly one question - "is anybody signed in" -
+    and deliberately no more. **No route checks a role.** The server
+    decides who may read what, and a second opinion in the route
+    table could only ever be the wrong one. Pages turn the server's
+    refusal into words with a way onward instead.
   end note
 }
 
 package "2. PAGE / CONTAINER LAYER" as L2 #FFDAB9 {
-  component "\"*Seite.tsx\" components\n(ProtokolleSeite, PruefungsSeite, ...)" as P1
+  component "\"*Seite.tsx\" components\n(ProtokolleSeite, ProtokollSeite,\nPrueflisteSeite, PruefungsSeite,\nBenutzerlisteSeite, KontoAnlegenSeite,\nAnmeldungSeite)" as P1
+  component "useProtokollZustand.tsx\n(the shared loading / not-found /\nno-permission cascade)" as P2
   note bottom of L2
     **Pattern: Container (a.k.a. \"smart\") components.**
     A page component's job: read the URL (useParams), fetch data
     (useQuery), handle top-level loading/error states, and hand
     clean data down as props. It should contain very little JSX
     of its own - that's the next layer's job.
+
+    When two pages hit the same dead ends before they reach their
+    data, that cascade is lifted into a hook that returns what to
+    render INSTEAD (useProtokollZustand), rather than copied. Both
+    id-addressed protocol pages did hold their own copy of all four
+    states until the branch review on 2026-09-15.
   end note
 }
 
@@ -59,7 +83,7 @@ package "4. PRESENTATIONAL / REUSABLE UI LAYER" as L4 #D4EDDA {
 }
 
 package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
-  component "useAutoSave, useAbsenden,\nuseUebergang, useSitzung,\nuseFeldFehler, useNurLesen" as H1
+  component "useAutoSave, useAbsenden,\nuseUebergang, useSitzung,\nuseAnlagen, useEinlesen,\nuseHerunterladen, useKontoAnlegen,\nuseLoeschen, useFeldFehler, useNurLesen" as H1
   note bottom of L5
     **Pattern: custom hooks.**
     React's mechanism for reusing STATEFUL logic across components
@@ -73,8 +97,9 @@ package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
 }
 
 package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
-  component "regeln/ (schema.ts, prozent.ts,\nhydrologie.ts, vorfluter.ts, ...)" as D1
-  component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts" as D2
+  component "regeln/ (schema.ts, prozent.ts,\nhydrologie.ts, vorfluter.ts, arten.ts, ...)" as D1
+  component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts,\nauth/rollen.ts, api/wiederholen.ts" as D2
+  component "absenden/verortung.ts + gruppierung.ts,\npruefliste/parameter.ts + pfad.ts,\npruefung/entscheidungen.ts,\nverwaltung/benutzer/eingabe.ts,\nfelder/pflicht.ts" as D3
   note bottom of L6
     **Pattern: pure functions, framework-free.**
     Deliberately importing nothing from React. A function like
@@ -83,13 +108,21 @@ package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
     assertions - no rendering, no mocking a browser. This is the
     layer coding-standards.md means by "logic where a wrong answer
     is possible gets a unit test beside it."
+
+    It is also where the same rule stops being written twice. Each
+    file in regeln/ is the client-side half of a rule the backend
+    enforces again in Python, and the two are meant to be read and
+    changed together. felder/pflicht.ts goes one further and reads
+    the required-field list out of the SAME seed file the backend
+    reads, because when the two sides kept their own copies they
+    drifted invisibly.
   end note
 }
 
 package "7. DATA / SERVICE LAYER" as L7 #A8DADC {
-  component "api/client.ts (apiAnfrage)\n<- the only fetch() call" as A1
-  component "entwurf/api.ts, absenden's api calls,\n(one small api.ts per feature)" as A2
-  component "TanStack Query\n(useQuery / cache, api/queryClient.ts)" as A3
+  component "api/client.ts\napiAnfrage() <- the only fetch() for JSON\napiDatei()   <- the only fetch() for a file" as A1
+  component "one small api.ts per feature:\nentwurf/, anlagen/, pruefung/,\npruefliste/, verwaltung/benutzer/" as A2
+  component "TanStack Query\n(useQuery / useMutation / cache,\napi/queryClient.ts, api/wiederholen.ts)" as A3
   note bottom of L7
     **Pattern: Service/Repository layer + server-state cache.**
     Two separate jobs, often confused by beginners:
@@ -101,15 +134,27 @@ package "7. DATA / SERVICE LAYER" as L7 #A8DADC {
         same thing as component state (useState): server data is
         cached, shared across components via a queryKey, and can be
         invalidated/refetched - useState can't do any of that.
+
+    apiDatei() is separate from apiAnfrage() rather than a flag on it,
+    because the two disagree about what a SUCCESS is: one parses the
+    body, the other must not touch it. The refusal path is shared, so
+    a refused download is the same typed ApiFehler as a refused save
+    and the screen already knows how to say it.
+
+    api/wiederholen.ts is the one retry policy every list shares:
+    try a dropped request again, never re-send a settled refusal.
+    The single documented exception to this layer is useAutoSave,
+    which calls apiAnfrage() directly rather than through useMutation
+    for a measured performance reason - see the folder map.
   end note
 }
 
 package "8. CROSS-CUTTING CONCERNS" as L8 #E8F4FD {
-  component "i18n/ (react-i18next)" as C1
-  component "theme/ (tokens.ts, muiTheme.ts)" as C2
+  component "i18n/ (react-i18next,\nresources.d.ts, DatumsProvider)" as C1
+  component "theme/ (tokens.ts, muiTheme.ts)\n+ styles/theme.css, hooks/useTheme.ts" as C2
   note bottom of L8
-    **Pattern: externalise anything that changes independently of
-    logic.** Strings move to translation files so a second language
+    **Pattern: externalise what changes independently of logic.**
+    Strings move to translation files so a second language
     (feature 17, English) needs no component changes. Colours/spacing
     move to CSS custom properties + one MUI theme config so dark mode
     and the "must not look like stock Material" rule are enforced in
