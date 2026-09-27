@@ -175,6 +175,37 @@ are what now keeps that fixed.
 drew as empty boxes and a placeholder cut off mid-word. Every test passed; a screenshot caught
 both. Take one when a feature changes what a screen looks like.
 
+## Diagrams
+
+Three PlantUML diagrams live in `blueprint/history/flow_diagrams/` and are kept current
+as part of the change that affects them, not refreshed later on request.
+
+- `DATA_FLOW_DIAGRAM.puml` - one answer's journey from a keystroke to a committed row,
+  including the session check every request passes through
+- `FRONTEND_ARCHITECTURE_DIAGRAM.puml` - a literal folder map of `frontend/src/**`
+- `FRONTEND_ARCHITECTURE_DIAGRAM_LAYERED_VIEW.puml` - the same code by pattern and layer
+
+**A diagram edit belongs in the same branch as the code it describes.** Any of these
+means a diagram is now out of date:
+
+- a new, renamed or removed folder under `frontend/src/`
+- a change to the automatic save, the draft lifecycle, attachments, or `api/client.ts`
+- a new or changed route in `routes.tsx`, or a change to the session guard
+- a change to the order or content of the backend's save-time checks
+
+The diagrams quote real file names, real function names and real constants on purpose,
+so they read as a map of the actual code rather than a textbook picture. That is exactly
+why they rot quietly: a rename leaves a diagram that still looks authoritative. Checking
+that the files a diagram names still exist is part of updating it.
+
+Each file carries a "Last checked against the code" date near the top. Move it when you
+check it.
+
+**Verify the file still renders.** The diagrams are checked into git as text; a broken
+one is only discovered when somebody opens it. `plantuml -checkonly <file>` parses
+without drawing, and rendering to a PNG and looking at it catches the rest, for the same
+reason the Browser verification section above gives.
+
 ## Code quality
 
 - No commented-out code

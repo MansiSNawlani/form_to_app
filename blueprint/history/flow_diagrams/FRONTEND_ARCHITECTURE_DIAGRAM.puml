@@ -9,10 +9,19 @@
 '   3. CLI: `plantuml FRONTEND_ARCHITECTURE_DIAGRAM.puml` (needs Java +
 '      Graphviz).
 '
-' This file contains TWO diagrams (search for @startuml to find the second
-' one further down): a literal folder map, and a "conceptual layers" view of
-' the same code with the design patterns named. Read them together: the first
-' answers "where is this file", the second answers "why is it shaped that way".
+' The companion file FRONTEND_ARCHITECTURE_DIAGRAM_LAYERED_VIEW.puml shows the
+' same code organised by pattern rather than by folder. Read them together: this
+' one answers "where is this file", that one answers "why is it shaped that way".
+' ==============================================================================
+' KEEPING THIS FILE HONEST
+' ==============================================================================
+' Last checked against frontend/src: 2026-09-27, after feature 16c.
+'
+' This is a map of real folders and real file names, so it rots quietly: a
+' renamed file or a new feature folder leaves a diagram that still looks
+' authoritative. Any change that adds, removes or renames a folder under
+' frontend/src, or a route in routes.tsx, has to change this file in the same
+' branch.
 ' ==============================================================================
 ' A NOTE FOR SOMEONE NEW TO FRONTEND DEVELOPMENT
 ' ==============================================================================
@@ -47,27 +56,61 @@ package "main.tsx  (the entry point)" as entry #FFF3CD {
 package "routes.tsx  (route table)" as routes #FFF3CD {
   note as RoutesNote
     A plain data structure (createBrowserRouter([...])) mapping URL
-    paths to components. /anmeldung is the one PUBLIC route; every
-    other route is nested inside <SitzungsWaechter>, so the "you must
-    be signed in" rule is written ONCE here instead of once per page.
-    This nesting is the "layout route" pattern: a parent route renders
-    shared chrome (or, for the guard, a redirect-or-nothing decision)
-    and an <Outlet/> where the matched child route appears.
+    paths to components. Paths are German, decided 2026-08-24, like
+    the rest of the domain; component names around them stay English.
+
+    /anmeldung is the one PUBLIC route, and the one outside the app
+    shell: a header with an account area, on the page where nobody has
+    an account, reads as a mistake. Every other route is nested inside
+    <SitzungsWaechter>, so "you must be signed in" is written ONCE
+    here instead of once per page. This nesting is the "layout route"
+    pattern: a parent route renders shared chrome (or, for the guard,
+    a redirect-or-nothing decision) and an <Outlet/> where the matched
+    child route appears.
+
+    The routes, as of feature 16c:
+      /                              own protocols, or the review queue
+      /protokolle/neu                redirects to section 1 of "neu"
+      /protokolle/:id/abschnitt/:nr  the form, one section at a time
+      /protokolle/:id/pruefung       a handed-in protocol, read only
+      /pruefung                      the review queue (filters in the URL)
+      /verwaltung/benutzer           every account, Super Admin only
+      /verwaltung/benutzer/neu       creating one
+
+    **No route carries a role requirement**, deliberately. The server
+    decides who may read what, in one place, and a second opinion here
+    could only ever be the wrong one. Hiding a route is not a
+    permission; the pages turn the server's refusal into words with a
+    way onward (KeineBerechtigung.tsx).
   end note
 }
 
 package "components/  (app shell, shared chrome)" as shellpkg #E8F4FD {
   [Layout.tsx]
   [AppShell.tsx]
+  [SiteHeader.tsx]
   [SiteFooter.tsx]
   [ThemeToggle.tsx]
   [NotFound.tsx]
+  [BestaetigungsDialog.tsx]
+  [DateiPicker.tsx]
+  [icons.tsx]
   note bottom of shellpkg
     Layout.tsx wraps every page in AppShell (header/footer/skip-link)
     and renders <Outlet/> for whichever page matched. This is why
     navigating between sections never re-mounts the header: only the
     <Outlet/>'s content changes.
+
+    BestaetigungsDialog.tsx and DateiPicker.tsx are here rather than
+    in a feature folder because more than one feature needs them: the
+    dialog is asked for before deleting a draft, discarding one and
+    removing an attachment; the picker is used by both attachment
+    blocks and by the PDF import.
   end note
+}
+
+package "hooks/  (app-wide hooks)" as hookspkg #E8F4FD {
+  [useTheme.ts]
 }
 
 package "auth/  (who is signed in)" as authpkg #E8F4FD {
@@ -75,32 +118,48 @@ package "auth/  (who is signed in)" as authpkg #E8F4FD {
   [SitzungsWaechter.tsx] as Waechter
   [AbmeldeKnopf.tsx]
   [useSitzung.ts] as useSitzung
+  [rollen.ts]
   [weiter.ts]
   [startseite.ts]
   [useKontoSprache.ts]
+  [anmeldung.css]
   note bottom of authpkg
-    See AUTHENTICATION_EXPLAINED.txt for the full trace. In one line:
-    useSitzung.ts owns a React Query cache entry that mirrors the
-    backend's answer to GET /ich; SitzungsWaechter.tsx is the guard
-    that reads it and redirects or renders <Outlet/>.
+    In one line: useSitzung.ts owns a React Query cache entry that
+    mirrors the backend's answer to GET /api/v1/ich; SitzungsWaechter.tsx
+    is the guard that reads it and either redirects to /anmeldung or
+    renders <Outlet/>. DATA_FLOW_DIAGRAM.puml traces that call end to
+    end (its section 0, and steps 13-18 for the backend half).
+
+    weiter.ts and startseite.ts are the two pure decisions around it:
+    where to send somebody back to after signing in (validated, so a
+    ?weiter= parameter cannot be turned into an open redirect), and
+    which screen is "home" for the roles they hold. rollen.ts is the
+    one order the six roles are printed in, lifted out of SiteHeader
+    in feature 16b when the account list became the second place that
+    prints them.
   end note
 }
 
 package "i18n/  (translations)" as i18npkg #E8F4FD {
   [index.ts]
   [resources.d.ts]
+  [sprachen.ts]
   [DatumsProvider.tsx]
   note bottom of i18npkg
     react-i18next. No component ever hard-codes a user-facing string;
     every one is a t('some.key') lookup into a German (later English)
     resource file. resources.d.ts makes the KEYS themselves type-checked,
     so t('anmeldung.titeel') (typo) is a compile error, not a blank label.
+    DatumsProvider.tsx carries the matching date/number locale, so a
+    date is never formatted by one language while its label reads in
+    another.
   end note
 }
 
-package "theme/  (design tokens -> MUI)" as themepkg #E8F4FD {
+package "theme/  +  styles/  (design tokens -> MUI)" as themepkg #E8F4FD {
   [tokens.ts]
   [muiTheme.ts]
+  [styles/theme.css]
   note bottom of themepkg
     styles/theme.css defines raw CSS custom properties (colour, radius,
     spacing) for light AND dark mode. muiTheme.ts reads those tokens
@@ -112,9 +171,10 @@ package "theme/  (design tokens -> MUI)" as themepkg #E8F4FD {
 }
 
 package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
-  [client.ts] as client
-  [fehler.ts]
+  [client.ts (apiAnfrage, apiDatei)] as client
+  [fehler.ts (ApiFehler + codes)]
   [useFehlertext.ts]
+  [wiederholen.ts (sollWiederholen)]
   [queryClient.ts]
   [typen.ts]
   note bottom of apipkg
@@ -124,6 +184,18 @@ package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
     Repository/Service pattern: components and hooks never know HTTP
     exists, they just call a named function that returns typed data
     or throws a typed ApiFehler.
+
+    apiDatei() is the second entry point, added in feature 23e: one
+    call that answers with a FILE rather than JSON. Separate from
+    apiAnfrage rather than a flag on it, because the two differ in
+    what a success IS - that one parses a body, this one must not
+    touch it. The refusal path is shared, so a refused download says
+    what went wrong in German beside the button that was pressed.
+
+    wiederholen.ts is the one retry policy for every list in the app:
+    a dropped request is tried again, a settled refusal (not signed
+    in, role missing) never is, since making somebody wait through
+    three requests for the same no helps nobody.
     queryClient.ts creates the ONE TanStack Query cache/client used
     by the whole app (created in main.tsx's <QueryClientProvider>).
   end note
@@ -131,11 +203,12 @@ package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
 
 package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 {
 
-  package "liste/, pruefliste/, pruefung/  (list & review pages)" as pages {
+  package "liste/  (Meine Protokolle)" as liste {
     [ProtokolleSeite.tsx]
-    [PrueflisteSeite.tsx]
-    [PruefungsSeite.tsx]
-    note bottom of pages
+    [ProtokollTabelle.tsx, ProtokollZeile.tsx]
+    [LoeschenDialog.tsx, Loeschfehler.tsx, useLoeschen.ts]
+    [LeererZustand.tsx, Ladefehler.tsx, anzeige.ts]
+    note bottom of liste
       "*Seite.tsx" = **page / route container components**. Each one
       is what a route in routes.tsx points at. Pattern: a Seite
       component's job is to fetch data (via useQuery) and hand it down
@@ -145,70 +218,134 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     end note
   }
 
+  package "pruefliste/  (the review queue, feature 12)" as pruefliste {
+    [PrueflisteSeite.tsx]
+    [PrueflistenTabelle.tsx, PrueflistenZeile.tsx]
+    [Filterleiste.tsx, Pager.tsx]
+    [parameter.ts, pfad.ts, abfragen.ts, api.ts]
+    [KeineBerechtigung.tsx, LeererZustand.tsx, Ladefehler.tsx]
+    note bottom of pruefliste
+      The one page that reads across every account. Its filters live
+      in the address bar rather than in component state (parameter.ts
+      is the pure translation between the two), which is what lets a
+      filtered queue be shared as a link, and what feature 12d needed
+      to walk the list from a single protocol's own URL.
+    end note
+  }
+
+  package "pruefung/  (the reviewer's screen, feature 11)" as pruefung {
+    [PruefungsSeite.tsx]
+    [Entscheidungspanel.tsx, useUebergang.ts]
+    [Kopfzeile.tsx, Pruefungsrail.tsx, Panel.tsx]
+    [Uebersichtsleiste.tsx, Listennavigation.tsx]
+    [Verlauf.tsx, verlaufsbeschriftung.ts]
+    [AenderungAngefordert.tsx, aenderungsbitte.ts]
+    [entscheidungen.ts, entscheidungsfehler.ts]
+    [Aufnahmeblock.tsx, Uebergangsfehler.tsx]
+    note bottom of pruefung
+      Accept, reject, request changes, and the history of what was
+      decided. The state machine itself is the backend's; this folder
+      holds which transitions a given account may ASK for
+      (entscheidungen.ts), what a rejection or change request must
+      carry (aenderungsbitte.ts), and how a refused transition is put
+      into words (entscheidungsfehler.ts) - all pure functions, tested
+      without a browser.
+    end note
+  }
+
   package "ProtokollSeite.tsx + ProtokollFormular.tsx  (the form itself)" as formcore {
     [ProtokollSeite.tsx] as PSeite
     [ProtokollFormular.tsx] as PFormular
-    [AbschnittNav.tsx]
-    [AbschnittWechsel.tsx]
-    [ProtokollKopf.tsx]
-    [SpeicherAnzeige.tsx]
+    [useProtokollZustand.tsx] as PZustand
+    [abschnitte.ts (the 7 sections + paths)]
+    [AbschnittNav.tsx, AbschnittMenu.tsx, AbschnittWechsel.tsx]
+    [ProtokollKopf.tsx, ProtokollTitel.tsx, Statusabzeichen.tsx]
+    [SpeicherAnzeige.tsx, SpeicherProblem.tsx]
+    [VerwerfenDialog.tsx, optionen.ts]
+    [ProtokollLadefehler.tsx, ProtokollNichtGefunden.tsx]
     note bottom of formcore
       ProtokollSeite.tsx (a page container) loads the Entwurf via
       useQuery, then hands it to ProtokollFormular.tsx, which sets up
-      ONE React Hook Form instance for the WHOLE 338-field document
+      ONE React Hook Form instance for the WHOLE ~338-field document
       (not one form per section) and shares it via <FormProvider> -
       React's Context API used specifically to avoid "prop drilling"
       (passing `form` down through 5 layers of components by hand).
       Any descendant can call useFormContext() to reach it directly.
+
+      useProtokollZustand.tsx is the shared front half of that: the
+      four dead ends both id-addressed pages hit before they reach a
+      protocol (loading, load failure, not found, no permission). It
+      hands back a ReactNode rather than a union to switch on, because
+      every one of those states has exactly one right rendering and
+      both callers want it.
+
+      SpeicherAnzeige is the short save indicator; SpeicherProblem is
+      the panel that appears only when a save failed and has room to
+      say what to do. Both read the one SaveState from useAutoSave.
     end note
   }
 
-  package "abschnitte/  (the 6 sections' markup)" as abschnitte {
-    [AbschnittInhalt.tsx]
-    [Abschnitt1.tsx]
-    [Abschnitt2.tsx]
-    [Abschnitt3.tsx]
-    [Abschnitt4.tsx]
-    [Abschnitt5.tsx]
-    [teil3/, teil4/, teil5/, teil6/ subfolders]
+  package "abschnitte/  (the 7 sections' markup)" as abschnitte {
+    [AbschnittInhalt.tsx, koerper.ts]
+    [Abschnitt1.tsx .. Abschnitt7.tsx]
+    [teil1/ Anlass, Bearbeiter, Probestrecke]
+    [teil2/ Messdaten, Hydrologie]
+    [teil3/ Umland, Ufer, Gewaessersohle (the % blocks)]
+    [teil4/ Strukturen, Einfluesse, Bewirtschaftung, Bemerkungen]
+    [teil5/ Ausruestung, Befischte Bereiche]
+    [teil6/ the catch table (ArtenTabelle + cells)]
+    [teil7/ Kartenausschnitt, Fotos (attachments)]
     note bottom of abschnitte
-      Pure composition: these components lay out FeldText/FeldAuswahl/
-      etc. (see felder/ below) into the actual form sections, matching
-      the legacy PDF's layout. They hold almost no logic of their own -
-      logic lives in regeln/ and hooks/, kept OUT of markup so it is
-      unit-testable without rendering anything.
+      Mostly composition: these components lay out FeldText/FeldAuswahl/
+      etc. (see felder/ below) into the actual form sections. Logic
+      lives in regeln/ and in the per-part *.ts files beside the
+      markup (gruppen.ts, bloecke.ts, tabelle.ts, zeilen.ts), kept OUT
+      of the JSX so it is unit-testable without rendering anything.
+
+      Seven sections, not the paper form's six: attachments are
+      section 7, because they are a separate thing to do and the step
+      bar is how a surveyor finds anything in a protocol this long.
+      The legacy PDF decides which fields exist and what the rules
+      are, never how the screen is laid out.
     end note
   }
 
   package "felder/  (reusable, presentational field components)" as felder #D4EDDA {
     [FeldRahmen.tsx] as Rahmen
-    [FeldText.tsx]
-    [FeldAuswahl.tsx]
-    [FeldProzent.tsx]
-    [FeldRadio.tsx]
-    [FeldDatum.tsx]
-    [FeldHaken.tsx]
-    [Optionssuche.tsx / Suche.tsx]
+    [FeldText.tsx, FeldAuswahl.tsx, FeldRadio.tsx]
+    [FeldProzent.tsx, FeldDatum.tsx, FeldHaken.tsx]
+    [FeldSuche.tsx, Optionssuche.tsx, Suche.tsx]
     [fehler.ts (useFeldFehler hook)]
     [rahmen.ts (feldAria, fehlerId helpers)]
+    [pflicht.ts (which answers are required)]
     note bottom of felder
       **The reusable UI component library for this app**, built on MUI.
-      Every one of the ~338 fields is one of these ~7 components, each
+      Every one of the ~338 fields is one of these ~8 components, each
       wired to React Hook Form via register(name) (an UNCONTROLLED
       input - see DATA_FLOW_DIAGRAM.puml step 1). FeldRahmen.tsx is
       shared "chrome" (label + error text + accessibility attributes)
       that every Feld* wraps itself in, so keyboard/label/ARIA
       behaviour is written once and inherited everywhere - exactly the
       "theme/build a component once" rule from coding-standards.md.
+
+      pflicht.ts reads the required-field list from the SAME file the
+      backend reads (database/seed/form_version_20260609/
+      pflichtfelder.json, aliased in from outside frontend/). Until
+      feature 11c the two sides kept their own lists and drifted, and
+      the drift was invisible: an asterisk nothing actually checks
+      looks exactly like one that works.
     end note
   }
 
   package "entwurf/  (draft persistence: the autosave engine)" as entwurf #D4EDDA {
     [useAutoSave.ts] as useAutoSave
-    [api.ts (legeEntwurfAn, speichereAntworten)] as entwurfApi
-    [sicherung.ts (localStorage safety copy)]
-    [speicherzustand.ts]
-    [neu.ts, titel.ts, typen.ts, abfragen.ts]
+    [api.ts (legeEntwurfAn, speichereAntworten,\nleseProtokollEin)] as entwurfApi
+    [sicherung.ts (localStorage safety copy)] as sicherung
+    [browserSpeicher.ts (storage that may throw)]
+    [SicherungAngebot.tsx (offer to restore it)]
+    [bereitstellen.ts (make the record exist)]
+    [speicherzustand.ts, abfragen.ts]
+    [neu.ts, titel.ts, typen.ts]
     note bottom of entwurf
       The engine traced end-to-end in DATA_FLOW_DIAGRAM.puml.
       useAutoSave.ts is a **custom hook** - the standard React way to
@@ -218,12 +355,21 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       own body. Deliberately calls apiAnfrage() directly instead of
       useMutation() - a documented, reasoned EXCEPTION to the "use
       TanStack Query for saves" rule, because useMutation's own
-      re-renders were measurably too slow for a 338-field form.
+      re-renders were measurably too slow for a ~338-field form.
+
+      browserSpeicher.ts exists because reaching for window.localStorage
+      is not safe on its own: a private window or blocked site data
+      makes the property access itself throw, before any key is read.
+      bereitstellen.ts is the same "the first thing put in creates the
+      record" moment as the first keystroke, for section 7, which has
+      no fields to type in - an attachment is addressed through its
+      protocol, so the protocol has to exist first.
     end note
   }
 
   package "regeln/  (validation rules, mirrors the backend)" as regeln #D4EDDA {
     [schema.ts (the combined Zod schema)]
+    [regel.ts (the shared rule shape)]
     [prozent.ts, hydrologie.ts, vorfluter.ts]
     [koordinaten.ts, arten.ts, ausruestung.ts]
     [einfluesse.ts, monitoring.ts, schaetzwert.ts]
@@ -231,25 +377,96 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     note bottom of regeln
       **Plain, framework-free functions** (no React, no fetch) - the
       same "logic as pure functions" rule coding-standards.md applies
-      to the backend's own regeln/. Each file here is the CLIENT-SIDE
-      half of a rule the backend also enforces in Pydantic/Python
-      (e.g. "percentages must sum to 100"). Zod = instant feedback
-      only; Pydantic on the backend is the authoritative gate. Being
+      to the backend's own formregeln/. Each file here is the
+      CLIENT-SIDE half of a rule the backend also enforces in
+      Pydantic/Python (e.g. "percentages must sum to 100"), and the
+      two are meant to be read and changed together. Zod = instant
+      feedback only; the backend is the authoritative gate. Being
       plain functions is what makes every *.test.ts beside them
       possible without spinning up a browser.
     end note
   }
 
-  package "absenden/  (the submit action)" as absenden {
+  package "absenden/  (handing the protocol in)" as absenden {
     [useAbsenden.ts]
-    [AbsendeErgebnis.tsx]
-    [AbsendeProbleme.tsx]
+    [AbsendenBlock.tsx, AbsendeErgebnis.tsx]
+    [AbsendeProbleme.tsx, gruppierung.ts]
+    [gemerkt.ts (problems that survive a reload)]
+    [verortung.ts, useErledigte.ts]
+    note bottom of absenden
+      A submit sends NO answers of its own: whatever is stored is what
+      gets handed in, so it first waits for the automatic save to come
+      to rest (useAutoSave's bereitZumAbsenden).
+
+      A refusal lists the fields that stopped it. gemerkt.ts keeps
+      that list in this browser so it survives navigating between
+      sections, gruppierung.ts folds it by section and verortung.ts
+      says which section a given field path lives in - so a problem is
+      shown next to the thing it concerns, with a compact count
+      elsewhere, rather than as one long list at the top of the page.
+    end note
+  }
+
+  package "einlesen/  (reading the legacy PDF in, feature 23a-d)" as einlesen {
+    [useEinlesen.ts]
+    [useEinlesebericht.ts, bericht.ts]
+    [EinleseBanner.tsx, EinleseFehler.tsx]
+    [FehlendeBilder.tsx]
+    note bottom of einlesen
+      Upload a protocol filled in with the old Acrobat form and open
+      it as a DRAFT with the answers already in place. Never as a
+      submission: the legacy form has known validation bugs, so an
+      imported protocol arrives with its problems listed and is
+      checked by exactly the same rules as anything typed in.
+
+      An import is a way to keep filling in the Acrobat form and still
+      file through the app. It is not a migration tool for records
+      already in FiaKa.
+
+      Three different things can be wrong, and the person does
+      something different about each. Rule violations reuse
+      absenden/gemerkt.ts, because they are the same shape a refused
+      submit produces. The other two - an answer that could not be
+      read, and a photograph the file carries that is not in the
+      protocol - have no such home, and bericht.ts is it.
+    end note
+  }
+
+  package "ausgabe/  (handing a protocol back as a PDF, 23e)" as ausgabe {
+    [useHerunterladen.ts]
+    [HerunterladenKnopf.tsx]
+    [dateiname.ts]
+    note bottom of ausgabe
+      The backend builds the document and serves it as a file with a
+      proper name, so every copy looks the same wherever it was saved
+      from. It is **a document of our own, not a copy of the form**:
+      a plain readable file the surveyor saves like a print-out. Reached from both the form's header and the
+      reviewer's screen. Goes through apiDatei() rather than a plain
+      <a href>, so a refused download says why in German beside the
+      button instead of showing a raw JSON error page.
+    end note
+  }
+
+  package "anlagen/  (attachments, feature 3d)" as anlagen {
+    [useAnlagen.ts]
+    [api.ts, abfragen.ts, typen.ts]
+    [regeln.ts (size, type, count)]
+    [altbestand.ts]
+    note bottom of anlagen
+      The blocks in section 7 (abschnitte/teil7/) never apply the
+      rules themselves and never talk to the API; useAnlagen.ts is
+      what they call. Attachments count as part of the protocol, so
+      anything that reports on a protocol has to account for them and
+      not only for the typed answers.
+    end note
   }
 
   package "nurlesen/  (read-only rendering mode)" as nurlesen {
     [kontext.ts]
-    [Feldwert.tsx]
-    [ProtokollNurLesen.tsx]
+    [Feldwert.tsx, wert.ts]
+    [ProtokollNurLesen.tsx, ProtokollAnsicht.tsx]
+    [ArtenNurLesen.tsx, artenzeilen.ts]
+    [AnlagenNurLesen.tsx]
     note bottom of nurlesen
       kontext.ts is a small React Context ("am I in read-only mode?").
       Every Feld* component checks useNurLesen() and, if true, renders
@@ -257,50 +474,84 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       own `if (nurLesen) {...}` branch). One flag, read from Context,
       instead of passing a `readOnly` prop through every layer by hand -
       the same Context-avoids-prop-drilling pattern FormProvider uses.
+
+      This is what lets the reviewer's screen show the whole protocol
+      without a second set of components that could drift from the
+      editable ones.
     end note
   }
-
-  package "anlagen/  (attachment upload rules)" as anlagen {
-    [regeln.ts]
-    [altbestand.ts]
-  }
 }
 
-package "protokoll/pruefung/useUebergang.ts  (reviewer decisions)" as uebergang #D4EDDA {
+package "verwaltung/benutzer/  (user administration, feature 16)" as verwaltung #FDEBD0 {
+  [BenutzerlisteSeite.tsx]
+  [BenutzerTabelle.tsx, BenutzerZeile.tsx]
+  [Suchfeld.tsx, suche.ts, anzeige.ts]
+  [KontoAnlegenSeite.tsx, useKontoAnlegen.ts]
+  [Kontofeld.tsx, Rollenauswahl.tsx, Zugangsdaten.tsx]
+  [eingabe.ts, fehlerfelder.ts]
+  [api.ts, abfragen.ts]
+  [KeineBerechtigung.tsx, LeererZustand.tsx, Ladefehler.tsx]
+  note bottom of verwaltung
+    The second feature area, and the first thing under /verwaltung.
+    There is no sign-up page anywhere in this application: every
+    account is created by a Super Admin here (or, for the very first
+    one, by the backend's own CLI). The password is typed by the
+    administrator setting it; the app never invents one.
+
+    Same shape as protokoll/: a *Seite.tsx container per route, pure
+    functions beside them for anything where a wrong answer is
+    possible (eingabe.ts validates what was typed, fehlerfelder.ts
+    maps a server refusal back onto the field that caused it), and one
+    api.ts that goes through api/client.ts.
+  end note
 }
 
-cloud "FastAPI backend\n(see AUTHENTICATION_EXPLAINED.txt\nand DATA_FLOW_DIAGRAM.puml)" as backend #FDF0E3
+cloud "FastAPI backend\n(see DATA_FLOW_DIAGRAM.puml for what\nhappens the instant a request crosses)" as backend #FDF0E3
 
 ' -------- dependency arrows (who calls / imports whom) --------
 entry --> routes
 routes --> shellpkg
 routes --> authpkg
-shellpkg --> pages
+routes --> verwaltung
+shellpkg --> hookspkg
+shellpkg --> liste
+shellpkg --> pruefliste
+liste --> formcore
+liste --> einlesen
+pruefliste --> pruefung
 authpkg --> client
-pages --> formcore
-pages --> uebergang
+formcore --> PZustand
 formcore --> abschnitte
 formcore --> useAutoSave
 formcore --> absenden
+formcore --> einlesen
+formcore --> ausgabe
+pruefung --> nurlesen
+pruefung --> ausgabe
 abschnitte --> felder
+abschnitte --> anlagen
 felder --> nurlesen
 felder --> regeln
 useAutoSave --> entwurfApi
-useAutoSave --> "sicherung.ts"
+useAutoSave --> sicherung
 entwurfApi --> client
 absenden --> client
-uebergang --> client
+pruefung --> client
 anlagen --> client
+einlesen --> client
+ausgabe --> client
+verwaltung --> client
 client --> backend
 formcore --> i18npkg
 felder --> i18npkg
+verwaltung --> i18npkg
 shellpkg --> themepkg
 
 legend right
   |= Colour |= Meaning |
   | <back:#FFF3CD>   </back> | App wiring / composition root - read these FIRST |
   | <back:#E8F4FD>   </back> | Cross-cutting concerns, used by nearly everything |
-  | <back:#FDEBD0>   </back> | The one big feature: the protocol form |
+  | <back:#FDEBD0>   </back> | Feature areas: the protocol form, and administration |
   | <back:#D4EDDA>   </back> | Reusable building blocks / pure logic (heavily tested) |
   | <back:#FDF0E3>   </back> | Outside the frontend entirely |
 endlegend
