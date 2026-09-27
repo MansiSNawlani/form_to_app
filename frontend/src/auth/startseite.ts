@@ -38,6 +38,20 @@ export const BENUTZERVERWALTUNG = '/verwaltung/benutzer'
  */
 export const BENUTZER_NEU = '/verwaltung/benutzer/neu'
 
+/* One account's own page, feature 16d.
+ *
+ * A function rather than a constant, because this address carries an id. The id
+ * and not the email, which feature 16a decided for the API and which holds here
+ * for the same reason: the address is the very thing this screen can change, so a
+ * URL built out of it would stop working the moment somebody used the screen.
+ *
+ * '/neu' above can never collide with it. A uuid is not the word "neu", and React
+ * Router matches the literal path before the parameter either way.
+ */
+export function benutzerPfad(id: string): string {
+  return `${BENUTZERVERWALTUNG}/${id}`
+}
+
 /* The three accounts whose job is other people's protocols, the same three
  * FFS_ROLLEN in backend/app/protokolle/dienst.py names and the same three the
  * Pruefliste endpoint admits.

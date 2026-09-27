@@ -49,9 +49,9 @@ function Zugangsdaten({ email, passwort, onWeiteres }: ZugangsdatenProps) {
           sentence: a screen reader announces the label with the value, and the
           pair can be selected and copied as it stands. */}
       <dl className="konto-anlegen__zugangsdaten">
-        <dt>{t('benutzerverwaltung.anlegen.email')}</dt>
+        <dt>{t('benutzerverwaltung.felder.email')}</dt>
         <dd>{email}</dd>
-        <dt>{t('benutzerverwaltung.anlegen.passwort')}</dt>
+        <dt>{t('benutzerverwaltung.felder.passwort')}</dt>
         {/* The password is shown, not masked. Masking it here would defeat the
             only purpose this panel has, which is that it gets read out. */}
         <dd className="konto-anlegen__passwort">{passwort}</dd>

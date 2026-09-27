@@ -9,6 +9,11 @@ interface LadefehlerProps {
   fehler: unknown
   laeuft: boolean
   onErneut: () => void
+  /* What could not be loaded. Defaults to the list, which is what this was built
+     for; feature 16d's page passes its own, because "Die Konten konnten nicht
+     geladen werden" over a single account would be telling the reader about
+     something they did not ask for. */
+  titel?: string
 }
 
 /* The account list could not be fetched.
@@ -21,13 +26,13 @@ interface LadefehlerProps {
  * A refusal for the wrong role never arrives here. That is KeineBerechtigung's,
  * because it is settled rather than worth retrying.
  */
-function Ladefehler({ fehler, laeuft, onErneut }: LadefehlerProps) {
+function Ladefehler({ fehler, laeuft, onErneut, titel }: LadefehlerProps) {
   const { t } = useTranslation()
   const fehlertext = useFehlertext(fehler)
 
   return (
     <Alert severity="error">
-      <AlertTitle>{t('benutzerverwaltung.ladefehler.titel')}</AlertTitle>
+      <AlertTitle>{titel ?? t('benutzerverwaltung.ladefehler.titel')}</AlertTitle>
       <Typography variant="body2" className="hinweis__text">
         {fehlertext ?? t('benutzerverwaltung.ladefehler.text')}
       </Typography>

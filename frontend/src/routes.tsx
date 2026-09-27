@@ -9,6 +9,7 @@ import ProtokollSeite from './protokoll/ProtokollSeite'
 import PruefungsSeite from './protokoll/pruefung/PruefungsSeite'
 import BenutzerlisteSeite from './verwaltung/benutzer/BenutzerlisteSeite'
 import KontoAnlegenSeite from './verwaltung/benutzer/KontoAnlegenSeite'
+import KontoAendernSeite from './verwaltung/benutzer/KontoAendernSeite'
 import { abschnittPfad } from './protokoll/abschnitte'
 import { NEU } from './protokoll/entwurf/neu'
 
@@ -91,6 +92,18 @@ export const router = createBrowserRouter([
            * address for making one of a thing sits under the address that lists
            * them. */
           { path: 'verwaltung/benutzer/neu', element: <KontoAnlegenSeite /> },
+          /* Changing one, feature 16d.
+           *
+           * No role requirement, for the same reason as the two above it. The
+           * endpoints behind this page admit SUPER_ADMIN and nobody else, and the
+           * page turns each refusal into words with a way onward.
+           *
+           * The id rather than the address in the path, because the address is the
+           * very thing this screen can change. It sits after the literal 'neu'
+           * above, and the two can never be confused: a uuid is not the word
+           * "neu", and React Router matches a literal segment before a parameter
+           * in any case. */
+          { path: 'verwaltung/benutzer/:id', element: <KontoAendernSeite /> },
           { path: '*', element: <NotFound /> },
         ],
       },

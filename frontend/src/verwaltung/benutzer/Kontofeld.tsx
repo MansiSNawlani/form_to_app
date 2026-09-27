@@ -6,10 +6,9 @@ import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import type { ParseKeys } from 'i18next'
 import { useState } from 'react'
-import type { UseFormRegister } from 'react-hook-form'
+import type { FieldValues, Path, UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { feldAria, fehlerId, hinweisId } from '../../protokoll/felder/rahmen'
-import type { Kontoformular } from './eingabe'
 
 /* One typed field of the new-account form, so the accessibility wiring is written
  * once rather than twice.
@@ -22,20 +21,30 @@ import type { Kontoformular } from './eingabe'
  *
  * FeldRahmen itself is not reused. It is typed to a path into the answers
  * document, and an account is not a protocol.
+ *
+ * **Generic over the form it belongs to**, widened in feature 16d. There are now
+ * three: the create form, the edit form, which is the same form without the
+ * password, and the new-password form, which is the password on its own. Copying
+ * this component per form is exactly the drift it was extracted to prevent, and
+ * the field name is the only thing that differs between the three.
+ *
+ * The name is also the control's id, so two of these on one page must not be given
+ * the same name. On the edit screen they are 'email' and 'passwort', in two
+ * separate forms, which is why the ids do not collide.
  */
 
-interface KontofeldProps {
-  name: 'email' | 'passwort'
+interface KontofeldProps<T extends FieldValues> {
+  name: Path<T>
   labelKey: ParseKeys
   hinweisKey?: ParseKeys
   autoComplete: string
   autoFocus?: boolean
-  register: UseFormRegister<Kontoformular>
+  register: UseFormRegister<T>
   /** A key from the browser's own rules, already looked up by the caller. */
   meldung?: string
 }
 
-function Kontofeld({
+function Kontofeld<T extends FieldValues>({
   name,
   labelKey,
   hinweisKey,
@@ -43,7 +52,7 @@ function Kontofeld({
   autoFocus,
   register,
   meldung,
-}: KontofeldProps) {
+}: KontofeldProps<T>) {
   const { t } = useTranslation()
 
   /* Masked to begin with, because somebody may well be standing behind the
@@ -98,8 +107,8 @@ function Kontofeld({
               >
                 {t(
                   sichtbar
-                    ? 'benutzerverwaltung.anlegen.passwortVerbergen'
-                    : 'benutzerverwaltung.anlegen.passwortAnzeigen',
+                    ? 'benutzerverwaltung.felder.passwortVerbergen'
+                    : 'benutzerverwaltung.felder.passwortAnzeigen',
                 )}
               </Button>
             </InputAdornment>

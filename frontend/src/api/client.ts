@@ -21,7 +21,10 @@ export interface AnfrageOptionen {
   /* PUT and DELETE arrived with feature 3b. A protocol is saved by replacing its
      whole answers document rather than merging into it, which is a PUT, and a
      draft can be thrown away, which is a DELETE. */
-  methode?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  /* PATCH arrived with feature 16d, which is the first screen that changes part
+     of something rather than replacing it: an account is edited one field at a
+     time, and a field the form was not told about is left alone. */
+  methode?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   /* Serialised as JSON, unless it is a FormData, which goes as it is. Leave it
      out for a request with no body.
 

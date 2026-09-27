@@ -41,6 +41,11 @@ function BenutzerTabelle({
             <TableCell>{t('benutzerverwaltung.tabelle.regierungspraesidium')}</TableCell>
             <TableCell>{t('benutzerverwaltung.tabelle.status')}</TableCell>
             <TableCell>{t('benutzerverwaltung.tabelle.angelegt')}</TableCell>
+            {/* Named rather than left empty, so the table still has one heading
+                per column and a screen reader announcing a cell by its column
+                says something. The word is "Aktion" and not a repeat of the
+                button's own label, which would be read out twice per row. */}
+            <TableCell>{t('benutzerverwaltung.tabelle.aktion')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

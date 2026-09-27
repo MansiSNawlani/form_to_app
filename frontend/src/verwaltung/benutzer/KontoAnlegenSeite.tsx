@@ -141,7 +141,7 @@ function KontoAnlegenSeite() {
   /* The browser's own message first, because it is the one that can appear without
      a round trip; the server's only when it has something else to say. */
   const regionMeldung = zeigeFehlendeRegion
-    ? t('benutzerverwaltung.anlegen.fehlt.regierungspraesidium')
+    ? t('benutzerverwaltung.felder.fehlt.regierungspraesidium')
     : serverMeldung('regierungspraesidium')
 
   /* A refusal about the caller rather than about anything typed. Not an error to
@@ -216,8 +216,8 @@ function KontoAnlegenSeite() {
         >
           <Kontofeld
             name="email"
-            labelKey="benutzerverwaltung.anlegen.email"
-            hinweisKey="benutzerverwaltung.anlegen.emailHinweis"
+            labelKey="benutzerverwaltung.felder.email"
+            hinweisKey="benutzerverwaltung.felder.emailHinweis"
             autoComplete="off"
             autoFocus
             register={register}
@@ -226,8 +226,8 @@ function KontoAnlegenSeite() {
 
           <Kontofeld
             name="passwort"
-            labelKey="benutzerverwaltung.anlegen.passwort"
-            hinweisKey="benutzerverwaltung.anlegen.passwortHinweis"
+            labelKey="benutzerverwaltung.felder.passwort"
+            hinweisKey="benutzerverwaltung.felder.passwortHinweis"
             /* new-password, so a password manager offers to store this one rather
                than filling in the administrator's own. */
             autoComplete="new-password"
@@ -265,7 +265,7 @@ function KontoAnlegenSeite() {
               required
             >
               <FormLabel id={labelId('regierungspraesidium')} htmlFor="regierungspraesidium">
-                {t('benutzerverwaltung.anlegen.regierungspraesidium')}
+                {t('benutzerverwaltung.felder.regierungspraesidium')}
               </FormLabel>
               <Controller
                 name="regierungspraesidium"
@@ -309,7 +309,7 @@ function KontoAnlegenSeite() {
 
           <FormControl className="konto-anlegen__feld">
             <FormLabel id={labelId('locale')} htmlFor="locale">
-              {t('benutzerverwaltung.anlegen.sprache')}
+              {t('benutzerverwaltung.felder.sprache')}
             </FormLabel>
             <Controller
               name="locale"
@@ -330,7 +330,7 @@ function KontoAnlegenSeite() {
                 >
                   {SUPPORTED_LOCALES.map((sprache) => (
                     <MenuItem key={sprache} value={sprache}>
-                      {t(`benutzerverwaltung.anlegen.sprachen.${sprache}` satisfies ParseKeys)}
+                      {t(`benutzerverwaltung.felder.sprachen.${sprache}` satisfies ParseKeys)}
                     </MenuItem>
                   ))}
                 </Select>
