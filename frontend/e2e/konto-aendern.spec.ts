@@ -49,6 +49,16 @@ async function legeKontoAn(page: Page, rolle = 'Einreicher'): Promise<string> {
   await page.getByLabel('E-Mail-Adresse').fill(email)
   await page.getByLabel('Passwort', { exact: true }).fill(PASSWORT)
   await page.getByRole('checkbox', { name: rolle, exact: true }).check()
+
+  /* The coupling, on the screen that creates accounts: a regional role with no
+     number is refused, so an account cannot be born in that state. This is why
+     the edit test below starts from an account that already carries a region,
+     which is the case a create form cannot produce and this feature can. */
+  if (rolle === 'Regierungspräsidium') {
+    await page.getByRole('combobox', { name: 'Regierungspräsidium' }).click()
+    await page.getByRole('option', { name: 'Regierungspräsidium Karlsruhe' }).click()
+  }
+
   await page.getByRole('button', { name: 'Konto anlegen' }).click()
   await expect(page.getByRole('status')).toContainText(email)
 
@@ -81,8 +91,11 @@ test.describe('Ein Konto aendern', () => {
     /* And the list agrees without a reload, which is what the cache invalidation
        in useKontoAendern is for. */
     await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
-    await expect(page.getByRole('cell', { name: neu })).toBeVisible()
-    await expect(page.getByRole('cell', { name: alt })).toBeHidden()
+    /* exact, because the row's action cell carries the address in its accessible
+       name as well ("Konto x@y.de aendern"), which is the whole point of that
+       label: twenty buttons all announcing "Aendern" name nothing. */
+    await expect(page.getByRole('cell', { name: neu, exact: true })).toBeVisible()
+    await expect(page.getByRole('cell', { name: alt, exact: true })).toBeHidden()
 
     /* The address is the login identifier, so the change has to have reached the
        thing that actually signs people in. A fresh context, because the first one
@@ -129,11 +142,10 @@ test.describe('Ein Konto aendern', () => {
     const email = await legeKontoAn(page, 'Regierungspräsidium')
     await oeffne(page, email)
 
-    /* The account was created without a region, because 16c's form only asks for
-       one once the role is ticked and this account got the role at creation. The
-       field is therefore drawn and empty. */
+    /* The account was created as Karlsruhe, so this is the case a create form
+       cannot reach: a region that is already set and is being changed. */
     const feld = page.getByRole('combobox', { name: 'Regierungspräsidium' })
-    await expect(feld).toBeVisible()
+    await expect(feld).toHaveText('Regierungspräsidium Karlsruhe')
 
     await feld.click()
     await page.getByRole('option', { name: 'Regierungspräsidium Freiburg' }).click()
@@ -148,6 +160,12 @@ test.describe('Ein Konto aendern', () => {
        than tidying it up. Before kontoAenderung did this, the save came back
        refused. */
     await oeffne(page, email)
+    /* Another role first. An account must hold at least one, so unticking the only
+       one it has is refused before any request is made, which is the app being
+       right and this test being wrong the first time it was written. Ticking
+       Einreicher in the same save also makes this the case that matters: the roles
+       and the region change together, in one request. */
+    await page.getByRole('checkbox', { name: 'Einreicher', exact: true }).check()
     await page.getByRole('checkbox', { name: 'Regierungspräsidium' }).uncheck()
     await expect(feld).toBeHidden()
     await page.getByRole('button', { name: 'Änderungen speichern' }).click()
@@ -166,12 +184,22 @@ test.describe('Ein Konto aendern', () => {
        open has only the address to tell them apart. Cancelling changes nothing. */
     await page.getByRole('button', { name: 'Konto sperren', exact: true }).click()
     const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
     await expect(dialog).toContainText(email)
     await dialog.getByRole('button', { name: 'Abbrechen' }).click()
+    /* Gone, not merely closing. MUI animates the dialog out, so reopening while
+       the old one is still in the DOM gives the next locator a node that detaches
+       under it. */
+    await expect(dialog).toBeHidden()
     await expect(page.getByText(/ist aktiv/)).toBeVisible()
 
     await page.getByRole('button', { name: 'Konto sperren', exact: true }).click()
-    await page.getByRole('dialog').getByRole('button', { name: 'Konto sperren' }).click()
+    /* Waited for rather than clicked straight away: MUI's Dialog animates in, and
+       a click that lands mid-transition is retried against an element that has
+       already been detached. */
+    const zweiteFrage = page.getByRole('dialog')
+    await expect(zweiteFrage).toBeVisible()
+    await zweiteFrage.getByRole('button', { name: 'Konto sperren' }).click()
     await expect(page.getByText(/ist gesperrt/)).toBeVisible()
 
     /* A lock takes effect at once, because aktueller_benutzer loads the account

@@ -200,6 +200,9 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
           labelKey="benutzerverwaltung.felder.email"
           hinweisKey="benutzerverwaltung.felder.emailHinweis"
           autoComplete="off"
+          /* The only text field on this form, where the create form has two. The
+             grid would otherwise leave the half-row beside it empty. */
+          breit
           register={register}
           meldung={meldung(errors.email?.message) ?? serverMeldung('email')}
         />

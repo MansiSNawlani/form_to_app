@@ -42,6 +42,10 @@ interface KontofeldProps<T extends FieldValues> {
   register: UseFormRegister<T>
   /** A key from the browser's own rules, already looked up by the caller. */
   meldung?: string
+  /* Span both columns of the form's grid. The create form has two text fields
+     side by side and needs this nowhere; the edit form has one, and without it
+     the address sits in the left half with the right half empty. */
+  breit?: boolean
 }
 
 function Kontofeld<T extends FieldValues>({
@@ -52,6 +56,7 @@ function Kontofeld<T extends FieldValues>({
   autoFocus,
   register,
   meldung,
+  breit = false,
 }: KontofeldProps<T>) {
   const { t } = useTranslation()
 
@@ -64,7 +69,10 @@ function Kontofeld<T extends FieldValues>({
   const istPasswort = name === 'passwort'
 
   return (
-    <FormControl error={Boolean(meldung)} className="konto-anlegen__feld">
+    <FormControl
+      error={Boolean(meldung)}
+      className={breit ? 'konto-anlegen__feld konto-anlegen__feld--breit' : 'konto-anlegen__feld'}
+    >
       {/* FormLabel inside a FormControl, never InputLabel and its border notch:
           the label sits above the field on this project. */}
       <FormLabel htmlFor={name}>{t(labelKey)}</FormLabel>

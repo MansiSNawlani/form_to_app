@@ -1,8 +1,8 @@
 # Feature: Ein Konto aendern
 
 **From build-plan:** feature 16d
-**Status:** built. Unit tests, lint and build green. The Playwright spec is written
-and parses, but has not been run here: E2E_PASSWORT is not set in this environment.
+**Status:** built and proved. Unit tests, lint, build and the full Playwright suite all
+green (55 passed, 1 pre-existing skip), with screenshots taken in both themes.
 
 ## Goal
 
@@ -387,7 +387,7 @@ big, so split it.
       field before any request is made. Leaving the page loses the password rather than
       showing it again, and the field is empty when the page is returned to.
 
-- [ ] **Step 8 - Browser evidence** - `e2e/konto-aendern.spec.ts` beside the existing
+- [x] **Step 8 - Browser evidence** - `e2e/konto-aendern.spec.ts` beside the existing
       specs, using `e2e/konten.ts` and its skip-with-a-sentence arrangement, plus
       screenshots in light and dark.
       *Done when:* `npm run e2e` passes with the accounts configured and skips with the
