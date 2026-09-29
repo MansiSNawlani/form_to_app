@@ -33,8 +33,8 @@ import { ROLLEN, type Rolle } from '../../api/typen'
  * prevent rather than let them discover when that person cannot sign in.
  */
 const HINWEISE: Partial<Record<Rolle, ParseKeys>> = {
-  REGIERUNGSPRAESIDIUM: 'benutzerverwaltung.anlegen.rollenHinweis.REGIERUNGSPRAESIDIUM',
-  INTEGRATION: 'benutzerverwaltung.anlegen.rollenHinweis.INTEGRATION',
+  REGIERUNGSPRAESIDIUM: 'benutzerverwaltung.felder.rollenHinweis.REGIERUNGSPRAESIDIUM',
+  INTEGRATION: 'benutzerverwaltung.felder.rollenHinweis.INTEGRATION',
 }
 
 interface RollenauswahlProps {
@@ -65,7 +65,7 @@ function Rollenauswahl({ gewaehlt, onAendern, meldung }: RollenauswahlProps) {
       className="konto-anlegen__rollen"
       aria-describedby={meldung ? 'rollen-fehler' : undefined}
     >
-      <FormLabel component="legend">{t('benutzerverwaltung.anlegen.rollen')}</FormLabel>
+      <FormLabel component="legend">{t('benutzerverwaltung.felder.rollen')}</FormLabel>
 
       <FormGroup>
         {ROLLEN.map((rolle) => {

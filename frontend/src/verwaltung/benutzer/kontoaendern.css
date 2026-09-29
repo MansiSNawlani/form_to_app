@@ -1,0 +1,63 @@
+/* Only what the create screen's stylesheet does not already give.
+
+   kontoanlegen.css carries the form itself: the inset inside the card, the two
+   column grid, the field stacks, the role group and the button row. This screen
+   reuses all of it rather than restating it, because the two forms are the same
+   form with one field taken away. What is here is the part 16c had no need of:
+   three cards on one page instead of one. */
+
+/* The gap between the cards. .card is a background, a border and a radius and
+   nothing else on this project, so neither the spacing between two of them nor
+   the inset inside one comes for free. */
+.konto-aendern {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Each card says what it is for before it says what it does. Without a heading
+   the lock button and the password field would read as two more answers on one
+   long form, which is exactly the reading this screen is shaped to prevent.
+
+   The inset matches the form below it and stops short of the bottom, so the
+   heading sits with its own card rather than floating between two. */
+.konto-aendern__kopf {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.konto-aendern__kopf h2 {
+  margin: 0 0 0.25rem;
+}
+
+.konto-aendern__einleitung,
+/* What is said in place of a button, on your own account. Same treatment as a
+   card's opening sentence, because it is one: a statement about this screen
+   rather than a value the account holds. */
+.konto-aendern__selbst {
+  margin: 0;
+  color: var(--muted);
+  /* Real sentences, held to a comfortable measure. A line of prose the full
+     width of a desktop card is hard to read back. */
+  max-width: 52rem;
+}
+
+/* The two cards that are not the form. They take the same inset as
+   .konto-anlegen__inhalt, so the three cards line up down the page, but they are
+   a column of prose and buttons rather than a field grid. */
+.konto-aendern__abschnitt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+/* The current state in words, above the button that changes it. The colour never
+   carries the meaning on its own: the word is printed either way. */
+.konto-aendern__status {
+  margin: 0;
+}
+
+.konto-aendern__status strong {
+  color: var(--text);
+}

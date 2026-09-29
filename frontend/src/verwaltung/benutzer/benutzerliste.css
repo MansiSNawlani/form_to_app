@@ -31,8 +31,8 @@
   font-style: italic;
 }
 
-/* The search box and its count, side by side on a wide screen and stacked on a
-   narrow one. The count sits at the baseline of the field rather than under its
+/* The two filters and their count, side by side on a wide screen and stacked on a
+   narrow one. The count sits at the baseline of the fields rather than under a
    label, so it reads as a statement about the table below.
 
    The padding and the rule under it are the review queue's .filters, because
@@ -41,7 +41,7 @@
    off, the label sits hard against the top and left edges of the card while the
    table below it is properly inset, which is what this looked like when it was
    first built. */
-.benutzer__suche {
+.benutzer__filter {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -50,8 +50,16 @@
   border-bottom: 1px solid var(--border);
 }
 
-.benutzer__suche .MuiFormControl-root {
+/* The address box takes what room there is; the status filter needs only enough
+   for its longest option. Sized apart rather than together, so a narrow screen
+   drops the search box to its own line while the status stays beside it. */
+.benutzer__suchfeld {
   min-width: min(22rem, 100%);
+  flex: 1 1 22rem;
+}
+
+.benutzer__status {
+  min-width: min(12rem, 100%);
 }
 
 .benutzer__treffer {

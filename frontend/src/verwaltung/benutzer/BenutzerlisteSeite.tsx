@@ -12,8 +12,10 @@ import BenutzerTabelle from './BenutzerTabelle'
 import KeineBerechtigung from './KeineBerechtigung'
 import Ladefehler from './Ladefehler'
 import LeererZustand from './LeererZustand'
-import { gefilterteKonten } from './suche'
+import Statusfilter from './Statusfilter'
+import { gefilterteKonten, type Kontostatus } from './suche'
 import Suchfeld from './Suchfeld'
+import Trefferzahl from './Trefferzahl'
 /* The page furniture is Meine Protokolle's and the review queue's: page__head,
    card and the shared list table. Imported explicitly rather than relying on
    another route having been loaded first, which is the reason AnmeldungSeite
@@ -44,12 +46,19 @@ function BenutzerlisteSeite() {
   const sitzung = useSitzung()
   const { data: konten, isPending, error, refetch, isFetching } = useQuery(benutzerAbfrage())
 
-  /* The one piece of state on this screen, and it is the whole of it. Nothing is
+  /* The whole of this screen's state, and it stays in the component. Nothing is
      fetched per keystroke and there is no pager, so there is nothing for the
-     address bar to carry. */
+     address bar to carry. Deliberately unlike the review queue, whose filters live
+     in the URL because a filtered queue is worth sharing as a link and because
+     feature 12d has to rebuild the list from an address alone. Neither holds
+     here. */
   const [suche, setSuche] = useState('')
+  const [status, setStatus] = useState<Kontostatus>('alle')
 
-  const sichtbar = useMemo(() => gefilterteKonten(konten ?? [], suche), [konten, suche])
+  const sichtbar = useMemo(
+    () => gefilterteKonten(konten ?? [], suche, status),
+    [konten, suche, status],
+  )
 
   /* A refusal about the caller rather than about the request. Not an error to
      retry, so it replaces the page rather than sitting above an empty table. */
@@ -57,10 +66,20 @@ function BenutzerlisteSeite() {
     return <KeineBerechtigung />
   }
 
-  /* Something was typed, whether or not it narrowed anything. What decides which
-     of the two empty states is right, so it is taken from the same trimmed term
-     the filter uses rather than from the raw box. */
-  const gesucht = suche.trim() !== ''
+  /* Something is narrowing the list, whether or not it narrowed anything away.
+     What decides which of the two empty states is right, and what the count says.
+
+     Taken from the same trimmed term the filter uses rather than from the raw box,
+     so a boxful of spaces is not reported as a search. */
+  const gefiltert = suche.trim() !== '' || status !== 'alle'
+
+  /* Both at once, because the button offering it says so. Clearing only the term
+     while a status filter still hid every row would look like the button had not
+     worked. */
+  const zuruecksetzen = () => {
+    setSuche('')
+    setStatus('alle')
+  }
 
   return (
     <>
@@ -101,19 +120,29 @@ function BenutzerlisteSeite() {
           </div>
         )}
 
-        {/* The box is drawn as soon as the list is in hand, including when the
-            search has narrowed it to nothing: it is the only way to undo that. */}
+        {/* The filters are drawn as soon as the list is in hand, including when
+            they have narrowed it to nothing: they are the only way to undo that.
+
+            Side by side rather than stacked, because they narrow the same list and
+            are read together, and the count speaks for both of them rather than
+            for either one. */}
         {konten !== undefined && konten.length > 0 && (
-          <Suchfeld
-            suche={suche}
-            onSuche={setSuche}
-            angezeigt={sichtbar.length}
-            gesamt={konten.length}
-          />
+          <div className="benutzer__filter">
+            <Suchfeld suche={suche} onSuche={setSuche} />
+            {/* An account is never deleted here, only locked, so the locked ones
+                accumulate for as long as the installation runs and "which of these
+                can actually sign in" becomes a real question. */}
+            <Statusfilter status={status} onStatus={setStatus} />
+            <Trefferzahl
+              angezeigt={sichtbar.length}
+              gesamt={konten.length}
+              gefiltert={gefiltert}
+            />
+          </div>
         )}
 
         {konten !== undefined && sichtbar.length === 0 && (
-          <LeererZustand gesucht={gesucht} onZuruecksetzen={() => setSuche('')} />
+          <LeererZustand gefiltert={gefiltert} onZuruecksetzen={zuruecksetzen} />
         )}
 
         {sichtbar.length > 0 && (

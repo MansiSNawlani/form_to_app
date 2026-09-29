@@ -63,7 +63,10 @@ test.describe('Ein Konto anlegen', () => {
     /* The list shows it without a reload, which is what the cache invalidation in
        useKontoAnlegen is for. */
     await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
-    await expect(page.getByRole('cell', { name: email })).toBeVisible()
+    /* exact, since feature 16d gave each row an action whose accessible name also
+       carries the address ("Konto x@y.de aendern"), so a loose match finds two
+       cells in the same row. */
+    await expect(page.getByRole('cell', { name: email, exact: true })).toBeVisible()
   })
 
   test('das neue Konto kann sich anmelden', async ({ page, browser }) => {

@@ -79,6 +79,19 @@ export const PROTOKOLL_UNVOLLSTAENDIG = 'PROTOKOLL_UNVOLLSTAENDIG'
  */
 export const UEBERGANG_NICHT_MOEGLICH = 'UEBERGANG_NICHT_MOEGLICH'
 
+/* No account with that id, added in feature 16d.
+ *
+ * Branched on because the way out of it is a link to the list rather than a retry:
+ * an id that names no account will name none however many times it is asked for.
+ *
+ * Unlike PROTOKOLL_NICHT_GEFUNDEN this really does mean "there is no such row".
+ * The backend can afford to say so because every route that raises it is behind
+ * SUPER_ADMIN, which is the argument written at the top of app/api/fehler_http.py:
+ * to an unauthenticated caller a 404 would be a way of finding out which addresses
+ * hold an account here.
+ */
+export const KONTO_NICHT_GEFUNDEN = 'KONTO_NICHT_GEFUNDEN'
+
 /* A rejection or a change request arrived without a reason.
  *
  * The one refusal in the workflow a reviewer puts right by typing, so the screen

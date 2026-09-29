@@ -31,7 +31,11 @@
      twice the height of the other. */
   .konto-anlegen__rollen,
   .konto-anlegen__meldung,
-  .konto-anlegen__aktionen {
+  .konto-anlegen__aktionen,
+  /* And any field asked to take the row. The edit form has one text field where
+     this one has two, so its address would otherwise sit in the left half with
+     nothing beside it. */
+  .konto-anlegen__feld--breit {
     grid-column: 1 / -1;
   }
 }

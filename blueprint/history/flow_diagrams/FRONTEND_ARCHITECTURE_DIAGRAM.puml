@@ -53,6 +53,13 @@ package "routes.tsx  (route table)" as routes #FFF3CD {
     This nesting is the "layout route" pattern: a parent route renders
     shared chrome (or, for the guard, a redirect-or-nothing decision)
     and an <Outlet/> where the matched child route appears.
+
+    Paths are German, the same rule the rest of the domain follows:
+    /protokolle/:id, /pruefung, /verwaltung/benutzer/:id. Note what
+    the guard does NOT do: no route anywhere in this table carries a
+    role requirement. Who may read or write what is the server's
+    single answer, and every page turns a refusal into words.
+    Hiding a route is not a permission.
   end note
 }
 
@@ -269,12 +276,61 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
 package "protokoll/pruefung/useUebergang.ts  (reviewer decisions)" as uebergang #D4EDDA {
 }
 
+package "verwaltung/benutzer/  (the second feature: account administration)" as verwpkg #FDEBD0 {
+  [BenutzerlisteSeite.tsx]
+  [KontoAnlegenSeite.tsx]
+  [KontoAendernSeite.tsx]
+
+  package "the three cards of one account" as karten {
+    [Angabenkarte.tsx]
+    [Zugangskarte.tsx]
+    [Passwortkarte.tsx]
+  }
+
+  package "plain logic, no React  (heavily tested)" as verwlogik #D4EDDA {
+    [eingabe.ts]
+    [aendern.ts]
+    [anzeige.ts]
+    [suche.ts]
+    [fehlerfelder.ts]
+  }
+
+  [api.ts + abfragen.ts] as verwapi
+  [useKontoAnlegen.ts + useKontoAendern.ts] as verwhooks
+
+  note bottom of verwpkg
+    The only feature area outside protokoll/, and it is shaped the
+    same way on purpose: a "*Seite.tsx" per route, presentational
+    pieces below it, the rules as plain functions with no React in
+    them, and exactly one api.ts that knows the endpoints.
+
+    Three routes: /verwaltung/benutzer (the list),
+    .../neu (create one), .../:id (change one). **None of the three
+    carries a role check.** The endpoints admit SUPER_ADMIN and
+    nobody else, and each page turns that refusal into words; a
+    second opinion in the browser could only ever be the wrong one.
+
+    aendern.ts is where the interesting rules live: which fields
+    actually changed (only those are sent, because an account has no
+    version column), that dropping the Regierungspraesidium role must
+    clear its number in the same request, and that nobody may take
+    their own SUPER_ADMIN away.
+  end note
+}
+
 cloud "FastAPI backend\n(see AUTHENTICATION_EXPLAINED.txt\nand DATA_FLOW_DIAGRAM.puml)" as backend #FDF0E3
 
 ' -------- dependency arrows (who calls / imports whom) --------
 entry --> routes
 routes --> shellpkg
 routes --> authpkg
+routes --> verwpkg
+verwpkg --> karten
+verwpkg --> verwlogik
+verwpkg --> verwhooks
+verwhooks --> verwapi
+verwapi --> client
+verwpkg --> i18npkg
 shellpkg --> pages
 authpkg --> client
 pages --> formcore
@@ -300,7 +356,7 @@ legend right
   |= Colour |= Meaning |
   | <back:#FFF3CD>   </back> | App wiring / composition root - read these FIRST |
   | <back:#E8F4FD>   </back> | Cross-cutting concerns, used by nearly everything |
-  | <back:#FDEBD0>   </back> | The one big feature: the protocol form |
+  | <back:#FDEBD0>   </back> | A feature area: the protocol form, and account administration |
   | <back:#D4EDDA>   </back> | Reusable building blocks / pure logic (heavily tested) |
   | <back:#FDF0E3>   </back> | Outside the frontend entirely |
 endlegend

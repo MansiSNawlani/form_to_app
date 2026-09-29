@@ -43,21 +43,21 @@ export const kontoSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, { message: 'benutzerverwaltung.anlegen.fehlt.email' satisfies ParseKeys })
+    .min(1, { message: 'benutzerverwaltung.felder.fehlt.email' satisfies ParseKeys })
     .refine(siehtWieEineAdresseAus, {
-      message: 'benutzerverwaltung.anlegen.fehlt.emailForm' satisfies ParseKeys,
+      message: 'benutzerverwaltung.felder.fehlt.emailForm' satisfies ParseKeys,
     }),
 
   /* Not trimmed, and not by oversight. A space is a legal character in a password
      and the backend stores what it is given, so trimming here would create an
      account whose password is not the one the administrator typed and read out. */
   passwort: z.string().min(PASSWORT_MINDESTLAENGE, {
-    message: 'benutzerverwaltung.anlegen.fehlt.passwort' satisfies ParseKeys,
+    message: 'benutzerverwaltung.felder.fehlt.passwort' satisfies ParseKeys,
   }),
 
   rollen: z
     .array(z.enum(ROLLEN))
-    .min(1, { message: 'benutzerverwaltung.anlegen.fehlt.rollen' satisfies ParseKeys }),
+    .min(1, { message: 'benutzerverwaltung.felder.fehlt.rollen' satisfies ParseKeys }),
 
   /* The empty string is "nothing chosen", which is what a MUI Select holds before
      anybody touches it. Whether that is allowed depends on the roles, so the rule

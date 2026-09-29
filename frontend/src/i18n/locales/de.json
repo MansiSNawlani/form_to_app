@@ -141,7 +141,8 @@
       "rollen": "Rollen",
       "regierungspraesidium": "Regierungspräsidium",
       "status": "Status",
-      "angelegt": "Angelegt"
+      "angelegt": "Angelegt",
+      "aktion": "Aktion"
     },
     "status": {
       "aktiv": "Aktiv",
@@ -155,7 +156,7 @@
       "platzhalter": "Name oder Domain",
       "treffer_one": "{{count}} von {{gesamt}} Konto wird angezeigt",
       "treffer_other": "{{count}} von {{gesamt}} Konten werden angezeigt",
-      "zuruecksetzen": "Suche zurücksetzen"
+      "zuruecksetzen": "Suche und Filter zurücksetzen"
     },
     "laedt": "Konten werden geladen.",
     "keineBerechtigung": {
@@ -169,17 +170,14 @@
       "erneut": "Erneut versuchen"
     },
     "keineTreffer": {
-      "titel": "Kein Konto passt zu Ihrer Suche",
-      "text": "Keine E-Mail-Adresse enthält, wonach Sie gesucht haben. Prüfen Sie die Schreibweise, oder setzen Sie die Suche zurück."
+      "titel": "Kein Konto passt zu Ihrer Auswahl",
+      "text": "Zu dieser Suche und diesem Status gibt es kein Konto. Prüfen Sie die Schreibweise, wählen Sie beim Status \"Alle\", oder setzen Sie beides zurück."
     },
     "leer": {
       "titel": "Keine Konten vorhanden",
       "text": "Diese Anwendung hat noch keine Konten. Legen Sie mit \"Neues Konto\" das erste an."
     },
-    "anlegen": {
-      "knopf": "Neues Konto",
-      "titel": "Neues Konto anlegen",
-      "untertitel": "Das Konto kann sich anmelden, sobald Sie es angelegt haben.",
+    "felder": {
       "email": "E-Mail-Adresse",
       "emailHinweis": "Damit meldet sich das Konto an. Groß- und Kleinschreibung spielt keine Rolle.",
       "passwort": "Passwort",
@@ -197,16 +195,21 @@
         "de": "Deutsch",
         "en": "Englisch"
       },
-      "absenden": "Konto anlegen",
-      "laeuft": "Wird angelegt",
-      "abbrechen": "Abbrechen",
       "fehlt": {
         "email": "Bitte eine E-Mail-Adresse eingeben. Mit ihr meldet sich das Konto an.",
         "emailForm": "Diese Adresse hat kein @ oder enthält ein Leerzeichen. Bitte die Schreibweise prüfen, zum Beispiel name@behoerde.de.",
         "passwort": "Das Passwort braucht mindestens 12 Zeichen. Bitte ein längeres wählen.",
         "rollen": "Bitte mindestens eine Rolle ankreuzen. Sie entscheidet, was das Konto tun darf.",
         "regierungspraesidium": "Bitte ein Regierungspräsidium wählen. Ein Konto mit dieser Rolle sieht genau eines, und ohne Angabe wäre nicht festgelegt welches."
-      },
+      }
+    },
+    "anlegen": {
+      "knopf": "Neues Konto",
+      "titel": "Neues Konto anlegen",
+      "untertitel": "Das Konto kann sich anmelden, sobald Sie es angelegt haben.",
+      "absenden": "Konto anlegen",
+      "laeuft": "Wird angelegt",
+      "abbrechen": "Abbrechen",
       "fertig": {
         "titel": "Das Konto {{email}} wurde angelegt.",
         "weitergeben": "Geben Sie diese Zugangsdaten der Person weiter. Die Anwendung verschickt keine E-Mail, und niemand ausser Ihnen kennt das Passwort.",
@@ -215,6 +218,69 @@
         "weiteres": "Weiteres Konto anlegen",
         "zurListe": "Zur Benutzerliste"
       }
+    },
+    "aendern": {
+      "knopf": "Ändern",
+      "knopfHinweis": "Konto {{email}} ändern",
+      "titel": "Konto ändern",
+      "kopf": "Angelegt am {{angelegt}}. Status: {{status}}.",
+      "eigenes": "Das ist Ihr eigenes Konto.",
+      "laedt": "Das Konto wird geladen.",
+      "ladefehler": "Das Konto konnte nicht geladen werden",
+      "keinKonto": {
+        "titel": "Dieses Konto gibt es nicht",
+        "text": "Zu dieser Adresse gehört kein Konto. Wahrscheinlich ist der Link unvollständig oder veraltet. In der Benutzerliste finden Sie jedes vorhandene Konto über seine E-Mail-Adresse.",
+        "knopf": "Zur Benutzerliste"
+      },
+      "selbstentzug": {
+        "rollen": "Die Rolle Administration können Sie sich nicht selbst entziehen. Sie kämen danach nicht mehr in die Benutzerverwaltung. Bitten Sie eine andere Person mit dieser Rolle darum."
+      },
+      "angaben": {
+        "titel": "Angaben",
+        "einleitung": "Geändert wird nur, was Sie hier anfassen. Felder, die Sie nicht anrühren, bleiben wie sie sind.",
+        "speichern": "Änderungen speichern",
+        "laeuft": "Wird gespeichert",
+        "gespeichert": "Die Änderungen wurden gespeichert.",
+        "unveraendert": "Es gibt nichts zu speichern. An diesem Konto wurde nichts geändert."
+      },
+      "zugang": {
+        "titel": "Zugang",
+        "einleitung": "Ein gesperrtes Konto kann sich nicht mehr anmelden. Die Sperre wirkt sofort, auch wenn die Person gerade angemeldet ist. Konten werden nie gelöscht, weil sonst die von ihnen eingereichten Protokolle ihre Zuordnung verlieren würden.",
+        "istAktiv": "Dieses Konto ist <strong>aktiv</strong> und kann sich anmelden.",
+        "istGesperrt": "Dieses Konto ist <strong>gesperrt</strong> und kann sich nicht anmelden.",
+        "sperren": "Konto sperren",
+        "entsperren": "Konto entsperren",
+        "laeuft": "Wird geändert",
+        "eigenes": "Ihr eigenes Konto können Sie nicht sperren. Sie kämen danach nicht mehr in die Anwendung. Bitten Sie eine andere Person mit der Rolle Administration darum.",
+        "frage": {
+          "titel": "Konto sperren?",
+          "text": "{{email}} kann sich danach nicht mehr anmelden, auch nicht aus einer laufenden Sitzung heraus. Die bereits eingereichten Protokolle bleiben erhalten. Sie können das Konto hier jederzeit wieder entsperren.",
+          "abbrechen": "Abbrechen",
+          "bestaetigen": "Konto sperren"
+        }
+      },
+      "passwort": {
+        "titel": "Passwort",
+        "einleitung": "Setzen Sie ein neues Passwort, wenn die Person ihres vergessen hat oder wenn es jemand Falsches gesehen hat. Das alte Passwort gilt danach nicht mehr.",
+        "neu": "Neues Passwort",
+        "neuHinweis": "Mindestens 12 Zeichen. Sie geben es der Person anschließend selbst weiter.",
+        "setzen": "Neues Passwort setzen",
+        "laeuft": "Wird gesetzt",
+        "fertig": {
+          "titel": "Das Passwort von {{email}} wurde geändert.",
+          "weitergeben": "Geben Sie diese Zugangsdaten der Person weiter. Die Anwendung verschickt keine E-Mail, und niemand ausser Ihnen kennt das neue Passwort. Wählen Sie für die Übergabe einen Weg, den nur die Person selbst mitliest, also nicht die unverschlüsselte E-Mail.",
+          "sitzungen": "Ist die Person gerade angemeldet, bleibt sie es. Eine laufende Sitzung endet erst von selbst, spätestens nach acht Stunden. Wenn das Passwort in falsche Hände geraten ist, sperren Sie das Konto im Abschnitt Zugang: die Sperre wirkt sofort.",
+          "keinWechsel": "Die Person kann ihr Passwort weiterhin nicht selbst ändern. Geht es wieder verloren, setzt die Administration erneut eines.",
+          "fertig": "Fertig"
+        }
+      },
+      "krumen": "Sie sind hier"
+    },
+    "statusfilter": {
+      "beschriftung": "Status",
+      "alle": "Alle",
+      "aktiv": "Nur aktive",
+      "gesperrt": "Nur gesperrte"
     }
   },
   "pruefliste": {

@@ -23,7 +23,7 @@ package "1. ROUTING & GUARD LAYER" as L1 #FFF3CD {
 }
 
 package "2. PAGE / CONTAINER LAYER" as L2 #FFDAB9 {
-  component "\"*Seite.tsx\" components\n(ProtokolleSeite, PruefungsSeite, ...)" as P1
+  component "\"*Seite.tsx\" components\n(ProtokolleSeite, PruefungsSeite,\nBenutzerlisteSeite, KontoAendernSeite, ...)" as P1
   note bottom of L2
     **Pattern: Container (a.k.a. \"smart\") components.**
     A page component's job: read the URL (useParams), fetch data
@@ -34,7 +34,7 @@ package "2. PAGE / CONTAINER LAYER" as L2 #FFDAB9 {
 }
 
 package "3. FEATURE COMPOSITION LAYER" as L3 #FFDAB9 {
-  component "ProtokollFormular.tsx\n+ AbschnittN.tsx" as F1
+  component "ProtokollFormular.tsx\n+ AbschnittN.tsx,\nKontoAendernSeite + its three cards" as F1
   component "<FormProvider> / <NurLesenContext>" as F2
   note bottom of L3
     **Pattern: composition + React Context.**
@@ -59,7 +59,7 @@ package "4. PRESENTATIONAL / REUSABLE UI LAYER" as L4 #D4EDDA {
 }
 
 package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
-  component "useAutoSave, useAbsenden,\nuseUebergang, useSitzung,\nuseFeldFehler, useNurLesen" as H1
+  component "useAutoSave, useAbsenden,\nuseUebergang, useSitzung,\nuseFeldFehler, useNurLesen,\nuseKontoAnlegen, useKontoAendern" as H1
   note bottom of L5
     **Pattern: custom hooks.**
     React's mechanism for reusing STATEFUL logic across components
@@ -74,7 +74,7 @@ package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
 
 package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
   component "regeln/ (schema.ts, prozent.ts,\nhydrologie.ts, vorfluter.ts, ...)" as D1
-  component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts" as D2
+  component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts,\nverwaltung/benutzer/aendern.ts" as D2
   note bottom of L6
     **Pattern: pure functions, framework-free.**
     Deliberately importing nothing from React. A function like
@@ -83,6 +83,11 @@ package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
     assertions - no rendering, no mocking a browser. This is the
     layer coding-standards.md means by "logic where a wrong answer
     is possible gets a unit test beside it."
+
+    aendern.ts is a good example to read: given an account and a
+    filled-in form it returns the SMALLEST request that expresses
+    what changed, so two administrators editing different fields do
+    not overwrite each other. No React, no fetch, tested on its own.
   end note
 }
 

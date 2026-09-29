@@ -126,15 +126,84 @@ test.describe('Die Benutzerliste, als Super Admin', () => {
     /* A term nothing matches says so, and says it differently from "there are no
        accounts", which is the distinction the empty state exists to make. */
     await feld.fill('kein-konto-heisst-so-zander')
-    await expect(page.getByRole('heading', { name: 'Kein Konto passt zu Ihrer Suche' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Kein Konto passt zu Ihrer Auswahl' }),
+    ).toBeVisible()
 
-    await page.getByRole('button', { name: 'Suche zurücksetzen' }).click()
+    await page.getByRole('button', { name: 'Suche und Filter zurücksetzen' }).click()
     await expect(page.getByRole('row')).toHaveCount(alle.length + 1)
 
     /* The count has to come back too. Left blank, clearing the box would tell
        somebody using a screen reader nothing at all, so they would hear that the
        list had narrowed and never that it had been restored. */
     await expect(page.getByRole('status')).toHaveText(`${alle.length} Konten`)
+  })
+
+  /* The status filter, added on 2026-09-28. An account is never deleted in this
+     application, only locked, so the locked ones accumulate and "which of these
+     can actually sign in" is a question the list has to be able to answer. */
+  test('der Statusfilter zeigt nur aktive oder nur gesperrte Konten', async ({ page }) => {
+    await page.goto(ADRESSE)
+    const alle = await konten(page)
+
+    const filter = page.getByRole('combobox', { name: 'Status' })
+    await expect(filter).toHaveText('Alle')
+
+    /* Every row the filter leaves has to carry the badge the filter selected on,
+       which is the check that would fail if the two halves ever disagreed about
+       what "gesperrt" means. */
+    await filter.click()
+    await page.getByRole('option', { name: 'Nur gesperrte' }).click()
+
+    const zeilen = page.getByRole('row')
+    const gesperrt = (await zeilen.count()) - 1
+    for (let i = 1; i <= gesperrt; i += 1) {
+      await expect(zeilen.nth(i)).toContainText('Gesperrt')
+    }
+
+    await filter.click()
+    await page.getByRole('option', { name: 'Nur aktive' }).click()
+    const aktiv = (await page.getByRole('row').count()) - 1
+    for (let i = 1; i <= aktiv; i += 1) {
+      await expect(page.getByRole('row').nth(i)).not.toContainText('Gesperrt')
+    }
+
+    /* The two halves add up to the whole list, which is what says the filter
+       narrows rather than replaces. */
+    expect(gesperrt + aktiv).toBe(alle.length)
+
+    /* The count speaks for the status filter too, not only for the search box.
+       It reported the full total over a filtered table when the count still
+       belonged to the search field. */
+    await expect(page.getByRole('status')).toHaveText(`${aktiv} von ${alle.length} Konten werden angezeigt`)
+
+    await filter.click()
+    await page.getByRole('option', { name: 'Alle', exact: true }).click()
+    await expect(page.getByRole('row')).toHaveCount(alle.length + 1)
+  })
+
+  /* The two narrow together rather than one replacing the other, and one button
+     undoes both: clearing only the term while a status still hid every row would
+     look like the button had not worked. */
+  test('Suche und Status greifen zusammen, und beides laesst sich zuruecksetzen', async ({
+    page,
+  }) => {
+    await page.goto(ADRESSE)
+    const alle = await konten(page)
+
+    await page.getByLabel('Nach E-Mail-Adresse suchen').fill(ADMIN!.email)
+    await page.getByRole('combobox', { name: 'Status' }).click()
+    await page.getByRole('option', { name: 'Nur gesperrte' }).click()
+
+    /* The administrator running these tests is signed in, so their own account is
+       active: address matches, status does not, nothing is shown. */
+    await expect(
+      page.getByRole('heading', { name: 'Kein Konto passt zu Ihrer Auswahl' }),
+    ).toBeVisible()
+
+    await page.getByRole('button', { name: 'Suche und Filter zurücksetzen' }).click()
+    await expect(page.getByRole('row')).toHaveCount(alle.length + 1)
+    await expect(page.getByRole('combobox', { name: 'Status' })).toHaveText('Alle')
   })
 })
 

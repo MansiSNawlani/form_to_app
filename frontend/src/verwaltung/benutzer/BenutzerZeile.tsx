@@ -1,10 +1,13 @@
+import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import type { ParseKeys } from 'i18next'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import type { BenutzerAntwort } from '../../api/typen'
 import { sortierteRollen } from '../../auth/rollen'
+import { benutzerPfad } from '../../auth/startseite'
 import { zeitpunktAnzeige } from '../../protokoll/liste/anzeige'
 import { kontostatusSchluessel, regierungspraesidiumLabel } from './anzeige'
 
@@ -17,8 +20,10 @@ interface BenutzerZeileProps {
 
 /* One account: who it is, what it may do, and whether it works.
  *
- * Nothing here is a link and nothing here is a button. Reading the list is 16b;
- * changing an account is 16d, and that is where this row grows an action.
+ * The one action is at the end, added in feature 16d: reading the list is 16b, and
+ * everything that changes an account happens on that account's own page rather
+ * than in this row. A row is five short facts, and a role picker or a lock button
+ * in a table cell would be a form with no room to say what it is doing.
  */
 function BenutzerZeile({ konto, istEigenes }: BenutzerZeileProps) {
   const { t } = useTranslation()
@@ -88,6 +93,25 @@ function BenutzerZeile({ konto, istEigenes }: BenutzerZeileProps) {
       </TableCell>
 
       <TableCell>{angelegt}</TableCell>
+
+      {/* The row's one action, feature 16d. The same shape a protocol's row uses:
+          a small outlined button that is really a link, in a cell of its own at
+          the end.
+
+          Drawn for every account including your own. What may not be done to your
+          own account is two particular changes rather than the whole screen, and
+          the page itself says which before either is attempted. */}
+      <TableCell className="zeile-aktion">
+        <Button component={Link} to={benutzerPfad(konto.id)} size="small" variant="outlined">
+          {/* The address is carried for a screen reader, because twenty buttons
+              all announcing themselves as "Aendern" name nothing. Visually the
+              label stays two words: the row is already read left to right. */}
+          <span aria-hidden="true">{t('benutzerverwaltung.aendern.knopf')}</span>
+          <span className="visually-hidden">
+            {t('benutzerverwaltung.aendern.knopfHinweis', { email: konto.email })}
+          </span>
+        </Button>
+      </TableCell>
     </TableRow>
   )
 }
