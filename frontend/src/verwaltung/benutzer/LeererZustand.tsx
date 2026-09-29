@@ -3,9 +3,9 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 
 interface LeererZustandProps {
-  /** True when something has been typed, so the emptiness is this search's and
-      not the application's. */
-  gesucht: boolean
+  /** True when a search term or a status filter is narrowing the list, so the
+      emptiness is the reader's own doing and not the application's. */
+  gefiltert: boolean
   onZuruecksetzen: () => void
 }
 
@@ -26,15 +26,15 @@ interface LeererZustandProps {
  * Only the searched case offers a way out, because there is nothing to reset in
  * the other one and a button that does nothing is worse than no button.
  */
-function LeererZustand({ gesucht, onZuruecksetzen }: LeererZustandProps) {
+function LeererZustand({ gefiltert, onZuruecksetzen }: LeererZustandProps) {
   const { t } = useTranslation()
-  const bereich = gesucht ? 'keineTreffer' : 'leer'
+  const bereich = gefiltert ? 'keineTreffer' : 'leer'
 
   return (
     <div className="empty">
       <Typography variant="h2">{t(`benutzerverwaltung.${bereich}.titel`)}</Typography>
       <Typography variant="body1">{t(`benutzerverwaltung.${bereich}.text`)}</Typography>
-      {gesucht && (
+      {gefiltert && (
         <Button variant="outlined" className="empty__aktion" onClick={onZuruecksetzen}>
           {t('benutzerverwaltung.suche.zuruecksetzen')}
         </Button>

@@ -296,7 +296,7 @@ These are not features and are not tracked here. They happen first.
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
 - [ ] 15. Audit trail
-- [ ] 16. Benutzerverwaltung: accounts and roles managed in the application rather than
+- [x] 16. Benutzerverwaltung: accounts and roles managed in the application rather than
       only at the command line
   - [x] 16a. Die Konten-Endpunkte: every account read, created, changed, locked and
         unlocked over the API, Super Admin only, and the rule that no change may leave
@@ -307,7 +307,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 16c. Ein Konto anlegen: the form for a new account, the role picker with the
         Regierungspraesidium coupling, the first password, and what the administrator is
         told to pass on to its owner
-  - [ ] 16d. Ein Konto aendern: changing the email, roles, region and language of an
+  - [x] 16d. Ein Konto aendern: changing the email, roles, region and language of an
         existing account, locking and unlocking it, and setting a new password for
         somebody who has lost theirs
 

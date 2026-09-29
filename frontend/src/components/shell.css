@@ -258,6 +258,38 @@
   font-size: var(--step--1);
 }
 
+/* A breadcrumb, on the two screens that sit under a list.
+ *
+ * Lifted out of protokoll.css in feature 16d, when the account screens became the
+ * second place to need one. It belongs here rather than in either feature: this
+ * file owns .page__head, and the crumb is part of that head.
+ *
+ * The reviewer's screen puts its crumb inline in .page__sub, because that line
+ * also carries the survey date; an account's page gives it a line of its own
+ * above the heading, which is where a reader looks for the way back.
+ */
+.krume {
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.15em;
+}
+
+.krume:hover {
+  color: var(--accent-hover);
+}
+
+/* The separator stays as quiet as the rest of the line, so the contrast between
+   it and the link is what the eye lands on. */
+.krume-trenner {
+  color: var(--muted);
+}
+
+/* The crumb on its own line, above the heading rather than under it. */
+.page__krumen {
+  margin: 0 0 0.35rem;
+}
+
 .page__head-actions {
   margin-left: auto;
   display: flex;

@@ -1195,19 +1195,6 @@
  * both states: colour alone is not a signal somebody with low colour vision can
  * use, and it is what makes it look like a link rather than a heading.
  */
-.krume {
-  font-weight: 600;
-  color: var(--accent);
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.15em;
-}
-
-.krume:hover {
-  color: var(--accent-hover);
-}
-
-/* The separator stays as quiet as the rest of the line, so the contrast between
-   it and the link is what the eye lands on. */
-.krume-trenner {
-  color: var(--muted);
-}
+/* .krume and .krume-trenner moved to components/shell.css in feature 16d, when
+   the account screens became the second place with a breadcrumb. They belong
+   with .page__head, which is where both callers put them. */

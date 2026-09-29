@@ -65,6 +65,18 @@ async function legeKontoAn(page: Page, rolle = 'Einreicher'): Promise<string> {
   return email
 }
 
+/* The way back, which is the breadcrumb above the heading rather than a button
+   among the save actions.
+ *
+ * Scoped to its own nav landmark on purpose: the header carries a
+ * "Benutzerverwaltung" link to the same place, so the name alone names two
+ * controls. That the crumb needs scoping is the point of it being a landmark. */
+function krume(page: Page) {
+  return page
+    .getByRole('navigation', { name: 'Sie sind hier' })
+    .getByRole('link', { name: 'Benutzerverwaltung' })
+}
+
 /** From the list to that account's own page, the way a person gets there. */
 async function oeffne(page: Page, email: string): Promise<void> {
   await page.goto(LISTE)
@@ -90,7 +102,7 @@ test.describe('Ein Konto aendern', () => {
 
     /* And the list agrees without a reload, which is what the cache invalidation
        in useKontoAendern is for. */
-    await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
+    await krume(page).click()
     /* exact, because the row's action cell carries the address in its accessible
        name as well ("Konto x@y.de aendern"), which is the whole point of that
        label: twenty buttons all announcing "Aendern" name nothing. */
@@ -120,7 +132,7 @@ test.describe('Ein Konto aendern', () => {
     await page.getByRole('button', { name: 'Änderungen speichern' }).click()
     await expect(page.getByRole('status')).toContainText('gespeichert')
 
-    await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
+    await krume(page).click()
     const zeile = page.getByRole('row', { name: new RegExp(email) })
     await expect(zeile).toContainText('Prüfer')
     await expect(zeile).toContainText('Einreicher')
@@ -152,7 +164,7 @@ test.describe('Ein Konto aendern', () => {
     await page.getByRole('button', { name: 'Änderungen speichern' }).click()
     await expect(page.getByRole('status')).toContainText('gespeichert')
 
-    await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
+    await krume(page).click()
     await expect(page.getByRole('row', { name: new RegExp(email) })).toContainText('Freiburg')
 
     /* The one that has to be right: taking the role away has to clear the number
@@ -171,7 +183,7 @@ test.describe('Ein Konto aendern', () => {
     await page.getByRole('button', { name: 'Änderungen speichern' }).click()
     await expect(page.getByRole('status')).toContainText('gespeichert')
 
-    await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
+    await krume(page).click()
     await expect(page.getByRole('row', { name: new RegExp(email) })).not.toContainText('Freiburg')
   })
 
@@ -216,7 +228,7 @@ test.describe('Ein Konto aendern', () => {
       await zweiter.close()
     }
 
-    await page.getByRole('link', { name: 'Zur Benutzerliste' }).click()
+    await krume(page).click()
     await expect(page.getByRole('row', { name: new RegExp(email) })).toContainText('Gesperrt')
 
     /* And back again. Unlocking asks nothing: it gives an account its access back,

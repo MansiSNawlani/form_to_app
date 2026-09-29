@@ -1,8 +1,10 @@
+import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link as RouterLink, useParams } from 'react-router'
 import { ApiFehler, KONTO_NICHT_GEFUNDEN, ROLLE_FEHLT } from '../../api/fehler'
+import { BENUTZERVERWALTUNG } from '../../auth/startseite'
 import { useSitzung } from '../../auth/useSitzung'
 import { zeitpunktAnzeige } from '../../protokoll/liste/anzeige'
 import { kontoAbfrage } from './abfragen'
@@ -70,6 +72,31 @@ function KontoAendernSeite() {
     <>
       <div className="page__head">
         <div>
+          {/* The way back, at the top, where a reader looks for it.
+           *
+           * A breadcrumb rather than a button among the save actions, decided on
+           * 2026-09-28: leaving this page is navigation, not one of the things
+           * this screen does to the account, and a link sitting beside
+           * "Aenderungen speichern" reads as a third action of equal weight.
+           *
+           * The trail names the section and then this page's kind, not the
+           * address. The heading right below is already the address, and a crumb
+           * repeating it would say the same thing twice in two lines.
+           *
+           * In a named <nav> of its own, which is what a breadcrumb is: it gives a
+           * screen reader a landmark to jump to, and it is what tells this link
+           * apart from the header's own "Benutzerverwaltung", which points at the
+           * same place and would otherwise be indistinguishable by name. */}
+          <nav aria-label={t('benutzerverwaltung.aendern.krumen')}>
+            <p className="page__sub page__krumen">
+              <Link component={RouterLink} to={BENUTZERVERWALTUNG} className="krume">
+                {t('benutzerverwaltung.titel')}
+              </Link>
+              <span className="krume-trenner">{' › '}</span>
+              {t('benutzerverwaltung.aendern.titel')}
+            </p>
+          </nav>
+
           {/* The address is the account's only name, so it is the heading rather
               than a generic one with the address underneath. It follows the
               account: renaming an account in the first card changes what this

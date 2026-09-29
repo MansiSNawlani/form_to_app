@@ -10,10 +10,8 @@ import type { ParseKeys } from 'i18next'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { useFehlertext } from '../../api/useFehlertext'
 import type { BenutzerAntwort } from '../../api/typen'
-import { BENUTZERVERWALTUNG } from '../../auth/startseite'
 import { SUPPORTED_LOCALES } from '../../i18n/sprachen'
 import { labelId } from '../../protokoll/felder/rahmen'
 import {
@@ -307,9 +305,6 @@ function Angabenkarte({ konto, eigeneId }: AngabenkarteProps) {
                 ? 'benutzerverwaltung.aendern.angaben.laeuft'
                 : 'benutzerverwaltung.aendern.angaben.speichern',
             )}
-          </Button>
-          <Button component={Link} to={BENUTZERVERWALTUNG} variant="outlined">
-            {t('benutzerverwaltung.aendern.zurListe')}
           </Button>
         </div>
       </form>

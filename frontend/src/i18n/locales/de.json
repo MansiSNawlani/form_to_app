@@ -156,7 +156,7 @@
       "platzhalter": "Name oder Domain",
       "treffer_one": "{{count}} von {{gesamt}} Konto wird angezeigt",
       "treffer_other": "{{count}} von {{gesamt}} Konten werden angezeigt",
-      "zuruecksetzen": "Suche zurücksetzen"
+      "zuruecksetzen": "Suche und Filter zurücksetzen"
     },
     "laedt": "Konten werden geladen.",
     "keineBerechtigung": {
@@ -170,8 +170,8 @@
       "erneut": "Erneut versuchen"
     },
     "keineTreffer": {
-      "titel": "Kein Konto passt zu Ihrer Suche",
-      "text": "Keine E-Mail-Adresse enthält, wonach Sie gesucht haben. Prüfen Sie die Schreibweise, oder setzen Sie die Suche zurück."
+      "titel": "Kein Konto passt zu Ihrer Auswahl",
+      "text": "Zu dieser Suche und diesem Status gibt es kein Konto. Prüfen Sie die Schreibweise, wählen Sie beim Status \"Alle\", oder setzen Sie beides zurück."
     },
     "leer": {
       "titel": "Keine Konten vorhanden",
@@ -232,7 +232,6 @@
         "text": "Zu dieser Adresse gehört kein Konto. Wahrscheinlich ist der Link unvollständig oder veraltet. In der Benutzerliste finden Sie jedes vorhandene Konto über seine E-Mail-Adresse.",
         "knopf": "Zur Benutzerliste"
       },
-      "zurListe": "Zur Benutzerliste",
       "selbstentzug": {
         "rollen": "Die Rolle Administration können Sie sich nicht selbst entziehen. Sie kämen danach nicht mehr in die Benutzerverwaltung. Bitten Sie eine andere Person mit dieser Rolle darum."
       },
@@ -274,7 +273,14 @@
           "keinWechsel": "Die Person kann ihr Passwort weiterhin nicht selbst ändern. Geht es wieder verloren, setzt die Administration erneut eines.",
           "fertig": "Fertig"
         }
-      }
+      },
+      "krumen": "Sie sind hier"
+    },
+    "statusfilter": {
+      "beschriftung": "Status",
+      "alle": "Alle",
+      "aktiv": "Nur aktive",
+      "gesperrt": "Nur gesperrte"
     }
   },
   "pruefliste": {
