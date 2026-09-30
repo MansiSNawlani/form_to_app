@@ -36,7 +36,10 @@ async function wegwerfkonto(page: Page): Promise<string> {
   return email
 }
 
-test('die gewaehlte Sprache wird im Konto gespeichert und uebersteht einen neuen Browser', async ({ page }) => {
+test('die gewaehlte Sprache wird im Konto gespeichert und uebersteht einen neuen Browser', async ({
+  page,
+  baseURL,
+}) => {
   await wegwerfkonto(page)
   await page.goto('/')
   await expect(page.getByRole('group', { name: 'Sprache' })).toBeVisible()
@@ -55,7 +58,7 @@ test('die gewaehlte Sprache wird im Konto gespeichert und uebersteht einen neuen
   /* A fresh browser context rather than a reload of this one, so nothing the page
      kept in localStorage can be what brings English back. Only the account can. */
   const cookies = await page.context().cookies()
-  const neu = await page.context().browser()!.newContext({ baseURL: 'http://localhost:5173' })
+  const neu = await page.context().browser()!.newContext({ baseURL })
   await neu.addCookies(cookies)
   const zweite = await neu.newPage()
   await zweite.goto('/')
@@ -89,11 +92,45 @@ test('scheitert das Speichern, bleibt die Sprache hier und die Meldung sagt, wie
     .toBe('en')
 })
 
+/* EN, then DE before the EN save has answered. The last click has to win on the
+   screen and in the account, however the two answers arrive. */
+test('zwei schnelle Klicks enden auf dem zweiten', async ({ page }) => {
+  await wegwerfkonto(page)
+  await page.goto('/')
+  await expect(page.getByRole('group', { name: 'Sprache' })).toBeVisible()
+
+  let erstesLoslassen: () => void = () => {}
+  const erstesGehalten = new Promise<void>((r) => (erstesLoslassen = r))
+  let erstes = true
+  await page.route('**/api/v1/ich', async (route) => {
+    if (route.request().method() === 'PATCH' && erstes) {
+      erstes = false
+      await erstesGehalten
+    }
+    await route.continue()
+  })
+
+  await page.getByRole('button', { name: 'English' }).click()
+  await page.getByRole('button', { name: 'Deutsch' }).click()
+  erstesLoslassen()
+
+  await expect
+    .poll(async () => (await (await page.request.get('/api/v1/ich')).json()).locale)
+    .toBe('de')
+  await page.waitForTimeout(500)
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de')
+})
+
 test('abgemeldet wechselt die Anmeldeseite die Sprache, ohne etwas zu speichern', async ({ page }) => {
+  const gesendet: string[] = []
+  page.on('request', (r) => {
+    if (r.method() === 'PATCH') gesendet.push(r.url())
+  })
   await page.goto('/anmeldung')
   await page.getByRole('button', { name: 'English' }).click()
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('group', { name: 'Language' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Dark theme' })).toBeVisible()
+  expect(gesendet).toEqual([])
 })

@@ -24,8 +24,9 @@ German, because the account is the authority. He clicks **EN** again, now signed
 switches at once, and his account is saved as `en`. Next week he signs in on a different laptop
 and the app is English from the start.
 
-If saving fails (say the network drops), the app stays English on this laptop, and a short
-message says it could not be saved to his account and to try again.
+If saving fails (say the network drops), the app stays English for now, and a short message
+says it could not be saved to his account and to try again. After a reload the account wins
+again, so until the save succeeds the next reload brings back German.
 
 ## In scope
 
@@ -55,7 +56,7 @@ message says it could not be saved to his account and to try again.
   `app/api/schemas.py` with one field, `locale: Locale`, required, `extra="forbid"`. A small
   service function `setze_sprache(session, benutzer, locale)` in `app/benutzer/dienst.py`. The
   route `PATCH /api/v1/ich` in `app/api/anmeldung.py` beside `GET /ich`, behind
-  `AngemeldeterBenutzer`, answering `BenutzerAntwort`. Tests in `anmeldung_test.py`.
+  `AngemeldeterBenutzer`, answering `BenutzerAntwort`. Tests in `sitzung_test.py`, beside the other `/ich` tests.
   *Done when:* `pytest` is green with tests proving: a signed-in account changes its own
   `locale` and `GET /ich` then returns it; a body carrying `rollen`, `email`, `ist_aktiv` or
   `regierungspraesidium` is refused with 422 and the account is unchanged; an unknown locale
@@ -115,7 +116,7 @@ message says it could not be saved to his account and to try again.
 
 ## Files / areas
 
-- `backend/app/api/anmeldung.py`, `schemas.py`, `anmeldung_test.py`
+- `backend/app/api/anmeldung.py`, `schemas.py`, `sitzung_test.py`
 - `backend/app/benutzer/dienst.py` (and its test if the function carries logic worth one)
 - `frontend/src/i18n/sprachen.ts`, `index.ts`, `DatumsProvider.tsx`, `locales/de.json`,
   `locales/en.json`, a new test beside the locale files
@@ -171,8 +172,8 @@ No database change. `User.locale` has existed since 2a.
   Pruefliste and the date field write them with fixed `DD.MM.YYYY` formats, which is how the
   official form writes a date, and day-first is unambiguous to an English reader. Only dates
   spelt out in words (the three `Intl.DateTimeFormat` calls) and the picker's month and weekday
-  names follow the language. `SPRACHEN.en` is empty for MUI on purpose: MUI is English by
-  default.
+  names follow the language. MUI's own `enUS` locale object is empty on purpose: MUI is English
+  by default.
 - **What step 4 turned up, fixed on this branch.** (1) The login page has its own corner
   controls rather than the shared header, so the switch sits there too. (2) MUI 9's toggle
   group is one Tab stop and the arrow keys move between DE and EN, the standard pattern for a
@@ -183,6 +184,14 @@ No database change. `User.locale` has existed since 2a.
   use the themed alert. (5) The header's right-hand block could shrink below its own buttons,
   so on a Super Admin's header below about 1180px the switch pushed Abmelden off the screen. It
   no longer shrinks below its controls; the address goes first, then the brand wraps taller.
+- **Code review, 2026-09-30.** Both review axes found the same bug: EN then DE clicked before the
+  EN save answered sent no DE save (the cached account already said `de`), so the EN answer
+  landed in the cache and `useKontoSprache` switched the screen back to English. Fixed by
+  saving whenever a save is running or has failed, and by giving the mutation a `scope` so the
+  saves reach the server in click order. `e2e/sprache.spec.ts` now has a test for it, which
+  fails on the old code. The backend tests sit in `sitzung_test.py` beside the other `/ich`
+  tests rather than in `anmeldung_test.py`. Throwaway accounts from the browser spec stay on the
+  development database, locked or not, as the 16d suite's do; accounts are never deleted.
 - **The browser spec makes its own accounts.** `e2e/sprache.spec.ts` signs in as
   `E2E_EMAIL_ADMIN`, creates a throwaway submitter per test through `POST /api/v1/benutzer`
   and switches that one, so a run that stops halfway can never leave a shared test account in

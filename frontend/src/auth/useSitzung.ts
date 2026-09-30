@@ -168,17 +168,18 @@ export function useAbmeldung() {
  * The account comes back and goes straight into the cache, as with signing in,
  * so useKontoSprache finds the account already agreeing with the screen.
  *
- * Through the callback given to mutate rather than one on the mutation, because
- * TanStack Query runs that one for the latest call only. Somebody clicking EN
- * and then DE quickly has two saves in flight, and writing the first answer into
- * the cache would make useKontoSprache switch the screen back to English under
- * them.
+ * Two quick clicks, EN then DE, must end on DE both on the server and on the
+ * screen. The scope makes TanStack Query send the saves one after another in
+ * click order, so the server keeps the last one; the callback given to mutate
+ * runs for the latest call only, so the EN answer arriving first is never
+ * written into the cache, where useKontoSprache would switch the screen back.
  */
 export function useSpracheSpeichern() {
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: (locale: Locale) =>
       apiAnfrage<BenutzerAntwort>('/ich', { methode: 'PATCH', koerper: { locale } }),
+    scope: { id: 'sprache' },
   })
 
   return {
@@ -186,6 +187,7 @@ export function useSpracheSpeichern() {
       mutation.mutate(locale, {
         onSuccess: (benutzer) => queryClient.setQueryData(SITZUNGS_KEY, benutzer),
       }),
+    laeuft: mutation.isPending,
     fehlgeschlagen: mutation.isError,
     verwerfen: mutation.reset,
   }

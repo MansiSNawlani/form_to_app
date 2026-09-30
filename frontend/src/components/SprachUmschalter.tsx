@@ -17,19 +17,24 @@ import { SPRACHEN, SUPPORTED_LOCALES, localeFuer, type Locale } from '../i18n/sp
  * Signed out, the choice lives on this device only. Signed in, the screen
  * switches at once and the account is saved behind it, so the next sign-in
  * anywhere starts in the same language. A failed save leaves the screen as
- * chosen and says so; clicking the chosen button again retries, which is why a
- * click on the selected button is not ignored the way ToggleButtonGroup
- * normally ignores it.
+ * chosen until the next reload, when the account wins again, and says so;
+ * clicking the chosen button again retries, which is why a click on the
+ * selected button is not ignored the way ToggleButtonGroup normally ignores it.
  */
 function SprachUmschalter() {
   const { t, i18n } = useTranslation()
   const sitzung = useSitzung()
-  const { speichern, fehlgeschlagen, verwerfen } = useSpracheSpeichern()
+  const { speichern, laeuft, fehlgeschlagen, verwerfen } = useSpracheSpeichern()
   const aktuelleLocale = localeFuer(i18n.language)
 
+  /* Skipped only when the account already says this and nothing else is under
+     way. While a save is running, or after one failed, the account in the cache
+     may be about to change or may be wrong, so a click that agrees with it
+     still sends its own save: EN then DE quickly must end on DE. */
   function waehlen(locale: Locale) {
     if (locale !== i18n.language) setLocale(locale)
-    if (sitzung.zustand !== 'angemeldet' || sitzung.benutzer.locale === locale) return
+    if (sitzung.zustand !== 'angemeldet') return
+    if (sitzung.benutzer.locale === locale && !laeuft && !fehlgeschlagen) return
     speichern(locale)
   }
 
