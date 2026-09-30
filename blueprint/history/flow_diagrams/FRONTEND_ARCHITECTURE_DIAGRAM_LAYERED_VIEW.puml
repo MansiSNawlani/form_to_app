@@ -110,8 +110,10 @@ package "7. DATA / SERVICE LAYER" as L7 #A8DADC {
 }
 
 package "8. CROSS-CUTTING CONCERNS" as L8 #E8F4FD {
-  component "i18n/ (react-i18next)" as C1
-  component "theme/ (tokens.ts, muiTheme.ts)" as C2
+  component "i18n/ (react-i18next,
+sprachen.ts)" as C1
+  component "theme/ (tokens.ts, muiTheme.ts,
+ThemaProvider.tsx)" as C2
   note bottom of L8
     **Pattern: externalise anything that changes independently of
     logic.** Strings move to translation files so a second language

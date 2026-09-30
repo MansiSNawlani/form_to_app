@@ -1,7 +1,7 @@
 # Feature: 17a - Die Sprache gilt überall
 
 **From build-plan:** feature 17a
-**Status:** in progress
+**Status:** built, awaiting review
 **Branch:** `feature/17a-sprache-ueberall`
 
 ## Goal
@@ -103,7 +103,7 @@ message says it could not be saved to his account and to try again.
   operable by keyboard, with visible focus, in light and dark. Screenshots of the header in
   both themes and both languages.
 
-- [ ] **Step 5 - The guard on en.json, and a browser test** - a vitest test beside the locale
+- [x] **Step 5 - The guard on en.json, and a browser test** - a vitest test beside the locale
   files: every key in `en.json` exists in `de.json`, and every English text uses exactly the
   same `{{placeholders}}` as its German one. A Playwright spec, `e2e/sprache.spec.ts`, that
   signs in as the submitter, switches to English by the button named "English", reloads, and
@@ -183,6 +183,10 @@ No database change. `User.locale` has existed since 2a.
   use the themed alert. (5) The header's right-hand block could shrink below its own buttons,
   so on a Super Admin's header below about 1180px the switch pushed Abmelden off the screen. It
   no longer shrinks below its controls; the address goes first, then the brand wraps taller.
+- **The browser spec makes its own accounts.** `e2e/sprache.spec.ts` signs in as
+  `E2E_EMAIL_ADMIN`, creates a throwaway submitter per test through `POST /api/v1/benutzer`
+  and switches that one, so a run that stops halfway can never leave a shared test account in
+  English. It needs only the admin variable and `E2E_PASSWORT`; it skips without them.
 - The two language names are literal constants for the same reason the organisation name in
   `SiteHeader.tsx` is: they must read identically in every locale.
 - `useKontoSprache` already makes the account win at sign-in; do not change that.
