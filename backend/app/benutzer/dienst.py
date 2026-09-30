@@ -306,6 +306,20 @@ async def aendere_benutzer(
     return benutzer
 
 
+async def setze_sprache(session: AsyncSession, benutzer: User, *, locale: Locale) -> User:
+    """Set the language an account's interface is shown in.
+
+    Not a call to aendere_benutzer, whose rules are about who may take a role or
+    a lock away from whom. None of them can apply to a language, and routing this
+    through there would make a person's own preference depend on a count of
+    Super Admins.
+    """
+    benutzer.locale = locale
+    await session.commit()
+    await session.refresh(benutzer)
+    return benutzer
+
+
 async def setze_passwort(session: AsyncSession, benutzer: User, *, passwort: str) -> User:
     """Give an account a new password.
 

@@ -323,6 +323,34 @@ These are not features and are not tracked here. They happen first.
   this feature's: a deleted account takes the owner of every protocol it filed with it, and
   those records have to stay readable. `app/benutzer/dienst.py` has said so since 2a.
 - [ ] 17. English translation
+  - [ ] 17a. Die Sprache gilt überall: a DE / EN switch in the header that anyone can use,
+        saved to the signed-in account through a new PATCH /api/v1/ich; MUI's own texts,
+        the date pickers and every date and time on screen follow the chosen language; a
+        test that en.json never holds a key German lacks or a mismatched placeholder
+  - [ ] 17b. Rahmen, Anmeldung, Listen und Verwaltung in English: header, footer,
+        sign-in, session, Meine Protokolle, the Pruefliste and user administration
+  - [ ] 17c. Das Formular in English: sections 1 to 7, the field names and the rule
+        messages
+  - [ ] 17d. Rund um das Formular in English: saving, the safety copy, submitting,
+        review decisions, the Verlauf, the PDF import screen, attachments, and the
+        short descriptive dropdown entries
+  - [ ] 17e. Meldungen des Servers in English: every refusal the backend sends as a
+        German sentence gets wording of its own in both locale files, and the final
+        test that every German text has an English one
+
+  **Decided on 2026-09-30.** Anyone may switch their own language, and a signed-in
+  person's choice is saved to their account. The official terms listed in CONTEXT.md
+  read as English with the German in brackets, "Sampling stretch (Probestrecke)", and
+  everything else is plain English. Of the dropdown contents only the short
+  descriptions are translated (current, turbidity, rain and the like); species names,
+  equipment models and place names stay German, and what is stored never changes. The
+  downloaded PDF stays German, since it is a copy of the official record.
+
+  **Why 17e exists.** Some refusals, such as an attachment of the wrong type or a PDF
+  that is not this form, reach the screen as the backend's own German sentence rather
+  than through a code the locale file knows. English stays in the interface
+  translation files only (decisions.md section 12), so the answer is wording for each
+  of those codes in the frontend, not a second language in the backend.
 
 ## After MVP
 
