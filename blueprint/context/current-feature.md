@@ -63,7 +63,7 @@ message says it could not be saved to his account and to try again.
   the session check treats it as signed out. `ruff`
   and `mypy` are clean.
 
-- [ ] **Step 2 - One place that says how each language formats** - extend
+- [x] **Step 2 - One place that says how each language formats** - extend
   `frontend/src/i18n/sprachen.ts` with, per locale: the formatting locale (`de-DE`, `en-GB`),
   the MUI core locale object, the date-picker `localeText`, and the dayjs locale name
   (`de`, `en-gb`). Also the two language names in their own language (`Deutsch`, `English`),
@@ -167,6 +167,12 @@ No database change. `User.locale` has existed since 2a.
   Baden-Württemberg: day before month and a 24-hour clock are what they expect, and a US date
   on a German government form would be misread (03/04 as 4 March). This is a default chosen,
   not a question for Mansi.
+- **Numeric dates stay `30.09.2026` in both languages**, decided during step 2. The lists, the
+  Pruefliste and the date field write them with fixed `DD.MM.YYYY` formats, which is how the
+  official form writes a date, and day-first is unambiguous to an English reader. Only dates
+  spelt out in words (the three `Intl.DateTimeFormat` calls) and the picker's month and weekday
+  names follow the language. `SPRACHEN.en` is empty for MUI on purpose: MUI is English by
+  default.
 - The two language names are literal constants for the same reason the organisation name in
   `SiteHeader.tsx` is: they must read identically in every locale.
 - `useKontoSprache` already makes the account win at sign-in; do not change that.
