@@ -504,6 +504,46 @@ const optionen: Parameters<typeof createTheme>[0] = {
         },
       },
     },
+    /* The same ring as the global :focus-visible rule below, for everything
+       built on ButtonBase: buttons, icon buttons, toggle buttons, links styled
+       as buttons. ButtonBase sets outline: 0 on its own root, which is injected
+       after the global rule and so beat it, leaving every one of them with no
+       visible keyboard focus at all. Found in feature 17a. */
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focusVisible': {
+            outline: '3px solid var(--focus)',
+            outlineOffset: '2px',
+          },
+        },
+      },
+    },
+    /* The header's DE / EN switch. Flat and neutral like an outlined button,
+       with the chosen language in the accent so it is visible rather than only
+       announced. Themed here so any later toggle group inherits the look. */
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          paddingBlock: '0.15rem',
+          paddingInline: '0.55rem',
+          fontSize: 'var(--step--1)',
+          fontWeight: 600,
+          lineHeight: 1.4,
+          color: 'var(--muted)',
+          borderColor: 'var(--border-strong)',
+          backgroundColor: 'var(--surface)',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'var(--surface-sunken)',
+          },
+          '&.Mui-selected, &.Mui-selected:hover': {
+            color: 'var(--accent)',
+            backgroundColor: 'var(--accent-soft)',
+          },
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         // Visible focus is a requirement, not a default. MUI's own focus styling

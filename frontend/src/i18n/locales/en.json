@@ -4,7 +4,9 @@
       "skipToContent": "Skip to content"
     },
     "header": {
-      "themeToggle": "Dark theme"
+      "themeToggle": "Dark theme",
+      "sprache": "Language",
+      "spracheNichtGespeichert": "{{sprache}} now applies on this device, but it could not be saved to your account. Click {{kuerzel}} again to retry."
     }
   }
 }

@@ -13,6 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
 import { useFehlertext } from '../api/useFehlertext'
 import lazbw from '../assets/lazbw.png'
+import SprachUmschalter from '../components/SprachUmschalter'
 import ThemeToggle from '../components/ThemeToggle'
 import { feldAria, fehlerId } from '../protokoll/felder/rahmen'
 import { useAnmeldung } from './useSitzung'
@@ -155,8 +156,10 @@ function AnmeldungSeite() {
     <div className="anmeldung-seite">
       {/* In the page's corner rather than on the card, so the card holds nothing
           but who this is and how to sign in. Still on the page at all, because
-          somebody who needs the light theme needs it before signing in. */}
+          somebody who needs the light theme or their own language needs it
+          before signing in. */}
       <div className="anmeldung__thema">
+        <SprachUmschalter />
         <ThemeToggle />
       </div>
 

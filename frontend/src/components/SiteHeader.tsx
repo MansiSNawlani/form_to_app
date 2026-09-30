@@ -6,6 +6,7 @@ import AbmeldeKnopf from '../auth/AbmeldeKnopf'
 import { sortierteRollen } from '../auth/rollen'
 import { BENUTZERVERWALTUNG, darfPruefen, darfVerwalten, PRUEFLISTE } from '../auth/startseite'
 import { useSitzung } from '../auth/useSitzung'
+import SprachUmschalter from './SprachUmschalter'
 import ThemeToggle from './ThemeToggle'
 
 /* NavLink marks the page you are on itself, through aria-current, which is what a
@@ -72,6 +73,7 @@ function SiteHeader() {
 
         <div className="site-header__spacer" />
         <div className="site-header__user">
+          <SprachUmschalter />
           <ThemeToggle />
           {/* Only when there is genuinely an account. While the session is still
               being checked this stays empty rather than guessing, which is the

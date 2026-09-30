@@ -85,7 +85,7 @@ message says it could not be saved to his account and to try again.
   text such as the Autocomplete's "No options" reads in English; switched back to `de`, both
   are German again. Screenshots of both. Build and lint pass.
 
-- [ ] **Step 4 - The switch in the header** - `components/SprachUmschalter.tsx`: a MUI
+- [x] **Step 4 - The switch in the header** - `components/SprachUmschalter.tsx`: a MUI
   `ToggleButtonGroup` (exclusive) with two `ToggleButton`s, **DE** and **EN**. Each carries
   `lang` and an `aria-label` of the language's own name, so a screen reader says "English" in
   English. The group is named by a new key `shell.header.sprache` ("Sprache" / "Language").
@@ -173,6 +173,16 @@ No database change. `User.locale` has existed since 2a.
   spelt out in words (the three `Intl.DateTimeFormat` calls) and the picker's month and weekday
   names follow the language. `SPRACHEN.en` is empty for MUI on purpose: MUI is English by
   default.
+- **What step 4 turned up, fixed on this branch.** (1) The login page has its own corner
+  controls rather than the shared header, so the switch sits there too. (2) MUI 9's toggle
+  group is one Tab stop and the arrow keys move between DE and EN, the standard pattern for a
+  group of this kind. (3) No MUI button anywhere in the app showed a keyboard focus ring,
+  because ButtonBase's own `outline: 0` beat the global `:focus-visible` rule; `MuiButtonBase`
+  now carries the ring in `muiTheme.ts`. This was already broken on `main`. (4) The download
+  button's Snackbar and the new one used MUI's unthemed `filled` alert, dark red on red; both now
+  use the themed alert. (5) The header's right-hand block could shrink below its own buttons,
+  so on a Super Admin's header below about 1180px the switch pushed Abmelden off the screen. It
+  no longer shrinks below its controls; the address goes first, then the brand wraps taller.
 - The two language names are literal constants for the same reason the organisation name in
   `SiteHeader.tsx` is: they must read identically in every locale.
 - `useKontoSprache` already makes the account win at sign-in; do not change that.

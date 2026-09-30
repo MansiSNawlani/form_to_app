@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SPRACHEN, SUPPORTED_LOCALES, spracheFuer } from './sprachen'
+import { SPRACHEN, SUPPORTED_LOCALES, localeFuer, spracheFuer } from './sprachen'
 
 describe('SPRACHEN', () => {
   it('has a complete entry for every supported locale', () => {
@@ -50,5 +50,7 @@ describe('spracheFuer', () => {
   it('falls back to German for anything else', () => {
     expect(spracheFuer('fr')).toBe(SPRACHEN.de)
     expect(spracheFuer('')).toBe(SPRACHEN.de)
+    expect(localeFuer('en-US')).toBe('de')
+    expect(localeFuer('en')).toBe('en')
   })
 })

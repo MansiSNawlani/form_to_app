@@ -64,10 +64,14 @@ export const SPRACHEN: Record<Locale, Sprache> = {
   },
 }
 
-/* The row for whatever i18next reports, which is typed as any string. Anything
- * not in the table gets German, the same fallback the texts use. */
-export function spracheFuer(locale: string): Sprache {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(locale)
-    ? SPRACHEN[locale as Locale]
-    : SPRACHEN[FALLBACK_LOCALE]
+/* The locale for whatever i18next reports, which is typed as any string.
+ * Anything not supported gets German, the same fallback the texts use. */
+export function localeFuer(sprache: string): Locale {
+  return (SUPPORTED_LOCALES as readonly string[]).includes(sprache)
+    ? (sprache as Locale)
+    : FALLBACK_LOCALE
+}
+
+export function spracheFuer(sprache: string): Sprache {
+  return SPRACHEN[localeFuer(sprache)]
 }

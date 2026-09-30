@@ -5,7 +5,9 @@
       "skipToContent": "Zum Inhalt springen"
     },
     "header": {
-      "themeToggle": "Dunkles Design"
+      "themeToggle": "Dunkles Design",
+      "sprache": "Sprache",
+      "spracheNichtGespeichert": "{{sprache}} gilt jetzt auf diesem Gerät, konnte aber nicht in Ihrem Konto gespeichert werden. Klicken Sie noch einmal auf {{kuerzel}}, um es erneut zu versuchen."
     },
     "nav": {
       "beschriftung": "Hauptnavigation",

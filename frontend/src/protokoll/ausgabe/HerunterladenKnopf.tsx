@@ -51,7 +51,7 @@ function HerunterladenKnopf({ protokollId }: HerunterladenKnopfProps) {
         autoHideDuration={10000}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity="error" role="alert" onClose={verwerfen} variant="filled">
+        <Alert severity="error" role="alert" onClose={verwerfen}>
           {fehlertext ?? t('protokoll.ausgabe.fehler')}
         </Alert>
       </Snackbar>
