@@ -1,5 +1,5 @@
 import { createTheme, type Shadows } from '@mui/material/styles'
-import { deDE } from '@mui/material/locale'
+import type { Localization } from '@mui/material/locale'
 // Lets createTheme accept the date pickers' own component keys below.
 import type {} from '@mui/x-date-pickers/themeAugmentation'
 import {
@@ -58,7 +58,7 @@ const heading = (size: string) => ({
   letterSpacing: 'normal',
 })
 
-export const muiTheme = createTheme({
+const optionen: Parameters<typeof createTheme>[0] = {
   // Points MUI's light and dark schemes at the same attribute our own CSS uses,
   // so one data-theme flip recolours both.
   cssVariables: { colorSchemeSelector: '[data-theme="%s"]' },
@@ -515,7 +515,14 @@ export const muiTheme = createTheme({
       },
     },
   },
-  // MUI ships English defaults for its own internal strings: the Autocomplete's
-  // "No options", pagination labels, and so on. Feature 9's species picker would
-  // otherwise announce English inside an otherwise German form.
-}, deDE)
+}
+
+/* The theme for one language.
+ *
+ * MUI ships English defaults for its own internal strings: the Autocomplete's
+ * "No options", pagination labels, and so on. Feature 9's species picker would
+ * otherwise announce English inside an otherwise German form, so the texts come
+ * from i18n/sprachen.ts and the theme is rebuilt when the language changes. */
+export function muiTheme(texte: Localization) {
+  return createTheme(optionen, texte)
+}

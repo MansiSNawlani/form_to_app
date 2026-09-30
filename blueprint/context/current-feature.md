@@ -75,7 +75,7 @@ message says it could not be saved to his account and to try again.
   devtools, the "last saved" time reads `30/09/2026, 14:05` style rather than US
   `9/30/2026, 2:05 PM`. `npm test`, `npm run build` and `npm run lint` pass.
 
-- [ ] **Step 3 - MUI and the date pickers follow the language** - `muiTheme.ts` exports a
+- [x] **Step 3 - MUI and the date pickers follow the language** - `muiTheme.ts` exports a
   function of the locale instead of a fixed theme; `main.tsx` rebuilds it (memoised) when
   i18next's language changes. `DatumsProvider.tsx` reads `adapterLocale` and `localeText` from
   step 2 and re-renders on a language change. Its header comment, and the `en.json is a stub`
