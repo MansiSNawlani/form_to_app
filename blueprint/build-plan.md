@@ -323,7 +323,7 @@ These are not features and are not tracked here. They happen first.
   this feature's: a deleted account takes the owner of every protocol it filed with it, and
   those records have to stay readable. `app/benutzer/dienst.py` has said so since 2a.
 - [ ] 17. English translation
-  - [ ] 17a. Die Sprache gilt überall: a DE / EN switch in the header that anyone can use,
+  - [x] 17a. Die Sprache gilt überall: a DE / EN switch in the header that anyone can use,
         saved to the signed-in account through a new PATCH /api/v1/ich; MUI's own texts,
         the date pickers and every date and time on screen follow the chosen language; a
         test that en.json never holds a key German lacks or a mismatched placeholder
