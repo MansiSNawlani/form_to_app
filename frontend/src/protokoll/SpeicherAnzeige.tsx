@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { spracheFuer } from '../i18n/sprachen'
 import type { SaveState } from './entwurf/useAutoSave'
 
 /* The dot is decorative: colour alone never carries the meaning, the text beside
@@ -22,7 +23,7 @@ function SpeicherAnzeige({ live = true, ...state }: SaveState & { live?: boolean
         return t('protokoll.speichern.konflikt')
       case 'saved':
         return t('protokoll.speichern.gespeichertUm', {
-          zeit: new Intl.DateTimeFormat(i18n.language, {
+          zeit: new Intl.DateTimeFormat(spracheFuer(i18n.language).format, {
             timeStyle: 'short',
           }).format(new Date(state.zeitpunkt)),
         })

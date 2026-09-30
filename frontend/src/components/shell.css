@@ -106,19 +106,33 @@
 }
 
 /* One line, never wrapped into a second row. The address is the only part that
-   can grow without limit, so it is the only part allowed to shrink. */
+   can grow without limit, so it is the only part allowed to shrink.
+
+   Never narrower than its controls, which is what the default min-width keeps
+   true. Until feature 17a this block had min-width: 0 and shrank as a whole, so
+   once the address was gone it went on shrinking and pushed Abmelden off the
+   right edge; the language switch made that happen on a Super Admin's header
+   below about 1180px. What gives way after the address is the brand, which
+   wraps and grows taller, the trade the section bar made in feature 10. */
 .site-header__user {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: nowrap;
+  flex: 1 1 auto;
   gap: 0.75rem;
   font-size: var(--step--1);
   color: var(--muted);
-  min-width: 0;
 }
 
+/* inline-size containment makes the address count as zero wide when the block
+   above works out its minimum, so the address is what disappears first, and
+   flex-grow hands it back whatever room there is. */
 .site-header__konto {
+  contain: inline-size;
+  flex: 1 1 auto;
   min-width: 0;
+  text-align: right;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

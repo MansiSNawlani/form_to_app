@@ -14,6 +14,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiAnfrage } from '../api/client'
 import { ApiFehler, NICHT_ANGEMELDET } from '../api/fehler'
 import type { AnmeldungAnfrage, BenutzerAntwort } from '../api/typen'
+import type { Locale } from '../i18n/sprachen'
 
 /** The one cache entry holding the account. Exported so a test can seed it. */
 export const SITZUNGS_KEY = ['sitzung'] as const
@@ -160,4 +161,34 @@ export function useAbmeldung() {
       sitzungBestand = false
     },
   })
+}
+
+/* Saving the interface language to the signed-in account.
+ *
+ * The account comes back and goes straight into the cache, as with signing in,
+ * so useKontoSprache finds the account already agreeing with the screen.
+ *
+ * Two quick clicks, EN then DE, must end on DE both on the server and on the
+ * screen. The scope makes TanStack Query send the saves one after another in
+ * click order, so the server keeps the last one; the callback given to mutate
+ * runs for the latest call only, so the EN answer arriving first is never
+ * written into the cache, where useKontoSprache would switch the screen back.
+ */
+export function useSpracheSpeichern() {
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: (locale: Locale) =>
+      apiAnfrage<BenutzerAntwort>('/ich', { methode: 'PATCH', koerper: { locale } }),
+    scope: { id: 'sprache' },
+  })
+
+  return {
+    speichern: (locale: Locale) =>
+      mutation.mutate(locale, {
+        onSuccess: (benutzer) => queryClient.setQueryData(SITZUNGS_KEY, benutzer),
+      }),
+    laeuft: mutation.isPending,
+    fehlgeschlagen: mutation.isError,
+    verwerfen: mutation.reset,
+  }
 }

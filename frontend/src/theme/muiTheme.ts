@@ -1,5 +1,5 @@
 import { createTheme, type Shadows } from '@mui/material/styles'
-import { deDE } from '@mui/material/locale'
+import type { Localization } from '@mui/material/locale'
 // Lets createTheme accept the date pickers' own component keys below.
 import type {} from '@mui/x-date-pickers/themeAugmentation'
 import {
@@ -58,7 +58,7 @@ const heading = (size: string) => ({
   letterSpacing: 'normal',
 })
 
-export const muiTheme = createTheme({
+const optionen: Parameters<typeof createTheme>[0] = {
   // Points MUI's light and dark schemes at the same attribute our own CSS uses,
   // so one data-theme flip recolours both.
   cssVariables: { colorSchemeSelector: '[data-theme="%s"]' },
@@ -504,6 +504,46 @@ export const muiTheme = createTheme({
         },
       },
     },
+    /* The same ring as the global :focus-visible rule below, for everything
+       built on ButtonBase: buttons, icon buttons, toggle buttons, links styled
+       as buttons. ButtonBase sets outline: 0 on its own root, which is injected
+       after the global rule and so beat it, leaving every one of them with no
+       visible keyboard focus at all. Found in feature 17a. */
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focusVisible': {
+            outline: '3px solid var(--focus)',
+            outlineOffset: '2px',
+          },
+        },
+      },
+    },
+    /* The header's DE / EN switch. Flat and neutral like an outlined button,
+       with the chosen language in the accent so it is visible rather than only
+       announced. Themed here so any later toggle group inherits the look. */
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          paddingBlock: '0.15rem',
+          paddingInline: '0.55rem',
+          fontSize: 'var(--step--1)',
+          fontWeight: 600,
+          lineHeight: 1.4,
+          color: 'var(--muted)',
+          borderColor: 'var(--border-strong)',
+          backgroundColor: 'var(--surface)',
+          '&:hover': {
+            color: 'var(--text)',
+            backgroundColor: 'var(--surface-sunken)',
+          },
+          '&.Mui-selected, &.Mui-selected:hover': {
+            color: 'var(--accent)',
+            backgroundColor: 'var(--accent-soft)',
+          },
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         // Visible focus is a requirement, not a default. MUI's own focus styling
@@ -515,7 +555,14 @@ export const muiTheme = createTheme({
       },
     },
   },
-  // MUI ships English defaults for its own internal strings: the Autocomplete's
-  // "No options", pagination labels, and so on. Feature 9's species picker would
-  // otherwise announce English inside an otherwise German form.
-}, deDE)
+}
+
+/* The theme for one language.
+ *
+ * MUI ships English defaults for its own internal strings: the Autocomplete's
+ * "No options", pagination labels, and so on. Feature 9's species picker would
+ * otherwise announce English inside an otherwise German form, so the texts come
+ * from i18n/sprachen.ts and the theme is rebuilt when the language changes. */
+export function muiTheme(texte: Localization) {
+  return createTheme(optionen, texte)
+}

@@ -1,6 +1,6 @@
-"""Signing in, signing out, and asking who you are.
+"""Signing in, signing out, asking who you are, and choosing your language.
 
-Three thin routes. The rule about who may sign in lives in
+Four thin routes. The rule about who may sign in lives in
 app/benutzer/dienst.py, the token in app/security/token.py and the cookie in
 app/api/sitzung.py, so what is left here is parsing, delegating and answering.
 
@@ -14,9 +14,9 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
-from app.api.schemas import AnmeldungAnfrage, BenutzerAntwort, FehlerAntwort
+from app.api.schemas import AnmeldungAnfrage, BenutzerAntwort, FehlerAntwort, IchAendernAnfrage
 from app.api.sitzung import loesche_sitzung, setze_sitzung
-from app.benutzer.dienst import melde_an
+from app.benutzer.dienst import melde_an, setze_sprache
 from app.db import get_session
 
 router = APIRouter(prefix="/api/v1", tags=["Anmeldung"])
@@ -55,6 +55,22 @@ async def ich(benutzer: AngemeldeterBenutzer) -> BenutzerAntwort:
     whom.
     """
     return BenutzerAntwort.model_validate(benutzer)
+
+
+@router.patch("/ich", responses=ABLEHNUNGEN)
+async def ich_aendern(
+    benutzer: AngemeldeterBenutzer,
+    anfrage: IchAendernAnfrage,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> BenutzerAntwort:
+    """Change the signed-in person's own interface language, and nothing else.
+
+    No id in the path: the account is the one the session belongs to, so there is
+    nobody else this can reach. Everything else about an account stays with the
+    Super Admin's PATCH /benutzer/{id}.
+    """
+    geaendert = await setze_sprache(session, benutzer, locale=anfrage.locale)
+    return BenutzerAntwort.model_validate(geaendert)
 
 
 @router.post("/abmeldung", status_code=status.HTTP_204_NO_CONTENT)

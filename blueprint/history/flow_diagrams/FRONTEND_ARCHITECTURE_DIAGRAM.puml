@@ -36,9 +36,11 @@ title FRONTEND FOLDER MAP - frontend/src/**\n(what lives where, and the one-line
 package "main.tsx  (the entry point)" as entry #FFF3CD {
   note as EntryNote
     Runs ONCE, before anything else. Sets up, from the outside in:
-    ThemeProvider (MUI + our tokens) -> QueryClientProvider (TanStack
+    ThemaProvider (MUI + our tokens, rebuilt when the language changes
+    so MUI's own texts follow it) -> QueryClientProvider (TanStack
     Query cache, lives ABOVE the router so it survives every
-    navigation) -> DatumsProvider (date-formatting locale context) ->
+    navigation) -> DatumsProvider (date pickers in the current
+    language) ->
     RouterProvider (routes.tsx). Order matters: whatever wraps
     whatever else is available to it via React Context.
   end note
@@ -66,14 +68,21 @@ package "routes.tsx  (route table)" as routes #FFF3CD {
 package "components/  (app shell, shared chrome)" as shellpkg #E8F4FD {
   [Layout.tsx]
   [AppShell.tsx]
+  [SiteHeader.tsx]
   [SiteFooter.tsx]
   [ThemeToggle.tsx]
+  [SprachUmschalter.tsx]
+  [BestaetigungsDialog.tsx]
+  [DateiPicker.tsx]
   [NotFound.tsx]
   note bottom of shellpkg
     Layout.tsx wraps every page in AppShell (header/footer/skip-link)
     and renders <Outlet/> for whichever page matched. This is why
     navigating between sections never re-mounts the header: only the
     <Outlet/>'s content changes.
+    SprachUmschalter.tsx is the DE / EN switch in the header and on
+    the login page; signed in, it saves the choice to the account
+    through PATCH /api/v1/ich (useSpracheSpeichern in useSitzung.ts).
   end note
 }
 
@@ -95,19 +104,26 @@ package "auth/  (who is signed in)" as authpkg #E8F4FD {
 
 package "i18n/  (translations)" as i18npkg #E8F4FD {
   [index.ts]
+  [sprachen.ts]
   [resources.d.ts]
   [DatumsProvider.tsx]
+  [locales/de.json, en.json]
   note bottom of i18npkg
     react-i18next. No component ever hard-codes a user-facing string;
-    every one is a t('some.key') lookup into a German (later English)
-    resource file. resources.d.ts makes the KEYS themselves type-checked,
+    every one is a t('some.key') lookup into de.json or en.json. German
+    is the source and the fallback: a key en.json does not have yet
+    shows German. resources.d.ts makes the KEYS themselves type-checked,
     so t('anmeldung.titeel') (typo) is a compile error, not a blank label.
+    sprachen.ts holds, per language, everything else that follows it:
+    MUI's own texts, the date pickers' texts and the Intl date format
+    (en-GB, so English dates are still day first).
   end note
 }
 
 package "theme/  (design tokens -> MUI)" as themepkg #E8F4FD {
   [tokens.ts]
   [muiTheme.ts]
+  [ThemaProvider.tsx]
   note bottom of themepkg
     styles/theme.css defines raw CSS custom properties (colour, radius,
     spacing) for light AND dark mode. muiTheme.ts reads those tokens

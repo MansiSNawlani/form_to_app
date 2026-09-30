@@ -4,6 +4,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from httpx import AsyncClient, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -126,3 +127,91 @@ async def test_abmeldung_ohne_sitzung_ist_kein_fehler(client: AsyncClient) -> No
     """The sign-out button must work when the session has already expired, which
     is exactly when somebody is most likely to press it."""
     assert (await client.post("/api/v1/abmeldung")).status_code == 204
+
+
+async def test_eigene_sprache_aendern(
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
+) -> None:
+    await anlegen()
+    assert (await anmelden()).status_code == 200
+
+    antwort = await client.patch("/api/v1/ich", json={"locale": "en"})
+
+    assert antwort.status_code == 200
+    assert antwort.json()["locale"] == "en"
+    assert (await client.get("/api/v1/ich")).json()["locale"] == "en"
+
+
+async def test_eigene_sprache_laesst_andere_konten_in_ruhe(
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient, session: AsyncSession
+) -> None:
+    """The route takes no id, so it can only ever reach the caller's own account."""
+    await anlegen()
+    andere = await anlegen(email="bea@ffs.de")
+    assert (await anmelden()).status_code == 200
+
+    await client.patch("/api/v1/ich", json={"locale": "en"})
+
+    await session.refresh(andere)
+    assert andere.locale == "de"
+
+
+@pytest.mark.parametrize(
+    "feld",
+    [
+        {"rollen": ["SUPER_ADMIN"]},
+        {"email": "neu@ffs.de"},
+        {"ist_aktiv": False},
+        {"regierungspraesidium": 1},
+    ],
+)
+async def test_eigenes_konto_sonst_nicht_aenderbar(
+    feld: dict[str, object], anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
+) -> None:
+    """The permission this route must never grant: a person promoting themselves.
+    Refused outright rather than ignored, so the language alongside is not
+    written either."""
+    await anlegen()
+    assert (await anmelden()).status_code == 200
+
+    antwort = await client.patch("/api/v1/ich", json={"locale": "en", **feld})
+
+    assert antwort.status_code == 422
+    konto = (await client.get("/api/v1/ich")).json()
+    assert konto["rollen"] == ["SUBMITTER"]
+    assert konto["email"] == "anna@ffs.de"
+    assert konto["locale"] == "de"
+
+
+@pytest.mark.parametrize("koerper", [{"locale": "fr"}, {"locale": None}, {}])
+async def test_unbrauchbare_sprache_ist_422(
+    koerper: dict[str, object], anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient
+) -> None:
+    await anlegen()
+    assert (await anmelden()).status_code == 200
+
+    antwort = await client.patch("/api/v1/ich", json=koerper)
+
+    assert antwort.status_code == 422
+    assert (await client.get("/api/v1/ich")).json()["locale"] == "de"
+
+
+async def test_sprache_aendern_ohne_sitzung_ist_401(client: AsyncClient) -> None:
+    antwort = await client.patch("/api/v1/ich", json={"locale": "en"})
+
+    assert antwort.status_code == 401
+    assert antwort.json()["code"] == "NICHT_ANGEMELDET"
+
+
+async def test_gesperrtes_konto_aendert_keine_sprache(
+    anlegen: Anlegen, anmelden: Anmelden, client: AsyncClient, session: AsyncSession
+) -> None:
+    benutzer = await anlegen()
+    assert (await anmelden()).status_code == 200
+    await setze_aktiv(session, "anna@ffs.de", aktiv=False)
+
+    antwort = await client.patch("/api/v1/ich", json={"locale": "en"})
+
+    assert antwort.status_code == 401
+    await session.refresh(benutzer)
+    assert benutzer.locale == "de"

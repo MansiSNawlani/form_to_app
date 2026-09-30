@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { spracheFuer } from '../../i18n/sprachen'
 import { gleicheAntworten, sicherungsStore, type Sicherung } from './sicherung'
 import type { Antworten, Entwurf } from './typen'
 
@@ -75,7 +76,7 @@ function SicherungAngebot({ entwurf, form, jetztSpeichern }: SicherungAngebotPro
     setSicherung(null)
   }
 
-  const gehalten = new Intl.DateTimeFormat(i18n.language, {
+  const gehalten = new Intl.DateTimeFormat(spracheFuer(i18n.language).format, {
     dateStyle: 'long',
     timeStyle: 'short',
   }).format(new Date(sicherung.zeitpunkt))

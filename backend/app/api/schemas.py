@@ -158,6 +158,20 @@ class KontoAendernAnfrage(BaseModel):
         return wert
 
 
+class IchAendernAnfrage(BaseModel):
+    """What a signed-in person may change about their own account: the language.
+
+    A model of its own rather than a slice of KontoAendernAnfrage, because the
+    point is what it cannot carry. extra="forbid" turns a body that also names
+    rollen or ist_aktiv into a refusal, so the only way to promote yourself is a
+    Super Admin, exactly as before this route existed.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    locale: Locale
+
+
 class PasswortAnfrage(BaseModel):
     """A new password for an account, set by an administrator.
 

@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { spracheFuer } from '../i18n/sprachen'
 import HerunterladenKnopf from './ausgabe/HerunterladenKnopf'
 import ProtokollTitel from './ProtokollTitel'
 import SpeicherAnzeige from './SpeicherAnzeige'
@@ -15,7 +16,7 @@ interface ProtokollKopfProps {
 function ProtokollKopf({ entwurf, saveState }: ProtokollKopfProps) {
   const { t, i18n } = useTranslation()
 
-  const angelegtAm = new Intl.DateTimeFormat(i18n.language, {
+  const angelegtAm = new Intl.DateTimeFormat(spracheFuer(i18n.language).format, {
     dateStyle: 'long',
   }).format(new Date(entwurf.created_at))
 

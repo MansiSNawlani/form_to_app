@@ -19,9 +19,10 @@ import { FALLBACK_LOCALE, SUPPORTED_LOCALES, type Locale } from './sprachen'
  * the account overrides it a moment later. It is also what the login page runs
  * on, since nobody has an account there yet.
  *
- * en.json is a deliberate stub holding two keys. It is not a translation effort;
- * feature 17 fills it. It exists so the fallback path is exercised rather than
- * assumed: every key it does not define must render German.
+ * en.json is filled in over features 17b to 17e. Until a key reaches it, that
+ * key renders German through the fallback, which is the fallback working rather
+ * than a fault. What else follows the language, MUI's own texts, the date
+ * pickers and dates spelt out in words, is decided in sprachen.ts.
  */
 
 /* Re-exported rather than declared here, so that a module with no browser in it

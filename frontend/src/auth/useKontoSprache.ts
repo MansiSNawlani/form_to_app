@@ -6,9 +6,9 @@
  * answer only so the very first paint after a reload is in the right language,
  * before /ich has answered.
  *
- * The consequence, accepted knowingly: en.json is still a stub, so an account
- * set to en sees mostly German through the fallback until feature 17 fills it
- * in. That is the fallback working as designed rather than a fault.
+ * The account wins at sign-in, over whatever was picked on the login page. A
+ * choice made once signed in is saved to the account by SprachUmschalter, which
+ * also updates the session, so this sees nothing to correct.
  */
 
 import { useEffect } from 'react'
