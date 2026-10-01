@@ -354,5 +354,519 @@
       "text": "Your account may only see its own protocols. If you need access here, please contact the administrators.",
       "knopf": "Go to my protocols"
     }
+  },
+  "protokoll": {
+    "ausgabe": {
+      "knopf": "Download as PDF",
+      "laeuft": "Creating ...",
+      "fehler": "The protocol could not be downloaded. Please try again."
+    },
+    "kopf": {
+      "alleProtokolle": "All protocols",
+      "entwurf": "Draft",
+      "angelegtAm": "created on {{datum}}",
+      "titelPlatzhalter": "Protocol"
+    },
+    "abschnitte": {
+      "navLabel": "Sections of the protocol",
+      "anlass": "Occasion and sampling stretch",
+      "messdaten": "Measurements and hydrology",
+      "umland": "Surrounding land, bank and bed",
+      "struktur": "Structures and management",
+      "ausruestung": "Equipment and fished areas",
+      "faenge": "Catch",
+      "anlagen": "Map and photos",
+      "abschnittVon": "Section {{nr}} of {{anzahl}}:"
+    },
+    "laedt": "Loading the protocol.",
+    "nichtGefunden": {
+      "titel": "Protocol not found",
+      "text": "There is no protocol at this address that you are allowed to open. The link may be out of date, or the protocol may belong to another account. Your own protocols are listed in the overview."
+    },
+    "ladefehler": {
+      "titel": "The protocol could not be loaded",
+      "text": "The protocol could not be fetched. The answers you have saved are not affected.",
+      "erneut": "Try again"
+    },
+    "navigation": {
+      "zurueck": "Back",
+      "weiter": "Next: {{abschnitt}}"
+    },
+    "abschnitt1": {
+      "anlass": {
+        "legend": "Occasion of the survey",
+        "hinweis": "The occasion decides which other answers become mandatory.",
+        "feld": {
+          "anlass": "Occasion (Anlass)",
+          "monitoringnummer": "Monitoring stretch no. (Monitoringstrecken-Nr.)",
+          "monitoringnummerHinweis": "Only for fish monitoring under the WFD (WRRL) or the Habitats Directive (FFH).",
+          "rp": "Regional council (Regierungspräsidium)",
+          "datum": "Date",
+          "uhrzeit": "Time",
+          "quelle": "Source",
+          "quelleHinweis": "Which project or reporting route the survey comes from.",
+          "psNummer": "PS number"
+        }
+      },
+      "bearbeiter": {
+        "legend": "Surveyor (Bearbeiter)",
+        "hinweis": "The person who carried out the survey. This is not necessarily the account that submits the protocol.",
+        "feld": {
+          "name": "Name",
+          "firma": "Company or club",
+          "strasse": "Street and house number",
+          "plz": "Postcode",
+          "ort": "Town",
+          "telefon": "Telephone",
+          "email": "Email"
+        }
+      },
+      "probestrecke": {
+        "legend": "Sampling stretch (Probestrecke)",
+        "hinweis": "The section that was fished. The same stretch can be fished in several years and keeps its details.",
+        "vorfluterCallout": {
+          "titel": "Chain of receiving waters.",
+          "text": "Enter them going downstream from the sampling stretch. The chain must end at the Rhein (Rhine) or the Donau (Danube), so that the stretch can be placed in the river network."
+        },
+        "feld": {
+          "gewaessername": "Water body (Gewässer)",
+          "gewaessertyp": "Water body type (Gewässertyp)",
+          "gewaessertypHinweis": "For a lake, a pond and a cut-off oxbow, section 2 (hydrology) is left out.",
+          "laenge": "Length of the stretch",
+          "ortsangabe": "Location",
+          "vorfluter1": "Receiving water 1 (Vorfluter)",
+          "vorfluter2": "Receiving water 2 (Vorfluter)",
+          "vorfluter3": "Receiving water 3 (Vorfluter)",
+          "vorfluter4": "Receiving water 4 (Vorfluter)",
+          "vorfluter5": "Receiving water 5 (Vorfluter)",
+          "untere": "Lower boundary",
+          "untereHinweis": "How the boundary can be recognised on site, for example a bridge.",
+          "utmRwUnten": "Lower boundary, easting",
+          "utmHwUnten": "Lower boundary, northing",
+          "obere": "Upper boundary",
+          "utmRwOben": "Upper boundary, easting",
+          "utmHwOben": "Upper boundary, northing"
+        },
+        "koordinatenCallout": {
+          "titel": "Coordinates in EPSG:25832",
+          "text": "(ETRS89 / UTM zone 32N), as in the previous form. Values outside Baden-Württemberg are refused."
+        },
+        "kartenHinweis": "Picking the place on a map comes later. Until then the coordinates are typed in."
+      }
+    },
+    "abschnitt2": {
+      "messdaten": {
+        "legend": "Measurements",
+        "hinweis": "The values measured or estimated at the water body during the survey.",
+        "feld": {
+          "temperatur": "Water temperature",
+          "leitfaehigkeit": "Conductivity",
+          "sichttiefe": "Visibility depth, estimated",
+          "sichttiefeHinweis": "If the bottom can be seen along the whole sampling stretch, please give its maximum depth.",
+          "regenfaelle": "Rainfall",
+          "truebung": "Turbidity",
+          "schaumbildung": "Foam"
+        }
+      },
+      "hydrologie": {
+        "legend": "Hydrology",
+        "hinweis": "How the water body looks and behaves along the sampling stretch. All answers are estimates within ranges, not measurements.",
+        "nichtRelevant": "Hydrology does not apply to standing water. The fields of this section are left out for the chosen water body type.",
+        "feld": {
+          "breite": "Mean width",
+          "breiteSchaetzwert": "Estimate of the width",
+          "schaetzwertHinweis": "A closer estimate within the range chosen above.",
+          "tiefe": "Mean depth",
+          "tiefeSchaetzwert": "Estimate of the depth",
+          "tiefenvarianz": "Depth variation",
+          "mitFlachstellen": "With shallows",
+          "mitGumpen": "With pools",
+          "linienfuehrung": "Course",
+          "furkationen": "With branching channels",
+          "stroemung": "Current",
+          "rueckstroemung": "Backflows / eddies",
+          "fliessgeschwindigkeit": "Flow velocity",
+          "wasserfuehrung": "Water level",
+          "stillwasserbereich": "Still water areas",
+          "gesamtprofil": "Overall profile"
+        }
+      }
+    },
+    "abschnitt3": {
+      "summe": "Total: {{summe}} %",
+      "umland": {
+        "legend": "Surrounding land",
+        "hinweis": "How the land along the sampling stretch is used, split into shares.",
+        "anteile": {
+          "legend": "Use of the surrounding land"
+        },
+        "feld": {
+          "nadelwald": "Coniferous forest",
+          "mischwald": "Mixed forest",
+          "laubwald": "Deciduous forest",
+          "auwald": "Floodplain forest",
+          "wiese": "Meadow / pasture",
+          "kulturlandAcker": "Farmland / arable land",
+          "feuchtgebietMoor": "Wetland / bog",
+          "siedlungsgebiet": "Built-up area"
+        }
+      },
+      "ufer": {
+        "legend": "Bank",
+        "hinweis": "The bank of the sampling stretch. Slope, vegetation and reinforcement are each split into shares of their own.",
+        "neigung": {
+          "legend": "Slope"
+        },
+        "bewuchs": {
+          "legend": "Bank vegetation above the waterline"
+        },
+        "uferverbauung": {
+          "legend": "Bank reinforcement"
+        },
+        "feld": {
+          "randstreifen": "Buffer strip",
+          "flachufer": "Flat bank, 0-20°",
+          "schraegufer": "Sloping bank, 20-60°",
+          "abbruch": "Steep drop, 60-90°",
+          "unterspuelung": "Undercut, >90°",
+          "geschuetteterDamm": "Share of the stretch with a built-up embankment",
+          "dammNeigung": "Slope of the embankment, approx.",
+          "buhnenbereich": "Groyne area",
+          "wurzeln": "Share of the bank with tree roots reaching into the water",
+          "ohneBewuchs": "No vegetation",
+          "graeser": "Grasses",
+          "schilfRohr": "Reeds / canes",
+          "krautigeBlattpflanzen": "Herbaceous plants",
+          "straeucher": "Shrubs",
+          "weiden": "Willows",
+          "erlen": "Alders",
+          "andereBaeume": "Other trees",
+          "sonstigerBewuchs": "Other vegetation",
+          "sonstigerBewuchsText": "Other vegetation, which",
+          "uferverbauKeiner": "None (visible)",
+          "mauerUnverfugt": "Wall/paving, without mortar",
+          "faschinen": "Fascines",
+          "drahtnetze": "Wire mesh",
+          "ueberwachsen": "Overgrown",
+          "mauerVerfugt": "Wall/paving, mortared",
+          "steinwurf": "Riprap",
+          "sonstigerUferverbau": "Other bank reinforcement",
+          "sonstigerUferverbauText": "Other bank reinforcement, which"
+        }
+      },
+      "gewaessersohle": {
+        "legend": "Bed of the water body",
+        "hinweis": "The bottom of the sampling stretch. Substrates and bed reinforcement are each split into shares of their own.",
+        "substrat": {
+          "legend": "Substrate distribution"
+        },
+        "sohlverbauung": {
+          "legend": "Bed reinforcement"
+        },
+        "besonderheiten": {
+          "legend": "Special features"
+        },
+        "feld": {
+          "schlamm": "Mud",
+          "lehm": "Loam / clay",
+          "sonstigesErdreich": "Other soil",
+          "sand": "Sand (<2 mm)",
+          "kies": "Gravel (>2 mm)",
+          "grobkies": "Coarse gravel (>20 mm)",
+          "steine": "Stones (>63 mm)",
+          "felsen": "Rock (>50 cm)",
+          "keineSohlverbauung": "None (visible)",
+          "rasensteine": "Grass pavers",
+          "drahtnetzeSohlverbauung": "Wire mesh",
+          "steinschuettung": "Rock fill",
+          "pflasterung": "Paving",
+          "betonschale": "Concrete channel",
+          "kolmatierteSohle": "Clogged bed (colmation)",
+          "eisenocker": "Iron ochre",
+          "treibsand": "Shifting sand",
+          "faulschlamm": "Sludge"
+        }
+      }
+    },
+    "abschnitt4": {
+      "strukturen": {
+        "legend": "Natural structures in the water",
+        "hinweis": "How strongly each structure is present in the sampling stretch, estimated on a scale from 0 to 3.",
+        "feld": {
+          "totholz": "Dead wood",
+          "wurzeln": "Roots",
+          "aeste": "Branches hanging into the water",
+          "schilf": "Reeds / reed beds",
+          "submerseMakrophyten": "Submerged macrophytes",
+          "schwimmblattpflanzen": "Floating-leaved plants",
+          "emerseMakrophyten": "Emergent macrophytes",
+          "sonstigeStrukturen": "Other structures",
+          "sonstigeStrukturenText": "Other structures, which?"
+        }
+      },
+      "einfluesse": {
+        "legend": "Influences from use",
+        "hinweis": "Which uses affect the sampling stretch. More than one may be ticked.",
+        "feld": {
+          "keine": "None (visible)",
+          "unbekannt": "Unknown",
+          "wasserkraft": "Hydropower",
+          "stauhaltung": "Impoundment",
+          "schwallbetrieb": "Hydropeaking",
+          "schifffahrt": "Shipping / boats",
+          "bewaesserung": "Irrigation",
+          "entwaesserung": "Drainage",
+          "hochwasserrueckhaltung": "Flood retention",
+          "hochwasserablauf": "Flood discharge",
+          "badebetrieb": "Bathing",
+          "viehtraenke": "Livestock watering",
+          "holzberieselung": "Timber sprinkling",
+          "trinkwasserversorgung": "Drinking water supply",
+          "sonstigeNutzung": "Other use",
+          "sonstigeNutzungText": "Other use, which?"
+        }
+      },
+      "bewirtschaftung": {
+        "legend": "Fishery management",
+        "hinweis": "How the sampling stretch is used for fishing. More than one may be ticked.",
+        "feld": {
+          "angelfischerei": "Angling",
+          "berufsfischerei": "Commercial fishing",
+          "teichspeisung": "Feeds a pond",
+          "teichablauf": "Pond outflow",
+          "berechtigter": "Holder of the fishing rights",
+          "berechtigterHinweis": "Club / contact person with telephone number and email address if there is one"
+        },
+        "besatz": {
+          "legend": "Stocking (Besatzmaßnahmen)",
+          "zeile": "Stocking {{nr}}",
+          "feld": {
+            "fischart": "Fish species",
+            "groessenklassen": "Size class(es)",
+            "jahr": "Year"
+          }
+        }
+      },
+      "bemerkungen": {
+        "legend": "Other",
+        "feld": {
+          "sonstigeBemerkungen": "Other remarks on the sampling stretch"
+        }
+      }
+    },
+    "abschnitt5": {
+      "ausruestung": {
+        "legend": "Equipment used",
+        "hinweis": "The electrofishing unit used for the survey, and how it was fitted.",
+        "feld": {
+          "egeraet": "Electrofishing unit, manufacturer, model",
+          "spannung": "Voltage",
+          "leistung": "Output power",
+          "bauweise": "Type of electrofishing unit",
+          "kiemennetz": "Gill or trammel net",
+          "stoppnetz": "Stop or barrier net"
+        }
+      },
+      "anodenfuehrer": {
+        "legend": "Anode operator (Anodenführer)",
+        "feld": {
+          "vorname": "First name",
+          "nachname": "Last name"
+        }
+      },
+      "anoden": {
+        "legend": "Anodes and cathode",
+        "feld": {
+          "ringanoden": "Number of ring anodes",
+          "ringanodenDurchmesser": "Diameter of the ring anodes",
+          "streifenanoden": "Number of strip anodes",
+          "kathode": "Cathode type"
+        }
+      },
+      "netze": {
+        "legend": "Also used"
+      },
+      "bereiche": {
+        "legend": "Fished areas",
+        "hinweis": "Which stretch was actually fished, in which direction and by which method. At least one of the two areas must be filled in.",
+        "feld": {
+          "laenge": "Effectively fished length",
+          "breite": "Effectively fished width"
+        },
+        "gesamteBreite": {
+          "legend": "Across the full width of the water body",
+          "stromauf": "Upstream, across the full width of the water body",
+          "stromab": "Downstream, across the full width of the water body",
+          "vomBoot": "From a boat, across the full width of the water body",
+          "watend": "Wading, across the full width of the water body",
+          "vomUfer": "From the bank, across the full width of the water body"
+        },
+        "entlangUfer": {
+          "legend": "Along the banks",
+          "stromauf": "Upstream, along the banks",
+          "stromab": "Downstream, along the banks",
+          "vomBoot": "From a boat, along the banks",
+          "watend": "Wading, along the banks",
+          "vomUfer": "From the bank, along the banks"
+        },
+        "richtung": "Direction",
+        "methode": "Method"
+      }
+    },
+    "abschnitt6": {
+      "bemerkung": {
+        "legend": "Additional remarks",
+        "hinweis": "Remarks on the survey or the fish stock that fit no column of the species table.",
+        "feld": "Additional remarks on the survey or the fish stock"
+      },
+      "tabelle": {
+        "legend": "Species found and size classes",
+        "hinweis": "All lengths in centimetres. Young-of-the-year fish (0+) must be identified by species during the survey and recorded separately; they are already counted in the size classes to the left.",
+        "beschriftung": "Species found and size classes in centimetres",
+        "gesamt": "Grand total",
+        "summeUnbekannt": "cannot be calculated",
+        "hinzufuegen": "Add species",
+        "voll": "The form has room for {{max}} species. No more can be added."
+      },
+      "spalte": {
+        "nr": "No.",
+        "art": "Species (Art)",
+        "summe": "Σ",
+        "summeName": "Total of the size classes",
+        "nullPlus": "of which 0+",
+        "nullPlusName": "of which young of the year (0+)",
+        "aktion": "Action"
+      },
+      "klasse": {
+        "klasse_1": {
+          "kopf": "≤ 5",
+          "name": "up to 5 cm"
+        },
+        "klasse_2": {
+          "kopf": ">5 - 10",
+          "name": "over 5 to 10 cm"
+        },
+        "klasse_3": {
+          "kopf": ">10 - 15",
+          "name": "over 10 to 15 cm"
+        },
+        "klasse_4": {
+          "kopf": ">15 - 20",
+          "name": "over 15 to 20 cm"
+        },
+        "klasse_5": {
+          "kopf": ">20 - 25",
+          "name": "over 20 to 25 cm"
+        },
+        "klasse_6": {
+          "kopf": ">25 - 30",
+          "name": "over 25 to 30 cm"
+        },
+        "klasse_7": {
+          "kopf": ">30 - 40",
+          "name": "over 30 to 40 cm"
+        },
+        "klasse_8": {
+          "kopf": ">40 - 50",
+          "name": "over 40 to 50 cm"
+        },
+        "klasse_9": {
+          "kopf": ">50 - 60",
+          "name": "over 50 to 60 cm"
+        },
+        "klasse_10": {
+          "kopf": "> 60",
+          "name": "over 60 cm"
+        }
+      },
+      "zeile": {
+        "art": "Species {{nr}}",
+        "feld": "Species {{nr}}, {{spalte}}",
+        "entfernen": "Remove species {{nr}}"
+      },
+      "meldung": {
+        "legend": "Notes on the catch table",
+        "zelle": "Species {{nr}}, {{spalte}}:"
+      }
+    },
+    "felder": {
+      "bitteWaehlen": "Please choose",
+      "einheit": {
+        "meter": "m",
+        "grad": "°C",
+        "mikrosiemens": "µS/cm",
+        "zentimeter": "cm",
+        "meterProSekunde": "m/s",
+        "prozent": "%",
+        "winkelgrad": "°",
+        "volt": "V",
+        "kilowatt": "kW"
+      },
+      "auswahlAufheben": "Clear selection"
+    },
+    "regeln": {
+      "monitoringnummerPflicht": "For fish monitoring under the WFD (WRRL) or the Habitats Directive (FFH), the monitoring stretch number is required.",
+      "vorfluterLuecke": "The chain must not have a gap. Please enter this receiving water.",
+      "vorfluterKeinEndpunkt": "The chain must end at the Rhein (Rhine) or the Donau (Danube).",
+      "vorfluterNachEndpunkt": "The chain ends at the Rhein or the Donau. This entry no longer belongs to it.",
+      "koordinateKeineGanzeZahl": "Please enter a whole number of metres, without separators.",
+      "koordinateRechtswertAusserhalb": "The easting lies outside Baden-Württemberg. Expected: {{rechtswertMin}} to {{rechtswertMax}}.",
+      "koordinateHochwertAusserhalb": "The northing lies outside Baden-Württemberg. Expected: {{hochwertMin}} to {{hochwertMax}}.",
+      "hydrologieBeiStillgewaesser": "Hydrology is not recorded for standing water. Please clear this answer, or change the water body type above if it is wrong.",
+      "hydrologieNichtZutreffendBeiFliessgewaesser": "This answer is saved as \"not applicable\", although the water body is flowing water. Please answer it, or change the water body type above if it is wrong.",
+      "schaetzwertOhneBand": "Please choose the range above first.",
+      "schaetzwertKeineZahl": "Please enter a number in metres, for example 1.5.",
+      "schaetzwertAusserhalbBand": "The estimate lies outside the range chosen above.",
+      "prozentKeineGanzeZahl": "Please enter a whole percentage from 0 to 100.",
+      "prozentsummeNichtHundert": "The shares must add up to exactly 100 %.",
+      "einfluesseKeineUndNutzung": "\"None (visible)\" is ticked, although a use is named below. Please remove one of the two.",
+      "einfluesseUnbekanntUndNutzung": "\"Unknown\" is ticked, although a use is named below. Please remove one of the two.",
+      "einfluesseBeideBlankett": "\"None (visible)\" and \"Unknown\" rule each other out. Please tick only one of the two.",
+      "zahlNegativ": "Please enter a value of 0 or more.",
+      "anodenKeine": "A survey is not possible without an anode. Please enter the number of ring anodes or strip anodes.",
+      "befischteLaengeNull": "Neither of the two areas has a fished length. Please enter at least one.",
+      "befischteBreiteNull": "Neither of the two areas has a fished width. Please enter at least one.",
+      "anzahlKeineGanzeZahl": "Please enter a whole number of 0 or more.",
+      "nullPlusUeberSumme": "There cannot be more young-of-the-year (0+) fish than the row counts in total.",
+      "artDoppelt": "This species is already in an earlier row.",
+      "keinNachweisMitFang": "This row reports no detection but still counts fish.",
+      "keinNachweisNebenArt": "\"kein Nachweis\" (no detection) rules out every other species in the table.",
+      "fangOhneNachweisCode": "If nothing was caught, please choose a \"kein Nachweis\" (no detection) entry instead of a species.",
+      "fehlt": "This answer is needed to submit. Please fill it in; you can save the protocol without it.",
+      "fehltProzentgruppe": "This block is not filled in yet. Please split the shares so that they add up to exactly 100 %; if the stretch has only one of them, enter 100 there and leave the rest empty.",
+      "fehltEinfluss": "Nothing is ticked in this block yet. Please tick the uses that apply; if none of them can be seen, tick \"None (visible)\", and if it cannot be judged, \"Unknown\".",
+      "fehltBewirtschaftung": "Nothing is ticked in this block yet. Please tick how the stretch is managed.",
+      "fehltRichtung": "This area has a fished length but no direction. Please tick whether it was fished upstream or downstream.",
+      "fehltMethode": "This area has a fished length but no method. Please tick whether it was fished wading, from a boat or from the bank.",
+      "fehltArt": "The protocol names no species yet. Please enter at least one species, or choose a \"kein Nachweis\" (no detection) entry if nothing was caught."
+    },
+    "abschnitt7": {
+      "groesse": "{{mb, number}} MB",
+      "laedt": "Loading attachments.",
+      "ersetzen": "Replace",
+      "entfernen": "Remove",
+      "entfernenFrage": {
+        "titel": "Remove attachment?",
+        "text": "\"{{dateiname}}\" will be removed from this protocol. Afterwards the file only exists where you chose it from; this cannot be undone here.",
+        "abbrechen": "Cancel",
+        "bestaetigen": "Remove"
+      },
+      "kartenausschnitt": {
+        "legend": "Map excerpt",
+        "hinweis": "A map excerpt showing where the sampling stretch lies. An image in {{formate, list(type: disjunction)}} format, up to {{maxMb}} MB.",
+        "waehlen": "Choose map excerpt",
+        "alt": "Map excerpt of the sampling stretch, file \"{{dateiname}}\"",
+        "statusMit": "Map excerpt attached: {{dateiname}}",
+        "statusOhne": "No map excerpt attached."
+      },
+      "fotos": {
+        "legend": "Photos of the sampling stretch",
+        "hinweis": "Pictures of the stretch, the bank and the bed. Up to {{max}} images in {{formate, list(type: disjunction)}} format, each up to {{maxMb}} MB. Several images can be chosen at once.",
+        "waehlen": "Choose photos",
+        "anzahl": "{{vorhanden}} of {{max}}",
+        "leer": "No photos attached yet.",
+        "alt": "Photo {{nummer}} of the sampling stretch, file \"{{dateiname}}\""
+      }
+    }
   }
 }
