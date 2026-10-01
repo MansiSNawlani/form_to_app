@@ -7,44 +7,65 @@ German; English is a presentation translation, not a second source of truth.
 
 ## Language
 
+The `_English_:` line under a term is how the interface writes it in English, decided for feature
+17b. It applies to `en.json` only. The `_Avoid_:` lines still govern names in code, docs and
+conversation, which stay German, so "surveyor" is the English label for Bearbeiter and still not a
+name for anything in the code.
+
+Where a term is a label (a column header, a field label, a filter name, a role), the German follows
+in brackets: "Sampling stretch (Probestrecke)". In a sentence, on a button or in a status chip,
+the plain English word is enough, because the reader has already met the label. Statuses, roles
+and the review decisions are the application's own words rather than FFS vocabulary, so they are
+plain English throughout. The one exception is the role Regierungspräsidium, which names an
+official body and so reads "Regional council (Regierungspräsidium)" like any other label.
+
 ### The survey
 
 **Befischung**:
 One survey event: a single visit to one stretch of water on one date, using one method.
+_English_: Electrofishing survey (Befischung); "survey" in a sentence
 _Avoid_: fishing trip, catch event, sampling run
 
 **Protokoll**:
 The record of one Befischung, as filled in by the person who carried it out.
+_English_: Protocol, without brackets, since it is the same word
 _Avoid_: report, sheet, document
 
 **Probestrecke**:
 The delimited stretch of water a Befischung covers, bounded by a lower (`untere`) and an upper
 (`obere`) point.
+_English_: Sampling stretch (Probestrecke); "sampling stretch" in a sentence
 _Avoid_: site, section, stretch, transect
 
 **Monitoringstrecke**:
 A Probestrecke that belongs to the state's WRRL or FFH monitoring programme and therefore carries a
 stable, officially assigned number. Only monitoring surveys have one.
+_English_: Monitoring stretch (Monitoringstrecke); "monitoring stretch" in a sentence, and "MST"
+stays as the short form before a number
 _Avoid_: monitoring site, station
 
 **Anlass**:
 The reason a Befischung was carried out (general stock assessment, WRRL monitoring, FFH monitoring,
 and so on). It drives which fields become mandatory.
+_English_: Occasion (Anlass); "occasion" in a sentence
 _Avoid_: purpose, reason, survey type
 
 **Bearbeiter**:
 The person who carried out the Befischung and is answerable for the Protokoll's contents. Not
 necessarily the person holding the account that submits it.
+_English_: Surveyor (Bearbeiter); "surveyor" in a sentence
 _Avoid_: author, editor, user, surveyor
 
 **Anodenführer**:
 The person operating the anode during electrofishing. Recorded by name, distinct from the Bearbeiter.
+_English_: Anode operator (Anodenführer)
 
 ### The water
 
 **Gewässer**:
 A named body of water. Identified authoritatively by an identifier from the state GIS dataset, never
 by name alone.
+_English_: Water body (Gewässer); "water body" in a sentence
 _Avoid_: water, river, stream
 
 **Gewässertyp**:
@@ -52,37 +73,44 @@ The classification of a Gewässer, stored as the numeric code the legacy form ex
 `12` Kanal, `13` Bach, `14` Fluss, `21` See, `26` Teich, `28` angebundenes Altwasser, `29`
 abgeschnittenes Altwasser. Codes below 20 plus `28` require the hydrology section; `21`, `26` and
 `29` suppress it entirely.
+_English_: Water body type (Gewässertyp)
 _Avoid_: water type, category, and the codes `31` and `32`, which the legacy form's JavaScript
 tests for but the field never exports (see [defect 9](docs/ffs-defect-list.md))
 
 **Vorfluter**:
 The Gewässer that a Gewässer flows into. Recorded as a chain that must terminate at the Rhein or the
 Donau, which establishes where in the state's drainage network a Probestrecke sits.
+_English_: Receiving water (Vorfluter)
 _Avoid_: receiving water, downstream water, outflow
 
 ### The catch
 
 **Art**:
 A species of fish, lamprey, crayfish, or mussel, chosen from a controlled vocabulary, never free text.
+_English_: Species (Art); "species" in a sentence. Species names themselves stay German
 _Avoid_: species name, fish type
 
 **Größenklasse**:
 One of the fixed total-length bands a caught individual is assigned to by estimate, not measurement.
+_English_: Size class (Größenklasse)
 _Avoid_: length class, size bucket
 
 **0+**:
 An individual hatched in the current year. Counted per species as a subset of that species' total, so
 it can never exceed it.
+_English_: Young of the year (0+)
 _Avoid_: juvenile, young of year, fry
 
 **Kein Nachweis**:
 An explicit record that a survey found nothing of a given group. A Protokoll with an empty catch is
 incomplete; a Protokoll asserting Kein Nachweis is complete. The two are not the same.
+_English_: No detection (Kein Nachweis)
 _Avoid_: no catch, empty, zero, null result
 
 **Besatzmaßnahme**:
 A past stocking of a species into the Gewässer, recorded as context for the observed catch, not as
 something observed during this survey.
+_English_: Stocking (Besatzmaßnahme)
 _Avoid_: stocking, restocking event
 
 ### Percentages and structure
@@ -90,11 +118,13 @@ _Avoid_: stocking, restocking event
 **Prozentgruppe**:
 A set of fields whose values must sum to exactly 100, describing how a Probestrecke's surroundings,
 bank, or bed divide between categories. Six of them exist on the E-Befischung Protokoll.
+_English_: Percentage group (Prozentgruppe)
 _Avoid_: percentage block, distribution, allocation
 
 **Semiquantitative Angabe**:
 A 0 to 3 rating (none, little, common, dominant) for a natural in-water structure. Ordinal, not a
 count and not a percentage.
+_English_: Semi-quantitative rating (Semiquantitative Angabe); "rating" in a sentence
 _Avoid_: score, rating, abundance
 
 ### Organisations and systems
@@ -102,15 +132,18 @@ _Avoid_: score, rating, abundance
 **FFS**:
 The Fischereiforschungsstelle Baden-Württemberg. Owns the Protokoll forms and the authoritative
 database, and performs final data stewardship.
+_English_: FFS, unchanged
 
 **FiaKa**:
 The authoritative government fisheries database that accepted Protokolle are transferred into. It is
 never reachable from the public application; the application's own store is a staging database.
+_English_: FiaKa, unchanged
 _Avoid_: the database, production DB, main DB
 
 **Regierungspräsidium**:
 One of the four regional authorities (Karlsruhe, Stuttgart, Freiburg, Tübingen) responsible for
 fisheries in its area. Every Protokoll names the one responsible for its Probestrecke.
+_English_: Regional council (Regierungspräsidium); "regional council" in a sentence
 _Avoid_: region, district, RP office
 
 ### Working with a Protokoll
@@ -122,25 +155,30 @@ _Avoid_: record, entry, form instance
 
 **Draft**:
 A Submission its owner is still filling in. Only its owner can see or change it.
+_English_: Draft
 
 **Locked**:
 The terminal state of an accepted Submission. Its contents are fixed and only a transfer to FiaKa
 acts on it further.
+_English_: Locked
 _Avoid_: finalised, closed, archived
 
 **Data Steward**:
 FFS staff who correct and quality-check submitted data. Distinct from a Reviewer, who decides whether
 a Submission is accepted, and from a Super Admin, who manages accounts.
+_English_: Data steward
 
 **In Prüfung**:
 A Submission a Reviewer has picked up. It is a courtesy to colleagues rather than a claim on the
 Submission: nothing reserves it to the person who took it, and a decision can be made without this
 step at all.
+_English_: In review
 _Avoid_: assigned, checked out, in progress
 
 **Entscheidung**:
 One of the three things a Reviewer can do with a submitted Protokoll: annehmen, Änderung anfordern,
 ablehnen. Nobody may take one about a Protokoll they filed themselves, whatever roles they hold.
+_English_: Decision; the three are Accept, Request changes, Reject
 _Avoid_: approval, sign-off, verdict
 
 **Änderung anfordern**:
@@ -148,6 +186,7 @@ Sending a Submission back to the person who filed it, with a Begründung saying 
 becomes editable again and keeps its original submission date; sending it in again is the same
 Submission, not a new one. It is also the only way back once something has been submitted, since a
 surveyor cannot withdraw one.
+_English_: Request changes; the status it leads to is "Changes needed"
 _Avoid_: reject with comment, return, bounce
 
 **Begründung**:
@@ -155,12 +194,14 @@ What a Reviewer writes when asking for a change or rejecting a Submission, and w
 filed it reads. Required for those two decisions and optional for accepting. Stored as
 `workflow_events.kommentar`, which is the column name project-overview.md fixes; Begründung is what
 it is called everywhere a person sees it.
+_English_: Reason
 _Avoid_: comment, note, feedback
 
 **Verlauf**:
 Everything that has happened to one Submission: who moved it from which state to which, when, and
 what they wrote. Its own record, separate from the audit trail of feature 15, which is about who
 changed which answer.
+_English_: History (Verlauf)
 _Avoid_: log, timeline, audit trail
 
 **Einlesen**:
@@ -169,6 +210,7 @@ answers already in place. Never as a Submission: the legacy form has known valid
 what is read in is checked by exactly the same rules as anything typed in, and whoever imported it
 puts the problems right before sending it. The word is about one file becoming one Draft, not about
 a bulk transfer of records.
+_English_: Import PDF on a button, "import" in a sentence
 _Avoid_: import, upload, migration, conversion
 
 **Protokoll-PDF**:
@@ -176,4 +218,5 @@ A Submission written back into the official form's own boxes, for its author to 
 print. It is the Protokoll E-Befischung as FFS has always had it on paper, with the legacy form's
 own JavaScript stripped out. Not everything a Submission holds fits on the paper: there is no box
 for the Bearbeiter's Ort, no room past the fourth Foto, and nowhere for the status or the Verlauf.
+_English_: Protocol PDF. The file itself stays German
 _Avoid_: export, printout, report, Ausdruck

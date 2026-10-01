@@ -45,6 +45,23 @@ describe('en.json', () => {
     expect(abweichend).toEqual([])
   })
 
+  // The screens 17b translated. 17e widens this to every namespace.
+  it.each([
+    'shell',
+    'common',
+    'anmeldung',
+    'sitzung',
+    'fehler',
+    'protokolle',
+    'pruefliste',
+    'benutzerverwaltung',
+  ])('translates every key under %s', (namensraum) => {
+    const fehlend = [...deutsch.keys()]
+      .filter((k) => k.startsWith(`${namensraum}.`))
+      .filter((k) => !englisch.has(k))
+    expect(fehlend).toEqual([])
+  })
+
   it('reads the placeholders it compares', () => {
     expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}')).toEqual(['kuerzel', 'sprache'])
     expect(platzhalter('{{anzahl, number}} Zeilen')).toEqual(['anzahl'])

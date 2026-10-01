@@ -22,12 +22,15 @@ test.skip(ADMIN === null, FEHLENDE_KONTEN)
    password: these accounts exist on a throwaway development database. */
 const PASSWORT = 'ein-langes-testpasswort'
 
-async function wegwerfkonto(page: Page): Promise<string> {
-  const email = `e2e17a-${Date.now()}-${Math.floor(Math.random() * 1000)}@test.de`
+async function wegwerfkonto(
+  page: Page,
+  { rollen = ['SUBMITTER'], locale = 'de' }: { rollen?: string[]; locale?: 'de' | 'en' } = {},
+): Promise<string> {
+  const email = `e2e17-${Date.now()}-${Math.floor(Math.random() * 1000)}@test.de`
 
   await anmelden(page, ADMIN!)
   const angelegt = await page.request.post('/api/v1/benutzer', {
-    data: { email, passwort: PASSWORT, rollen: ['SUBMITTER'] },
+    data: { email, passwort: PASSWORT, rollen, locale },
   })
   expect(angelegt.status()).toBe(201)
   await page.request.post('/api/v1/abmeldung')
@@ -119,6 +122,28 @@ test('zwei schnelle Klicks enden auf dem zweiten', async ({ page }) => {
     .toBe('de')
   await page.waitForTimeout(500)
   await expect(page.locator('html')).toHaveAttribute('lang', 'de')
+})
+
+/* Feature 17b: the frame and the three lists read in English. The account is made
+   in English, so this is about the screens, not about the switch above. All three
+   roles, so all three nav links show. */
+test('Rahmen und Listen erscheinen auf Englisch', async ({ page }) => {
+  await wegwerfkonto(page, { rollen: ['SUBMITTER', 'REVIEWER', 'SUPER_ADMIN'], locale: 'en' })
+
+  await page.goto('/')
+  const nav = page.getByRole('navigation', { name: 'Main navigation' })
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
+
+  await nav.getByRole('link', { name: 'My protocols' }).click()
+  await expect(page.getByRole('heading', { name: 'My protocols' })).toBeVisible()
+
+  await nav.getByRole('link', { name: 'Review queue' }).click()
+  await expect(page.getByRole('heading', { name: 'Review queue' })).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Species (Art)' })).toBeVisible()
+
+  await nav.getByRole('link', { name: 'User administration' }).click()
+  await expect(page.getByRole('heading', { name: 'User administration' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'New account' })).toBeVisible()
 })
 
 test('abgemeldet wechselt die Anmeldeseite die Sprache, ohne etwas zu speichern', async ({ page }) => {

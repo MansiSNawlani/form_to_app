@@ -92,7 +92,7 @@ function BenutzerZeile({ konto, istEigenes }: BenutzerZeileProps) {
         )}
       </TableCell>
 
-      <TableCell>{angelegt}</TableCell>
+      <TableCell className="zeile-tabular">{angelegt}</TableCell>
 
       {/* The row's one action, feature 16d. The same shape a protocol's row uses:
           a small outlined button that is really a link, in a cell of its own at
