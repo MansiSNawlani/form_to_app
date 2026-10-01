@@ -11,11 +11,13 @@ import { useForm, type UseFormRegister } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
+import type { BenutzerAntwort } from '../api/typen'
 import { useFehlertext } from '../api/useFehlertext'
 import lazbw from '../assets/lazbw.png'
 import SprachUmschalter from '../components/SprachUmschalter'
 import ThemeToggle from '../components/ThemeToggle'
 import { feldAria, fehlerId } from '../protokoll/felder/rahmen'
+import DemoZugang from './DemoZugang'
 import { useAnmeldung } from './useSitzung'
 import { zielNachAnmeldung } from './startseite'
 import { GRUND_PARAM, istAbgelaufen, WEITER_PARAM } from './weiter'
@@ -131,19 +133,19 @@ function AnmeldungSeite() {
     defaultValues: { email: '', passwort: '' },
   })
 
-  const absenden = handleSubmit((werte) => {
-    anmeldung.mutate(werte, {
-      /* Where to go is decided once the account is known, not before, because
-         FFS staff start on the Pruefliste and everybody else on their own
-         protocols. A page that was actually asked for still wins over both.
+  /* Where to go is decided once the account is known, not before, because
+     FFS staff start on the Pruefliste and everybody else on their own
+     protocols. A page that was actually asked for still wins over both.
 
-         replace, so the browser's back button returns to wherever they came
-         from rather than to a login page they are already past. */
-      onSuccess: (benutzer) =>
-        void navigate(zielNachAnmeldung(suchparameter.get(WEITER_PARAM), benutzer.rollen), {
-          replace: true,
-        }),
+     replace, so the browser's back button returns to wherever they came
+     from rather than to a login page they are already past. */
+  const weiter = (benutzer: BenutzerAntwort) =>
+    void navigate(zielNachAnmeldung(suchparameter.get(WEITER_PARAM), benutzer.rollen), {
+      replace: true,
     })
+
+  const absenden = handleSubmit((werte) => {
+    anmeldung.mutate(werte, { onSuccess: weiter })
   })
 
   const abgelehnt = useFehlertext(anmeldung.error)
@@ -230,6 +232,8 @@ function AnmeldungSeite() {
             {t(anmeldung.isPending ? 'anmeldung.laeuft' : 'anmeldung.absenden')}
           </Button>
         </form>
+
+        <DemoZugang onAngemeldet={weiter} />
       </main>
 
       <nav className="anmeldung__recht" aria-label={t('shell.footer.legalNavLabel')}>

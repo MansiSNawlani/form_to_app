@@ -343,6 +343,12 @@ application on one Vercel address, with PostgreSQL on Neon and the photographs
 in an S3-compatible bucket. `asgi.py` and `vercel.json` at the repository root
 exist only for that; nothing else reads them.
 
+Section 6 of the same guide sets up a **demo copy**: a separate deployment with
+its own database, where the sign-in page offers two buttons that open the app as
+a submitter or a reviewer without an account. It only appears where
+`DEMO_MODUS=true`, and `befischung demo zuruecksetzen` fills it with four
+invented example protocols and resets it later.
+
 Attachments are the reason the storage layer has two implementations. A
 directory is right wherever the service has a disk that outlives it, and wrong
 on a platform that throws its filesystem away between requests, where every

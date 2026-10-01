@@ -27,6 +27,7 @@ from sqlalchemy.exc import InterfaceError, OperationalError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from app.anlagen.speicher import get_speicher
 from app.benutzer.dienst import (
     finde_nach_email,
     lege_benutzer_an,
@@ -52,6 +53,8 @@ from app.benutzer.regeln import (
 )
 from app.config import get_settings
 from app.db import fuer_asyncpg
+from app.demo.dienst import setze_demo_zurueck
+from app.demo.fehler import DemoAus
 from app.models.benutzer import Locale, Rolle
 from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 
@@ -70,11 +73,19 @@ from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 _engine = create_async_engine(
     fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool
 )
-session_factory = async_sessionmaker(_engine)
+# expire_on_commit=False to match app/db.py. The protocol services commit part
+# way through and keep using the account they were handed; expiring it would turn
+# the next read into a lazy load, which async SQLAlchemy cannot do. The demo
+# reset was the first command to call those services and hit it.
+session_factory = async_sessionmaker(_engine, expire_on_commit=False)
 
 app = typer.Typer(help="Verwaltung der Anwendung Protokoll E-Befischung.", no_args_is_help=True)
 benutzer_app = typer.Typer(help="Konten anlegen und verwalten.", no_args_is_help=True)
 app.add_typer(benutzer_app, name="benutzer")
+demo_app = typer.Typer(
+    help="Die Demo verwalten. Nur auf einer eigenen Demo-Datenbank.", no_args_is_help=True
+)
+app.add_typer(demo_app, name="demo")
 
 def _abbrechen(*lines: str) -> NoReturn:
     """Print the refusal on stderr and stop with a non-zero exit code.
@@ -430,6 +441,32 @@ def liste() -> None:
 
     typer.echo("")
     typer.echo(f"{len(konten)} Konto" if len(konten) == 1 else f"{len(konten)} Konten")
+
+
+@demo_app.command("zuruecksetzen")
+def demo_zuruecksetzen() -> None:
+    """Alles entfernen, was Besucher der Demo angelegt haben, und die vier
+    Beispielprotokolle neu anlegen. Legt beim ersten Mal auch die beiden
+    Demokonten an."""
+    speicher = get_speicher()
+    demo_modus = get_settings().demo_modus
+    try:
+        ergebnis = _ausfuehren(
+            lambda session: setze_demo_zurueck(session, speicher, demo_modus=demo_modus)
+        )
+    except DemoAus:
+        _abbrechen(
+            "DEMO_MODUS ist nicht eingeschaltet, deshalb wurde nichts geändert.",
+            "",
+            "Dieser Befehl gehört auf die Demo-Datenbank, nie auf die mit echten",
+            "Protokollen. Auf der Demo-Datenbank DEMO_MODUS=true in die .env",
+            "beziehungsweise in die Umgebung der Demo-Bereitstellung schreiben",
+            "und den Befehl noch einmal ausführen.",
+        )
+
+    typer.echo("Die Demo ist zurückgesetzt.")
+    typer.echo(f"  Entfernte Protokolle: {ergebnis.entfernt}")
+    typer.echo(f"  Neu angelegte Beispiele: {ergebnis.angelegt}")
 
 
 if __name__ == "__main__":

@@ -49,6 +49,12 @@
     "fehlt": {
       "email": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
       "passwort": "Bitte geben Sie Ihr Passwort ein."
+    },
+    "demo": {
+      "titel": "Ohne Konto ansehen",
+      "hinweis": "Diese Demo teilen sich alle, die den Link haben. Bitte geben Sie keine echten Daten ein.",
+      "einreicher": "Demo: als Einreicher ansehen",
+      "pruefer": "Demo: als Prüfer ansehen"
     }
   },
   "sitzung": {

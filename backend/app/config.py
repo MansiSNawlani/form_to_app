@@ -87,6 +87,11 @@ HINWEISE = {
         " (Cloudflare R2 and MinIO both need it). Or leave ANLAGEN_SPEICHER out"
         " of .env to keep the attachments in a directory."
     ),
+    "demo_modus": (
+        "DEMO_MODUS must be true or false. Leave it out of .env to keep the demo"
+        " switched off, which is right for every deployment that holds real"
+        " protocols."
+    ),
     "formular_seed_dir": (
         "FORMULAR_SEED_DIR must be a path to the directory holding felder.json."
         " Leave it out of .env to use the copy in this checkout."
@@ -222,6 +227,12 @@ class Settings(BaseSettings):
     # because something printed the settings object.
     s3_zugriffsschluessel: SecretStr = SecretStr("")
     s3_geheimschluessel: SecretStr = SecretStr("")
+
+    # Whether the sign-in page offers the two demo buttons, which sign anybody in
+    # without a password. Off by default, because on a deployment holding real
+    # protocols it would hand them to everyone with the address. Only a separate
+    # demo deployment with its own database switches it on.
+    demo_modus: bool = False
 
     @model_validator(mode="after")
     def _s3_ist_vollstaendig_beschrieben(self) -> "Settings":

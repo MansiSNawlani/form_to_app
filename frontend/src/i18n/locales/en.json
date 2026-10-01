@@ -8,5 +8,13 @@
       "sprache": "Language",
       "spracheNichtGespeichert": "{{sprache}} applies now, but it could not be saved to your account. Click {{kuerzel}} again to retry."
     }
+  },
+  "anmeldung": {
+    "demo": {
+      "titel": "View without an account",
+      "hinweis": "Everyone with the link shares this demo. Please do not enter real data.",
+      "einreicher": "Demo: view as submitter",
+      "pruefer": "Demo: view as reviewer"
+    }
   }
 }
