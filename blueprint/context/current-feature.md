@@ -1,7 +1,7 @@
 # Feature: 17c - Das Formular in English
 
 **From build-plan:** feature 17c
-**Status:** in progress
+**Status:** built, awaiting `/complete`
 **Branch:** `feature/17c-formular-englisch`, from `main` after 17b was merged
 
 ## Goal
@@ -20,16 +20,16 @@ so on down to **7 Map and photos**.
 In section 1 the block heading reads **Occasion of the survey**, and the first field is
 **Occasion (Anlass)**. He picks "WRRL-Monitoring" from the dropdown. That entry stays German,
 because the dropdown contents are 17d's job. He leaves the monitoring number empty, and the
-message under it reads: *"For fish monitoring under the WFD or the Habitats Directive, the
-monitoring stretch number is required."*
+message under it reads: *"For fish monitoring under the WFD (WRRL) or the Habitats Directive
+(FFH), the monitoring stretch number is required."*
 
 He types a lower-boundary easting of 123. The message reads: *"The easting lies outside
-Baden-Württemberg. Expected is [min] to [max]."* The two numbers are the real bounds the code already fills in; only the
+Baden-Württemberg. Expected: [min] to [max]."* The two numbers are the real bounds the code already fills in; only the
 words around them change.
 
 In section 6 he adds a row and enters 5 fish in the "up to 5 cm" class and 8 under "of which
-young of the year (0+)". The message reads: *"There cannot be more young-of-the-year fish than
-the row counts in total."*
+young of the year (0+)". The message reads: *"There cannot be more young-of-the-year (0+) fish
+than the row counts in total."*
 
 Then he downloads the PDF. It is still entirely German, as decided on 2026-09-30.
 
@@ -95,7 +95,20 @@ the steps agree:
 | Umland / Ufer / Sohle | Surrounding land / Bank / Bed |
 | Fang, Fänge | Catch |
 | Altersklasse 0+ | Young of the year (0+) |
-| WRRL / FFH | WFD / Habitats Directive (in sentences); labels keep "WRRL" and "FFH" where they quote a dropdown entry |
+| WRRL / FFH | WFD (WRRL) / Habitats Directive (FFH), see the exceptions below |
+
+**Three deliberate exceptions to "no brackets in a sentence"**, all for the same reason: the
+sentence names something the screen still shows in German, so the German must be there for the
+reader to find it.
+
+- WRRL and FFH: the Anlass dropdown shows "WRRL-Monitoring" until 17d, so the rule message
+  and its hint read "the WFD (WRRL) or the Habitats Directive (FFH)".
+- Rhein and Donau: place names stay German, and the surveyor types "Rhein" into the chain.
+  The first mention reads "the Rhein (Rhine) or the Donau (Danube)"; the follow-up message
+  says only "Rhein" and "Donau".
+- Kein Nachweis: the species picker shows "kein Nachweis" as an entry, so the rule messages
+  quote it German first, '"kein Nachweis" (no detection)', the reverse of the label order in
+  `CONTEXT.md`, because here it is the on-screen entry being quoted.
 
 ## Build steps
 
@@ -157,8 +170,8 @@ checked on screen in full. Each step shows Mansi the German and the English side
 
 - [x] **Step 8 - The guard and a browser walk in English** - extend `locales.test.ts` so the
   "completely translated" test also covers the 17c keys listed under In scope, by dotted path.
-  Extend `e2e/sprache.spec.ts` with one test: a throwaway Submitter account switches to English,
-  creates a protocol, and moves through all seven sections with Next, finding each section by
+  Extend `e2e/sprache.spec.ts` with one test: a throwaway Submitter account made in English (the
+  switch itself is 17a's test) creates a protocol, and moves through all seven sections with Next, finding each section by
   its English heading and one field per section by its English label.
   *Done when:* `npm test` passes, and deleting one English key under `protokoll.regeln` makes the
   guard fail and name that key (then restored); `npm run e2e`, `npm run lint` and
@@ -236,3 +249,9 @@ No backend change, no database change, no new route. Stored answers never change
 - **Still German on the form screen, as planned:** the save indicator, radio and dropdown
   contents (including the 0 to 3 Strukturen scale in `teil4/stufen.ts`), and everything else
   listed for 17d.
+- **What the code review changed.** The four "which" labels now read "please specify"
+  ("Other use, please specify"); Wasserführung reads "Water flow", since its choices are low,
+  normal, high and dried up; the browser test now also finds one control per section by its
+  role and English name, not only the block heading. Judged not to need a change: the quoted
+  "not applicable" in the hydrology message is a stored marker with no on-screen choice to
+  match; the legend "Stocking (Besatzmaßnahmen)" is plural because the form's own heading is.

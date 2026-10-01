@@ -486,7 +486,7 @@
           "stroemung": "Current",
           "rueckstroemung": "Backflows / eddies",
           "fliessgeschwindigkeit": "Flow velocity",
-          "wasserfuehrung": "Water level",
+          "wasserfuehrung": "Water flow",
           "stillwasserbereich": "Still water areas",
           "gesamtprofil": "Overall profile"
         }
@@ -542,7 +542,7 @@
           "erlen": "Alders",
           "andereBaeume": "Other trees",
           "sonstigerBewuchs": "Other vegetation",
-          "sonstigerBewuchsText": "Other vegetation, which",
+          "sonstigerBewuchsText": "Other vegetation, please specify",
           "uferverbauKeiner": "None (visible)",
           "mauerUnverfugt": "Wall/paving, without mortar",
           "faschinen": "Fascines",
@@ -551,7 +551,7 @@
           "mauerVerfugt": "Wall/paving, mortared",
           "steinwurf": "Riprap",
           "sonstigerUferverbau": "Other bank reinforcement",
-          "sonstigerUferverbauText": "Other bank reinforcement, which"
+          "sonstigerUferverbauText": "Other bank reinforcement, please specify"
         }
       },
       "gewaessersohle": {
@@ -601,7 +601,7 @@
           "schwimmblattpflanzen": "Floating-leaved plants",
           "emerseMakrophyten": "Emergent macrophytes",
           "sonstigeStrukturen": "Other structures",
-          "sonstigeStrukturenText": "Other structures, which?"
+          "sonstigeStrukturenText": "Other structures, please specify"
         }
       },
       "einfluesse": {
@@ -623,7 +623,7 @@
           "holzberieselung": "Timber sprinkling",
           "trinkwasserversorgung": "Drinking water supply",
           "sonstigeNutzung": "Other use",
-          "sonstigeNutzungText": "Other use, which?"
+          "sonstigeNutzungText": "Other use, please specify"
         }
       },
       "bewirtschaftung": {
