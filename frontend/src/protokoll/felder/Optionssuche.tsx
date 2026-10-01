@@ -1,6 +1,7 @@
 import Autocomplete from '@mui/material/Autocomplete'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { optionen, type ListenName, type Option } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 
 /* A search over one of the form's option lists, as a plain controlled field.
  *
@@ -63,7 +64,8 @@ function Optionssuche({
   className,
   fehlerhaft,
 }: OptionssucheProps) {
-  const alle = optionen(liste)
+  const sprache = useLocale()
+  const alle = optionen(liste, sprache)
 
   return (
     <Autocomplete

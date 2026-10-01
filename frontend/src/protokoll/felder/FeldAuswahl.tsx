@@ -6,6 +6,7 @@ import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
 import { optionLabel, optionLabelMitWert, optionen, type ListenName } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import Feldwert from '../nurlesen/Feldwert'
 import { useNurLesen } from '../nurlesen/kontext'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
@@ -40,6 +41,7 @@ function FeldAuswahl({
   hinweisKey,
 }: FeldAuswahlProps) {
   const { t } = useTranslation()
+  const sprache = useLocale()
   const { control, getValues } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
   const nurLesen = useNurLesen()
@@ -48,8 +50,8 @@ function FeldAuswahl({
      uses, and it is meaningless to a reader: "13" rather than "Bach". */
   if (nurLesen) {
     const beschriftung = mitWert
-      ? optionLabelMitWert(liste, getValues(name))
-      : optionLabel(liste, getValues(name))
+      ? optionLabelMitWert(liste, getValues(name), sprache)
+      : optionLabel(liste, getValues(name), sprache)
 
     return (
       <FeldRahmen
@@ -97,13 +99,13 @@ function FeldAuswahl({
             aria-describedby={beschriebenVon(name, hinweisKey, fehlerKey)}
           >
             <MenuItem value="">{t('protokoll.felder.bitteWaehlen')}</MenuItem>
-            {optionen(liste).map((option) => (
+            {optionen(liste, sprache).map((option) => (
               <MenuItem key={option.wert} value={option.wert}>
                 {/* The same formatter the read-only branch above uses, so the
                     word somebody picked and the word they are shown afterwards
                     cannot come out differently. */}
                 {mitWert
-                  ? (optionLabelMitWert(liste, option.wert) ?? option.label)
+                  ? (optionLabelMitWert(liste, option.wert, sprache) ?? option.label)
                   : option.label}
               </MenuItem>
             ))}

@@ -331,7 +331,7 @@ These are not features and are not tracked here. They happen first.
         sign-in, session, Meine Protokolle, the Pruefliste and user administration
   - [x] 17c. Das Formular in English: sections 1 to 7, the field names and the rule
         messages
-  - [ ] 17d. Rund um das Formular in English: saving, the safety copy, submitting,
+  - [x] 17d. Rund um das Formular in English: saving, the safety copy, submitting,
         review decisions, the Verlauf, the PDF import screen, attachments, and the
         short descriptive dropdown entries
   - [ ] 17e. Meldungen des Servers in English: every refusal the backend sends as a

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import Optionssuche from '../felder/Optionssuche'
 import { labelId } from '../felder/rahmen'
 import { optionen } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import {
   PRUEFSTATUS,
   SORTIERUNGEN,
@@ -58,6 +59,7 @@ interface FilterleisteProps {
  */
 function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
   const { t } = useTranslation()
+  const sprache = useLocale()
 
   /* The one piece of local state on this screen, and it is a typing convenience
      rather than list state. Writing every keystroke straight to the address bar
@@ -165,7 +167,7 @@ function Filterleiste({ abfrage, onAendern }: FilterleisteProps) {
           <MenuItem value="">{t('pruefliste.filter.anlassAlle')}</MenuItem>
           {/* The form's own list, so the queue and the form cannot disagree about
               what an occasion is called. */}
-          {optionen('anlass').map((option) => (
+          {optionen('anlass', sprache).map((option) => (
             <MenuItem key={option.wert} value={option.wert}>
               {option.label}
             </MenuItem>

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import Statusabzeichen from '../Statusabzeichen'
 import { anlassLabel, datumAnzeige, zeitpunktAnzeige } from '../liste/anzeige'
 import { unterzeile } from './anzeige'
+import { useLocale } from '../../i18n/useLocale'
 import type { Prueflistenabfrage } from './parameter'
 import { pruefungsPfad } from './pfad'
 import type { Pruefzeile } from './typen'
@@ -30,6 +31,7 @@ function PrueflistenZeile({
   abfrage: Prueflistenabfrage
 }) {
   const { t } = useTranslation()
+  const sprache = useLocale()
 
   const monitoring =
     zeile.monitoringstrecke_nr === null
@@ -50,7 +52,7 @@ function PrueflistenZeile({
           in the Eingereicht column, labelled as such. */}
       <TableCell className="zeile-tabular">{datumAnzeige(zeile.datum) ?? ''}</TableCell>
 
-      <TableCell>{anlassLabel(zeile.anlass) ?? zeile.anlass}</TableCell>
+      <TableCell>{anlassLabel(zeile.anlass, sprache) ?? zeile.anlass}</TableCell>
 
       {/* Who carried out the survey, which is not always the account that filed
           it. That is why Person is its own record, and why this column and the

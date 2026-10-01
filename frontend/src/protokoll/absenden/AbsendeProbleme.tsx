@@ -15,6 +15,8 @@ import { ChevronIcon } from '../../components/icons'
 import { abschnittPfad } from '../abschnitte'
 import { zeitpunktAnzeige } from '../liste/anzeige'
 import { optionen } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
+import type { Locale } from '../../i18n/sprachen'
 import { gruppiere, type Problem } from './gruppierung'
 import { useErledigtePfade } from './useErledigte'
 import type { Verstoss } from '../../api/typen'
@@ -81,6 +83,7 @@ function AbsendeProbleme({
   onUmschalten,
 }: AbsendeProblemeProps) {
   const { t, i18n } = useTranslation()
+  const sprache = useLocale()
   const panel = useRef<HTMLDivElement>(null)
 
   /* The message key arrives from the server as a plain string, so it is checked
@@ -173,7 +176,7 @@ function AbsendeProbleme({
                     component={RouterLink}
                     to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
                   >
-                    {benenne(problem, artnamen, t)}
+                    {benenne(problem, artnamen, t, sprache)}
                   </Link>
                   {': '}
                   {problem.erledigt
@@ -202,7 +205,7 @@ function AbsendeProbleme({
                     component={RouterLink}
                     to={`${abschnittPfad(entwurfId, aktuelleNr)}#${problem.pfad}`}
                   >
-                    {benenne(problem, artnamen, t)}
+                    {benenne(problem, artnamen, t, sprache)}
                   </Link>
                   {': '}
                   {t('protokoll.einlesen.unbrauchbar.text')}
@@ -264,12 +267,13 @@ function benenne(
   problem: Problem,
   artnamen: Record<number, string | undefined>,
   t: (schluessel: ParseKeys, werte?: Record<string, unknown>) => string,
+  sprache: Locale,
 ): string {
   if (problem.labelKey !== null) return t(problem.labelKey)
 
   if (problem.artnummer !== null) {
     const code = artnamen[problem.artnummer]
-    const art = code === undefined ? undefined : optionen('arten').find((o) => o.wert === code)
+    const art = code === undefined ? undefined : optionen('arten', sprache).find((o) => o.wert === code)
     return art?.label ?? t('protokoll.absenden.probleme.artZeile', { nr: problem.artnummer })
   }
 

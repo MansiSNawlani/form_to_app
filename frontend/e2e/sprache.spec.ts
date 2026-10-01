@@ -186,6 +186,60 @@ test('das Formular erscheint auf Englisch, Abschnitt fuer Abschnitt', async ({ p
   }
 })
 
+/* Feature 17d: what surrounds the form, and the dropdown entries. Submitting an
+   empty protocol never gets past the check, so this changes nothing anybody
+   else sees. */
+test('Auswahllisten und Absenden erscheinen auf Englisch', async ({ page }) => {
+  await wegwerfkonto(page, { locale: 'en' })
+  const angelegt = await page.request.post('/api/v1/protokolle')
+  expect(angelegt.ok()).toBe(true)
+  const id = (await angelegt.json()).id as string
+
+  await page.goto(`/protokolle/${id}/abschnitt/2`)
+  await expect(page.getByRole('radio', { name: 'Before the survey' })).toBeVisible()
+  await expect(page.getByRole('radio', { name: '0.1 - 0.25' })).toBeVisible()
+
+  await page.goto(`/protokolle/${id}/abschnitt/4`)
+  await expect(page.getByRole('radio', { name: '2 - Widespread' }).first()).toBeVisible()
+
+  await page.goto(`/protokolle/${id}/abschnitt/6`)
+  const art = page.getByRole('combobox').first()
+  await art.fill('No detection')
+  await expect(page.getByRole('option', { name: 'No detection, crayfish' })).toBeVisible()
+  await art.fill('Bachforelle')
+  await expect(page.getByRole('option', { name: 'Bachforelle' })).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  await page.goto(`/protokolle/${id}/abschnitt/7`)
+  await page.getByRole('button', { name: 'Submit protocol' }).click()
+  await expect(page.getByRole('dialog', { name: 'Submit protocol?' })).toBeVisible()
+  await page.getByRole('button', { name: 'Submit now' }).click()
+  await page.getByRole('link', { name: /^1 Occasion and sampling stretch/ }).click()
+  await expect(page.getByText('The protocol has not been submitted yet')).toBeVisible()
+})
+
+/* The reviewer's side, read without deciding anything: a decision would change a
+   protocol the other suites count on. Needs one open protocol in the queue. */
+test('die Pruefansicht erscheint auf Englisch', async ({ page }) => {
+  await wegwerfkonto(page, { rollen: ['REVIEWER'], locale: 'en' })
+  const antwort = await page.request.get('/api/v1/pruefliste?status=SUBMITTED&status=IN_REVIEW')
+  const zeilen = (await antwort.json()).zeilen as { id: string }[]
+  test.skip(zeilen.length === 0, 'Kein offenes Protokoll in der Pruefliste. Eines einreichen.')
+
+  await page.goto(`/protokolle/${zeilen[0].id}/pruefung`)
+  await expect(page.getByRole('heading', { name: 'Decision' })).toBeVisible()
+  for (const wahl of ['Accept', 'Request changes', 'Reject']) {
+    await expect(page.getByRole('radio', { name: new RegExp(`^${wahl}`) })).toBeVisible()
+  }
+  await expect(page.getByRole('textbox', { name: 'Reason' })).toBeVisible()
+  /* The panel is an unnamed section, so it is found by its heading; scoped so the
+     status badge in the page header, which also reads Submitted, cannot match. */
+  const verlauf = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'History (Verlauf)' }) })
+  await expect(verlauf.getByText('Submitted', { exact: true }).first()).toBeVisible()
+})
+
 test('abgemeldet wechselt die Anmeldeseite die Sprache, ohne etwas zu speichern', async ({ page }) => {
   const gesendet: string[] = []
   page.on('request', (r) => {
