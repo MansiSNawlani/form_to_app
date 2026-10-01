@@ -64,7 +64,8 @@ function Optionssuche({
   className,
   fehlerhaft,
 }: OptionssucheProps) {
-  const alle = optionen(liste, useLocale())
+  const sprache = useLocale()
+  const alle = optionen(liste, sprache)
 
   return (
     <Autocomplete

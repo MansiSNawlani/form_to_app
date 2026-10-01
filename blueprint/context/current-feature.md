@@ -70,8 +70,8 @@ survey**.
 
 Plus:
 
-- The four 17c rule messages that quote "kein Nachweis" now quote the English entry the picker
-  shows, "No detection"
+- The three 17c rule messages that quote "kein Nachweis" now quote the English entry the picker
+  shows, "No detection" (the spec first said four; a fourth, `keinNachweisMitFang`, never quoted it)
 - Guards in vitest: the Part A keys are completely translated; every Part B list is complete;
   the English lists name no entry the seed file lacks
 - A browser test that walks submitting and a review decision in English
@@ -228,7 +228,9 @@ the same way.
 - **Same English as 17b and 17c:** British spelling, plain short sentences, the same polite
   tone as the German, always saying what to do next. Official terms follow the table in
   `CONTEXT.md` and 17b's placement rule (German in brackets on a label, not in a sentence).
-- **Quotes.** The German uses guillemets («name»). English uses curly double quotes (“name”), as 17b's delete dialog already does.
+- **Quotes.** Where the German uses guillemets («name»), English uses curly double quotes
+  (“name”), as 17b's delete dialog already does. The 17c rule messages quote labels with
+  straight double quotes, and the three rewritten here keep that file's style.
 - **Keep every `{{placeholder}}`, plural suffix (`_one`, `_other`) and formatter exactly.**
 - **Dropdown entries start with a capital** in English, as 17c's labels do ("Slight", not
   "slight"), except where the entry is a number range.
@@ -269,3 +271,13 @@ the same way.
 - **Browser runs used throwaway accounts** `e2e17d-admin`, `e2e17d-pruefer` and
   `e2e17d-einreicher` on the development database, as 17c did. Two drafts made by hand while
   taking screenshots were deleted afterwards, one of them imported from a real protocol.
+- **What the code review changed.** "Cannot be saved" became "cannot be fixed" in the two
+  Reject texts, since "saved" already means storing data in this app; "Protocol of" became
+  "Protocol dated"; the scale's "1 - Few" became "1 - Sparse", since it rates how much of a
+  structure there is, not a count; `Optionssuche.tsx` reads the language into a variable like
+  every other call site; the browser test's history check is scoped to the history panel, so
+  the status badge in the header cannot satisfy it. Judged not to need a change: "keine
+  Angabe" in the device list stays "Not stated", because that is the label the German screen
+  shows (when two entries store the same code the first label is kept, and a test pins it).
+  The reviewer browser test still skips when no protocol is waiting for review; an empty
+  protocol cannot be submitted, so the test cannot make one of its own.

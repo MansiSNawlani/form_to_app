@@ -400,7 +400,7 @@
       "keineArten": "This protocol names no species. Even a survey that caught nothing must name one of the four no-detection entries, so an answer is missing here."
     },
     "pruefung": {
-      "protokollVom": "Protocol of {{datum}}",
+      "protokollVom": "Protocol dated {{datum}}",
       "gesperrt": "This protocol is shown exactly as it was submitted. The fields cannot be changed here.",
       "uebersicht": {
         "eingereichtVon": "Submitted by",
@@ -615,7 +615,7 @@
         "hinweis": "How strongly each structure is present in the sampling stretch, estimated on a scale from 0 to 3.",
         "stufe": {
           "0": "None",
-          "1": "Few",
+          "1": "Sparse",
           "2": "Widespread",
           "3": "Dominant"
         },
@@ -1005,7 +1005,7 @@
         },
         "ABLEHNEN": {
           "titel": "Reject",
-          "text": "Final. Only for protocols that cannot be saved."
+          "text": "Final. Only for protocols that cannot be fixed."
         }
       },
       "begruendung": "Reason",
@@ -1026,7 +1026,7 @@
         },
         "ABLEHNEN": {
           "titel": "Reject protocol?",
-          "text": "The protocol is rejected for good. The submitter can then no longer revise it or submit it again. If it can be saved, request changes instead."
+          "text": "The protocol is rejected for good. The submitter can then no longer revise it or submit it again. If it can be fixed, request changes instead."
         }
       }
     },

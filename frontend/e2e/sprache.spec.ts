@@ -232,8 +232,12 @@ test('die Pruefansicht erscheint auf Englisch', async ({ page }) => {
     await expect(page.getByRole('radio', { name: new RegExp(`^${wahl}`) })).toBeVisible()
   }
   await expect(page.getByRole('textbox', { name: 'Reason' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'History (Verlauf)' })).toBeVisible()
-  await expect(page.getByText('Submitted', { exact: true }).first()).toBeVisible()
+  /* The panel is an unnamed section, so it is found by its heading; scoped so the
+     status badge in the page header, which also reads Submitted, cannot match. */
+  const verlauf = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'History (Verlauf)' }) })
+  await expect(verlauf.getByText('Submitted', { exact: true }).first()).toBeVisible()
 })
 
 test('abgemeldet wechselt die Anmeldeseite die Sprache, ohne etwas zu speichern', async ({ page }) => {
