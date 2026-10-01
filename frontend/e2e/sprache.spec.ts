@@ -146,6 +146,46 @@ test('Rahmen und Listen erscheinen auf Englisch', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'New account' })).toBeVisible()
 })
 
+/* Feature 17c: the form itself. Per section a block heading and one control,
+   each found by its English name, and the Next button, whose name carries the
+   next section's title, so all seven titles are read on the way through. */
+type Rolle = 'textbox' | 'spinbutton' | 'checkbox' | 'button'
+
+test('das Formular erscheint auf Englisch, Abschnitt fuer Abschnitt', async ({ page }) => {
+  await wegwerfkonto(page, { locale: 'en' })
+  const angelegt = await page.request.post('/api/v1/protokolle')
+  expect(angelegt.ok()).toBe(true)
+  const id = (await angelegt.json()).id as string
+
+  const abschnitte: [string, string, [Rolle, string]][] = [
+    ['Occasion and sampling stretch', 'Sampling stretch (Probestrecke)', ['textbox', 'Water body (Gewässer)']],
+    ['Measurements and hydrology', 'Measurements', ['spinbutton', 'Water temperature']],
+    ['Surrounding land, bank and bed', 'Bank', ['spinbutton', 'Coniferous forest']],
+    ['Structures and management', 'Fishery management', ['checkbox', 'Hydropower']],
+    ['Equipment and fished areas', 'Fished areas', ['spinbutton', 'Voltage']],
+    ['Catch', 'Species found and size classes', ['textbox', 'Additional remarks on the survey or the fish stock']],
+    ['Map and photos', 'Photos of the sampling stretch', ['button', 'Choose photos']],
+  ]
+
+  await page.goto(`/protokolle/${id}/abschnitt/1`)
+  await expect(page.getByRole('button', { name: 'Download as PDF' })).toBeVisible()
+
+  const rechtswert = page.getByRole('spinbutton', { name: 'Lower boundary, easting' })
+  await rechtswert.fill('123')
+  await rechtswert.blur()
+  await expect(page.getByText('The easting lies outside Baden-Württemberg.')).toBeVisible()
+
+  for (const [nr, [titel, block, [rolle, feld]]] of abschnitte.entries()) {
+    const abschnitt = page.getByRole('region', { name: titel })
+    await expect(abschnitt).toBeVisible()
+    await expect(abschnitt.getByRole('group', { name: block, exact: true })).toBeVisible()
+    await expect(abschnitt.getByRole(rolle, { name: feld, exact: true }).first()).toBeVisible()
+
+    const naechster = abschnitte[nr + 1]
+    if (naechster) await page.getByRole('link', { name: `Next: ${naechster[0]}` }).click()
+  }
+})
+
 test('abgemeldet wechselt die Anmeldeseite die Sprache, ohne etwas zu speichern', async ({ page }) => {
   const gesendet: string[] = []
   page.on('request', (r) => {

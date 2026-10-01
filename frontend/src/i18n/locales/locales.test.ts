@@ -45,7 +45,8 @@ describe('en.json', () => {
     expect(abweichend).toEqual([])
   })
 
-  // The screens 17b translated. 17e widens this to every namespace.
+  // The screens 17b translated and the form 17c translated. 17e widens this to
+  // every namespace.
   it.each([
     'shell',
     'common',
@@ -55,11 +56,28 @@ describe('en.json', () => {
     'protokolle',
     'pruefliste',
     'benutzerverwaltung',
+    'protokoll.kopf',
+    'protokoll.laedt',
+    'protokoll.nichtGefunden',
+    'protokoll.ladefehler',
+    'protokoll.navigation',
+    'protokoll.ausgabe',
+    'protokoll.abschnitte',
+    'protokoll.felder',
+    'protokoll.abschnitt1',
+    'protokoll.abschnitt2',
+    'protokoll.abschnitt3',
+    'protokoll.abschnitt4',
+    'protokoll.abschnitt5',
+    'protokoll.abschnitt6',
+    'protokoll.abschnitt7',
+    'protokoll.regeln',
   ])('translates every key under %s', (namensraum) => {
-    const fehlend = [...deutsch.keys()]
-      .filter((k) => k.startsWith(`${namensraum}.`))
-      .filter((k) => !englisch.has(k))
-    expect(fehlend).toEqual([])
+    const darunter = [...deutsch.keys()].filter(
+      (k) => k === namensraum || k.startsWith(`${namensraum}.`),
+    )
+    expect(darunter, `${namensraum} names no German text`).not.toEqual([])
+    expect(darunter.filter((k) => !englisch.has(k))).toEqual([])
   })
 
   it('reads the placeholders it compares', () => {
