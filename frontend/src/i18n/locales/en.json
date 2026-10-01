@@ -1,5 +1,6 @@
 {
   "shell": {
+    "documentTitle": "Protokoll E-Befischung",
     "a11y": {
       "skipToContent": "Skip to content"
     },
@@ -7,14 +8,351 @@
       "themeToggle": "Dark theme",
       "sprache": "Language",
       "spracheNichtGespeichert": "{{sprache}} applies now, but it could not be saved to your account. Click {{kuerzel}} again to retry."
+    },
+    "nav": {
+      "beschriftung": "Main navigation",
+      "meineProtokolle": "My protocols",
+      "pruefliste": "Review queue",
+      "benutzerverwaltung": "User administration"
+    },
+    "footer": {
+      "legalNavLabel": "Legal",
+      "impressum": "Legal notice",
+      "datenschutz": "Privacy",
+      "barrierefreiheit": "Accessibility",
+      "hilfe": "Help",
+      "kontakt": "Contact",
+      "formVersion": "Form version {{version}}"
+    },
+    "nichtGefunden": {
+      "titel": "Page not found",
+      "text": "This address does not exist. The link may be out of date."
+    }
+  },
+  "common": {
+    "rollen": {
+      "SUBMITTER": "Submitter",
+      "DATA_STEWARD": "Data steward",
+      "REVIEWER": "Reviewer",
+      "SUPER_ADMIN": "Administrator",
+      "REGIERUNGSPRAESIDIUM": "Regional council (Regierungspräsidium)",
+      "INTEGRATION": "Integration"
     }
   },
   "anmeldung": {
+    "titel": "Sign in",
+    "einleitung": "Please sign in with your account. Accounts are created by the administrators; there is no self-registration.",
+    "email": "Email address",
+    "passwort": "Password",
+    "absenden": "Sign in",
+    "laeuft": "Signing in",
+    "fehlt": {
+      "email": "Please enter your email address.",
+      "passwort": "Please enter your password."
+    },
     "demo": {
       "titel": "View without an account",
       "hinweis": "Everyone with the link shares this demo. Please do not enter real data.",
       "einreicher": "Demo: view as submitter",
       "pruefer": "Demo: view as reviewer"
+    }
+  },
+  "sitzung": {
+    "wirdGeprueft": "Checking your sign-in",
+    "angemeldetAls": "Signed in as",
+    "abmelden": "Sign out",
+    "abmeldungLaeuft": "Signing out",
+    "abgelaufen": "Your session has expired. Please sign in again, and you will carry on where you left off."
+  },
+  "fehler": {
+    "netzwerk": "The server cannot be reached. You may not be connected right now. Please check your internet connection and try again in a moment.",
+    "unlesbar": "The server gave an unexpected answer. Please try again. If it keeps happening, please report the problem.",
+    "unbekannt": "Something went wrong. Please try again, and report the problem if it keeps happening."
+  },
+  "protokolle": {
+    "list": {
+      "title": "My protocols",
+      "new": "New protocol",
+      "laedt": "Loading protocols.",
+      "anzahl_one": "{{count}} protocol",
+      "anzahl_other": "{{count}} protocols",
+      "anzahlMitEntwuerfen_one": "{{count}} protocol, {{entwuerfe}}",
+      "anzahlMitEntwuerfen_other": "{{count}} protocols, {{entwuerfe}}",
+      "entwuerfe_one": "{{count}} of them a draft",
+      "entwuerfe_other": "{{count}} of them drafts",
+      "ohneGewaesser": "No water body name",
+      "weiter": "Continue",
+      "ueberarbeiten": "Revise",
+      "ansehen": "View",
+      "tabelle": {
+        "beschriftung": "Your protocols, most recently edited first",
+        "gewaesser": "Water body (Gewässer) and sampling stretch (Probestrecke)",
+        "datum": "Date",
+        "anlass": "Occasion (Anlass)",
+        "status": "Status",
+        "bearbeitet": "Last edited",
+        "aktion": "Action"
+      },
+      "bearbeitet": {
+        "heute": "today, {{zeit}}",
+        "gestern": "yesterday, {{zeit}}"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted",
+        "IN_REVIEW": "In review",
+        "NEEDS_CHANGES": "Changes needed",
+        "REJECTED": "Rejected",
+        "ACCEPTED": "Accepted",
+        "LOCKED": "Locked"
+      },
+      "loeschen": {
+        "aktion": "Delete",
+        "titel": "Delete protocol?",
+        "text": "The protocol “{{name}}” will be deleted permanently, with all its answers and attachments. This cannot be undone.",
+        "abbrechen": "Cancel",
+        "bestaetigen": "Delete permanently"
+      },
+      "loeschfehler": {
+        "titel": "The protocol could not be deleted",
+        "text": "“{{name}}” is still there and unchanged. Please try again."
+      },
+      "leer": {
+        "titel": "No protocols yet",
+        "text": "A protocol can be filled in over several sittings. It is saved as you go and only submitted when you explicitly send it.",
+        "knopf": "Create your first protocol"
+      },
+      "ladefehler": {
+        "titel": "Your protocols could not be loaded",
+        "text": "The list cannot be reached right now. Your protocols are saved and will not be lost. Please try again.",
+        "erneut": "Try again"
+      }
+    },
+    "einlesen": {
+      "waehlen": "Import PDF",
+      "laeuft": "Importing",
+      "laeuftHinweis": "Reading the file. For a complete protocol this takes a moment.",
+      "fehler": {
+        "titel": "The file could not be imported",
+        "text": "The file could not be read. Please check that it is a completed Protokoll E-Befischung and try again.",
+        "schliessen": "Close"
+      }
+    }
+  },
+  "benutzerverwaltung": {
+    "titel": "User administration",
+    "anzahl_one": "{{count}} account",
+    "anzahl_other": "{{count}} accounts",
+    "tabelle": {
+      "beschriftung": "All accounts in this application",
+      "email": "Email address",
+      "rollen": "Roles",
+      "regierungspraesidium": "Regional council (Regierungspräsidium)",
+      "status": "Status",
+      "angelegt": "Created",
+      "aktion": "Action"
+    },
+    "status": {
+      "aktiv": "Active",
+      "gesperrt": "Blocked"
+    },
+    "sie": "You",
+    "sieHinweis": "Your own account",
+    "ohneRollen": "No role",
+    "suche": {
+      "beschriftung": "Search by email address",
+      "platzhalter": "Name or domain",
+      "treffer_one": "Showing {{count}} of {{gesamt}} account",
+      "treffer_other": "Showing {{count}} of {{gesamt}} accounts",
+      "zuruecksetzen": "Reset search and filter"
+    },
+    "laedt": "Loading accounts.",
+    "keineBerechtigung": {
+      "titel": "This page is not for your account",
+      "text": "Accounts are managed by the administrators. If you would like an account created or changed, please contact the Fischereiforschungsstelle.",
+      "knopf": "Go to my protocols"
+    },
+    "ladefehler": {
+      "titel": "The accounts could not be loaded",
+      "text": "The list could not be loaded. Please try again.",
+      "erneut": "Try again"
+    },
+    "keineTreffer": {
+      "titel": "No account matches your selection",
+      "text": "No account matches this search and status. Check the spelling, choose \"All\" for the status, or reset both."
+    },
+    "leer": {
+      "titel": "No accounts yet",
+      "text": "This application has no accounts yet. Use \"New account\" to create the first one."
+    },
+    "felder": {
+      "email": "Email address",
+      "emailHinweis": "The account signs in with this. Upper and lower case do not matter.",
+      "passwort": "Password",
+      "passwortHinweis": "At least 12 characters. You pass it on to the person yourself afterwards.",
+      "passwortAnzeigen": "Show",
+      "passwortVerbergen": "Hide",
+      "rollen": "Roles",
+      "rollenHinweis": {
+        "REGIERUNGSPRAESIDIUM": "Read-only, and only for its own regional council. Choose the number below.",
+        "INTEGRATION": "For another application, not for a person. An account like this cannot sign in."
+      },
+      "regierungspraesidium": "Regional council (Regierungspräsidium)",
+      "sprache": "Interface language",
+      "sprachen": {
+        "de": "German",
+        "en": "English"
+      },
+      "fehlt": {
+        "email": "Please enter an email address. The account signs in with it.",
+        "emailForm": "This address has no @ or contains a space. Please check the spelling, for example name@behoerde.de.",
+        "passwort": "The password needs at least 12 characters. Please choose a longer one.",
+        "rollen": "Please tick at least one role. It decides what the account may do.",
+        "regierungspraesidium": "Please choose a regional council. An account with this role sees exactly one, and without a choice it would not be clear which."
+      }
+    },
+    "anlegen": {
+      "knopf": "New account",
+      "titel": "Create a new account",
+      "untertitel": "The account can sign in as soon as you have created it.",
+      "absenden": "Create account",
+      "laeuft": "Creating",
+      "abbrechen": "Cancel",
+      "fertig": {
+        "titel": "The account {{email}} has been created.",
+        "weitergeben": "Pass these sign-in details on to the person. The application sends no email, and nobody but you knows the password.",
+        "nurEinmal": "The password is shown only here. Once you leave this page, it cannot be retrieved. Hand it over in a way that only the person themselves can read, so not by unencrypted email.",
+        "keinWechsel": "The person cannot change their password themselves yet. If it is lost, or the wrong person has seen it, the administrators set a new one.",
+        "weiteres": "Create another account",
+        "zurListe": "Back to the user list"
+      }
+    },
+    "aendern": {
+      "knopf": "Change",
+      "knopfHinweis": "Change account {{email}}",
+      "titel": "Change account",
+      "kopf": "Created on {{angelegt}}. Status: {{status}}.",
+      "eigenes": "This is your own account.",
+      "laedt": "Loading the account.",
+      "ladefehler": "The account could not be loaded",
+      "keinKonto": {
+        "titel": "This account does not exist",
+        "text": "There is no account at this link. The link is probably incomplete or out of date. In the user list you can find every existing account by its email address.",
+        "knopf": "Back to the user list"
+      },
+      "selbstentzug": {
+        "rollen": "You cannot take the Administrator role away from yourself, because you would then no longer be able to reach user administration. Please ask another person with this role to do it."
+      },
+      "angaben": {
+        "titel": "Details",
+        "einleitung": "Only what you touch here is changed. Fields you leave alone stay as they are.",
+        "speichern": "Save changes",
+        "laeuft": "Saving",
+        "gespeichert": "The changes have been saved.",
+        "unveraendert": "There is nothing to save. Nothing about this account has been changed."
+      },
+      "zugang": {
+        "titel": "Access",
+        "einleitung": "A blocked account can no longer sign in. The block takes effect immediately, even if the person is signed in at that moment. Accounts are never deleted, because the protocols they submitted would otherwise lose their owner.",
+        "istAktiv": "This account is <strong>active</strong> and can sign in.",
+        "istGesperrt": "This account is <strong>blocked</strong> and cannot sign in.",
+        "sperren": "Block account",
+        "entsperren": "Unblock account",
+        "laeuft": "Changing",
+        "eigenes": "You cannot block your own account, because you would then no longer be able to use the application. Please ask another person with the Administrator role to do it.",
+        "frage": {
+          "titel": "Block account?",
+          "text": "{{email}} will no longer be able to sign in, not even from a session that is already open. Protocols already submitted are kept. You can unblock the account here at any time.",
+          "abbrechen": "Cancel",
+          "bestaetigen": "Block account"
+        }
+      },
+      "passwort": {
+        "titel": "Password",
+        "einleitung": "Set a new password if the person has forgotten theirs or if the wrong person has seen it. The old password then stops working.",
+        "neu": "New password",
+        "neuHinweis": "At least 12 characters. You pass it on to the person yourself afterwards.",
+        "setzen": "Set new password",
+        "laeuft": "Setting",
+        "fertig": {
+          "titel": "The password for {{email}} has been changed.",
+          "weitergeben": "Pass these sign-in details on to the person. The application sends no email, and nobody but you knows the new password. Hand it over in a way that only the person themselves can read, so not by unencrypted email.",
+          "sitzungen": "If the person is signed in right now, they stay signed in. An open session only ends by itself, after eight hours at the latest. If the password has fallen into the wrong hands, block the account in the Access section: the block takes effect immediately.",
+          "keinWechsel": "The person still cannot change their password themselves. If it is lost again, the administrators set a new one.",
+          "fertig": "Done"
+        }
+      },
+      "krumen": "You are here"
+    },
+    "statusfilter": {
+      "beschriftung": "Status",
+      "alle": "All",
+      "aktiv": "Active only",
+      "gesperrt": "Blocked only"
+    }
+  },
+  "pruefliste": {
+    "titel": "Review queue",
+    "laedt": "Loading the review queue.",
+    "anzahl_one": "{{count}} submitted protocol",
+    "anzahl_other": "{{count}} submitted protocols",
+    "filter": {
+      "beschriftung": "Filter the review queue",
+      "suche": "Search",
+      "suchePlatzhalter": "Water body or location",
+      "status": "Status",
+      "statusOffen": "Open",
+      "statusAlle": "All",
+      "jahr": "Year",
+      "jahrAlle": "All",
+      "anlass": "Occasion (Anlass)",
+      "anlassAlle": "All",
+      "art": "Species (Art)",
+      "artAlle": "All species",
+      "sortierung": "Sort by",
+      "zuruecksetzen": "Reset filters"
+    },
+    "sortierungen": {
+      "eingereicht_alt": "Longest waiting first",
+      "eingereicht_neu": "Most recently submitted first",
+      "datum_neu": "Most recent survey first",
+      "gewaesser": "Water body, A to Z"
+    },
+    "tabelle": {
+      "beschriftung": "Submitted protocols",
+      "gewaesser": "Water body (Gewässer) and sampling stretch (Probestrecke)",
+      "datum": "Date",
+      "anlass": "Occasion (Anlass)",
+      "bearbeiter": "Surveyor (Bearbeiter)",
+      "status": "Status",
+      "eingereicht": "Submitted",
+      "aktion": "Action",
+      "monitoringstrecke": "MST {{nummer}}",
+      "pruefen": "Review"
+    },
+    "pager": {
+      "beschriftung": "Review queue pages",
+      "zurueck": "Previous",
+      "weiter": "Next",
+      "stand": "Page {{seite}} of {{seiten}}"
+    },
+    "leer": {
+      "titel": "Nothing submitted yet",
+      "text": "As soon as a protocol is sent, it appears here and can be reviewed."
+    },
+    "keineTreffer": {
+      "titel": "No protocols match these filters",
+      "text": "There are protocols, but none of them matches the current selection. Reset the filters to see all open protocols again."
+    },
+    "ladefehler": {
+      "titel": "The review queue could not be loaded",
+      "text": "The list cannot be reached right now. Nothing has been lost. Please try again.",
+      "erneut": "Try again"
+    },
+    "keineBerechtigung": {
+      "titel": "The review queue is for FFS staff",
+      "text": "Your account may only see its own protocols. If you need access here, please contact the administrators.",
+      "knopf": "Go to my protocols"
     }
   }
 }

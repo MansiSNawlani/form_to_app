@@ -327,6 +327,14 @@ const optionen: Parameters<typeof createTheme>[0] = {
           '&.tabelle--liste': {
             paddingBottom: 0,
 
+            /* A list fits the page and lets long text wrap, unlike the catch
+               table below, which keeps its shape and scrolls. With max-content
+               the review queue was wider than a 1280px window although every
+               column could have wrapped, and its buttons sat off-screen. */
+            '& .MuiTable-root': {
+              width: '100%',
+            },
+
             '& .MuiTableCell-root': {
               textAlign: 'left',
               padding: '0.75rem 1rem',
