@@ -1,6 +1,6 @@
 """Signing in, signing out, asking who you are, and choosing your language.
 
-Four thin routes. The rule about who may sign in lives in
+Thin routes. The rule about who may sign in lives in
 app/benutzer/dienst.py, the token in app/security/token.py and the cookie in
 app/api/sitzung.py, so what is left here is parsing, delegating and answering.
 
@@ -14,10 +14,19 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
-from app.api.schemas import AnmeldungAnfrage, BenutzerAntwort, FehlerAntwort, IchAendernAnfrage
+from app.api.schemas import (
+    AnmeldungAnfrage,
+    BenutzerAntwort,
+    DemoAnmeldungAnfrage,
+    DemoStatusAntwort,
+    FehlerAntwort,
+    IchAendernAnfrage,
+)
 from app.api.sitzung import loesche_sitzung, setze_sitzung
 from app.benutzer.dienst import melde_an, setze_sprache
+from app.config import get_settings
 from app.db import get_session
+from app.demo.dienst import melde_demo_an
 
 router = APIRouter(prefix="/api/v1", tags=["Anmeldung"])
 
@@ -26,6 +35,12 @@ router = APIRouter(prefix="/api/v1", tags=["Anmeldung"])
 ABLEHNUNGEN: dict[int | str, dict[str, Any]] = {
     status.HTTP_401_UNAUTHORIZED: {"model": FehlerAntwort},
     status.HTTP_403_FORBIDDEN: {"model": FehlerAntwort},
+}
+
+BEI_DER_DEMO: dict[int | str, dict[str, Any]] = {
+    status.HTTP_404_NOT_FOUND: {"model": FehlerAntwort},
+    status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": FehlerAntwort},
+    status.HTTP_503_SERVICE_UNAVAILABLE: {"model": FehlerAntwort},
 }
 
 
@@ -42,6 +57,33 @@ async def anmeldung(
     whole point of httpOnly.
     """
     benutzer = await melde_an(session, email=anfrage.email, passwort=anfrage.passwort)
+    setze_sitzung(response, benutzer.id)
+    return BenutzerAntwort.model_validate(benutzer)
+
+
+@router.get("/anmeldung/demo")
+async def demo_status() -> DemoStatusAntwort:
+    """Whether the sign-in page should draw the two demo buttons.
+
+    Open to anybody, since the page asks before anybody is signed in.
+    """
+    return DemoStatusAntwort(aktiv=get_settings().demo_modus)
+
+
+@router.post("/anmeldung/demo", responses=BEI_DER_DEMO)
+async def demo_anmeldung(
+    anfrage: DemoAnmeldungAnfrage,
+    response: Response,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> BenutzerAntwort:
+    """Sign in as the shared demo account for one role, with no password.
+
+    The switch is read here on every request rather than trusted from the page,
+    so hiding the buttons is a convenience and this refusal is the actual gate.
+    """
+    benutzer = await melde_demo_an(
+        session, rolle=anfrage.rolle, demo_modus=get_settings().demo_modus
+    )
     setze_sitzung(response, benutzer.id)
     return BenutzerAntwort.model_validate(benutzer)
 

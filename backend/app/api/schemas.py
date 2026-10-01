@@ -46,6 +46,20 @@ class AnmeldungAnfrage(BaseModel):
     passwort: str = Field(min_length=1, max_length=PASSWORT_HOECHSTLAENGE)
 
 
+class DemoStatusAntwort(BaseModel):
+    """Whether this deployment offers the demo, so the page knows to draw it."""
+
+    aktiv: bool
+
+
+class DemoAnmeldungAnfrage(BaseModel):
+    """A demo sign-in. The role is the whole request: there is no password."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rolle: Rolle
+
+
 class BenutzerAntwort(BaseModel):
     """The signed-in account, as every screen sees it."""
 

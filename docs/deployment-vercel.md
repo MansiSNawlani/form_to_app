@@ -215,6 +215,65 @@ In order, because each step depends on the one before:
    still on `datei` and `ANLAGEN_SPEICHER` did not take effect.
 7. Fill in a protocol, submit it, then sign in as the reviewer and decide on it.
 
+## 6. A demo copy, for sharing a link
+
+A second deployment where visitors sign in with one click, as a submitter or as
+a reviewer, with no account and no password. It is for showing the work and
+collecting feedback. Everybody holding the link shares the same two demo
+accounts, so nothing typed there is private.
+
+**It must have its own database.** The reviewer demo sees every protocol in the
+database, so on the real one it would show real surveyors' names, addresses and
+phone numbers to anybody with the link. The demo only switches on where the
+setting `DEMO_MODUS` is `true`, and that setting belongs on the demo project
+alone. Never set it on the real one.
+
+1. **A second Neon project**, for example `form_to_app_demo`, set up exactly as
+   in step 1, in Frankfurt, with its own bucket (`befischung-demo-anlagen`). Keep
+   its connection string and its S3 keys apart from the real ones.
+2. **Migrate it**, as in step 1, with the demo's `DATABASE_URL`.
+3. **A second Vercel project**, importing the same repository, as in step 3.
+   Give it the same variables, with these differences:
+
+   | Name | Value |
+   |---|---|
+   | `DATABASE_URL` | The **demo** project's string |
+   | `JWT_SECRET` | A **new** one, generated as before. Not the real deployment's |
+   | `S3_BUCKET` and the other S3 values | The **demo** bucket's |
+   | `DEMO_MODUS` | `true` |
+
+4. **Set the demo up**, from `backend/` on your machine. This creates the two demo
+   accounts and four invented example protocols: one draft, one waiting for
+   review, one sent back for changes, and one accepted.
+
+   ```powershell
+   $env:DATABASE_URL="postgresql+asyncpg://<the demo string>"
+   $env:DEMO_MODUS="true"
+   $env:ANLAGEN_SPEICHER="s3"
+   $env:S3_BUCKET="befischung-demo-anlagen"
+   $env:S3_ENDPOINT="<the demo endpoint>"
+   $env:S3_REGION="<the demo region>"
+   $env:S3_ZUGRIFFSSCHLUESSEL="<the demo key id>"
+   $env:S3_GEHEIMSCHLUESSEL="<the demo secret>"
+   befischung demo zuruecksetzen
+   ```
+
+   The S3 values are there so the command can also delete photos that visitors
+   uploaded. Without them it still resets the database, but the photos stay in
+   the bucket with nothing pointing at them.
+
+5. **Check it.** The sign-in page shows **Ohne Konto ansehen** with two buttons.
+   **Demo: als Prüfer ansehen** opens the review queue with one protocol waiting;
+   **Demo: als Einreicher ansehen** opens a list of four.
+
+**To reset it later**, run the same command with the same variables. It removes
+everything the two demo accounts own, which is every protocol a visitor
+created, and puts the four examples back. It never touches a protocol owned by
+any other account, and it refuses to run at all unless `DEMO_MODUS` is `true`.
+
+**To close the demo**, set `DEMO_MODUS` to `false` on the demo project and
+redeploy. The buttons disappear and the server refuses a demo sign-in.
+
 ## What this deployment is not
 
 - **Not a production deployment.** No backups, no monitoring, no custom domain,

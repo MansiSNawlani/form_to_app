@@ -92,3 +92,11 @@
   gap: 1.25rem;
   font-size: var(--step--1);
 }
+
+/* The demo sits under the form as its own block, divided off so it reads as a
+   second way in rather than as part of signing in with a password. */
+.anmeldung__demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

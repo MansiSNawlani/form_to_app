@@ -85,6 +85,14 @@ export interface AnmeldungAnfrage {
   passwort: string
 }
 
+/** Whether this deployment offers the demo. GET /api/v1/anmeldung/demo. */
+export interface DemoStatusAntwort {
+  aktiv: boolean
+}
+
+/* The only two roles the demo offers; the backend refuses any other. */
+export type DemoRolle = Extract<Rolle, 'SUBMITTER' | 'REVIEWER'>
+
 /* The protocol endpoints' own shapes are not here. They live beside Antworten in
    protokoll/entwurf/typen.ts, because every one of them carries or describes
    that document and splitting them across two files would mean reading both to

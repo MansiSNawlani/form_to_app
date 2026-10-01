@@ -20,6 +20,7 @@ def umgebung(monkeypatch: pytest.MonkeyPatch) -> None:
         "S3_REGION",
         "S3_ZUGRIFFSSCHLUESSEL",
         "S3_GEHEIMSCHLUESSEL",
+        "DEMO_MODUS",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -35,6 +36,9 @@ def test_vollstaendige_umgebung_wird_akzeptiert(
     assert einstellungen.jwt_secret.get_secret_value() == GEHEIMNIS
     assert einstellungen.sitzungsdauer_stunden == 8
     assert einstellungen.cookie_secure is True
+    # Off unless asked for: on a deployment with real protocols, the demo would
+    # hand them to anybody holding the address.
+    assert einstellungen.demo_modus is False
 
 
 def test_fehlendes_geheimnis_wird_abgelehnt(
@@ -168,3 +172,16 @@ class TestWelcherAnlagenspeicher:
             lade_settings(_env_file=None)
 
         assert "ANLAGEN_SPEICHER" in str(fehler.value)
+
+
+def test_unlesbarer_demo_modus_nennt_die_variable(
+    umgebung: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", DATENBANK)
+    monkeypatch.setenv("JWT_SECRET", GEHEIMNIS)
+    monkeypatch.setenv("DEMO_MODUS", "vielleicht")
+
+    with pytest.raises(KonfigurationUngueltig) as fehler:
+        lade_settings(_env_file=None)
+
+    assert "DEMO_MODUS must be true or false" in str(fehler.value)

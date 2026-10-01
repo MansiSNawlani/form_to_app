@@ -13,7 +13,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiAnfrage } from '../api/client'
 import { ApiFehler, NICHT_ANGEMELDET } from '../api/fehler'
-import type { AnmeldungAnfrage, BenutzerAntwort } from '../api/typen'
+import type {
+  AnmeldungAnfrage,
+  BenutzerAntwort,
+  DemoRolle,
+  DemoStatusAntwort,
+} from '../api/typen'
 import type { Locale } from '../i18n/sprachen'
 
 /** The one cache entry holding the account. Exported so a test can seed it. */
@@ -126,16 +131,43 @@ export function useSitzung(): Sitzung {
  *
  * The sign-in response already carries the account, so invalidating the query
  * instead would send a second request to /ich for something we are holding. */
-export function useAnmeldung() {
+function useSitzungBeginnt() {
   const queryClient = useQueryClient()
+
+  return (benutzer: BenutzerAntwort) => {
+    sitzungBestand = true
+    queryClient.setQueryData(SITZUNGS_KEY, benutzer)
+  }
+}
+
+export function useAnmeldung() {
+  const beginne = useSitzungBeginnt()
 
   return useMutation({
     mutationFn: (anfrage: AnmeldungAnfrage) =>
       apiAnfrage<BenutzerAntwort>('/anmeldung', { methode: 'POST', koerper: anfrage }),
-    onSuccess: (benutzer) => {
-      sitzungBestand = true
-      queryClient.setQueryData(SITZUNGS_KEY, benutzer)
-    },
+    onSuccess: beginne,
+  })
+}
+
+/* Whether the sign-in page should offer the demo. The server decides, so the
+   same build serves the real deployment and the demo one. */
+export const demoAbfrage = {
+  queryKey: ['demo'],
+  queryFn: () => apiAnfrage<DemoStatusAntwort>('/anmeldung/demo'),
+  /* A switch in the deployment's settings, so it does not change while a page
+     is open, and a failed answer just leaves the buttons away. */
+  staleTime: Infinity,
+  retry: false,
+} as const
+
+export function useDemoAnmeldung() {
+  const beginne = useSitzungBeginnt()
+
+  return useMutation({
+    mutationFn: (rolle: DemoRolle) =>
+      apiAnfrage<BenutzerAntwort>('/anmeldung/demo', { methode: 'POST', koerper: { rolle } }),
+    onSuccess: beginne,
   })
 }
 

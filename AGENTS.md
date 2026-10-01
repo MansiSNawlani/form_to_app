@@ -123,8 +123,9 @@ the relevant directory. Every command below was run on 2026-08-31 during feature
   `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Anyone holding it
   can mint a valid session for any account, so a deployment supplies its own from
   the environment. `SITZUNGSDAUER_STUNDEN` (default 8), `COOKIE_SECURE`
-  (default true) and `FORMULAR_SEED_DIR` (added in feature 3a, and defaulting to
-  this checkout's own `database/seed/form_version_20260609`) are optional.
+  (default true), `FORMULAR_SEED_DIR` (added in feature 3a, and defaulting to
+  this checkout's own `database/seed/form_version_20260609`) and `DEMO_MODUS`
+  (default false, see the demo commands below) are optional.
 - Start: `docker compose up -d --build`
 - Status: `docker compose ps`
 - Stop, keeping data: `docker compose down`
@@ -216,6 +217,16 @@ The password is prompted for, twice, and is never an option: an option would lan
 in the shell history and be visible to anyone who can list running processes.
 `--rolle` may be given more than once. A `REGIERUNGSPRAESIDIUM` account also needs
 `--regierungspraesidium` with a number from 1 to 4.
+
+**The demo** (also from `backend/`, added on 2026-09-30 as the demo sign-in fix, run
+that day against a separate local database). Only for a separate demo deployment with
+its own database; `docs/deployment-vercel.md` section 6 has the whole setup.
+
+- Set it up, or reset it: `befischung demo zuruecksetzen`
+
+It refuses unless `DEMO_MODUS=true`. It creates the two demo accounts if missing,
+deletes every protocol the two demo accounts own (never anybody else's), and creates the
+four example protocols again.
 
 **The FFS source material is not in the repository.** `Resources/` is untracked by
 decision on 2026-09-22, and holds two kinds of file that both belong outside git. The

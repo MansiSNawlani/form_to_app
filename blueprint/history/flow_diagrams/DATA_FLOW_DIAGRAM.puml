@@ -63,7 +63,18 @@ note right of Route
   ""aktueller_benutzer"" dependency chain shown in steps 13-18
   below. If it fails, React Router renders <Navigate to="/anmeldung">
   instead of the form, and none of the steps below ever happen.
-  See AUTHENTICATION_EXPLAINED.txt for the full trace of this call.
+  The code behind this call: api/anmeldung.py (the routes),
+  api/abhaengigkeiten.py (the cookie check), api/sitzung.py (the cookie).
+
+  **How the cookie got there.** One of two routes set it, both through
+  the same setze_sitzung() in api/sitzung.py, so everything after this
+  point is identical for both:
+  - POST /api/v1/anmeldung - email + password, the normal way in.
+  - POST /api/v1/anmeldung/demo - {rolle: SUBMITTER | REVIEWER}, no
+    password, signs in as a shared demo account (demo/dienst.py).
+    Only when the server setting DEMO_MODUS is true; otherwise 404.
+    The sign-in page asks GET /api/v1/anmeldung/demo first and draws
+    the two demo buttons (auth/DemoZugang.tsx) only if it says aktiv.
 end note
 Route --> Browser: 200 OK {benutzer} -> cached by useSitzung.ts\n(React Query key ['sitzung'])
 Browser --> User: form renders, e.g. ProtokollFormular.tsx

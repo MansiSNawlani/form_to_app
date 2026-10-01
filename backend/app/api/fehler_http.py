@@ -70,6 +70,7 @@ from app.benutzer.fehler import (
     SelbstEntzugUnzulaessig,
 )
 from app.benutzer.regeln import REGIERUNGSPRAESIDIEN
+from app.demo.fehler import DemoAus, DemoNichtEingerichtet, DemoRolleUnzulaessig
 from app.formular.fehler import (
     PdfFehler,
     PdfGesperrt,
@@ -233,6 +234,26 @@ UEBERSETZUNG: dict[type[BenutzerFehler], tuple[str, int, str]] = {
         " eigenes Konto nicht sperren. Beides würde Sie sofort aussperren, ohne"
         " dass Sie es rückgängig machen könnten. Ein anderes Konto mit dieser"
         " Rolle kann es für Sie tun.",
+    ),
+    # 404 rather than 403: on a deployment without the demo, the demo is not a
+    # locked door, it is not there at all.
+    DemoAus: (
+        "DEMO_AUS",
+        status.HTTP_404_NOT_FOUND,
+        "Diese Seite bietet keine Demo an. Bitte melden Sie sich mit Ihrer"
+        " E-Mail-Adresse und Ihrem Passwort an.",
+    ),
+    DemoRolleUnzulaessig: (
+        "DEMO_ROLLE_UNZULAESSIG",
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "Die Demo gibt es nur als Einreicher und als Prüfer. Bitte wählen Sie"
+        " eine dieser beiden Schaltflächen.",
+    ),
+    DemoNichtEingerichtet: (
+        "DEMO_NICHT_EINGERICHTET",
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+        "Die Demo ist gerade nicht eingerichtet. Bitte geben Sie der Person"
+        " Bescheid, die Ihnen den Link geschickt hat.",
     ),
 }
 
