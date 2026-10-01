@@ -329,7 +329,7 @@ These are not features and are not tracked here. They happen first.
         test that en.json never holds a key German lacks or a mismatched placeholder
   - [x] 17b. Rahmen, Anmeldung, Listen und Verwaltung in English: header, footer,
         sign-in, session, Meine Protokolle, the Pruefliste and user administration
-  - [ ] 17c. Das Formular in English: sections 1 to 7, the field names and the rule
+  - [x] 17c. Das Formular in English: sections 1 to 7, the field names and the rule
         messages
   - [ ] 17d. Rund um das Formular in English: saving, the safety copy, submitting,
         review decisions, the Verlauf, the PDF import screen, attachments, and the
