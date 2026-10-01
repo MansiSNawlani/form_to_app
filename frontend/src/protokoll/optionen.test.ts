@@ -111,3 +111,46 @@ describe('optionLabelMitWert', () => {
     expect(optionLabelMitWert('gewaessertyp', '')).toBeNull()
   })
 })
+
+/* Feature 17d. Only the label shown changes with the language; the code stored
+   never does, so a German account reads the same answer back in German. */
+describe('in English', () => {
+  it('zeigt den englischen Text zum selben Code', () => {
+    expect(optionLabel('anlass', 'best', 'en')).toBe('General stock survey')
+    expect(optionLabel('anlass', 'best')).toBe('allgemeine Bestandserhebung')
+  })
+
+  it('behaelt Codes und Reihenfolge der deutschen Liste', () => {
+    const werte = (sprache: 'de' | 'en') => optionen('anlass', sprache).map(({ wert }) => wert)
+
+    expect(werte('en')).toEqual(werte('de'))
+  })
+
+  it('stellt auch auf Englisch den Code voran', () => {
+    expect(optionLabelMitWert('gewaessertyp', '13', 'en')).toBe('13 - Stream')
+  })
+
+  it('faellt auf Deutsch zurueck, wo es keinen englischen Text gibt', () => {
+    // Species names stay German, decided on 2026-09-30: the list simply holds
+    // no English for them.
+    expect(optionLabel('arten', 'BFOR', 'en')).toBe('Bachforelle')
+  })
+
+  it('gibt einen unbekannten Code auch auf Englisch als Code zurueck', () => {
+    expect(optionLabel('anlass', 'gibtsnicht', 'en')).toBe('gibtsnicht')
+  })
+
+  it('gibt dieselbe Liste bei jedem Aufruf zurueck', () => {
+    expect(optionen('anlass', 'en')).toBe(optionen('anlass', 'en'))
+    // A list with no English at all is the German one, not a copy of it.
+    expect(optionen('probestrecke.monitoringnummer', 'en')).toBe(
+      optionen('probestrecke.monitoringnummer', 'de'),
+    )
+  })
+
+  it('reicht im Code deklarierte Optionen unveraendert durch', () => {
+    const skala = [{ wert: '0', label: 'None' }] as const
+
+    expect(optionen(skala, 'en')).toBe(skala)
+  })
+})

@@ -13,6 +13,7 @@
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { optionLabel } from '../optionen'
+import type { Locale } from '../../i18n/sprachen'
 import { titelAusTeilen } from '../entwurf/titel'
 import type { Status, Uebersicht } from '../entwurf/typen'
 
@@ -138,9 +139,12 @@ export function unterzeile(ortsangabe: string | null, laenge: string | null): st
  * with every picker on the reviewer's page since feature 11e. This stays as a
  * named function because the list it reads is part of what it means, and three
  * screens ask for "the Anlass label" rather than for a lookup.
+ *
+ * The language is an argument, like the clock below, so this stays testable
+ * without i18next.
  */
-export function anlassLabel(anlass: string | null): string | null {
-  return optionLabel('anlass', anlass)
+export function anlassLabel(anlass: string | null, sprache: Locale = 'de'): string | null {
+  return optionLabel('anlass', anlass, sprache)
 }
 
 /* Which of the token colours a badge takes. Named for the token rather than for

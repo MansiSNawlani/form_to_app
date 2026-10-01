@@ -1,0 +1,130 @@
+{
+  "anlass": {
+    "best": "General stock survey",
+    "bergung": "Fish rescue",
+    "wrrl": "Fish monitoring under the WFD (WRRL)",
+    "ffh": "Fish monitoring under the Habitats Directive (FFH)",
+    "maps": "Survey for MAPS",
+    "sonst": "Other"
+  },
+  "gewaessertyp": {
+    "14": "River",
+    "12": "Canal",
+    "13": "Stream",
+    "11": "Ditch",
+    "26": "Pond",
+    "29": "Cut-off oxbow",
+    "28": "Connected oxbow",
+    "21": "Lake"
+  },
+  "messdaten.regenfaelle": {
+    "1": "None",
+    "2": "Before the survey",
+    "3": "During the survey"
+  },
+  "messdaten.truebung": {
+    "1": "None",
+    "2": "Slight",
+    "3": "Marked"
+  },
+  "messdaten.schaumbildung": {
+    "1": "None",
+    "2": "Slight",
+    "3": "Marked"
+  },
+  "hydrologie.tiefe": {
+    "1": "< 0.1",
+    "2": "< 0.3",
+    "3": "< 0.5",
+    "4": "< 1",
+    "5": "< 2",
+    "6": "< 4",
+    "7": "≥ 4"
+  },
+  "hydrologie.fliessgeschwindigkeit": {
+    "1": "< 0.1",
+    "2": "0.1 - 0.25",
+    "3": "0.25 - 0.5",
+    "4": "0.5 - 0.75",
+    "5": "0.75 - 1",
+    "6": "> 1"
+  },
+  "hydrologie.tiefenvarianz": {
+    "1": "Evenly deep",
+    "2": "Evenly shallow",
+    "3": "Strongly varying"
+  },
+  "hydrologie.linienfuehrung": {
+    "1": "Straight",
+    "2": "With bends",
+    "4": "Winding",
+    "3": "Meandering"
+  },
+  "hydrologie.stroemung": {
+    "5": "Torrential",
+    "4": "Turbulent",
+    "3": "Flowing with occasional turbulence",
+    "2": "Evenly flowing",
+    "1": "Sluggish"
+  },
+  "hydrologie.wasserfuehrung": {
+    "1": "Low",
+    "2": "Normal",
+    "3": "High",
+    "4": "Dried up"
+  },
+  "hydrologie.gesamtprofil": {
+    "1": "Near-natural",
+    "4": "Slightly impaired",
+    "5": "Clearly impaired",
+    "3": "Far from natural"
+  },
+  "ufer.randstreifen": {
+    "3": "Complete on both sides",
+    "2": "One side or incomplete",
+    "1": "None"
+  },
+  "ausruestung.bauweise": {
+    "alte": "Old design",
+    "neue": "New design"
+  },
+  "ausruestung.kathode": {
+    "andere": "Other",
+    "Band": "Tape",
+    "Drahtseilkathode": "Wire rope cathode",
+    "Kupferlitze": "Copper braid",
+    "Kupferseil": "Copper rope",
+    "Litze": "Braid",
+    "ohne Angabe": "Not stated",
+    "Schleppkathode": "Trailing cathode",
+    "Streifenkathode": "Strip cathode"
+  },
+  "ausruestung.egeraet": {
+    "keine Angabe": "Not stated"
+  },
+  "z.quelle": {
+    "Biodiv": "Biodiv - Biodiversity project",
+    "E-Kurs": "E-Kurs - Surveys during the electrofishing courses",
+    "FB": "FB - Catch sheets RP Tübingen",
+    "FBF": "FBF - Catch sheets RP Freiburg",
+    "FBK": "FBK - Catch sheets RP Karlsruhe",
+    "FBS": "FBS - Catch sheets RP Stuttgart",
+    "Hüsgen": "Hüsgen - Data from S. Hüsgen",
+    "Kor": "Kor - Cormorant project",
+    "Mon": "Mon - WFD (WRRL) or Habitats Directive (FFH) monitoring",
+    "Pepl": "Pepl - Pepl/MAPS surveys",
+    "PKD": "PKD - PKD project",
+    "See-Mon": "See-Mon - WFD (WRRL) lake monitoring",
+    "Sonst.": "Sonst. - Reports from other sources"
+  },
+  "arten": {
+    "OFAN": "No detection",
+    "OFAF": "No detection, fish",
+    "KNKR": "No detection, crayfish",
+    "KNMU": "No detection, mussels",
+    "SONS": "Other species"
+  },
+  "besatz_fischart": {
+    "SONS": "Other species"
+  }
+}

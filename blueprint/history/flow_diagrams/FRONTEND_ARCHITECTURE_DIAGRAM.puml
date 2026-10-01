@@ -110,7 +110,9 @@ package "i18n/  (translations)" as i18npkg #E8F4FD {
   [sprachen.ts]
   [resources.d.ts]
   [DatumsProvider.tsx]
+  [useLocale.ts]
   [locales/de.json, en.json]
+  [locales/optionen.en.json]
   note bottom of i18npkg
     react-i18next. No component ever hard-codes a user-facing string;
     every one is a t('some.key') lookup into de.json or en.json. German
@@ -120,6 +122,10 @@ package "i18n/  (translations)" as i18npkg #E8F4FD {
     sprachen.ts holds, per language, everything else that follows it:
     MUI's own texts, the date pickers' texts and the Intl date format
     (en-GB, so English dates are still day first).
+    optionen.en.json holds the English for the short dropdown entries
+    (rain, turbidity, current...), keyed by list and stored code. The
+    German stays in the seed file; protokoll/optionen.ts picks the
+    language, which useLocale.ts reads. What is stored never changes.
   end note
 }
 

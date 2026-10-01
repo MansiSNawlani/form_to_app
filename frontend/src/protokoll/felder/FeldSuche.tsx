@@ -5,6 +5,7 @@ import { useFeldFehler } from './fehler'
 import Feldwert from '../nurlesen/Feldwert'
 import { useNurLesen } from '../nurlesen/kontext'
 import { optionLabel, type ListenName } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
@@ -36,6 +37,7 @@ function FeldSuche({
   const fehlerKey = useFeldFehler(name)
   const { getValues } = useFormContext<Antworten>()
   const nurLesen = useNurLesen()
+  const sprache = useLocale()
 
   /* Same as FeldAuswahl: the stored export value turned back into its label.
      That a list is too long to scroll matters to somebody choosing from it and
@@ -49,7 +51,7 @@ function FeldSuche({
         pflicht={pflicht}
         hinweisKey={hinweisKey}
       >
-        <Feldwert wert={optionLabel(liste, getValues(name))} />
+        <Feldwert wert={optionLabel(liste, getValues(name), sprache)} />
       </FeldRahmen>
     )
   }

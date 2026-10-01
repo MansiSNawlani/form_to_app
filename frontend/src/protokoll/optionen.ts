@@ -11,6 +11,8 @@
  */
 
 import optionslisten from '@formular/optionslisten.json'
+import englisch from '../i18n/locales/optionen.en.json'
+import type { Locale } from '../i18n/sprachen'
 
 export interface Option {
   wert: string
@@ -94,18 +96,47 @@ function ohneDoppelte(eintraege: readonly Option[]): readonly Option[] {
  * objects on every keystroke and a prop that never compares equal. Doing it here
  * keeps the reference stable, which is what it was before the duplicate needed
  * handling at all. */
-const listen: Record<string, readonly Option[]> = Object.fromEntries(
+const deutsch: Record<string, readonly Option[]> = Object.fromEntries(
   Object.entries(optionslisten.listen as Record<string, Option[]>).map(
     ([name, eintraege]) => [name, ohneDoppelte(eintraege)],
   ),
 )
 
-export function optionen(quelle: Optionsquelle): readonly Option[] {
+/* The English labels, feature 17d. Only the label changes: same codes, same
+ * order, so what is stored and what FiaKa receives never depend on the language.
+ *
+ * The English sits in its own file, optionen.en.json, rather than in en.json.
+ * The German is not copied anywhere: it stays in the seed file, its one source,
+ * and a copy in de.json would drift the next time the lists are regenerated. And
+ * i18next reads a dot in a key as nesting, which a code like "Sonst." or a list
+ * name like "messdaten.truebung" would break.
+ *
+ * An entry with no English keeps its German label, the same fallback the texts
+ * use. That is how species names, device models and place names stay German, as
+ * decided on 2026-09-30: the file simply has nothing for them. A list with no
+ * English at all is the German array itself, so the 722 monitoring numbers keep
+ * one stable reference in either language.
+ */
+function aufEnglisch(name: string, eintraege: readonly Option[]): readonly Option[] {
+  const texte = (englisch as Record<string, Record<string, string>>)[name]
+  if (texte === undefined) return eintraege
+  return eintraege.map((option) => ({ ...option, label: texte[option.wert] ?? option.label }))
+}
+
+const listen: Record<Locale, Record<string, readonly Option[]>> = {
+  de: deutsch,
+  en: Object.fromEntries(
+    Object.entries(deutsch).map(([name, eintraege]) => [name, aufEnglisch(name, eintraege)]),
+  ),
+}
+
+export function optionen(quelle: Optionsquelle, sprache: Locale = 'de'): readonly Option[] {
   /* Options declared in code are returned untouched. They are written by hand a
      few lines from where they are used, so a duplicate there is a typo somebody
-     can see, not a fact about a generated file. */
+     can see, not a fact about a generated file. Their words, if any, come from
+     the locale files through t() where they are declared. */
   if (typeof quelle !== 'string') return quelle
-  return listen[quelle] ?? []
+  return listen[sprache][quelle] ?? []
 }
 
 /* A stored code turned into the label somebody can read.
@@ -132,11 +163,12 @@ export function optionen(quelle: Optionsquelle): readonly Option[] {
 export function optionLabel(
   quelle: Optionsquelle,
   wert: string | null | undefined,
+  sprache: Locale = 'de',
 ): string | null {
   const code = wert?.trim()
   if (!code) return null
 
-  return optionen(quelle).find((option) => option.wert === code)?.label ?? code
+  return optionen(quelle, sprache).find((option) => option.wert === code)?.label ?? code
 }
 
 /* The same, with the stored code kept in front: "13 - Bach".
@@ -151,9 +183,10 @@ export function optionLabel(
 export function optionLabelMitWert(
   quelle: Optionsquelle,
   wert: string | null | undefined,
+  sprache: Locale = 'de',
 ): string | null {
   const code = wert?.trim()
-  const label = optionLabel(quelle, wert)
+  const label = optionLabel(quelle, wert, sprache)
   if (label === null || code === undefined) return label
 
   return label === code ? code : `${code} - ${label}`

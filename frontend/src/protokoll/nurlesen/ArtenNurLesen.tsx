@@ -13,6 +13,7 @@ import { fangzeilen, type Fangzeile } from './artenzeilen'
 import { KLASSEN } from '../abschnitte/teil6/tabelle'
 import { summeAusWerten } from '../regeln/arten'
 import { optionLabel } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import type { Antworten } from '../entwurf/typen'
 
 /* A count, or a dash where none was given.
@@ -32,13 +33,14 @@ function Zahl({ wert }: { wert: string | undefined }) {
 
 function Fang({ zeile }: { zeile: Fangzeile }) {
   const { t } = useTranslation()
+  const sprache = useLocale()
 
   /* The ten classes only. The printed form heads the 0+ column "davon", so those
      individuals are already counted among the ten beside them and adding them in
      would count them twice. teil6/tabelle.ts says the same where the two lists
      are declared. */
   const summe = summeAusWerten(zeile.klassen)
-  const beschriftung = optionLabel('arten', zeile.code)
+  const beschriftung = optionLabel('arten', zeile.code, sprache)
 
   return (
     <TableRow>

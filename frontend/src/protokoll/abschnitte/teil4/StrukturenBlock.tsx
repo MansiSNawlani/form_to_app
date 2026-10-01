@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { STRUKTUREN } from './bloecke'
 import { STRUKTURSTUFEN } from './stufen'
@@ -18,6 +19,16 @@ import FeldText from '../../felder/FeldText'
    Schätzwert boxes and 6a for the two bank ones. */
 function StrukturenBlock() {
   const { t } = useTranslation()
+  /* One list for all eight ratings, rebuilt only when the language changes:
+     FeldRadio hands it on to the radio group on every render. */
+  const stufen = useMemo(
+    () =>
+      STRUKTURSTUFEN.map((wert) => ({
+        wert,
+        label: `${wert} - ${t(`protokoll.abschnitt4.strukturen.stufe.${wert}`)}`,
+      })),
+    [t],
+  )
 
   return (
     <fieldset className="form-section">
@@ -31,7 +42,7 @@ function StrukturenBlock() {
           <FeldRadio
             key={pfad}
             name={pfad}
-            liste={STRUKTURSTUFEN}
+            liste={stufen}
             labelKey={labelKey}
             spalten={6}
           />

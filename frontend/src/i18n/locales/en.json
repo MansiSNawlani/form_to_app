@@ -392,6 +392,27 @@
       "zurueck": "Back",
       "weiter": "Next: {{abschnitt}}"
     },
+    "nurlesen": {
+      "leer": "Not given",
+      "ja": "Yes",
+      "nein": "No",
+      "keineFotos": "No photos attached.",
+      "keineArten": "This protocol names no species. Even a survey that caught nothing must name one of the four no-detection entries, so an answer is missing here."
+    },
+    "pruefung": {
+      "protokollVom": "Protocol of {{datum}}",
+      "gesperrt": "This protocol is shown exactly as it was submitted. The fields cannot be changed here.",
+      "uebersicht": {
+        "eingereichtVon": "Submitted by",
+        "bearbeiter": "Surveyor (Bearbeiter)",
+        "eingereichtAm": "Submitted on",
+        "anlass": "Occasion (Anlass)",
+        "regierungspraesidium": "Regional council (Regierungspräsidium)"
+      },
+      "vorheriges": "Previous",
+      "naechstes": "Next",
+      "schrittGewaesser": ", {{gewaesser}}"
+    },
     "abschnitt1": {
       "anlass": {
         "legend": "Occasion of the survey",
@@ -592,6 +613,12 @@
       "strukturen": {
         "legend": "Natural structures in the water",
         "hinweis": "How strongly each structure is present in the sampling stretch, estimated on a scale from 0 to 3.",
+        "stufe": {
+          "0": "None",
+          "1": "Few",
+          "2": "Widespread",
+          "3": "Dominant"
+        },
         "feld": {
           "totholz": "Dead wood",
           "wurzeln": "Roots",
@@ -830,15 +857,42 @@
       "nullPlusUeberSumme": "There cannot be more young-of-the-year (0+) fish than the row counts in total.",
       "artDoppelt": "This species is already in an earlier row.",
       "keinNachweisMitFang": "This row reports no detection but still counts fish.",
-      "keinNachweisNebenArt": "\"kein Nachweis\" (no detection) rules out every other species in the table.",
-      "fangOhneNachweisCode": "If nothing was caught, please choose a \"kein Nachweis\" (no detection) entry instead of a species.",
+      "keinNachweisNebenArt": "\"No detection\" rules out every other species in the table.",
+      "fangOhneNachweisCode": "If nothing was caught, please choose a \"No detection\" entry instead of a species.",
       "fehlt": "This answer is needed to submit. Please fill it in; you can save the protocol without it.",
       "fehltProzentgruppe": "This block is not filled in yet. Please split the shares so that they add up to exactly 100 %; if the stretch has only one of them, enter 100 there and leave the rest empty.",
       "fehltEinfluss": "Nothing is ticked in this block yet. Please tick the uses that apply; if none of them can be seen, tick \"None (visible)\", and if it cannot be judged, \"Unknown\".",
       "fehltBewirtschaftung": "Nothing is ticked in this block yet. Please tick how the stretch is managed.",
       "fehltRichtung": "This area has a fished length but no direction. Please tick whether it was fished upstream or downstream.",
       "fehltMethode": "This area has a fished length but no method. Please tick whether it was fished wading, from a boat or from the bank.",
-      "fehltArt": "The protocol names no species yet. Please enter at least one species, or choose a \"kein Nachweis\" (no detection) entry if nothing was caught."
+      "fehltArt": "The protocol names no species yet. Please enter at least one species, or choose a \"No detection\" entry if nothing was caught."
+    },
+    "verwerfen": {
+      "titel": "This protocol is still empty",
+      "text": "It has not been created yet, because you have not entered anything. If you go back now, nothing is lost and it will not appear in your list.",
+      "bleiben": "Keep filling in",
+      "verwerfen": "Leave"
+    },
+    "speichern": {
+      "ungespeichert": "Created as soon as you enter something",
+      "unveraendert": "All changes saved",
+      "speichert": "Saving",
+      "gespeichertUm": "Saved automatically at {{zeit}}",
+      "fehler": "Not saved",
+      "konflikt": "Not saved: conflict",
+      "problem": {
+        "fehlerTitel": "Your latest entries have not reached the server",
+        "fehlerText": "The server could not be reached. Your entries are kept in this browser until then and are sent with the next successful save. You can carry on working, but please do not close this window until it has saved again.",
+        "konfliktTitel": "This protocol has been changed somewhere else",
+        "konfliktText": "That is why nothing was saved here: otherwise the changes made elsewhere would be overwritten. This happens when the same protocol is open in a second tab or on another device. Your entries from here are kept in this browser. Reload the page; you will then be asked whether you want to keep these entries.",
+        "neuLaden": "Reload page"
+      }
+    },
+    "sicherung": {
+      "titel": "Unsaved entries found",
+      "text": "This browser holds entries from {{zeitpunkt}} that have not reached the server. You can keep them or discard them. Keeping them replaces the saved version completely.",
+      "uebernehmen": "Keep entries",
+      "verwerfen": "Discard"
     },
     "abschnitt7": {
       "groesse": "{{mb, number}} MB",
@@ -866,6 +920,146 @@
         "anzahl": "{{vorhanden}} of {{max}}",
         "leer": "No photos attached yet.",
         "alt": "Photo {{nummer}} of the sampling stretch, file \"{{dateiname}}\""
+      }
+    },
+    "anlagen": {
+      "fehler": {
+        "heic": "“{{dateiname}}” is in the iPhone format HEIC, which no browser can display. So that future photos work, choose “Most Compatible” on the iPhone under Settings > Camera > Formats. For this photo now: open it on the iPhone and share or export it; that creates a JPG file, which works here.",
+        "typ": "“{{dateiname}}” is not an image. Please choose a file in {{formate, list(type: disjunction)}} format.",
+        "groesse": "“{{dateiname}}” is {{groesseMb, number}} MB; up to {{maxMb, number}} MB is possible. Most phones and photo apps make a smaller version when you share or export a picture.",
+        "kartenausschnittBelegt": "“{{dateiname}}” was not added: a map excerpt is already attached. Please replace it or remove it first.",
+        "fotosVoll": "“{{dateiname}}” was not added: {{vorhanden}} photos are already attached, and no more than {{max}} are possible. Please remove a photo first.",
+        "nichtEntfernt": "“{{dateiname}}” could not be removed. The attachment is still there. Please try again; if that does not help, reload the page.",
+        "groesseServer": "“{{dateiname}}” is too large and was not uploaded. Please export or send the picture at a smaller size; most phones and photo apps can do this, and the smaller version is good enough here.",
+        "nichtGesendet": "“{{dateiname}}” could not be uploaded. The server could not be reached, and the file has not been saved. Please check your internet connection and try again.",
+        "listeNichtGeladen": "The attachments of this protocol could not be loaded. Whatever is already attached is still there unchanged, but cannot be shown right now. Please reload the page; if the problem continues, please sign in again."
+      }
+    },
+    "absenden": {
+      "legend": "Submit protocol",
+      "hinweis": "On submitting, the protocol is checked. After that you can no longer change it, and FFS takes it over for review.",
+      "aktion": "Submit protocol",
+      "laeuft": "Submitting",
+      "nichtGespeichert": "Not all entries have been saved yet, so nothing was submitted. Please reload the page and then try again.",
+      "nochNichtAngelegt": "This protocol is still empty. Please fill it in first; you can submit it as soon as there is something in it.",
+      "frage": {
+        "titel": "Submit protocol?",
+        "text": "“{{name}}” will be sent to FFS. After that you can no longer change the protocol. Changes are only possible again if the reviewer requests them.",
+        "textOhneNamen": "This protocol will be sent to FFS. After that you can no longer change it. Changes are only possible again if the reviewer requests them.",
+        "abbrechen": "Cancel",
+        "bestaetigen": "Submit now"
+      },
+      "probleme": {
+        "titel": "The protocol has not been submitted yet",
+        "abschnitt": "Section {{nr}}: {{titel}}",
+        "artZeile": "Species table, row {{nr}}",
+        "ohneOrt": "This answer belongs to no field on this form. Please report this.",
+        "entwurfBleibt": "Your draft is saved unchanged. Nothing is lost while you fill this in.",
+        "unbekannteRegel": "This answer was flagged. The reason cannot be shown here; please report this.",
+        "ausgefuellt": "filled in",
+        "erneutPruefen": "Check again",
+        "prueftGerade": "Checking",
+        "inDiesemAbschnitt_one": "One answer in this section is still missing or not right yet.",
+        "inDiesemAbschnitt_other": "{{count}} answers in this section are still missing or not right yet.",
+        "woanders_one": "One more is still open in another section; the step bar above shows where.",
+        "woanders_other": "{{count}} more are still open in other sections; the step bar above shows where.",
+        "offenImAbschnitt_one": "open answer in this section",
+        "offenImAbschnitt_other": "open answers in this section",
+        "offenImMenue_one": "1 open",
+        "offenImMenue_other": "{{count}} open",
+        "stand": "Checked at {{zeitpunkt}}.",
+        "einklappen": "Collapse",
+        "ausklappen": "Expand",
+        "dieserAbschnittErledigt": "You have filled in everything in this section. Checking again will tell you whether it is all correct."
+      },
+      "bereitsAbgesendet": {
+        "text": "This protocol has already been submitted. Everything arrived; there is nothing more you need to do.",
+        "zurUebersicht": "To my protocols"
+      }
+    },
+    "abgesendet": {
+      "text": "The status is “{{status}}”. Submitted protocols can no longer be edited. If something still needs changing, please contact FFS; the reviewer can request changes."
+    },
+    "aenderung": {
+      "titel": "The reviewer has requested changes",
+      "von": "Requested by {{person}} on {{zeitpunkt}}.",
+      "vonOhneZeit": "Requested by {{person}}.",
+      "hinweis": "Please change what is mentioned and then submit the protocol again at the end of section 7. Until then it stays editable; it can no longer be deleted."
+    },
+    "entscheidung": {
+      "titel": "Decision",
+      "aufnehmen": "Start review",
+      "aufnehmenLaeuft": "Starting review",
+      "aufnehmenHinweis": "Records that you are working on this protocol. Others see this in the review queue. You can also decide without this step.",
+      "entschieden": "This protocol has already been decided. The history below says by whom and for what reason.",
+      "eigenes": "You submitted this protocol yourself. Another reviewer decides on it.",
+      "frage": "What is your decision?",
+      "wahl": {
+        "ANNEHMEN": {
+          "titel": "Accept",
+          "text": "The protocol is locked and released for transfer into FiaKa."
+        },
+        "AENDERUNG_ANFORDERN": {
+          "titel": "Request changes",
+          "text": "Goes back to the submitter and stays editable."
+        },
+        "ABLEHNEN": {
+          "titel": "Reject",
+          "text": "Final. Only for protocols that cannot be saved."
+        }
+      },
+      "begruendung": "Reason",
+      "begruendungHinweis": "A reason is required for “Request changes” and for “Reject”. The submitter sees this text.",
+      "speichern": "Save decision",
+      "speichernLaeuft": "Saving",
+      "fehlt": {
+        "entscheidung": "Please choose your decision first.",
+        "begruendung": "This decision needs a reason, because the submitter has to know what to do. Please write in the field what should be changed or why the protocol is rejected."
+      },
+      "veraltet": "This protocol has been decided in the meantime, probably by a colleague. Your decision was not saved. Please load the current version and look in the history to see what was decided.",
+      "neuLaden": "Load current version",
+      "bestaetigen": {
+        "abbrechen": "Back",
+        "ANNEHMEN": {
+          "titel": "Accept protocol?",
+          "text": "The protocol is locked and released for transfer into FiaKa. After that nobody can change anything in it, not even you, and the decision cannot be undone."
+        },
+        "ABLEHNEN": {
+          "titel": "Reject protocol?",
+          "text": "The protocol is rejected for good. The submitter can then no longer revise it or submit it again. If it can be saved, request changes instead."
+        }
+      }
+    },
+    "verlauf": {
+      "titel": "History (Verlauf)",
+      "laedt": "Loading the history.",
+      "fehler": "The history could not be loaded. Please reload the page.",
+      "durch": "by {{person}}",
+      "aktion": {
+        "DRAFT": "Draft created",
+        "SUBMITTED": "Submitted",
+        "IN_REVIEW": "Review started",
+        "NEEDS_CHANGES": "Changes requested",
+        "REJECTED": "Rejected",
+        "ACCEPTED": "Accepted",
+        "LOCKED": "Accepted and locked",
+        "unbekannt": "Status changed"
+      }
+    },
+    "einlesen": {
+      "unbrauchbar": {
+        "titel": "Not taken over from the PDF file",
+        "text": "The value is in the protocol exactly as the PDF file wrote it, but could not be read here. Please look at the field and enter the value again."
+      },
+      "bilder": {
+        "titel_one": "1 image from the PDF file is still missing here",
+        "titel_other": "{{count}} images from the PDF file are still missing here",
+        "text_one": "The imported PDF file contains 1 image. Images are not taken over on import yet. Please save it from the PDF file and upload it here as a map excerpt or photo.",
+        "text_other": "The imported PDF file contains {{count}} images. Images are not taken over on import yet. Please save them from the PDF file and upload them here as a map excerpt or photos."
+      },
+      "banner": {
+        "titel": "This protocol was imported from a PDF file",
+        "text": "The answers come from a completed PDF file (form version {{quellversion}}). The protocol is a draft and has not been submitted yet. The same rules apply as to a protocol typed in here, so please check the answers before you submit it."
       }
     }
   }

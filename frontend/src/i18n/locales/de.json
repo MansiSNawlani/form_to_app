@@ -613,6 +613,12 @@
       "strukturen": {
         "legend": "Natürliche Strukturen im Wasser",
         "hinweis": "Wie stark jede Struktur in der Probestrecke vertreten ist, geschätzt auf einer Skala von 0 bis 3.",
+        "stufe": {
+          "0": "keine",
+          "1": "wenig",
+          "2": "verbreitet",
+          "3": "dominierend"
+        },
         "feld": {
           "totholz": "Totholz",
           "wurzeln": "Wurzeln",

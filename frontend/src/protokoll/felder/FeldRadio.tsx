@@ -9,6 +9,7 @@ import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
 import { beschriebenVon, labelId, type FeldRahmenProps } from './rahmen'
 import { optionLabel, optionen, type Optionsquelle } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import Feldwert from '../nurlesen/Feldwert'
 import { useNurLesen } from '../nurlesen/kontext'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
@@ -55,6 +56,7 @@ function FeldRadio({
   hinweisKey,
 }: FeldRadioProps) {
   const { t } = useTranslation()
+  const sprache = useLocale()
   const { control, getValues } = useFormContext<Antworten>()
   const fehlerKey = useFeldFehler(name)
   const nurLesen = useNurLesen()
@@ -72,7 +74,7 @@ function FeldRadio({
    * the same reading. children is dropped: those are the qualifying checkboxes
    * of three hydrology groups, and each is a FeldHaken that prints itself. */
   if (nurLesen) {
-    const gewaehlt = optionLabel(liste, getValues(name))
+    const gewaehlt = optionLabel(liste, getValues(name), sprache)
 
     return (
       <FeldRahmen
@@ -117,7 +119,7 @@ function FeldRadio({
               aria-invalid={fehlerKey ? true : undefined}
               aria-describedby={beschriebenVon(name, hinweisKey, fehlerKey)}
             >
-              {optionen(liste).map((option) => (
+              {optionen(liste, sprache).map((option) => (
                 <FormControlLabel
                   key={option.wert}
                   value={option.wert}

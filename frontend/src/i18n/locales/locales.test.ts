@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import optionslisten from '@formular/optionslisten.json'
 import de from './de.json'
 import en from './en.json'
+import optionenEn from './optionen.en.json'
 
 /* The guard on the English file while features 17b to 17e fill it in.
  *
@@ -45,8 +47,8 @@ describe('en.json', () => {
     expect(abweichend).toEqual([])
   })
 
-  // The screens 17b translated and the form 17c translated. 17e widens this to
-  // every namespace.
+  // The screens 17b translated, the form 17c translated and what surrounds the
+  // form, 17d. 17e widens this to every namespace.
   it.each([
     'shell',
     'common',
@@ -72,6 +74,18 @@ describe('en.json', () => {
     'protokoll.abschnitt6',
     'protokoll.abschnitt7',
     'protokoll.regeln',
+    'protokoll.speichern',
+    'protokoll.sicherung',
+    'protokoll.verwerfen',
+    'protokoll.aenderung',
+    'protokoll.abgesendet',
+    'protokoll.anlagen',
+    'protokoll.einlesen',
+    'protokoll.absenden',
+    'protokoll.entscheidung',
+    'protokoll.verlauf',
+    'protokoll.nurlesen',
+    'protokoll.pruefung',
   ])('translates every key under %s', (namensraum) => {
     const darunter = [...deutsch.keys()].filter(
       (k) => k === namensraum || k.startsWith(`${namensraum}.`),
@@ -83,5 +97,57 @@ describe('en.json', () => {
   it('reads the placeholders it compares', () => {
     expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}')).toEqual(['kuerzel', 'sprache'])
     expect(platzhalter('{{anzahl, number}} Zeilen')).toEqual(['anzahl'])
+  })
+})
+
+/* The English dropdown entries, feature 17d. German is not in this file: it stays
+   in the seed file, so the guard holds the English against that instead. */
+describe('optionen.en.json', () => {
+  const seed = optionslisten.listen as Record<string, { wert: string }[]>
+  const englischeListen = optionenEn as Record<string, Record<string, string>>
+
+  it('names only lists and codes the seed file has', () => {
+    const fremd = Object.entries(englischeListen).flatMap(([liste, texte]) =>
+      Object.keys(texte)
+        .filter((wert) => !seed[liste]?.some((option) => option.wert === wert))
+        .map((wert) => `${liste}: ${wert}`),
+    )
+    expect(fremd).toEqual([])
+  })
+
+  /* The short descriptions decided on 2026-09-30. Left out on purpose: species,
+     device models and the monitoring stretches, which keep their German names
+     and have only a few entries translated; the four Regierungspraesidien, the
+     names of authorities; and the width and still-water ranges, whose German
+     labels hold no word and no decimal comma, so English would be a copy. */
+  it.each([
+    'anlass',
+    'gewaessertyp',
+    'messdaten.regenfaelle',
+    'messdaten.truebung',
+    'messdaten.schaumbildung',
+    'hydrologie.tiefe',
+    'hydrologie.fliessgeschwindigkeit',
+    'hydrologie.tiefenvarianz',
+    'hydrologie.linienfuehrung',
+    'hydrologie.stroemung',
+    'hydrologie.wasserfuehrung',
+    'hydrologie.gesamtprofil',
+    'ufer.randstreifen',
+    'ausruestung.bauweise',
+    'ausruestung.kathode',
+    'z.quelle',
+  ])('translates every entry of %s', (liste) => {
+    const fehlend = seed[liste]
+      .map(({ wert }) => wert)
+      .filter((wert) => englischeListen[liste]?.[wert] === undefined)
+    expect(fehlend).toEqual([])
+  })
+
+  it('leaves no decimal comma in an English entry', () => {
+    const mitKomma = Object.values(englischeListen)
+      .flatMap((texte) => Object.values(texte))
+      .filter((text) => /\d,\d/.test(text))
+    expect(mitKomma).toEqual([])
   })
 })

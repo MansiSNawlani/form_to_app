@@ -15,6 +15,7 @@ import {
   unterzeile,
   zeilenTitel,
 } from './anzeige'
+import { useLocale } from '../../i18n/useLocale'
 
 interface ProtokollZeileProps {
   zeile: Uebersicht
@@ -43,6 +44,7 @@ const AKTION: Record<Status, ParseKeys> = {
 
 function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
   const { t } = useTranslation()
+  const sprache = useLocale()
 
   const bearbeitet = bearbeitetAnzeige(zeile.updated_at, jetzt)
   const zweiteZeile = unterzeile(zeile.ortsangabe, zeile.laenge)
@@ -58,7 +60,7 @@ function ProtokollZeile({ zeile, jetzt, onLoeschen }: ProtokollZeileProps) {
 
       <TableCell className="zeile-tabular">{datumAnzeige(zeile.datum) ?? ''}</TableCell>
 
-      <TableCell>{anlassLabel(zeile.anlass) ?? ''}</TableCell>
+      <TableCell>{anlassLabel(zeile.anlass, sprache) ?? ''}</TableCell>
 
       <TableCell>
         <Statusabzeichen status={zeile.status} />

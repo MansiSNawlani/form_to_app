@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { anlassLabel, zeitpunktAnzeige } from '../liste/anzeige'
 import { optionLabel } from '../optionen'
+import { useLocale } from '../../i18n/useLocale'
 import { angezeigterWert } from '../nurlesen/wert'
 import type { Entwurf } from '../entwurf/typen'
 
@@ -56,6 +57,7 @@ function Eintrag({ titel, wert }: EintragProps) {
  */
 function Uebersichtsleiste({ protokoll }: { protokoll: Entwurf }) {
   const { t } = useTranslation()
+  const sprache = useLocale()
 
   const eingereichtAm =
     protokoll.submitted_at === null ? null : zeitpunktAnzeige(protokoll.submitted_at)
@@ -76,7 +78,7 @@ function Uebersichtsleiste({ protokoll }: { protokoll: Entwurf }) {
       />
       <Eintrag
         titel={t('protokoll.pruefung.uebersicht.anlass')}
-        wert={anlassLabel(protokoll.anlass)}
+        wert={anlassLabel(protokoll.anlass, sprache)}
       />
       <Eintrag
         titel={t('protokoll.pruefung.uebersicht.regierungspraesidium')}
