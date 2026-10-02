@@ -14,6 +14,7 @@ from fastapi import Request, status
 from app.api.fehler_http import (
     HOECHSTENS_GENANNT,
     behandle_benutzerfehler,
+    behandle_einlesefehler,
     behandle_protokollfehler,
 )
 from app.benutzer.fehler import (
@@ -28,6 +29,8 @@ from app.benutzer.fehler import (
     RollenLeer,
     SelbstEntzugUnzulaessig,
 )
+from app.formular.fehler import PdfNichtLesbar
+from app.protokolle.einlesen.fehler import DateiZuGross, KeinBefischungsformular
 from app.protokolle.fehler import (
     AntwortenNichtLesbar,
     AntwortenUngueltig,
@@ -36,7 +39,12 @@ from app.protokolle.fehler import (
     Verstoss,
     Verstossgrund,
 )
-from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
+from app.security.passwoerter import (
+    HOECHSTLAENGE,
+    MINDESTLAENGE,
+    PasswortZuKurz,
+    PasswortZuLang,
+)
 
 # The handler never looks at the request, so the smallest thing Starlette accepts
 # as one is enough.
@@ -235,3 +243,79 @@ async def test_eine_unbekannte_kontoabsage_faellt_auf_unbekannt() -> None:
 
     assert gemeldet == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert koerper["code"] == "UNBEKANNTER_FEHLER"
+
+
+# The values a sentence names, sent beside it as well as inside it, since feature
+# 17e. The browser writes its own sentence in the chosen language and fills these
+# in, so a number or a file name must never exist only inside German prose.
+
+
+async def test_eine_absage_ohne_zahlen_traegt_keine_werte() -> None:
+    """Most refusals name nothing, and their body stays the two fields it was."""
+    _, koerper = await konto_antwort(LetzterSuperAdmin())
+
+    assert "werte" not in koerper
+
+
+async def test_die_passwortgrenzen_reisen_als_zahlen() -> None:
+    _, kurz = await konto_antwort(PasswortZuKurz())
+    _, lang = await konto_antwort(PasswortZuLang())
+
+    assert kurz["werte"] == {"mindestens": MINDESTLAENGE}
+    assert lang["werte"] == {"hoechstens": HOECHSTLAENGE}
+
+
+@pytest.mark.parametrize(
+    "fehler",
+    [RegierungspraesidiumFehlt(), RegierungspraesidiumAusserhalbBereich(7)],
+    ids=lambda f: type(f).__name__,
+)
+async def test_die_regierungspraesidien_reisen_mit(fehler: BenutzerFehler) -> None:
+    """Names of authorities, which stay German in every language."""
+    _, koerper = await konto_antwort(fehler)
+
+    assert "1 Karlsruhe" in koerper["werte"]["regierungspraesidien"]
+    assert "4 Tübingen" in koerper["werte"]["regierungspraesidien"]
+
+
+async def test_ein_zu_grosses_protokoll_schickt_beide_zahlen() -> None:
+    _, koerper = await antworte(AntwortenZuGross(250_000, 200_000))
+
+    assert koerper["werte"] == {"zeichen": 250_000, "hoechstens": 200_000}
+
+
+async def test_ungueltige_antworten_schicken_anzahl_und_einige_felder() -> None:
+    verstoesse = tuple(
+        Verstoss(f"erfunden{n:02}", Verstossgrund.UNBEKANNT) for n in range(20)
+    )
+
+    _, koerper = await antworte(AntwortenUngueltig(verstoesse))
+
+    assert koerper["werte"]["anzahl"] == 20
+    assert koerper["werte"]["felder"] == [f"erfunden{n:02}" for n in range(HOECHSTENS_GENANNT)]
+
+
+async def einlese_antwort(fehler: Exception) -> dict[str, Any]:
+    antwort = await behandle_einlesefehler(ANFRAGE, fehler)
+    koerper: dict[str, Any] = json.loads(bytes(antwort.body))
+    return koerper
+
+
+async def test_eine_einleseabsage_schickt_den_dateinamen() -> None:
+    fehler = KeinBefischungsformular(540)
+    fehler.dateiname = "Krebs.pdf"
+    koerper = await einlese_antwort(fehler)
+
+    assert koerper["werte"] == {"dateiname": "Krebs.pdf"}
+
+
+async def test_eine_zu_grosse_einlesedatei_schickt_die_grenze_in_megabyte() -> None:
+    koerper = await einlese_antwort(DateiZuGross("gross.pdf", 5 * 1024 * 1024))
+
+    assert koerper["werte"] == {"dateiname": "gross.pdf", "hoechstens_mb": 5}
+
+
+async def test_eine_einleseabsage_ohne_namen_schickt_keinen() -> None:
+    koerper = await einlese_antwort(PdfNichtLesbar())
+
+    assert "werte" not in koerper
