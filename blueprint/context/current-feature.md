@@ -138,7 +138,7 @@ split it.
   *Done when:* trying to delete a submitted protocol (or deciding on one's own protocol) on an
   English screen reads in English; tests green.
 
-- [ ] **Step 5 - wording for attachments and the PDF import** - the 5 attachment and 6 import
+- [x] **Step 5 - wording for attachments and the PDF import** - the 5 attachment and 6 import
   codes, with the photo and map excerpt sentences of `ANLAGENART_VOLL` as two keys. *Done
   when:* importing the Krebs form, or a text file renamed to `.pdf`, on an English screen reads
   in English with the file name in front; an oversize attachment on an English screen
