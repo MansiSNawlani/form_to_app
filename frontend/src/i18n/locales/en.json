@@ -88,7 +88,18 @@
       "DEMO_ROLLE_UNZULAESSIG": "The demo is only available as a submitter and as a reviewer. Please choose one of these two buttons.",
       "DEMO_NICHT_EINGERICHTET": "The demo is not set up at the moment. Please let the person who sent you the link know.",
       "UNBEKANNTER_FEHLER": "Something went wrong. Please try again, and report the problem if it keeps happening.",
-      "ANFRAGE_UNGUELTIG": "The request is incomplete or in the wrong format."
+      "ANFRAGE_UNGUELTIG": "The request is incomplete or in the wrong format.",
+      "PROTOKOLL_NICHT_GEFUNDEN": "This protocol does not exist, or it belongs to another account. Please check the link, or open the protocol from your overview.",
+      "PROTOKOLL_VERAENDERT": "This protocol was changed somewhere else in the meantime, for example in a second browser tab or on another device. Your latest entries were not saved, so that the other version is not overwritten. Please reload the page and enter what is missing again.",
+      "PROTOKOLL_NICHT_MEHR_ENTWURF": "This protocol is no longer a draft and can no longer be changed or deleted. Please reload the page to see its current state.",
+      "ANTWORTEN_NICHT_LESBAR": "The answers of this protocol could not be read. This is a fault in the application, not in your entries. Please reload the page; if it happens again, please report it.",
+      "ANTWORTEN_ZU_GROSS": "This protocol holds more text than can be saved. Please shorten the longer free-text fields, for example the remarks, and save again. At the moment it is {{zeichen}} characters; {{hoechstens}} are possible.",
+      "ANTWORTEN_UNGUELTIG": "Some entries could not be saved. This is a fault in the application, not in your entries. The rest of the protocol is unchanged; please report the fault together with the fields named. Affected ({{anzahl}}): {{felder, list}}.",
+      "PROTOKOLL_UNVOLLSTAENDIG": "The protocol was not submitted, because something is still missing or not right. The entries concerned are listed below. Please complete or correct them and then submit the protocol again. Your draft is saved unchanged.",
+      "PROTOKOLL_NICHT_LOESCHBAR": "This protocol has already been submitted and so can no longer be deleted; the Fischereiforschungsstelle has already seen it. If it was returned for changes, you can carry on editing it and submit it again. If it should be withdrawn altogether, please contact the Fischereiforschungsstelle.",
+      "UEBERGANG_NICHT_MOEGLICH": "This protocol is no longer in the state in which this step would be possible. Usually someone else has worked on it in the meantime. Please reload the page to see its current state, and then decide again.",
+      "BEGRUENDUNG_FEHLT": "This decision needs a reason. The person who submitted the protocol reads this text, and it is the only way they learn what to do. Please enter what should be changed, and then save the decision again.",
+      "EIGENES_PROTOKOLL": "You cannot decide on a protocol you submitted yourself. Please ask another reviewer to do it; they will find the protocol in the overview."
     },
     "unbekannt": "Something went wrong. Please try again, and report the problem if it keeps happening."
   },

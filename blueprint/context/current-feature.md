@@ -134,7 +134,7 @@ split it.
   on the sign-in page reads in English; the German page reads word for word as before; tests
   green.
 
-- [ ] **Step 4 - wording for the protocol codes** - the 11 `PROTOKOLL_UEBERSETZUNG` codes.
+- [x] **Step 4 - wording for the protocol codes** - the 11 `PROTOKOLL_UEBERSETZUNG` codes.
   *Done when:* trying to delete a submitted protocol (or deciding on one's own protocol) on an
   English screen reads in English; tests green.
 

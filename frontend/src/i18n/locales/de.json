@@ -88,7 +88,18 @@
       "DEMO_ROLLE_UNZULAESSIG": "Die Demo gibt es nur als Einreicher und als Prüfer. Bitte wählen Sie eine dieser beiden Schaltflächen.",
       "DEMO_NICHT_EINGERICHTET": "Die Demo ist gerade nicht eingerichtet. Bitte geben Sie der Person Bescheid, die Ihnen den Link geschickt hat.",
       "UNBEKANNTER_FEHLER": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt.",
-      "ANFRAGE_UNGUELTIG": "Die Anfrage ist unvollständig oder hat das falsche Format."
+      "ANFRAGE_UNGUELTIG": "Die Anfrage ist unvollständig oder hat das falsche Format.",
+      "PROTOKOLL_NICHT_GEFUNDEN": "Dieses Protokoll gibt es nicht, oder es gehört zu einem anderen Konto. Bitte prüfen Sie den Link, oder öffnen Sie das Protokoll über Ihre Übersicht.",
+      "PROTOKOLL_VERAENDERT": "Dieses Protokoll wurde zwischendurch an anderer Stelle geändert, zum Beispiel in einem zweiten Browser-Tab oder auf einem anderen Gerät. Ihre letzten Eingaben wurden nicht gespeichert, damit die andere Fassung nicht überschrieben wird. Bitte laden Sie die Seite neu und tragen Sie das Fehlende noch einmal ein.",
+      "PROTOKOLL_NICHT_MEHR_ENTWURF": "Dieses Protokoll ist kein Entwurf mehr und kann nicht mehr geändert oder gelöscht werden. Bitte laden Sie die Seite neu, um den aktuellen Stand zu sehen.",
+      "ANTWORTEN_NICHT_LESBAR": "Die Antworten dieses Protokolls konnten nicht gelesen werden. Das ist ein Fehler in der Anwendung und nicht in Ihren Eingaben. Bitte laden Sie die Seite neu; wenn es wieder passiert, melden Sie es bitte.",
+      "ANTWORTEN_ZU_GROSS": "Dieses Protokoll enthält mehr Text, als gespeichert werden kann. Bitte kürzen Sie die längeren Freitextfelder, zum Beispiel die Bemerkungen, und speichern Sie noch einmal. Zurzeit sind es {{zeichen}} Zeichen, möglich sind {{hoechstens}}.",
+      "ANTWORTEN_UNGUELTIG": "Einige Angaben konnten nicht gespeichert werden. Das ist ein Fehler in der Anwendung und nicht in Ihren Eingaben. Der Rest des Protokolls ist unverändert; bitte melden Sie den Fehler mit den genannten Feldern. Betroffen ({{anzahl}}): {{felder, list}}.",
+      "PROTOKOLL_UNVOLLSTAENDIG": "Das Protokoll wurde nicht abgesendet, weil noch etwas fehlt oder nicht stimmt. Die betroffenen Angaben sind unten aufgeführt. Bitte ergänzen oder berichtigen Sie sie und senden Sie das Protokoll dann noch einmal ab. Ihr Entwurf ist unverändert gespeichert.",
+      "PROTOKOLL_NICHT_LOESCHBAR": "Dieses Protokoll wurde bereits eingereicht und kann deshalb nicht mehr gelöscht werden; die Fischereiforschungsstelle hat es schon gesehen. Wenn es zur Überarbeitung zurückgegeben wurde, können Sie es weiter bearbeiten und noch einmal absenden. Wenn es ganz zurückgezogen werden soll, wenden Sie sich bitte an die Fischereiforschungsstelle.",
+      "UEBERGANG_NICHT_MOEGLICH": "Dieses Protokoll ist nicht mehr in dem Stand, in dem dieser Schritt möglich wäre. Meist hat es jemand anderes zwischendurch bearbeitet. Bitte laden Sie die Seite neu, um den aktuellen Stand zu sehen, und entscheiden Sie dann noch einmal.",
+      "BEGRUENDUNG_FEHLT": "Zu dieser Entscheidung gehört eine Begründung. Die Person, die das Protokoll eingereicht hat, liest diesen Text und erfährt nur daraus, was zu tun ist. Bitte tragen Sie ein, was geändert werden soll, und speichern Sie die Entscheidung dann noch einmal.",
+      "EIGENES_PROTOKOLL": "Über ein Protokoll, das Sie selbst eingereicht haben, können Sie nicht entscheiden. Bitte bitten Sie eine andere prüfende Person darum; sie findet das Protokoll in der Übersicht."
     },
     "unbekannt": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt."
   },
