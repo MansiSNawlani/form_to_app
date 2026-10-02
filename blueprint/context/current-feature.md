@@ -128,7 +128,7 @@ split it.
   `npm run build` are green, and every screen still shows the backend's German sentence, since
   `fehler.server` is still empty.
 
-- [ ] **Step 3 - wording for accounts, sign-in and the general codes** - `fehler.server.*` in
+- [x] **Step 3 - wording for accounts, sign-in and the general codes** - `fehler.server.*` in
   `de.json` and `en.json` for the 19 account codes, `UNBEKANNTER_FEHLER` and
   `ANFRAGE_UNGUELTIG`. *Done when:* signed out with the language on English, a wrong password
   on the sign-in page reads in English; the German page reads word for word as before; tests

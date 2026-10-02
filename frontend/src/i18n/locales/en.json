@@ -67,6 +67,29 @@
   "fehler": {
     "netzwerk": "The server cannot be reached. You may not be connected right now. Please check your internet connection and try again in a moment.",
     "unlesbar": "The server gave an unexpected answer. Please try again. If it keeps happening, please report the problem.",
+    "server": {
+      "ANMELDUNG_FEHLGESCHLAGEN": "The email address or password is not correct. Please check the spelling and the Caps Lock key. If you no longer know your password: Please contact your administrator.",
+      "NICHT_ANGEMELDET": "You are not signed in, or your session has expired. Please sign in again. A session lasts eight hours.",
+      "ROLLE_FEHLT": "Your account does not have permission for this area. If you need it: Please contact your administrator.",
+      "KONTO_DEAKTIVIERT": "This account is deactivated and cannot sign in. To have it unlocked: Please contact your administrator.",
+      "KONTO_NICHT_INTERAKTIV": "This account is a technical account for data transfer and cannot sign in here. Please sign in with your personal account.",
+      "EMAIL_UNGUELTIG": "This is not a complete email address. It is also the sign-in name of the account, for example anna.bergmann@ffs.bwl.de. Please check the spelling.",
+      "EMAIL_VERGEBEN": "An account already exists for this address. An address can belong to only one account. Please look in the user list: if the account is locked, it can be unlocked again.",
+      "ROLLEN_LEER": "The account has no role. It could sign in and do nothing else. Please select at least one role.",
+      "REGIERUNGSPRAESIDIUM_FEHLT": "The role Regional council (Regierungspräsidium) needs to say which one is meant. Without it, the account would see every region instead of only its own. Please select one: {{regierungspraesidien}}.",
+      "REGIERUNGSPRAESIDIUM_UNZULAESSIG": "A regional council (Regierungspräsidium) is given, but the account does not have the role Regional council. With every other role the setting has no effect. Please either remove the setting or add the role Regional council.",
+      "REGIERUNGSPRAESIDIUM_UNBEKANNT": "Baden-Württemberg has four regional councils (Regierungspräsidien). Please select one of them: {{regierungspraesidien}}.",
+      "PASSWORT_ZU_KURZ": "The password needs at least {{mindestens}} characters. Please choose a longer one. There is no requirement for digits or special characters: several words in a row are easier to remember and at the same time safer than a short complicated password.",
+      "PASSWORT_ZU_LANG": "The password is too long. Up to {{hoechstens}} characters are allowed. Probably something else ended up in the field by mistake. Please check what you entered.",
+      "KONTO_NICHT_GEFUNDEN": "This account no longer exists. Perhaps someone else has changed it in the meantime. Please reload the user list.",
+      "LETZTER_SUPER_ADMIN": "This is the last active account with the role Super Admin, so nothing was changed. Without such an account nobody could create accounts or assign roles any more. Please create a second account with this role first.",
+      "SELBSTENTZUG_UNZULAESSIG": "You cannot take the Super Admin role away from yourself or lock your own account. Either would lock you out at once, with no way to undo it. Another account with this role can do it for you.",
+      "DEMO_AUS": "This site does not offer a demo. Please sign in with your email address and password.",
+      "DEMO_ROLLE_UNZULAESSIG": "The demo is only available as a submitter and as a reviewer. Please choose one of these two buttons.",
+      "DEMO_NICHT_EINGERICHTET": "The demo is not set up at the moment. Please let the person who sent you the link know.",
+      "UNBEKANNTER_FEHLER": "Something went wrong. Please try again, and report the problem if it keeps happening.",
+      "ANFRAGE_UNGUELTIG": "The request is incomplete or in the wrong format."
+    },
     "unbekannt": "Something went wrong. Please try again, and report the problem if it keeps happening."
   },
   "protokolle": {

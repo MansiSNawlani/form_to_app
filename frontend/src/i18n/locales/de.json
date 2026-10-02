@@ -67,7 +67,29 @@
   "fehler": {
     "netzwerk": "Der Server ist nicht erreichbar. Möglicherweise besteht gerade keine Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einem Moment noch einmal.",
     "unlesbar": "Der Server hat unerwartet geantwortet. Bitte versuchen Sie es noch einmal. Wenn es dabei bleibt, melden Sie den Fehler bitte.",
-    "server": {},
+    "server": {
+      "ANMELDUNG_FEHLGESCHLAGEN": "E-Mail-Adresse oder Passwort ist nicht richtig. Bitte prüfen Sie die Schreibweise und die Feststelltaste. Wenn Sie Ihr Passwort nicht mehr wissen: Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator.",
+      "NICHT_ANGEMELDET": "Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen. Bitte melden Sie sich noch einmal an. Eine Sitzung gilt acht Stunden.",
+      "ROLLE_FEHLT": "Ihr Konto hat nicht die Berechtigung für diesen Bereich. Wenn Sie sie brauchen: Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator.",
+      "KONTO_DEAKTIVIERT": "Dieses Konto ist deaktiviert und kann sich nicht anmelden. Um es wieder freischalten zu lassen: Bitte wenden Sie sich an Ihre Administratorin oder Ihren Administrator.",
+      "KONTO_NICHT_INTERAKTIV": "Dieses Konto ist ein technisches Konto für die Datenübergabe und kann sich hier nicht anmelden. Bitte melden Sie sich mit Ihrem persönlichen Konto an.",
+      "EMAIL_UNGUELTIG": "Das ist keine vollständige E-Mail-Adresse. Sie ist zugleich der Anmeldename des Kontos, zum Beispiel anna.bergmann@ffs.bwl.de. Bitte die Schreibweise prüfen.",
+      "EMAIL_VERGEBEN": "Für diese Adresse gibt es bereits ein Konto. Eine Adresse kann nur zu einem Konto gehören. Bitte in der Benutzerliste nachsehen: ist das Konto gesperrt, lässt es sich wieder freischalten.",
+      "ROLLEN_LEER": "Das Konto hat keine Rolle. Es könnte sich anmelden und sonst nichts tun. Bitte mindestens eine Rolle auswählen.",
+      "REGIERUNGSPRAESIDIUM_FEHLT": "Zur Rolle Regierungspräsidium fehlt die Angabe, welches gemeint ist. Ohne sie würde das Konto alle Regionen sehen statt nur seiner eigenen. Bitte eines auswählen: {{regierungspraesidien}}.",
+      "REGIERUNGSPRAESIDIUM_UNZULAESSIG": "Ein Regierungspräsidium ist angegeben, aber das Konto hat nicht die Rolle Regierungspräsidium. Bei allen anderen Rollen hat die Angabe keine Wirkung. Bitte entweder die Angabe entfernen oder die Rolle Regierungspräsidium ergänzen.",
+      "REGIERUNGSPRAESIDIUM_UNBEKANNT": "In Baden-Württemberg gibt es vier Regierungspräsidien. Bitte eines davon auswählen: {{regierungspraesidien}}.",
+      "PASSWORT_ZU_KURZ": "Das Passwort braucht mindestens {{mindestens}} Zeichen. Bitte ein längeres wählen. Es gibt keine Vorgabe zu Ziffern oder Sonderzeichen: mehrere Wörter hintereinander sind leichter zu merken und zugleich sicherer als ein kurzes kompliziertes Passwort.",
+      "PASSWORT_ZU_LANG": "Das Passwort ist zu lang. Erlaubt sind bis zu {{hoechstens}} Zeichen. Vermutlich ist versehentlich etwas anderes in das Feld geraten. Bitte die Eingabe prüfen.",
+      "KONTO_NICHT_GEFUNDEN": "Dieses Konto gibt es nicht mehr. Vielleicht hat es jemand anderes inzwischen geändert. Bitte die Benutzerliste neu laden.",
+      "LETZTER_SUPER_ADMIN": "Das ist das letzte aktive Konto mit der Rolle Super Admin, deshalb wurde nichts geändert. Ohne ein solches Konto könnte niemand mehr Konten anlegen oder Rollen vergeben. Bitte zuerst ein zweites Konto mit dieser Rolle anlegen.",
+      "SELBSTENTZUG_UNZULAESSIG": "Sie können sich die eigene Rolle Super Admin nicht nehmen und Ihr eigenes Konto nicht sperren. Beides würde Sie sofort aussperren, ohne dass Sie es rückgängig machen könnten. Ein anderes Konto mit dieser Rolle kann es für Sie tun.",
+      "DEMO_AUS": "Diese Seite bietet keine Demo an. Bitte melden Sie sich mit Ihrer E-Mail-Adresse und Ihrem Passwort an.",
+      "DEMO_ROLLE_UNZULAESSIG": "Die Demo gibt es nur als Einreicher und als Prüfer. Bitte wählen Sie eine dieser beiden Schaltflächen.",
+      "DEMO_NICHT_EINGERICHTET": "Die Demo ist gerade nicht eingerichtet. Bitte geben Sie der Person Bescheid, die Ihnen den Link geschickt hat.",
+      "UNBEKANNTER_FEHLER": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt.",
+      "ANFRAGE_UNGUELTIG": "Die Anfrage ist unvollständig oder hat das falsche Format."
+    },
     "unbekannt": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt."
   },
   "protokolle": {

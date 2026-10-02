@@ -60,17 +60,25 @@ describe('fehlerMeldung', () => {
     })
   })
 
-  /* A session that ran out does carry a sentence, and the backend's one already
-     says to sign in again and how long a session lasts. */
-  it('passes a session that has run out through with its own wording', () => {
+  /* A session that ran out is the server's refusal, which since feature 17e has
+     wording in the locale files: to sign in again and how long a session lasts. */
+  it('passes a session that has run out through as the server refusal', () => {
     const fehler = new ApiFehler(NICHT_ANGEMELDET, {
       status: 401,
       nachricht: 'Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen.',
     })
 
     expect(fehlerMeldung(fehler, 'foto.jpg')).toEqual({
-      text: 'Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen.',
+      schluessel: 'fehler.server.NICHT_ANGEMELDET',
+      werte: {},
     })
+  })
+
+  /* A code added to the API after the locale files were last written. */
+  it('shows the backend sentence for a code the locale file does not know', () => {
+    const fehler = new ApiFehler('EIN_KUENFTIGER_CODE', { status: 409, nachricht: 'Neu.' })
+
+    expect(fehlerMeldung(fehler, 'foto.jpg')).toEqual({ text: 'Neu.' })
   })
 
   /* A bug in our own code, or whatever a library threw. There is nothing
