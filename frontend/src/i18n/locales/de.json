@@ -67,6 +67,7 @@
   "fehler": {
     "netzwerk": "Der Server ist nicht erreichbar. Möglicherweise besteht gerade keine Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es in einem Moment noch einmal.",
     "unlesbar": "Der Server hat unerwartet geantwortet. Bitte versuchen Sie es noch einmal. Wenn es dabei bleibt, melden Sie den Fehler bitte.",
+    "server": {},
     "unbekannt": "Da ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal und melden Sie den Fehler, wenn er bleibt."
   },
   "protokolle": {

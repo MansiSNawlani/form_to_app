@@ -115,14 +115,18 @@ split it.
   attachment answers with `werte.dateiname` and `werte.hoechstens_mb` beside an unchanged
   `nachricht`.
 
-- [ ] **Step 2 - the browser reads code and `werte` (frontend, no wording yet)** - `ApiFehler`
-  carries `werte`; `api/client.ts` reads it (and ignores a malformed one rather than failing the
-  whole error). `fehlertext` returns a third shape, `{ art: 'server', code, werte, nachricht }`,
-  and `useFehlertext`, `Uebergangsfehler` and the attachment `fehlerMeldung` turn it into text:
-  `fehler.server.<CODE>` (with `_<ART>` appended when `werte.art` is set) if `i18n.exists`,
-  else `nachricht`. A `dateiname` in `werte` leads the text the way the backend puts it.
-  Vitest beside `fehler.ts`. *Done when:* `npm test`, `npm run lint` and `npm run build` are
-  green, and every screen still shows the backend's German sentence, since no key exists yet.
+- [x] **Step 2 - the browser reads code and `werte` (frontend, no wording yet)** - `ApiFehler`
+  carries `werte`; `api/client.ts` reads it and drops any value of a shape the backend never
+  sends rather than failing the whole error. A new `servertext` in `api/fehler.ts` (used by
+  `fehlertext`, and on its own by the attachment `fehlerMeldung`) picks `fehler.server.<CODE>`,
+  with `_<ART>` appended when `werte.art` is set, when `de.json` has that key **and** `werte`
+  fills every placeholder in it; otherwise the backend's `nachricht`. The file name is a
+  `{{dateiname}}` placeholder inside the wording rather than a prefix glued on in code, so a
+  refusal that arrives without one falls back to German instead of showing a raw placeholder.
+  `useFehlertext` and `Uebergangsfehler` (now on `useFehlertext`) pass `werte` to `t`. Vitest
+  beside `fehler.ts` and `client.ts`. *Done when:* `npm test`, `npm run lint` and
+  `npm run build` are green, and every screen still shows the backend's German sentence, since
+  `fehler.server` is still empty.
 
 - [ ] **Step 3 - wording for accounts, sign-in and the general codes** - `fehler.server.*` in
   `de.json` and `en.json` for the 19 account codes, `UNBEKANNTER_FEHLER` and
@@ -200,7 +204,7 @@ split it.
   "kein Text"). The locale text lists the field paths without the reasons; it is a
   "report this bug" message, the reasons stay in the backend's `nachricht` and in the logs.
   Raise it at step 4 if that loses something the user wants.
-- Region names (`1 Stuttgart`, ...) are names of authorities and stay German in English
+- Region names (`1 Karlsruhe`, ...) are names of authorities and stay German in English
   (17d's rule), so they travel in `werte` rather than being written twice.
 - No em dashes, en dashes or ellipsis characters in any wording.
 - The e2e accounts and `E2E_*` variables from `AGENTS.md` are needed for step 7.

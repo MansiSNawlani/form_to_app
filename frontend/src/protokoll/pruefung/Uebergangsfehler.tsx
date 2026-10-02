@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { fehlertext } from '../../api/fehler'
+import { useFehlertext } from '../../api/useFehlertext'
 import { entscheidungsfehler } from './entscheidungsfehler'
 import { useProtokollAktualisieren } from './useUebergang'
 
@@ -23,6 +23,7 @@ interface UebergangsfehlerProps {
 function Uebergangsfehler({ entwurfId, fehler }: UebergangsfehlerProps) {
   const { t } = useTranslation()
   const aktualisieren = useProtokollAktualisieren(entwurfId)
+  const text = useFehlertext(fehler)
 
   const stelle = entscheidungsfehler(fehler)
   if (stelle === 'begruendung') return null
@@ -42,14 +43,9 @@ function Uebergangsfehler({ entwurfId, fehler }: UebergangsfehlerProps) {
     )
   }
 
-  /* The backend's own sentence where it sent one, which already names the thing,
-     says why and says what to do. fehlertext hands back a key or finished
-     German, never both. */
-  const text = fehlertext(fehler)
-
   return (
     <Typography variant="body2" className="entscheidung__fehler" role="alert">
-      {text.art === 'schluessel' ? t(text.schluessel) : text.text}
+      {text}
     </Typography>
   )
 }

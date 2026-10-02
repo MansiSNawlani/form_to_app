@@ -58,7 +58,14 @@ export interface FehlerAntwort {
   /* Only a refused submit fills this in, so it is absent from every other
      refusal and the two-field shape above still describes them. */
   verstoesse?: Verstoss[] | null
+  /* The numbers, names and field paths nachricht prints, since feature 17e, so
+     the screen can write its own sentence in the chosen language. Absent when
+     the sentence names nothing. */
+  werte?: Record<string, unknown> | null
 }
+
+/** One value a refusal names: a number, a name, or a list of field paths. */
+export type Fehlerwert = string | number | readonly string[]
 
 /* One thing wrong with a protocol somebody tried to submit.
  *

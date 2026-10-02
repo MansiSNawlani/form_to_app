@@ -13,7 +13,7 @@
  */
 
 import { ANTWORT_UNLESBAR, ApiFehler, NETZWERK_FEHLER } from './fehler'
-import type { FehlerAntwort, Verstoss } from './typen'
+import type { FehlerAntwort, Fehlerwert, Verstoss } from './typen'
 
 const BASIS = '/api/v1'
 
@@ -80,6 +80,7 @@ async function ablehnung(antwort: Response): Promise<ApiFehler> {
     status: antwort.status,
     nachricht: koerper.nachricht,
     verstoesse: verstoesseAus(koerper),
+    werte: werteAus(koerper),
   })
 }
 
@@ -109,6 +110,28 @@ function verstoesseAus(koerper: FehlerAntwort): Verstoss[] | undefined {
   )
 
   return brauchbar.length > 0 ? brauchbar : undefined
+}
+
+/* The values a refusal names, read as defensively as everything else here.
+ *
+ * Only a number, a string or a list of strings is kept, which is every shape the
+ * backend sends. Anything else is dropped one value at a time rather than
+ * failing the whole refusal: a sentence whose value is missing falls back to the
+ * backend's own German in fehlertext, which is still a sentence somebody can
+ * read.
+ */
+function werteAus(koerper: FehlerAntwort): Record<string, Fehlerwert> {
+  const roh = koerper.werte
+  if (typeof roh !== 'object' || roh === null || Array.isArray(roh)) return {}
+
+  return Object.fromEntries(
+    Object.entries(roh).filter(
+      (eintrag): eintrag is [string, Fehlerwert] =>
+        typeof eintrag[1] === 'string' ||
+        typeof eintrag[1] === 'number' ||
+        (Array.isArray(eintrag[1]) && eintrag[1].every((teil) => typeof teil === 'string')),
+    ),
+  )
 }
 
 /* One API call.

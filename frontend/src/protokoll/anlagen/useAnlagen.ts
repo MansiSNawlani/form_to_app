@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ParseKeys } from 'i18next'
-import { ApiFehler } from '../../api/fehler'
+import { ApiFehler, servertext } from '../../api/fehler'
+import type { Fehlerwert } from '../../api/typen'
 import type { Bereitsteller } from '../entwurf/bereitstellen'
 import { istNeu } from '../entwurf/neu'
 import type { Anlagenzustand } from '../entwurf/speicherzustand'
@@ -26,12 +27,10 @@ import type { Anlage, Anlagenart } from './typen'
 export interface Meldung {
   /** For React's key only. A message can repeat within one pick. */
   id: number
-  /* Either a key we own or a sentence the server sent. The server's refusals
-     already name the file, say why in ordinary words and say what to do about
-     it, so repeating them in German here would be two wordings to keep in step
-     and the backend's is the one the API documentation shows. */
+  /* A key, ours or the server's refusal in our words, or the server's own
+     German sentence for a code the locale file does not know yet. */
   schluessel?: ParseKeys
-  werte?: Record<string, number | string>
+  werte?: Readonly<Record<string, Fehlerwert>>
   text?: string
 }
 
@@ -66,10 +65,12 @@ export function fehlerMeldung(fehler: unknown, dateiname: string): Omit<Meldung,
     if (fehler.status === 413) {
       return { schluessel: 'protokoll.anlagen.fehler.groesseServer', werte: { dateiname } }
     }
-    /* The backend's own sentence, shown as it stands. It was written to this
-       project's standard: it names the file, says why without a MIME type or a
-       byte count, and ends with something the reader can do. */
-    if (fehler.nachricht !== null) return { text: fehler.nachricht }
+    /* The server's refusal, in the chosen language where the locale file has
+       it. Either way it names the file, says why without a MIME type or a byte
+       count, and ends with something the reader can do. */
+    const text = servertext(fehler)
+    if (text?.art === 'text') return { text: text.text }
+    if (text?.art === 'schluessel') return { schluessel: text.schluessel, werte: text.werte }
   }
 
   /* Nothing answered, or something we could not read. Ours to describe, and the

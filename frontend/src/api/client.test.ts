@@ -135,6 +135,50 @@ describe('apiAnfrage', () => {
     })
   })
 
+  it('keeps the values a refusal names, for wording of our own', async () => {
+    const fetchImpl = fakeFetch(
+      jsonAntwort(
+        {
+          code: 'ANLAGE_ZU_GROSS',
+          nachricht: 'foto.jpg: Diese Datei ist zu groß.',
+          werte: { dateiname: 'foto.jpg', hoechstens_mb: 10, felder: ['a', 'b'] },
+        },
+        413,
+      ),
+    )
+
+    const fehler = await apiAnfrage('/anlagen', { fetchImpl }).catch((f: unknown) => f)
+
+    expect(fehler).toMatchObject({
+      werte: { dateiname: 'foto.jpg', hoechstens_mb: 10, felder: ['a', 'b'] },
+    })
+  })
+
+  /* A value of a shape we never send is dropped rather than shown, and the
+     refusal itself still arrives. */
+  it('drops a value it cannot use and keeps the rest of the refusal', async () => {
+    const fetchImpl = fakeFetch(
+      jsonAntwort(
+        { code: 'ROLLEN_LEER', nachricht: 'Keine Rolle.', werte: { gut: 1, kaputt: { a: 1 } } },
+        422,
+      ),
+    )
+
+    const fehler = await apiAnfrage('/benutzer', { fetchImpl }).catch((f: unknown) => f)
+
+    expect(fehler).toMatchObject({ code: 'ROLLEN_LEER', werte: { gut: 1 } })
+  })
+
+  it('treats a werte that is not an object as no values at all', async () => {
+    const fetchImpl = fakeFetch(
+      jsonAntwort({ code: 'ROLLEN_LEER', nachricht: 'Keine Rolle.', werte: 'kaputt' }, 422),
+    )
+
+    const fehler = await apiAnfrage('/benutzer', { fetchImpl }).catch((f: unknown) => f)
+
+    expect(fehler).toMatchObject({ code: 'ROLLEN_LEER', werte: {} })
+  })
+
   /* A 502, 503 or 504 means a proxy could not reach the backend. Nothing we sent
      was wrong, so the person is told the service is down rather than shown a
      page of the proxy's HTML, and certainly not left thinking their password

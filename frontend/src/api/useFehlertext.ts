@@ -1,4 +1,4 @@
-/* A failure as a finished German sentence.
+/* A failure as a finished sentence, in the language the person chose.
  *
  * fehlertext deliberately returns a key or a sentence rather than text, so that
  * it stays a plain function with no i18n in it and can be tested without one.
@@ -16,5 +16,5 @@ export function useFehlertext(fehler: unknown): string | undefined {
   if (fehler === null || fehler === undefined) return undefined
 
   const text = fehlertext(fehler)
-  return text.art === 'schluessel' ? t(text.schluessel) : text.text
+  return text.art === 'schluessel' ? t(text.schluessel, { ...text.werte }) : text.text
 }

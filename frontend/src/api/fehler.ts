@@ -8,7 +8,8 @@
  */
 
 import type { ParseKeys } from 'i18next'
-import type { Verstoss } from './typen'
+import de from '../i18n/locales/de.json'
+import type { Fehlerwert, Verstoss } from './typen'
 
 /** The server could not be reached at all. Ours, not the backend's. */
 export const NETZWERK_FEHLER = 'NETZWERK_FEHLER'
@@ -118,6 +119,8 @@ export interface FehlerOptionen {
   /* What is missing or wrong, when the backend said. Empty for every refusal but
      a refused submit. */
   verstoesse?: readonly Verstoss[]
+  /** The values the sentence names, when the backend sent any. */
+  werte?: Readonly<Record<string, Fehlerwert>>
 }
 
 export class ApiFehler extends Error {
@@ -126,6 +129,7 @@ export class ApiFehler extends Error {
   readonly nachricht: string | null
   /** Empty for every refusal but a refused submit. */
   readonly verstoesse: readonly Verstoss[]
+  readonly werte: Readonly<Record<string, Fehlerwert>>
 
   constructor(code: string, optionen: FehlerOptionen = {}) {
     /* The Error message is for a stack trace and a console, never for a person.
@@ -137,21 +141,11 @@ export class ApiFehler extends Error {
     this.status = optionen.status ?? null
     this.nachricht = optionen.nachricht ?? null
     this.verstoesse = optionen.verstoesse ?? []
+    this.werte = optionen.werte ?? {}
   }
 }
 
-/* The codes we have wording of our own for.
- *
- * Both are failures the backend never sees, so nobody but us can describe them.
- * Every other code keeps the backend's sentence, which already names the thing,
- * says why and says what to do next. Writing a second German copy of those here
- * would mean two wordings drifting apart, and the backend's is the one the API
- * documentation shows.
- *
- * Feature 17 is where this table grows. Adding a backend code here overrides its
- * sentence with a translated key, and needs no backend change to do it, which is
- * the whole reason the branch goes through the code.
- */
+/* The two failures the backend never sees, so nobody but us can describe them. */
 const EIGENE_TEXTE: Partial<Record<string, ParseKeys>> = {
   [NETZWERK_FEHLER]: 'fehler.netzwerk',
   [ANTWORT_UNLESBAR]: 'fehler.unlesbar',
@@ -161,25 +155,75 @@ const EIGENE_TEXTE: Partial<Record<string, ParseKeys>> = {
  *
  * A key or a sentence rather than finished text, so this stays a plain function
  * with no i18n inside it, the same shape regeln/regel.ts uses for the form
- * rules. The component translates the key; the sentence is already German and
- * comes from the backend.
+ * rules. The component translates the key with its werte; a sentence is the
+ * backend's own German, shown as it stands.
  */
 export type Fehlertext =
-  | { art: 'schluessel'; schluessel: ParseKeys }
+  | { art: 'schluessel'; schluessel: ParseKeys; werte?: Readonly<Record<string, Fehlerwert>> }
   | { art: 'text'; text: string }
 
 const UNBEKANNT: Fehlertext = { art: 'schluessel', schluessel: 'fehler.unbekannt' }
 
-export function fehlertext(fehler: unknown): Fehlertext {
+/* The server's refusals in our own words, since feature 17e, keyed by code.
+ *
+ * Read from de.json because German is the source locale: a key exists there
+ * before it exists anywhere, and locales.test.ts holds en.json to the same set.
+ * A parameter so a test can hand in texts of its own without a locale file.
+ */
+const SERVER_TEXTE: Readonly<Record<string, string>> = de.fehler.server
+
+function platzhalter(text: string): string[] {
+  return [...text.matchAll(/\{\{\s*([^}\s,]+)[^}]*\}\}/g)].map((treffer) => treffer[1])
+}
+
+/* The key for a code, or null when the backend's sentence has to stand in.
+ *
+ * Two things make a key unusable. The locale file has no wording for the code,
+ * which is every code added to the API after the locale files were last
+ * written. Or the wording names a value the refusal did not carry, and a raw
+ * "{{dateiname}}" on screen reads as broken where German at least reads.
+ *
+ * ANLAGENART_VOLL picks its sentence by art, for the reason ART_SATZ in
+ * backend/app/api/fehler_http.py gives: one photo too many and a second map
+ * excerpt are different sentences with different ways out.
+ */
+function serverSchluessel(fehler: ApiFehler, texte: Readonly<Record<string, string>>): string | null {
+  const art = fehler.werte.art
+  const name = typeof art === 'string' ? `${fehler.code}_${art}` : fehler.code
+  const text = texte[name]
+  if (text === undefined) return null
+
+  return platzhalter(text).every((wert) => wert in fehler.werte) ? name : null
+}
+
+/* What the server said, in our words where we have them: null when it said
+ * nothing a person could read.
+ *
+ * Exported for the attachment block, which has wording of its own for a file
+ * that never reached the server and wants only this half.
+ */
+export function servertext(fehler: ApiFehler, texte = SERVER_TEXTE): Fehlertext | null {
+  const server = serverSchluessel(fehler, texte)
+  if (server !== null) {
+    /* Built at run time, so the compiler cannot see it is one of the keys;
+       serverSchluessel has just found it in the locale file. */
+    return { art: 'schluessel', schluessel: `fehler.server.${server}` as ParseKeys, werte: fehler.werte }
+  }
+
+  /* A code we have no wording for still says something useful, because the
+     backend sent a sentence written to this project's standard. That holds for a
+     code added to the API after the locale files were last written, which is the
+     case a generic message would serve worst. */
+  return fehler.nachricht !== null ? { art: 'text', text: fehler.nachricht } : null
+}
+
+export function fehlertext(fehler: unknown, texte = SERVER_TEXTE): Fehlertext {
   if (fehler instanceof ApiFehler) {
     const schluessel = EIGENE_TEXTE[fehler.code]
     if (schluessel !== undefined) return { art: 'schluessel', schluessel }
 
-    /* An error we have no wording for still says something useful, because the
-       backend sent a sentence written to this project's standard. That holds for
-       a code added to the API after this file was last read, which is the case
-       a generic message would serve worst. */
-    if (fehler.nachricht !== null) return { art: 'text', text: fehler.nachricht }
+    const text = servertext(fehler, texte)
+    if (text !== null) return text
   }
 
   /* Anything that is not an ApiFehler at all lands here: a bug in our own code,
