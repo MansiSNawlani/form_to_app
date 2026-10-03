@@ -642,6 +642,10 @@ class EingelesenesProtokoll(BaseModel):
     bericht: EinleseAntwort
 
 
+# The values a refusal names: a number, a name, or a list of field paths.
+Werte = dict[str, str | int | float | list[str]]
+
+
 class FehlerAntwort(BaseModel):
     """The shape every refusal from this API takes, including a 422.
 
@@ -671,4 +675,4 @@ class FehlerAntwort(BaseModel):
     # prose. Never wording, and never anything the caller sent but a file name,
     # which app/api/fehler_http.py gives its reasons for. Left out when the
     # sentence names nothing.
-    werte: dict[str, str | int | float | list[str]] | None = None
+    werte: Werte | None = None

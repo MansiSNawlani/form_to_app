@@ -54,23 +54,25 @@ type MeldungFactory = (teile: Omit<Meldung, 'id'>) => Meldung
 
 /* A proxy in front of the service answers 413 itself for a body past its own
  * limit, and that answer is HTML rather than our JSON, so it arrives as an
- * unreadable response rather than as ANLAGE_ZU_GROSS. Both mean the same thing
- * to the person reading, so both get the same sentence.
+ * unreadable response rather than as ANLAGE_ZU_GROSS. It gets a sentence of
+ * ours. Our own ANLAGE_ZU_GROSS goes through servertext like every refusal,
+ * since feature 17e, because its wording can name the limit from werte.
  *
  * Its own function, and exported, because it is the one piece of this file where
  * a wrong answer is possible and it needs no React to be asked.
  */
 export function fehlerMeldung(fehler: unknown, dateiname: string): Omit<Meldung, 'id'> {
   if (fehler instanceof ApiFehler) {
-    if (fehler.status === 413) {
-      return { schluessel: 'protokoll.anlagen.fehler.groesseServer', werte: { dateiname } }
-    }
     /* The server's refusal, in the chosen language where the locale file has
        it. Either way it names the file, says why without a MIME type or a byte
        count, and ends with something the reader can do. */
     const text = servertext(fehler)
     if (text?.art === 'text') return { text: text.text }
     if (text?.art === 'schluessel') return { schluessel: text.schluessel, werte: text.werte }
+
+    if (fehler.status === 413) {
+      return { schluessel: 'protokoll.anlagen.fehler.groesseServer', werte: { dateiname } }
+    }
   }
 
   /* Nothing answered, or something we could not read. Ours to describe, and the

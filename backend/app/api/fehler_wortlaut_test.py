@@ -95,6 +95,9 @@ pytestmark = pytest.mark.skipif(
     reason=f"Die Sprachdateien des Frontends fehlen: {LOCALES} ist nicht ausgecheckt.",
 )
 
+# The same reading of a {{placeholder}} as platzhalter in frontend/src/api/fehler.ts.
+PLATZHALTER = re.compile(r"\{\{\s*([^}\s,]+)[^}]*\}\}")
+
 ANFRAGE = Request({"type": "http", "method": "GET", "path": "/", "headers": []})
 
 # Lists the paths without the reason per group, which the German sentence gives.
@@ -169,7 +172,7 @@ def _server_texte(datei: str) -> dict[str, str]:
 
 
 def _platzhalter(text: str) -> set[str]:
-    return set(re.findall(r"\{\{\s*([^}\s,]+)[^}]*\}\}", text))
+    return set(PLATZHALTER.findall(text))
 
 
 def _ausgefuellt(text: str, werte: dict[str, Any]) -> str:
@@ -183,7 +186,7 @@ def _ausgefuellt(text: str, werte: dict[str, Any]) -> str:
         roh = werte[treffer.group(1)]
         return f"{roh:g}".replace(".", ",") if isinstance(roh, float) else str(roh)
 
-    return re.sub(r"\{\{\s*([^}\s,]+)[^}]*\}\}", wert, text)
+    return PLATZHALTER.sub(wert, text)
 
 
 async def _koerper(fehler: Exception, handler: Any) -> dict[str, Any]:

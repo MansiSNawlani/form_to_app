@@ -35,17 +35,19 @@ describe('fehlerMeldung', () => {
     })
   })
 
-  /* And our own 413 takes the same route, so the two are one message rather
-     than two that have to be kept saying the same thing. */
-  it('treats our own 413 the same way', () => {
+  /* Our own 413 is a refusal with wording under fehler.server since feature
+     17e, which names the limit the server sent. */
+  it('gives our own 413 the server wording, with the limit', () => {
+    const werte = { dateiname: 'riesig.jpg', hoechstens_mb: 10 }
     const fehler = new ApiFehler('ANLAGE_ZU_GROSS', {
       status: 413,
       nachricht: 'riesig.jpg: Diese Datei ist zu groß.',
+      werte,
     })
 
     expect(fehlerMeldung(fehler, 'riesig.jpg')).toEqual({
-      schluessel: 'protokoll.anlagen.fehler.groesseServer',
-      werte: { dateiname: 'riesig.jpg' },
+      schluessel: 'fehler.server.ANLAGE_ZU_GROSS',
+      werte,
     })
   })
 

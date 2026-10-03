@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import optionslisten from '@formular/optionslisten.json'
+import { platzhalter } from '../../api/fehler'
 import de from './de.json'
 import en from './en.json'
 import optionenEn from './optionen.en.json'
@@ -25,9 +26,10 @@ function blaetter(baum: Baum, pfad = ''): Map<string, string> {
   return ergebnis
 }
 
-function platzhalter(text: string): string[] {
-  return [...text.matchAll(/\{\{\s*([^}\s,]+)[^}]*\}\}/g)].map((m) => m[1]).sort()
-}
+
+/* The same reading of a placeholder the app makes when it decides whether a
+   server refusal can use its key, so the guard and the app cannot disagree. */
+const sortiert = (text: string) => platzhalter(text).sort().join()
 
 const deutsch = blaetter(de as Baum)
 const englisch = blaetter(en as Baum)
@@ -41,7 +43,7 @@ describe('en.json', () => {
   it('uses the same placeholders as the German text for every key', () => {
     const abweichend = [...englisch]
       .filter(([k]) => deutsch.has(k))
-      .filter(([k, text]) => platzhalter(text).join() !== platzhalter(deutsch.get(k)!).join())
+      .filter(([k, text]) => sortiert(text) !== sortiert(deutsch.get(k)!))
       .map(([k]) => k)
     expect(abweichend).toEqual([])
   })
@@ -55,7 +57,7 @@ describe('en.json', () => {
   })
 
   it('reads the placeholders it compares', () => {
-    expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}')).toEqual(['kuerzel', 'sprache'])
+    expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}').sort()).toEqual(['kuerzel', 'sprache'])
     expect(platzhalter('{{anzahl, number}} Zeilen')).toEqual(['anzahl'])
   })
 })

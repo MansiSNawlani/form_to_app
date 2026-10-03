@@ -168,11 +168,11 @@ const UNBEKANNT: Fehlertext = { art: 'schluessel', schluessel: 'fehler.unbekannt
  *
  * Read from de.json because German is the source locale: a key exists there
  * before it exists anywhere, and locales.test.ts holds en.json to the same set.
- * A parameter so a test can hand in texts of its own without a locale file.
  */
 const SERVER_TEXTE: Readonly<Record<string, string>> = de.fehler.server
 
-function platzhalter(text: string): string[] {
+/** The names of the {{placeholders}} a locale text fills in. */
+export function platzhalter(text: string): string[] {
   return [...text.matchAll(/\{\{\s*([^}\s,]+)[^}]*\}\}/g)].map((treffer) => treffer[1])
 }
 
@@ -200,7 +200,8 @@ function serverSchluessel(fehler: ApiFehler, texte: Readonly<Record<string, stri
  * nothing a person could read.
  *
  * Exported for the attachment block, which has wording of its own for a file
- * that never reached the server and wants only this half.
+ * that never reached the server and wants only this half. texte is a parameter,
+ * here and on fehlertext, so a test can hand in wording without a locale file.
  */
 export function servertext(fehler: ApiFehler, texte = SERVER_TEXTE): Fehlertext | null {
   const server = serverSchluessel(fehler, texte)

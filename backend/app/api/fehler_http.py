@@ -60,7 +60,7 @@ from app.anlagen.fehler import (
     AnlageTypUnzulaessig,
     AnlageZuGross,
 )
-from app.api.schemas import FehlerAntwort, VerstossAntwort
+from app.api.schemas import FehlerAntwort, VerstossAntwort, Werte
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
     BenutzerFehler,
@@ -282,9 +282,6 @@ ANFRAGE_UNGUELTIG = (
 # Parts of a Pydantic error location that name where the value came from rather
 # than which field it was.
 HERKUNFT = frozenset({"body", "query", "path", "cookie", "header"})
-
-
-Werte = dict[str, str | int | float | list[str]]
 
 
 def _antwort(
@@ -826,6 +823,14 @@ def _einlese_zusatz(fehler: Exception) -> str:
     return ""
 
 
+def _einlese_werte(fehler: PdfFehler | EinleseFehler) -> Werte:
+    """The values _einlese_zusatz prints, for the browser's own wording."""
+    werte = _datei_werte(fehler)
+    if isinstance(fehler, DateiZuGross):
+        werte["hoechstens_mb"] = _megabyte_zahl(fehler.hoechstens)
+    return werte
+
+
 async def behandle_einlesefehler(request: Request, fehler: Exception) -> Response:
     """Registered for both families the PDF import can raise.
 
@@ -848,10 +853,7 @@ async def behandle_einlesefehler(request: Request, fehler: Exception) -> Respons
             volltext = nachricht + _einlese_zusatz(fehler)
             if fehler.dateiname:
                 volltext = f"{fehler.dateiname}: {volltext}"
-            werte = _datei_werte(fehler)
-            if isinstance(fehler, DateiZuGross):
-                werte["hoechstens_mb"] = _megabyte_zahl(fehler.hoechstens)
-            return _antwort(code, status_code, volltext, werte=werte)
+            return _antwort(code, status_code, volltext, werte=_einlese_werte(fehler))
 
     return _antwort(*UNBEKANNT)
 
