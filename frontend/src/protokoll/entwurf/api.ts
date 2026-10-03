@@ -155,11 +155,11 @@ export function absendeProtokoll({
  * answers with a sentence saying what to do about it, and a second opinion in
  * the browser could only ever be the wrong one.
  *
- * Rejects with an ApiFehler whose nachricht is the backend's own German: not a
- * PDF, locked with a password, no form in it, not this form, no version stamp,
- * or too big. None of those are branched on, so none has a constant in
- * api/fehler.ts, exactly as the attachment refusals do not: every one arrives
- * with a sentence that already names the file, says why and says what to do.
+ * Rejects with an ApiFehler for a file that is not a PDF, locked with a
+ * password, has no form in it, is not this form, has no version stamp, or is too
+ * big. None of those are branched on, so none has a constant in api/fehler.ts,
+ * exactly as the attachment refusals do not: each has wording under
+ * fehler.server that names the file, says why and says what to do.
  */
 export function leseProtokollEin({
   datei,

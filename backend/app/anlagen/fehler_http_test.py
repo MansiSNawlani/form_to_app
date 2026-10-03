@@ -165,3 +165,36 @@ async def test_ein_dateiname_mit_zeilenumbruch_bleibt_eine_zeile() -> None:
     _, koerper = await antworte(AnlageInhaltKeinBild("foto\n\nGuten Tag.jpg"))
 
     assert "\n" not in koerper["nachricht"]
+
+
+# Feature 17e: the values the sentence names travel beside it, so the browser can
+# write the sentence in the chosen language.
+
+
+async def test_jede_absage_schickt_den_dateinamen_als_wert() -> None:
+    _, koerper = await antworte(AnlageInhaltKeinBild(DATEI))
+
+    assert koerper["werte"] == {"dateiname": DATEI}
+
+
+async def test_zu_gross_schickt_die_grenze_in_megabyte() -> None:
+    _, koerper = await antworte(AnlageZuGross(DATEI, MAX_BYTES + 1, MAX_BYTES))
+
+    assert koerper["werte"] == {"dateiname": DATEI, "hoechstens_mb": 10}
+
+
+async def test_ein_volles_protokoll_schickt_art_und_zahlen() -> None:
+    _, koerper = await antworte(AnlagenartVoll(DATEI, "FOTO", 20, 20))
+
+    assert koerper["werte"] == {
+        "dateiname": DATEI,
+        "art": "FOTO",
+        "vorhanden": 20,
+        "hoechstens": 20,
+    }
+
+
+async def test_eine_fehlende_anlage_schickt_keine_werte() -> None:
+    _, koerper = await antworte(AnlageNichtGefunden())
+
+    assert "werte" not in koerper

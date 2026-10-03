@@ -14,15 +14,66 @@ describe('fehlertext', () => {
     })
   })
 
-  /* The case that carries the whole design: the backend owns the wording for its
-     own refusals, and this file does not keep a second German copy of them. */
+  /* A code the locale file knows has no use for the backend's German: the key is
+     looked up in the language the person chose. */
+  it('uses the locale key for a server code the locale file knows', () => {
+    const fehler = new ApiFehler('ROLLEN_LEER', { status: 422, nachricht: 'Das Konto hat keine Rolle.' })
+
+    expect(fehlertext(fehler, { ROLLEN_LEER: 'Keine Rolle.' })).toEqual({
+      art: 'schluessel',
+      schluessel: 'fehler.server.ROLLEN_LEER',
+      werte: {},
+    })
+  })
+
+  it('hands the values the server sent to the key', () => {
+    const fehler = new ApiFehler('ANLAGE_INHALT_KEIN_BILD', {
+      nachricht: 'Foto.jpg: Kein Bild.',
+      werte: { dateiname: 'Foto.jpg' },
+    })
+
+    expect(
+      fehlertext(fehler, { ANLAGE_INHALT_KEIN_BILD: '„{{dateiname}}“: Kein Bild.' }),
+    ).toEqual({
+      art: 'schluessel',
+      schluessel: 'fehler.server.ANLAGE_INHALT_KEIN_BILD',
+      werte: { dateiname: 'Foto.jpg' },
+    })
+  })
+
+  /* A raw "{{dateiname}}" on screen is worse than German: it reads as broken. */
+  it('keeps the backend sentence when a placeholder would go unfilled', () => {
+    const fehler = new ApiFehler('PDF_NICHT_LESBAR', { nachricht: 'Nicht lesbar.' })
+
+    expect(fehlertext(fehler, { PDF_NICHT_LESBAR: '„{{dateiname}}“: nicht lesbar.' })).toEqual({
+      art: 'text',
+      text: 'Nicht lesbar.',
+    })
+  })
+
+  it('picks the sentence for the kind of attachment the server names', () => {
+    const fehler = new ApiFehler('ANLAGENART_VOLL', {
+      nachricht: 'Voll.',
+      werte: { dateiname: 'karte.png', art: 'KARTENAUSSCHNITT', vorhanden: 1, hoechstens: 1 },
+    })
+
+    const texte = { ANLAGENART_VOLL_FOTO: 'Fotos voll.', ANLAGENART_VOLL_KARTENAUSSCHNITT: 'Karte da.' }
+
+    expect(fehlertext(fehler, texte)).toMatchObject({
+      art: 'schluessel',
+      schluessel: 'fehler.server.ANLAGENART_VOLL_KARTENAUSSCHNITT',
+    })
+  })
+
+  /* What remains of the design before 17e: a code added to the API after the
+     locale files were last written still says something useful. */
   it('shows the backend its own sentence for a code we have no wording for', () => {
     const fehler = new ApiFehler('ANMELDUNG_FEHLGESCHLAGEN', {
       status: 401,
       nachricht: 'E-Mail-Adresse oder Passwort ist nicht richtig.',
     })
 
-    expect(fehlertext(fehler)).toEqual({
+    expect(fehlertext(fehler, {})).toEqual({
       art: 'text',
       text: 'E-Mail-Adresse oder Passwort ist nicht richtig.',
     })

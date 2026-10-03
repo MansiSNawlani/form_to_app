@@ -35,17 +35,19 @@ describe('fehlerMeldung', () => {
     })
   })
 
-  /* And our own 413 takes the same route, so the two are one message rather
-     than two that have to be kept saying the same thing. */
-  it('treats our own 413 the same way', () => {
+  /* Our own 413 is a refusal with wording under fehler.server since feature
+     17e, which names the limit the server sent. */
+  it('gives our own 413 the server wording, with the limit', () => {
+    const werte = { dateiname: 'riesig.jpg', hoechstens_mb: 10 }
     const fehler = new ApiFehler('ANLAGE_ZU_GROSS', {
       status: 413,
       nachricht: 'riesig.jpg: Diese Datei ist zu groß.',
+      werte,
     })
 
     expect(fehlerMeldung(fehler, 'riesig.jpg')).toEqual({
-      schluessel: 'protokoll.anlagen.fehler.groesseServer',
-      werte: { dateiname: 'riesig.jpg' },
+      schluessel: 'fehler.server.ANLAGE_ZU_GROSS',
+      werte,
     })
   })
 
@@ -60,17 +62,25 @@ describe('fehlerMeldung', () => {
     })
   })
 
-  /* A session that ran out does carry a sentence, and the backend's one already
-     says to sign in again and how long a session lasts. */
-  it('passes a session that has run out through with its own wording', () => {
+  /* A session that ran out is the server's refusal, which since feature 17e has
+     wording in the locale files: to sign in again and how long a session lasts. */
+  it('passes a session that has run out through as the server refusal', () => {
     const fehler = new ApiFehler(NICHT_ANGEMELDET, {
       status: 401,
       nachricht: 'Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen.',
     })
 
     expect(fehlerMeldung(fehler, 'foto.jpg')).toEqual({
-      text: 'Sie sind nicht angemeldet, oder Ihre Sitzung ist abgelaufen.',
+      schluessel: 'fehler.server.NICHT_ANGEMELDET',
+      werte: {},
     })
+  })
+
+  /* A code added to the API after the locale files were last written. */
+  it('shows the backend sentence for a code the locale file does not know', () => {
+    const fehler = new ApiFehler('EIN_KUENFTIGER_CODE', { status: 409, nachricht: 'Neu.' })
+
+    expect(fehlerMeldung(fehler, 'foto.jpg')).toEqual({ text: 'Neu.' })
   })
 
   /* A bug in our own code, or whatever a library threw. There is nothing

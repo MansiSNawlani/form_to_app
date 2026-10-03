@@ -19,8 +19,8 @@ interface HerunterladenKnopfProps {
  * The refusal goes in a Snackbar rather than beside the button. There is no
  * field this is about and nothing on the page to correct, so the message has
  * nowhere of its own to sit, and the two heads it appears in are both a row of
- * small controls with no room for a paragraph. The sentence is still the
- * backend's own, through useFehlertext, like every other refusal here.
+ * small controls with no room for a paragraph. The sentence is the server's
+ * refusal, through useFehlertext, like every other refusal here.
  */
 function HerunterladenKnopf({ protokollId }: HerunterladenKnopfProps) {
   const { t } = useTranslation()

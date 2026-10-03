@@ -6,6 +6,15 @@ wording: the command line turns them into German sentences of its own, and this
 turns them into responses. Keeping the wording out of the exceptions is also what
 lets feature 17 translate these without touching the rules.
 
+**Since feature 17e the browser does not show nachricht when it can help it.** It
+looks the code up under fehler.server in frontend/src/i18n/locales/ and writes
+the refusal in the language the person chose, filling in werte. So a sentence
+changed here is changed in de.json too, word for word, and a code added here gets
+wording in de.json and en.json in the same change.
+app/api/fehler_wortlaut_test.py fails until both are done. nachricht stays as the
+fallback for a browser older than this API, and as what the API documentation and
+the logs show.
+
 Two things follow from having one handler rather than a raise per route. A route
 cannot quietly answer 500 for something that is really a refusal, and the
 difference between 401 and 403 is decided once. That difference matters more than
@@ -51,7 +60,7 @@ from app.anlagen.fehler import (
     AnlageTypUnzulaessig,
     AnlageZuGross,
 )
-from app.api.schemas import FehlerAntwort, VerstossAntwort
+from app.api.schemas import FehlerAntwort, VerstossAntwort, Werte
 from app.benutzer.fehler import (
     AnmeldungFehlgeschlagen,
     BenutzerFehler,
@@ -280,12 +289,13 @@ def _antwort(
     status_code: int,
     nachricht: str,
     verstoesse: tuple[Formverstoss, ...] | None = None,
+    werte: Werte | None = None,
 ) -> JSONResponse:
     """One refusal, in the shape every refusal from this API takes.
 
-    exclude_none, so a refusal that carries no violations is the same two-field
-    body it has always been rather than one with an empty third field. Only a
-    refused submit fills that in.
+    exclude_none, so a refusal that carries no violations and names no values is
+    the same two-field body it has always been rather than one with empty extra
+    fields. An empty werte is dropped the same way.
 
     mode="json" because the body goes out as it stands, and a model holding
     anything but plain JSON types would reach JSONResponse unserialised.
@@ -298,6 +308,7 @@ def _antwort(
             if verstoesse is None
             else [VerstossAntwort.model_validate(v) for v in verstoesse]
         ),
+        werte=werte or None,
     )
     return JSONResponse(
         status_code=status_code,
@@ -324,9 +335,24 @@ async def behandle_benutzerfehler(request: Request, fehler: Exception) -> Respon
 
     for klasse in type(fehler).__mro__:
         if klasse in UEBERSETZUNG:
-            return _antwort(*UEBERSETZUNG[klasse])
+            return _antwort(*UEBERSETZUNG[klasse], werte=_konto_werte(fehler))
 
     return _antwort(*UNBEKANNT)
+
+
+def _konto_werte(fehler: BenutzerFehler) -> Werte:
+    """The values the account sentences above print, for the browser's own wording.
+
+    The account errors carry no numbers of their own: these are the module
+    constants the sentences already quote.
+    """
+    if isinstance(fehler, PasswortZuKurz):
+        return {"mindestens": MINDESTLAENGE}
+    if isinstance(fehler, PasswortZuLang):
+        return {"hoechstens": HOECHSTLAENGE}
+    if isinstance(fehler, RegierungspraesidiumFehlt | RegierungspraesidiumAusserhalbBereich):
+        return {"regierungspraesidien": _REGIERUNGSPRAESIDIEN_TEXT}
+    return {}
 
 
 async def behandle_anfragefehler(request: Request, fehler: Exception) -> Response:
@@ -510,6 +536,23 @@ def _zusatz(fehler: ProtokollFehler) -> str:
     return ""
 
 
+def _protokoll_werte(fehler: ProtokollFehler) -> Werte:
+    """The values _zusatz prints, for the browser's own wording.
+
+    For unusable answers, the count and the first few paths without the reason per
+    group: it is a "please report this" message, and the reasons stay in
+    nachricht and in the log for whoever picks the report up.
+    """
+    if isinstance(fehler, AntwortenZuGross):
+        return {"zeichen": fehler.zeichen, "hoechstens": fehler.hoechstens}
+
+    if isinstance(fehler, AntwortenUngueltig):
+        pfade = sorted(v.pfad for v in fehler.verstoesse)
+        return {"anzahl": len(pfade), "felder": pfade[:HOECHSTENS_GENANNT]}
+
+    return {}
+
+
 # The attachment refusals, a third table for the same reason the second one
 # exists: every one of these has to name the file it is about, which a table of
 # fixed sentences cannot do. Feature 10 set that standard on 2026-09-06, because a
@@ -592,8 +635,17 @@ def _megabyte(bytes_: int) -> str:
     took, which invites the question of whether 10,04 would have gone in; "10 MB"
     reads as the rule it actually is.
     """
-    zahl = round(bytes_ / 1024 / 1024, 1)
-    return f"{zahl:g}".replace(".", ",")
+    return f"{_megabyte_zahl(bytes_):g}".replace(".", ",")
+
+
+def _megabyte_zahl(bytes_: int) -> float:
+    """The same rounding as a number, for werte: the browser adds its own comma."""
+    return round(bytes_ / 1024 / 1024, 1)
+
+
+def _datei_werte(fehler: AnlageFehler | PdfFehler | EinleseFehler) -> Werte:
+    """The file name, when there is one, which every file refusal leads with."""
+    return {"dateiname": fehler.dateiname} if fehler.dateiname else {}
 
 
 def _anlagen_zusatz(fehler: AnlageFehler) -> str:
@@ -617,6 +669,20 @@ def _anlagen_zusatz(fehler: AnlageFehler) -> str:
     return ""
 
 
+def _anlagen_werte(fehler: AnlageFehler) -> Werte:
+    """The values _anlagen_zusatz prints, for the browser's own wording.
+
+    art travels so the browser can pick the photo sentence or the map excerpt
+    sentence, for the reason ART_SATZ gives.
+    """
+    werte = _datei_werte(fehler)
+    if isinstance(fehler, AnlageZuGross):
+        werte["hoechstens_mb"] = _megabyte_zahl(fehler.hoechstens)
+    if isinstance(fehler, AnlagenartVoll):
+        werte |= {"art": fehler.art, "vorhanden": fehler.vorhanden, "hoechstens": fehler.hoechstens}
+    return werte
+
+
 async def behandle_anlagenfehler(request: Request, fehler: Exception) -> Response:
     """Registered for the AnlageFehler family, so every subclass arrives here.
 
@@ -633,7 +699,7 @@ async def behandle_anlagenfehler(request: Request, fehler: Exception) -> Respons
             volltext = nachricht + _anlagen_zusatz(fehler)
             if fehler.dateiname:
                 volltext = f"{fehler.dateiname}: {volltext}"
-            return _antwort(code, status_code, volltext)
+            return _antwort(code, status_code, volltext, werte=_anlagen_werte(fehler))
 
     return _antwort(*UNBEKANNT)
 
@@ -646,7 +712,13 @@ async def behandle_protokollfehler(request: Request, fehler: Exception) -> Respo
     for klasse in type(fehler).__mro__:
         if klasse in PROTOKOLL_UEBERSETZUNG:
             code, status_code, nachricht = PROTOKOLL_UEBERSETZUNG[klasse]
-            return _antwort(code, status_code, nachricht + _zusatz(fehler), _verstoesse(fehler))
+            return _antwort(
+                code,
+                status_code,
+                nachricht + _zusatz(fehler),
+                _verstoesse(fehler),
+                _protokoll_werte(fehler),
+            )
 
     return _antwort(*UNBEKANNT)
 
@@ -751,6 +823,14 @@ def _einlese_zusatz(fehler: Exception) -> str:
     return ""
 
 
+def _einlese_werte(fehler: PdfFehler | EinleseFehler) -> Werte:
+    """The values _einlese_zusatz prints, for the browser's own wording."""
+    werte = _datei_werte(fehler)
+    if isinstance(fehler, DateiZuGross):
+        werte["hoechstens_mb"] = _megabyte_zahl(fehler.hoechstens)
+    return werte
+
+
 async def behandle_einlesefehler(request: Request, fehler: Exception) -> Response:
     """Registered for both families the PDF import can raise.
 
@@ -773,7 +853,7 @@ async def behandle_einlesefehler(request: Request, fehler: Exception) -> Respons
             volltext = nachricht + _einlese_zusatz(fehler)
             if fehler.dateiname:
                 volltext = f"{fehler.dateiname}: {volltext}"
-            return _antwort(code, status_code, volltext)
+            return _antwort(code, status_code, volltext, werte=_einlese_werte(fehler))
 
     return _antwort(*UNBEKANNT)
 

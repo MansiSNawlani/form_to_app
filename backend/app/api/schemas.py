@@ -642,6 +642,10 @@ class EingelesenesProtokoll(BaseModel):
     bericht: EinleseAntwort
 
 
+# The values a refusal names: a number, a name, or a list of field paths.
+Werte = dict[str, str | int | float | list[str]]
+
+
 class FehlerAntwort(BaseModel):
     """The shape every refusal from this API takes, including a 422.
 
@@ -664,3 +668,11 @@ class FehlerAntwort(BaseModel):
     # prints: a panel listing each unfinished or broken answer next to the field
     # it concerns. A sentence could not be drawn that way.
     verstoesse: list[VerstossAntwort] | None = None
+
+    # The numbers, names and field paths nachricht prints, since feature 17e. The
+    # browser writes its own sentence for the code in the language the person
+    # chose and fills these in, so nothing it needs exists only inside German
+    # prose. Never wording, and never anything the caller sent but a file name,
+    # which app/api/fehler_http.py gives its reasons for. Left out when the
+    # sentence names nothing.
+    werte: Werte | None = None

@@ -26,12 +26,11 @@ function AnlagenMeldungen({ meldungen }: AnlagenMeldungenProps) {
     <Stack spacing={1} className="anlagen__meldungen">
       {meldungen.map((meldung) => (
         <Alert key={meldung.id} severity="warning">
-          {/* Either our own key or a sentence the server sent. Since feature 3d
-              the server is what refuses a file, and its refusals are already
-              written to this project's standard: they name the file, say why in
-              ordinary words, and end with something the reader can do. Wrapping
-              them in a German sentence of our own would be a second wording to
-              keep in step for no gain. */}
+          {/* A key, ours or the server's refusal under fehler.server, or the
+              server's own German for a code the locale file does not know yet.
+              Since feature 3d the server is what refuses a file, and its
+              refusals name the file, say why in ordinary words, and end with
+              something the reader can do. */}
           {meldung.text ?? (meldung.schluessel ? t(meldung.schluessel, meldung.werte) : '')}
         </Alert>
       ))}

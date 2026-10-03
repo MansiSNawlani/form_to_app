@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import optionslisten from '@formular/optionslisten.json'
+import { platzhalter } from '../../api/fehler'
 import de from './de.json'
 import en from './en.json'
 import optionenEn from './optionen.en.json'
 
-/* The guard on the English file while features 17b to 17e fill it in.
+/* The guard on the English file.
  *
- * It allows a German key with no English yet, which falls back to German on
- * screen. It refuses the two mistakes the fallback cannot catch: an English key
- * German does not have, which nothing will ever read, and an English text naming
- * different {{placeholders}} from its German one, which renders a raw
- * "{{anzahl}}" or silently drops a number the German sentence gives. The last
- * sub-feature adds the missing half: every German key has an English one.
+ * The two files hold the same keys, and every English text names the same
+ * {{placeholders}} as its German one: a different set renders a raw "{{anzahl}}"
+ * or silently drops a number the German sentence gives. The server's refusals
+ * under fehler.server are held to the backend's codes from the other side, by
+ * backend/app/api/fehler_wortlaut_test.py.
  */
 
 type Baum = { [schluessel: string]: string | Baum }
@@ -26,9 +26,10 @@ function blaetter(baum: Baum, pfad = ''): Map<string, string> {
   return ergebnis
 }
 
-function platzhalter(text: string): string[] {
-  return [...text.matchAll(/\{\{\s*([^}\s,]+)[^}]*\}\}/g)].map((m) => m[1]).sort()
-}
+
+/* The same reading of a placeholder the app makes when it decides whether a
+   server refusal can use its key, so the guard and the app cannot disagree. */
+const sortiert = (text: string) => platzhalter(text).sort().join()
 
 const deutsch = blaetter(de as Baum)
 const englisch = blaetter(en as Baum)
@@ -42,60 +43,21 @@ describe('en.json', () => {
   it('uses the same placeholders as the German text for every key', () => {
     const abweichend = [...englisch]
       .filter(([k]) => deutsch.has(k))
-      .filter(([k, text]) => platzhalter(text).join() !== platzhalter(deutsch.get(k)!).join())
+      .filter(([k, text]) => sortiert(text) !== sortiert(deutsch.get(k)!))
       .map(([k]) => k)
     expect(abweichend).toEqual([])
   })
 
-  // The screens 17b translated, the form 17c translated and what surrounds the
-  // form, 17d. 17e widens this to every namespace.
-  it.each([
-    'shell',
-    'common',
-    'anmeldung',
-    'sitzung',
-    'fehler',
-    'protokolle',
-    'pruefliste',
-    'benutzerverwaltung',
-    'protokoll.kopf',
-    'protokoll.laedt',
-    'protokoll.nichtGefunden',
-    'protokoll.ladefehler',
-    'protokoll.navigation',
-    'protokoll.ausgabe',
-    'protokoll.abschnitte',
-    'protokoll.felder',
-    'protokoll.abschnitt1',
-    'protokoll.abschnitt2',
-    'protokoll.abschnitt3',
-    'protokoll.abschnitt4',
-    'protokoll.abschnitt5',
-    'protokoll.abschnitt6',
-    'protokoll.abschnitt7',
-    'protokoll.regeln',
-    'protokoll.speichern',
-    'protokoll.sicherung',
-    'protokoll.verwerfen',
-    'protokoll.aenderung',
-    'protokoll.abgesendet',
-    'protokoll.anlagen',
-    'protokoll.einlesen',
-    'protokoll.absenden',
-    'protokoll.entscheidung',
-    'protokoll.verlauf',
-    'protokoll.nurlesen',
-    'protokoll.pruefung',
-  ])('translates every key under %s', (namensraum) => {
-    const darunter = [...deutsch.keys()].filter(
-      (k) => k === namensraum || k.startsWith(`${namensraum}.`),
-    )
-    expect(darunter, `${namensraum} names no German text`).not.toEqual([])
-    expect(darunter.filter((k) => !englisch.has(k))).toEqual([])
+  /* Closed in feature 17e, the last sub-feature of 17: no German text renders
+     German on an English screen through the fallback any more, so a new key
+     without English is a key somebody forgot. */
+  it('translates every key de.json has', () => {
+    const fehlend = [...deutsch.keys()].filter((k) => !englisch.has(k))
+    expect(fehlend).toEqual([])
   })
 
   it('reads the placeholders it compares', () => {
-    expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}')).toEqual(['kuerzel', 'sprache'])
+    expect(platzhalter('{{sprache}} gilt, klicken Sie {{ kuerzel }}').sort()).toEqual(['kuerzel', 'sprache'])
     expect(platzhalter('{{anzahl, number}} Zeilen')).toEqual(['anzahl'])
   })
 })
