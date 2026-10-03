@@ -322,7 +322,7 @@ These are not features and are not tracked here. They happen first.
   **Accounts are never deleted here**, only locked. That is the data model's decision, not
   this feature's: a deleted account takes the owner of every protocol it filed with it, and
   those records have to stay readable. `app/benutzer/dienst.py` has said so since 2a.
-- [ ] 17. English translation
+- [x] 17. English translation
   - [x] 17a. Die Sprache gilt überall: a DE / EN switch in the header that anyone can use,
         saved to the signed-in account through a new PATCH /api/v1/ich; MUI's own texts,
         the date pickers and every date and time on screen follow the chosen language; a
@@ -334,7 +334,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 17d. Rund um das Formular in English: saving, the safety copy, submitting,
         review decisions, the Verlauf, the PDF import screen, attachments, and the
         short descriptive dropdown entries
-  - [ ] 17e. Meldungen des Servers in English: every refusal the backend sends as a
+  - [x] 17e. Meldungen des Servers in English: every refusal the backend sends as a
         German sentence gets wording of its own in both locale files, and the final
         test that every German text has an English one
 
