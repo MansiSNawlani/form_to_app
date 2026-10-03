@@ -145,7 +145,7 @@ split it.
   names the limit in megabytes from `werte.hoechstens_mb`, formatted by the browser; tests
   green.
 
-- [ ] **Step 6 - the closing guards** - in `locales.test.ts`, replace the per-namespace list
+- [x] **Step 6 - the closing guards** - in `locales.test.ts`, replace the per-namespace list
   with one test: every key in `de.json` has one in `en.json`. In the backend, a test that every
   code in the four tables plus `UNBEKANNT` and `ANFRAGE_UNGUELTIG` has a `fehler.server` key in
   both locale files, and that every `{{placeholder}}` in those texts is a key that handler can

@@ -12,17 +12,18 @@ interface EinleseFehlerProps {
 
 /* The file could not be imported.
  *
- * The sentence is the backend's own. Every refusal this endpoint makes arrives
- * with German written to this project's standard: it names the file, says what
- * is wrong in ordinary words, and says what to do instead. "Diese Datei ist ein
- * PDF-Formular, aber nicht das Protokoll E-Befischung. Meist ist es das
- * Protokoll Krebs" is worth more than anything a second wording here could say,
- * and writing one would leave two Germans to drift apart.
+ * The sentence is the server's refusal, through useFehlertext. Every refusal
+ * this endpoint makes is written to this project's standard: it names the file,
+ * says what is wrong in ordinary words, and says what to do instead. "Diese
+ * Datei ist ein PDF-Formular, aber nicht das Protokoll E-Befischung. Meist ist es
+ * das Protokoll Krebs" is worth more than anything a second wording here could
+ * say. Since feature 17e it comes from fehler.server in the locale files, in the
+ * chosen language, and backend/app/api/fehler_wortlaut_test.py keeps the German
+ * there identical to the backend's.
  *
  * So there is no branching on the code, exactly as there is none for the
- * attachment refusals. useFehlertext falls through to the backend's sentence for
- * any code we have no wording of our own for, which also covers a refusal added
- * to the API after this file was last read.
+ * attachment refusals. A refusal added to the API after the locale files were
+ * last written falls through to the backend's own German.
  *
  * The title is generic because that sentence already opens with the filename;
  * naming it here too read "«keine.pdf» konnte nicht eingelesen werden" directly

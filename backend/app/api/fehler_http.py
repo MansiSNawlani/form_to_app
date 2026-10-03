@@ -6,6 +6,15 @@ wording: the command line turns them into German sentences of its own, and this
 turns them into responses. Keeping the wording out of the exceptions is also what
 lets feature 17 translate these without touching the rules.
 
+**Since feature 17e the browser does not show nachricht when it can help it.** It
+looks the code up under fehler.server in frontend/src/i18n/locales/ and writes
+the refusal in the language the person chose, filling in werte. So a sentence
+changed here is changed in de.json too, word for word, and a code added here gets
+wording in de.json and en.json in the same change.
+app/api/fehler_wortlaut_test.py fails until both are done. nachricht stays as the
+fallback for a browser older than this API, and as what the API documentation and
+the logs show.
+
 Two things follow from having one handler rather than a raise per route. A route
 cannot quietly answer 500 for something that is really a refusal, and the
 difference between 401 and 403 is decided once. That difference matters more than
