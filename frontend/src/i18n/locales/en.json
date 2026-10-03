@@ -68,10 +68,10 @@
     "netzwerk": "The server cannot be reached. You may not be connected right now. Please check your internet connection and try again in a moment.",
     "unlesbar": "The server gave an unexpected answer. Please try again. If it keeps happening, please report the problem.",
     "server": {
-      "ANMELDUNG_FEHLGESCHLAGEN": "The email address or password is not correct. Please check the spelling and the Caps Lock key. If you no longer know your password: Please contact your administrator.",
+      "ANMELDUNG_FEHLGESCHLAGEN": "The email address or password is not correct. Please check the spelling and the Caps Lock key. If you have forgotten your password, please contact your administrator.",
       "NICHT_ANGEMELDET": "You are not signed in, or your session has expired. Please sign in again. A session lasts eight hours.",
-      "ROLLE_FEHLT": "Your account does not have permission for this area. If you need it: Please contact your administrator.",
-      "KONTO_DEAKTIVIERT": "This account is deactivated and cannot sign in. To have it unlocked: Please contact your administrator.",
+      "ROLLE_FEHLT": "Your account does not have permission for this area. If you need it, please contact your administrator.",
+      "KONTO_DEAKTIVIERT": "This account is deactivated and cannot sign in. To have it unlocked, please contact your administrator.",
       "KONTO_NICHT_INTERAKTIV": "This account is a technical account for data transfer and cannot sign in here. Please sign in with your personal account.",
       "EMAIL_UNGUELTIG": "This is not a complete email address. It is also the sign-in name of the account, for example anna.bergmann@ffs.bwl.de. Please check the spelling.",
       "EMAIL_VERGEBEN": "An account already exists for this address. An address can belong to only one account. Please look in the user list: if the account is locked, it can be unlocked again.",

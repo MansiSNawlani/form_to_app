@@ -162,6 +162,12 @@ split it.
   `npm run e2e` passes the new spec and the screenshots show no German sentence on an English
   screen apart from a file name.
 
+  *State on 2026-10-03:* `e2e/meldungen.spec.ts` written. Its two sign-in tests pass and need no
+  account; the English screenshot is `test-results/17e-anmeldung-en.png`. The import test skips
+  here: no `E2E_*` variables were set in this session, and the running backend container
+  predates step 1, so it sends no `werte` yet. Still to do: `docker compose up -d --build`, set
+  the `E2E_*` variables, run `npm run e2e`, and screenshot an attachment refusal by hand.
+
 ## Files / areas
 
 - `backend/app/api/schemas.py` - `werte` on `FehlerAntwort`
