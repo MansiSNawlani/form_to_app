@@ -156,6 +156,11 @@ package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
     Repository/Service pattern: components and hooks never know HTTP
     exists, they just call a named function that returns typed data
     or throws a typed ApiFehler.
+    fehler.ts + useFehlertext.ts turn an ApiFehler into words. Since
+    feature 17e the backend's code is looked up under fehler.server
+    in the locale files, in the chosen language, with the values the
+    refusal carries in werte filled in. The backend's own German
+    nachricht is only the fallback for a code the files do not know.
     queryClient.ts creates the ONE TanStack Query cache/client used
     by the whole app (created in main.tsx's <QueryClientProvider>).
   end note
