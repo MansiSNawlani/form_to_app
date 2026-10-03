@@ -68,9 +68,10 @@ test.describe('mit Konto', () => {
     await anmelden(page, { email, passwort })
 
     await page.goto('/')
-    const auswahl = page.waitForEvent('filechooser')
-    await page.getByRole('button', { name: 'Import PDF' }).click()
-    await (await auswahl).setFiles({
+    /* The picker is a label styled as a button for a hidden file input. The
+       button role names both; the label names only the input, which is what
+       takes the file. */
+    await page.getByLabel('Import PDF').setInputFiles({
       name: 'kein-protokoll.pdf',
       mimeType: 'application/pdf',
       buffer: Buffer.from('Das ist keine PDF-Datei.'),
