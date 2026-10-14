@@ -326,7 +326,14 @@ water and the See-ID for a standing one.
 - Some waters surveyed by electrofishing, such as small ditches, may not be in the dataset at all.
   Is a protocol for such a water still acceptable without an identifier? We assume yes.
 
-Until this is answered we only build the part of the map that needs no dataset: a background map
+**What we are building meanwhile, decided on 2026-10-14:** all four assumptions above, taken as
+working answers so the rest of the map work does not wait. AWGN is the dataset, the
+Gewässerkennzahl is the identifier, the public release is loaded and refreshed when LUBW publishes a
+new one, and a water missing from the dataset is still accepted without an identifier. If FFS
+answers differently, only the loading, search, snapping and identifier parts of the map change; the
+map itself and every protocol already filed stay as they are.
+
+The first part of the map needs no dataset and is already built: a background map
 showing where the two typed coordinates are, so a mistyped number shows up as a point in the wrong
 place. The background map is basemap.de from the federal mapping agency (BKG), also open data. A
 browser showing it fetches map tiles from BKG's servers, so BKG sees the address of whoever opens

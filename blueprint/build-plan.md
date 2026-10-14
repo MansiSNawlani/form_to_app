@@ -70,8 +70,9 @@ These are not features and are not tracked here. They happen first.
 > no longer deferred. That reverses the deferral in `docs/decisions.md` section 9 as far as
 > scope goes; section 9's reasons for keeping the typed coordinates as the record still hold.
 >
-> Only the parts of 18 that need no official dataset are built straight away. The rest waits
-> until FFS confirms which water body dataset the identifiers must come from.
+> 18a, which needs no official dataset, was built first. Since 2026-10-14 the rest no longer
+> waits for FFS either: Mansi decided to build 18b to 18e on the working answers recorded under
+> item 18 below.
 
 - [x] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
@@ -331,6 +332,17 @@ These are not features and are not tracked here. They happen first.
   downloadable as shapefiles, last updated 2025-05-01. The flowing waters carry the
   13-digit Gewässerkennzahl, which is the likeliest thing for `amtliche_id` to hold. See
   [question 16](../docs/ffs-questions.md).
+
+  **Working answers, decided by Mansi on 2026-10-14**, so 18b to 18e are built without waiting
+  for FFS. Question 16 still goes to FFS, and an answer that differs changes 18b to 18e only.
+
+  - **The dataset is AWGN**, flowing and standing waters both.
+  - **`amtliche_id` holds the 13-digit Gewässerkennzahl** for a flowing water. For a standing
+    water the See-ID is the candidate, settled when 18b is specced.
+  - **The public LUBW download is loaded**, the release of 2025-05-01 first, and a newer public
+    release is loaded when LUBW publishes one. `gis_dataset_version` records which.
+  - **A water missing from the dataset is still accepted.** The protocol is filed without an
+    `amtliche_id`, exactly as today, and never refused for it.
 
   **18e is not settled.** `app/models/gewaesser.py` says a Gewässer row is never updated, and
   an accepted protocol is never changed without a person deciding it. So 18e cannot be a script

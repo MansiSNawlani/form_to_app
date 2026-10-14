@@ -92,8 +92,11 @@ everything else exists to support them. Item 9 carries the most risk.
     into the MVP on 2026-10-14** and built next, ahead of 23d, 13, 14 and 15. Five sub-features:
     the map beside the coordinates on a basemap.de background (18a), loading the water body
     network (18b), searching it (18c), snapping (18d), and filling in identifiers (18e). Only 18a
-    needs no dataset; 18b to 18e wait until FFS confirms the dataset. The candidate is LUBW's
-    AWGN, open data under CC BY 4.0 in EPSG:25832 (`docs/ffs-questions.md` question 16). The
+    needs no dataset, and is built. 18b to 18e are built on working answers decided on
+    2026-10-14 while FFS still confirms them (`docs/ffs-questions.md` question 16): the dataset
+    is LUBW's AWGN from its public download, open data under CC BY 4.0 in EPSG:25832;
+    `amtliche_id` holds the Gewässerkennzahl; and a water missing from the dataset is filed
+    without an identifier, never refused. The
     typed coordinates stay the record, and a point far from any water is a warning, never a
     refusal. 18e cannot write identifiers on its own, because Gewässer rows are never updated and
     accepted protocols never change without a person deciding it.
