@@ -124,7 +124,7 @@ strict = true
 # document builder is the only module that imports it, and it keeps the untyped
 # surface to the few calls that draw the page; everything it hands over is typed.
 [[tool.mypy.overrides]]
-module = ["reportlab.*"]
+module = ["reportlab.*", "shapefile", "shapely.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

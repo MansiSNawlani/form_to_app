@@ -92,7 +92,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   the compose database; `\d gewaessernetz` shows the geometry column with SRID 25832, the GIST
   index, the unique key and the geometry-type check; `pytest`, `ruff check .` and `mypy .` pass.
 
-- [ ] **Step 2 - Reading the shapefiles** - `app/gewaessernetz/lesen.py`: plain functions taking
+- [x] **Step 2 - Reading the shapefiles** - `app/gewaessernetz/lesen.py`: plain functions taking
   a `.zip` or a directory and yielding `Netzeintrag` records (art, kennung, name, Vorfluter
   kennung and name, geometry as WKB in 2D). Kennung formatting: GKZ float to a 13-digit string,
   `SEE_ID` float to an integer string. It also reports the release the file names in
