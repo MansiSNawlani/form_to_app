@@ -63,6 +63,15 @@ dependencies = [
     # places. Pillow comes with it, and is what puts a photograph on a page.
     "reportlab>=4.2",
     "pillow>=11.0",
+    # Maps PostGIS geometry columns for SQLAlchemy and Alembic, from feature 18b,
+    # where the official water body network becomes a table. Without it a geometry
+    # column is a type Alembic cannot compare, and `alembic check` would report the
+    # table as drifting on every run.
+    "geoalchemy2>=0.15",
+    # Reads LUBW's water body network, which is published as shapefiles. Pure
+    # Python, unlike GDAL and everything built on it, so the loader runs the same on
+    # Windows as in the slim container, for the reason given for reportlab above.
+    "pyshp>=2.3",
 ]
 
 [project.optional-dependencies]
@@ -82,6 +91,10 @@ dev = [
     # wrong argument name is caught before it reaches a bucket, which is how the
     # delete_objects payload in speicher_s3.py was found to be the wrong shape.
     "boto3-stubs[s3]>=1.35",
+    # Builds the Baden-Wuerttemberg border file once, in scripts/landesgrenze.py:
+    # union, widen, simplify. A dev dependency only, because the application reads
+    # the finished file and needs no geometry library to do it.
+    "shapely>=2.0",
 ]
 
 # Lets an administrator run "befischung benutzer anlegen" rather than
