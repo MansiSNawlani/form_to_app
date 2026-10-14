@@ -143,7 +143,7 @@ package "theme/  (design tokens -> MUI)" as themepkg #E8F4FD {
   end note
 }
 
-package "api/  (the ONLY place fetch() is called)" as apipkg #D4EDDA {
+package "api/  (the ONLY place fetch() reaches our backend)" as apipkg #D4EDDA {
   [client.ts] as client
   [fehler.ts]
   [useFehlertext.ts]
@@ -297,6 +297,25 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     end note
   }
 
+  package "karte/  (the map beside the boundary coordinates, feature 18a)" as karte {
+    [Probestreckenkarte.tsx]
+    [Grenzwahl.tsx]
+    [useBasiskarte.ts]
+    [basiskarte.ts]
+    [umrechnung.ts]
+    note bottom of karte
+      MapLibre on the basemap.de background from BKG, loaded with
+      React.lazy from teil1/ProbestreckeBlock.tsx, so the map's
+      ~1.2 MB is only fetched when section 1 opens. The four utm_*
+      boxes stay the record: the map reads them with useWatch and
+      writes them with setValue, so a click or drag saves through
+      useAutoSave exactly like typing. umrechnung.ts (proj4) is the
+      one place EPSG:25832 metres become map degrees and back.
+      basiskarte.ts fetches the map style straight from BKG's
+      server, the one fetch() in src/ that is not to our backend.
+    end note
+  }
+
   package "anlagen/  (attachment upload rules)" as anlagen {
     [regeln.ts]
     [altbestand.ts]
@@ -349,6 +368,8 @@ package "verwaltung/benutzer/  (the second feature: account administration)" as 
 }
 
 cloud "FastAPI backend\n(see AUTHENTICATION_EXPLAINED.txt\nand DATA_FLOW_DIAGRAM.puml)" as backend #FDF0E3
+cloud "basemap.de (BKG)
+map style and tiles, CC BY 4.0" as basemap #FDF0E3
 
 ' -------- dependency arrows (who calls / imports whom) --------
 entry --> routes
@@ -371,6 +392,10 @@ formcore --> absenden
 abschnitte --> felder
 felder --> nurlesen
 felder --> regeln
+abschnitte --> karte
+karte --> regeln
+karte --> nurlesen
+karte --> basemap
 useAutoSave --> entwurfApi
 useAutoSave --> "sicherung.ts"
 entwurfApi --> client

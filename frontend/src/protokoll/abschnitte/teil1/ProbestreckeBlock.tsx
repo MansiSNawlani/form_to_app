@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
@@ -13,6 +14,9 @@ import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
    not reach the Rhein while somebody is still typing the word. */
 const ketteOhne = (geaendert: string) =>
   VORFLUTER_PFADE.filter((pfad) => pfad !== geaendert)
+
+// MapLibre is most of a megabyte, so it is fetched when this block first draws.
+const Probestreckenkarte = lazy(() => import('../../karte/Probestreckenkarte'))
 
 /* The stretch of water that was fished: which Gewaesser, what kind, how long,
    where, and where its water eventually goes.
@@ -156,9 +160,9 @@ function ProbestreckeBlock() {
           spalten={3}
         />
 
-        <p className="col-12 form-section__hint">
-          {t('protokoll.abschnitt1.probestrecke.kartenHinweis')}
-        </p>
+        <Suspense fallback={<div className="probestreckenkarte" aria-busy="true" />}>
+          <Probestreckenkarte />
+        </Suspense>
       </div>
     </fieldset>
   )

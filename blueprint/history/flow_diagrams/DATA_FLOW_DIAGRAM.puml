@@ -118,6 +118,11 @@ note right of AutoSave
   network call, not eight. If the component unmounts mid-debounce
   (surveyor navigates away fast), the effect's cleanup function
   flushes a save synchronously so nothing typed is lost.
+
+  A click or a drag on the map in section 1 enters here too.
+  karte/Probestreckenkarte.tsx writes the two utm_* answers with
+  setValue, which fires this same watch, so a point set on the map
+  is saved by exactly this path and needs no save of its own.
 end note
 
 ' ------------------------------------------------------------------------------
@@ -155,7 +160,10 @@ EntwurfApi -> Client: apiAnfrage(`/protokolle/${id}/antworten`,\n{methode:'PUT',
 ' ------------------------------------------------------------------------------
 note over Client
   **api/client.ts is the only file in the whole frontend that
-  calls fetch().** Every other file (entwurf/api.ts, useSitzung.ts,
+  calls fetch() on our backend.** (The one other fetch() is
+  karte/basiskarte.ts asking BKG's server for the background
+  map's style, which carries no cookie and no protocol data.)
+  Every other file (entwurf/api.ts, useSitzung.ts,
   etc.) goes through apiAnfrage(). That is what keeps 4 concerns
   centralised instead of repeated at every call site:
   (a) the cookie is sent, (b) a non-2xx response becomes a typed

@@ -517,9 +517,26 @@
         "koordinatenCallout": {
           "titel": "Coordinates in EPSG:25832",
           "text": "(ETRS89 / UTM zone 32N), as in the previous form. Values outside Baden-Württemberg are refused."
-        },
-        "kartenHinweis": "Picking the place on a map comes later. Until then the coordinates are typed in."
+        }
       }
+    },
+    "karte": {
+      "bezeichnung": "Map of the sampling stretch (Probestrecke)",
+      "hinweis": "A click on the map sets the chosen boundary, and either marker can be dragged. The coordinates above change with it, and typed coordinates move the markers. Hold Ctrl and scroll to zoom.",
+      "hinweisNurLesen": "The markers show where the coordinates of the two boundaries lie.",
+      "unten": "Lower",
+      "oben": "Upper",
+      "untereGrenze": "Lower boundary",
+      "obereGrenze": "Upper boundary",
+      "setzen": "A click on the map sets the",
+      "fehlerWebgl": "This browser cannot show the map. The coordinates can still be typed in above.",
+      "fehlerLaden": "The background map from basemap.de could not be loaded. The coordinates can still be typed in above. Reload the page later to see the map.",
+      "vergroessern": "Zoom in",
+      "verkleinern": "Zoom out",
+      "quellenEinblenden": "Show or hide the map sources",
+      "strgScrollen": "Hold Ctrl and scroll to zoom the map",
+      "befehlScrollen": "Hold ⌘ and scroll to zoom the map",
+      "zweiFinger": "Use two fingers to move the map"
     },
     "abschnitt2": {
       "messdaten": {

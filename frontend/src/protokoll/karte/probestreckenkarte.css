@@ -1,0 +1,71 @@
+.probestreckenkarte {
+  grid-column: 1 / -1;
+}
+
+.probestreckenkarte__flaeche {
+  height: 26rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.probestreckenkarte__werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.probestreckenkarte--setzbar .maplibregl-canvas-container {
+  cursor: crosshair;
+}
+
+/* MapLibre's attribution box is white in both themes, so it takes the tokens
+   instead, or the text inherits a dark theme's light colour onto white. */
+.probestreckenkarte .maplibregl-ctrl-attrib {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.probestreckenkarte .maplibregl-ctrl-attrib a {
+  color: var(--accent);
+}
+
+/* A label with a point at its foot, anchored at the bottom so the point sits on
+   the coordinate. The two differ in fill as well as in their word. No position
+   here: MapLibre positions every marker absolutely, and the point below hangs
+   off that. */
+.kartenmarke {
+  padding: 0.2rem 0.55rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font: 600 var(--step--1) / 1.2 var(--font-sans);
+  white-space: nowrap;
+  margin-bottom: 7px;
+}
+
+.kartenmarke::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  translate: -50% 0;
+  border: 7px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--accent);
+}
+
+.kartenmarke--unten {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.kartenmarke--oben {
+  background: var(--surface);
+  color: var(--text);
+}

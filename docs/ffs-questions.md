@@ -299,6 +299,50 @@ the same date sat side by side in a list and were indistinguishable.
 
 ---
 
+## 16. Which official water body dataset should a protocol point at?
+
+**Where:** Part 1, the Gewässer and the two boundary coordinates of the Probestrecke.
+
+Feature 18 lets a surveyor pick the water on a map and stores the official identifier of the water
+body with the protocol, so that the same stream is recognised as the same stream across years and
+across surveyors. The identifier has to be the one FiaKa uses, or the eventual transfer cannot
+match it.
+
+**What we assume meanwhile:** LUBW's Amtliches Digitales Wasserwirtschaftliches Gewässernetz
+(AWGN). It is published as open data under CC BY 4.0, in EPSG:25832, the same coordinate system as
+the form. It comes in two parts, flowing waters as lines and standing waters as areas, and the
+current release is dated 1 May 2025. We would store the 13-digit Gewässerkennzahl for a flowing
+water and the See-ID for a standing one.
+
+- Flowing waters: <https://rips-metadaten.lubw.de/trefferanzeige?docuuid=7251515f-6aed-4555-8319-ab6314155ab1>
+- Standing waters: <https://rips-metadaten.lubw.de/trefferanzeige?docuuid=7ef11b78-cd06-4cb8-8c26-9f45d410d09c>
+
+**What we need to know:**
+
+- Is AWGN the dataset FiaKa's water body identifiers come from? If not, which one is?
+- Is the Gewässerkennzahl the identifier FiaKa expects, or does it use its own number?
+- Does FFS work from the public release or from a newer internal one, and how often should the
+  application load a new release?
+- Some waters surveyed by electrofishing, such as small ditches, may not be in the dataset at all.
+  Is a protocol for such a water still acceptable without an identifier? We assume yes.
+
+**What we are building meanwhile, decided on 2026-10-14:** all four assumptions above, taken as
+working answers so the rest of the map work does not wait. AWGN is the dataset, the
+Gewässerkennzahl is the identifier, the public release is loaded and refreshed when LUBW publishes a
+new one, and a water missing from the dataset is still accepted without an identifier. If FFS
+answers differently, only the loading, search, snapping and identifier parts of the map change; the
+map itself and every protocol already filed stay as they are.
+
+The first part of the map needs no dataset and is already built: a background map
+showing where the two typed coordinates are, so a mistyped number shows up as a point in the wrong
+place. The background map is basemap.de from the federal mapping agency (BKG), also open data. A
+browser showing it fetches map tiles from BKG's servers, so BKG sees the address of whoever opens
+the map. If that needs mentioning in a privacy notice, FFS should say so.
+
+Asked on 2026-10-04, when feature 18 was split.
+
+---
+
 ## What happens to the answers
 
 Anything that comes back as a requirement becomes a small change to the new application, logged the

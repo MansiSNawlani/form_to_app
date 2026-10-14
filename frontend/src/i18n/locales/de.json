@@ -517,9 +517,26 @@
         "koordinatenCallout": {
           "titel": "Koordinaten in EPSG:25832",
           "text": "(ETRS89 / UTM Zone 32N), wie im bisherigen Formular. Werte außerhalb Baden-Württembergs werden abgewiesen."
-        },
-        "kartenHinweis": "Die Kartenauswahl folgt später. Bis dahin werden die Koordinaten eingetippt."
+        }
       }
+    },
+    "karte": {
+      "bezeichnung": "Karte der Probestrecke",
+      "hinweis": "Ein Klick in die Karte setzt die gewählte Grenze, und jede Marke lässt sich ziehen. Die Koordinaten oben ändern sich mit, und eingetippte Koordinaten verschieben die Marken. Zum Vergrößern Strg gedrückt halten und scrollen.",
+      "hinweisNurLesen": "Die Marken zeigen, wo die Koordinaten der beiden Grenzen liegen.",
+      "unten": "Unten",
+      "oben": "Oben",
+      "untereGrenze": "Untere Grenze",
+      "obereGrenze": "Obere Grenze",
+      "setzen": "Ein Klick in die Karte setzt die",
+      "fehlerWebgl": "Dieser Browser kann die Karte nicht anzeigen. Die Koordinaten lassen sich weiterhin oben eintippen.",
+      "fehlerLaden": "Die Hintergrundkarte von basemap.de ließ sich nicht laden. Die Koordinaten lassen sich weiterhin oben eintippen. Laden Sie die Seite später neu, um die Karte zu sehen.",
+      "vergroessern": "Vergrößern",
+      "verkleinern": "Verkleinern",
+      "quellenEinblenden": "Quellenangabe ein- oder ausblenden",
+      "strgScrollen": "Zum Vergrößern Strg gedrückt halten und scrollen",
+      "befehlScrollen": "Zum Vergrößern ⌘ gedrückt halten und scrollen",
+      "zweiFinger": "Die Karte mit zwei Fingern verschieben"
     },
     "abschnitt2": {
       "messdaten": {
