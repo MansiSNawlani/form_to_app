@@ -36,6 +36,8 @@ Not the general public. Accounts are created by an administrator; there is no si
 - The catch table with a searchable species picker, size classes and row totals
 - Photo and map excerpt upload
 - Coordinate entry with a Baden-Württemberg bounds check
+- A map beside the coordinates, the official water body dataset, snapping to the water body,
+  and water body search
 - Submit, review, request changes, reject, accept, lock
 - A review queue with filters and search, including by species
 - Regional read-only access for the Regierungspräsidien
@@ -43,8 +45,9 @@ Not the general public. Accounts are created by an administrator; there is no si
 - An audit trail of every workflow action
 - German and English interface, light and dark
 
-Deferred to after the first release: the interactive map and official water body dataset, the
-automated transfer into FiaKa, PDF generation, the crayfish protocol, and offline field use.
+Deferred to after the first release: the automated transfer into FiaKa, PDF generation, the
+crayfish protocol, and offline field use. The map and the official water body dataset were
+deferred here too until 2026-10-14, when they moved into the MVP.
 
 ## 4. Data - What are we storing?
 

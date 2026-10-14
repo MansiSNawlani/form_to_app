@@ -87,6 +87,16 @@ everything else exists to support them. Item 9 carries the most risk.
     run time, and our own page has room for what the paper had no box for: the Bearbeiter's
     town, photos past the fourth, and the status, printed on every page. The Verlauf stays out;
     a download is a copy of the protocol, not a record of what was done to it.
+18. **Map picker** - MapLibre, the official water body dataset, snapping with override, water
+    body search, and the official identifier filled in on Gewässer already on record. **Moved
+    into the MVP on 2026-10-14** and built next, ahead of 23d, 13, 14 and 15. Five sub-features:
+    the map beside the coordinates on a basemap.de background (18a), loading the water body
+    network (18b), searching it (18c), snapping (18d), and filling in identifiers (18e). Only 18a
+    needs no dataset; 18b to 18e wait until FFS confirms the dataset. The candidate is LUBW's
+    AWGN, open data under CC BY 4.0 in EPSG:25832 (`docs/ffs-questions.md` question 16). The
+    typed coordinates stay the record, and a point far from any water is a warning, never a
+    refusal. 18e cannot write identifiers on its own, because Gewässer rows are never updated and
+    accepted protocols never change without a person deciding it.
 13. **Regional access** - the Regierungspräsidium read-only role.
 14. **Notifications** - email on submission and status change, plus a weekly digest, via a
     background worker.
@@ -94,7 +104,7 @@ everything else exists to support them. Item 9 carries the most risk.
 16. **User administration** - account and role management.
 17. **English translation** - the second locale filled in.
 
-After MVP: the map picker and official water body dataset (18), transfer to FiaKa (19), the map
+After MVP: transfer to FiaKa (19), the map
 excerpt drawn from stored geometry rather than uploaded (20, the remainder of PDF generation once
 23e ships the download), the Protokoll Krebs (21), offline field use (22).
 
@@ -367,7 +377,8 @@ Ordered by how much they could still change.
    None of this changes what is being built, since `build-plan.md` is what `/feature` reads, but
    §3 should gain the two missing lines and move the PDF download out of its deferred list.
 
-Not a plan conflict, but worth restating: the original requirements document makes the mapping
-features mandatory for the first release. Both plans deliberately defer them to feature 18, with
-only the `amtliche_id` column added in v1 to keep that a backfill. That deviation is recorded in
-`docs/decisions.md` §9 and should be agreed with whoever owns the requirements.
+The deviation from the requirements on mapping is closed for scope: the original requirements
+make the mapping features mandatory for the first release, both plans deferred them, and since
+2026-10-14 feature 18 is in the MVP again. One softening from `docs/decisions.md` §9 stays: a
+location that does not match the official dataset is warned about, not rejected, and that should
+still be agreed with whoever owns the requirements.

@@ -59,6 +59,20 @@ These are not features and are not tracked here. They happen first.
 > 17 onward a new screen adds its strings to both locale files rather than only to the German
 > one.
 
+> **Build order changed again on 2026-10-04.** Item 18, the map picker, comes next, ahead of
+> 23d, 13, 14 and 15. Mansi judges those four good to have and the map picker more important.
+> They keep their numbers and their place in the list; only the order they are built in changed,
+> the same rule the two reorderings above follow.
+>
+> **Item 18 moved into the MVP on 2026-10-14**, at Mansi's call, out of After MVP where it had
+> been since the start. It sits after 23 in the list because that is where it is built.
+> `project-plan.md` §3 changed with it: the map picker and the official water body dataset are
+> no longer deferred. That reverses the deferral in `docs/decisions.md` section 9 as far as
+> scope goes; section 9's reasons for keeping the typed coordinates as the record still hold.
+>
+> Only the parts of 18 that need no official dataset are built straight away. The rest waits
+> until FFS confirms which water body dataset the identifiers must come from.
+
 - [x] 1. Project skeleton: Docker Compose, PostgreSQL with PostGIS, FastAPI with a health check,
       React and Vite shell, MUI themed with BW colours, translation wiring with German only, light
       and dark tokens, and the Verify command
@@ -293,6 +307,35 @@ These are not features and are not tracked here. They happen first.
     not a record of what was done to it, which is feature 15's.
   - **Item 20 stays where it is.** What is left of it once 23e ships is the part that needs
     feature 18: the map excerpt drawn from stored geometry rather than uploaded as a picture.
+- [ ] 18. Map picker: MapLibre, the official water body dataset, snapping with override, water body
+      search, and backfilling identifiers onto existing submissions
+  - [x] 18a. Karte zur Probestrecke: a MapLibre map in section 1 on the basemap.de
+        background, showing the two boundary points of the stretch. Clicking or dragging sets the
+        coordinates, typing them moves the points, and the review screen shows the same map read
+        only. Needs no water body dataset
+  - [ ] 18b. Das Gewässernetz laden: a PostGIS table for the official water body network, a
+        command that loads one dataset version into it, and the coordinate check tested against
+        the real Baden-Württemberg border instead of a rectangle
+  - [ ] 18c. Gewässersuche: searching the official water bodies by name in the Gewässer field,
+        and picking one fills in the name and `amtliche_id`
+  - [ ] 18d. Einrasten mit Übersteuern: a placed point snaps to the nearest water body, both the
+        typed and the snapped position are kept, and a point far from any water gets a warning,
+        never a refusal (decisions.md section 9)
+  - [ ] 18e. Kennungen nachtragen: finding the likely `amtliche_id` for every Gewässer already
+        on record
+
+  **Split on 2026-10-04.** 18a is the only part that works without the official dataset, so it
+  is built first and 18b to 18e wait for FFS to confirm the dataset. The candidate, checked on
+  2026-10-04, is LUBW's AWGN (Amtliches Digitales Wasserwirtschaftliches Gewässernetz): flowing
+  waters as lines, standing waters as areas, both in EPSG:25832, both open data under CC BY 4.0,
+  downloadable as shapefiles, last updated 2025-05-01. The flowing waters carry the
+  13-digit Gewässerkennzahl, which is the likeliest thing for `amtliche_id` to hold. See
+  [question 16](../docs/ffs-questions.md).
+
+  **18e is not settled.** `app/models/gewaesser.py` says a Gewässer row is never updated, and
+  an accepted protocol is never changed without a person deciding it. So 18e cannot be a script
+  that writes identifiers on its own. It has to propose matches for a person to confirm, or touch
+  only rows no accepted protocol points at. That is decided when 18e is specced.
 - [ ] 13. Regierungspräsidium access: regional read-only role
 - [ ] 14. Email notifications and the weekly digest, with the background worker
 - [ ] 15. Audit trail
@@ -354,8 +397,6 @@ These are not features and are not tracked here. They happen first.
 
 ## After MVP
 
-- [ ] 18. Map picker: MapLibre, the official water body dataset, snapping with override, water body
-      search, and backfilling identifiers onto existing submissions
 - [ ] 19. Transfer to FiaKa: JSON payload, machine account, safe to retry, transfer log
 - [ ] 20. PDF generation, with the map excerpt drawn from stored geometry. Feature 23e
       ships the download itself; what is left here is the map excerpt drawn rather than

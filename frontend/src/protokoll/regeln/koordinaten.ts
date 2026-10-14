@@ -48,7 +48,7 @@ const FELDER: Koordinatenfeld[] = [
    document. A minus sign passes this test and fails the bounds test instead,
    which is the more useful complaint: a negative metre value is not a number
    somebody typed wrongly, it is a coordinate in the wrong place. */
-const GANZE_ZAHL = /^-?\d+$/
+export const GANZE_ZAHL = /^-?\d+$/
 
 export const pruefeKoordinaten: Regel = (antworten) => {
   const verstoesse: Regelverstoss[] = []
