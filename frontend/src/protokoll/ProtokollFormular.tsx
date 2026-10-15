@@ -13,6 +13,7 @@ import SpeicherProblem from './SpeicherProblem'
 import SicherungAngebot from './entwurf/SicherungAngebot'
 import AbsendeErgebnis from './absenden/AbsendeErgebnis'
 import { useAbsenden } from './absenden/useAbsenden'
+import { VerstossKontext, verstossKarte } from './absenden/verstossKontext'
 import { erstelleBereitsteller } from './entwurf/bereitstellen'
 import { anzeigeZustand, type Anlagenzustand } from './entwurf/speicherzustand'
 import { legeEntwurfAn } from './entwurf/api'
@@ -86,6 +87,12 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
      here rather than in each of the three places that want it, so one read per
      protocol serves the banner, the step bar and the panel. */
   const einlesen = useEinlesebericht(entwurfId)
+  /* The same refusals by path, for each field to mark itself red. Recomputed
+     only when a submit or an import answers. */
+  const verstoesseJePfad = useMemo(
+    () => verstossKarte(absendung.verstoesse),
+    [absendung.verstoesse],
+  )
 
   /* Built once for the life of the form, so both blocks in section 7 share one
      in-flight request. Two of them each checking and then creating would leave a
@@ -198,15 +205,17 @@ function ProtokollFormular({ entwurf, abschnitt, onAngelegt }: ProtokollFormular
             automatic. The form element is here for the semantics and so that the
             fields sit inside one. */}
         <form>
-          <AbschnittInhalt
-            abschnitt={abschnitt}
-            entwurfId={entwurfId}
-            bereitstellen={bereitstellen}
-            melde={setAnlagenZustand}
-            absenden={absendung.absenden}
-            absendenLaeuft={absendung.laeuft}
-            fehlendeBilder={einlesen.bericht?.bilder ?? 0}
-          />
+          <VerstossKontext value={verstoesseJePfad}>
+            <AbschnittInhalt
+              abschnitt={abschnitt}
+              entwurfId={entwurfId}
+              bereitstellen={bereitstellen}
+              melde={setAnlagenZustand}
+              absenden={absendung.absenden}
+              absendenLaeuft={absendung.laeuft}
+              fehlendeBilder={einlesen.bericht?.bilder ?? 0}
+            />
+          </VerstossKontext>
         </form>
 
         <AbschnittWechsel

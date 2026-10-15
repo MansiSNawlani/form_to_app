@@ -19,6 +19,7 @@ import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import type { Antworten } from '../entwurf/typen'
 import type { Verstoss } from '../../api/typen'
+import { istAusgefuellt } from './amFeld'
 
 /* Problems that name a block rather than a field: a percentage run, a tick
  * group, a fished area, the catch table as a whole. None can be ticked off by
@@ -49,11 +50,8 @@ export function useErledigtePfade(verstoesse: readonly Verstoss[]): ReadonlySet<
     const gefuellt = new Set<string>()
     const gelesen: unknown[] = Array.isArray(werte) ? werte : []
     feldpfade.forEach((pfad, index) => {
-      const wert = gelesen[index]
-      /* Filled in, not correct. The browser can see a box is no longer empty;
-         whether the value is right is the server's to say, because the rules live
-         there. */
-      if (typeof wert === 'string' && wert.trim() !== '') gefuellt.add(pfad)
+      // The same test the field uses to drop its red border, so the two agree.
+      if (istAusgefuellt(gelesen[index])) gefuellt.add(pfad)
     })
     return gefuellt
   }, [feldpfade, werte])
