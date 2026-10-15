@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from app.protokolle.formregeln.koordinaten import (
+    AUSSERHALB_LANDES,
     HOCHWERT_AUSSERHALB,
     HOCHWERT_MAX,
     HOCHWERT_MIN,
@@ -46,7 +47,7 @@ class TestWasDurchgeht:
         assert pruefe_koordinaten(mit_koordinaten(utm_rw_unten="")) == []
         assert pruefe_koordinaten(mit_koordinaten(utm_rw_unten="  ")) == []
 
-    def test_nimmt_einen_wert_genau_auf_der_grenze(self) -> None:
+    def test_nimmt_einen_wert_genau_auf_der_grenze_des_rechtecks(self) -> None:
         auf_den_grenzen = {
             "probestrecke": {
                 "utm_rw_unten": str(RECHTSWERT_MIN),
@@ -55,15 +56,15 @@ class TestWasDurchgeht:
                 "utm_hw_oben": str(HOCHWERT_MAX),
             }
         }
-        assert pruefe_koordinaten(auf_den_grenzen) == []
+        # The corners of the rectangle lie outside the state, so the border
+        # check speaks up. The rectangle itself must not.
+        assert set(schluessel(auf_den_grenzen)) == {AUSSERHALB_LANDES}
 
 
 class TestAusserhalb:
     def test_weist_einen_wert_unter_dem_minimum_zurueck(self) -> None:
         zu_weit_westlich = str(RECHTSWERT_MIN - 1)
-        assert schluessel(mit_koordinaten(utm_rw_unten=zu_weit_westlich)) == [
-            RECHTSWERT_AUSSERHALB
-        ]
+        assert schluessel(mit_koordinaten(utm_rw_unten=zu_weit_westlich)) == [RECHTSWERT_AUSSERHALB]
 
     def test_weist_einen_wert_ueber_dem_maximum_zurueck(self) -> None:
         zu_weit_noerdlich = str(HOCHWERT_MAX + 1)
@@ -109,3 +110,39 @@ class TestKeineGanzeZahl:
 
     def test_weist_eine_kommazahl_auch_innerhalb_der_grenzen_zurueck(self) -> None:
         assert schluessel(mit_koordinaten(utm_hw_unten="5385000.4")) == [KEINE_GANZE_ZAHL]
+
+
+class TestLandesgrenze:
+    # Both inside the rectangle and outside the state, so only the border check
+    # can catch them. Munich and Colmar would not do: the rectangle already does.
+    WUERZBURG = {"utm_rw_unten": "566895", "utm_hw_unten": "5515841"}
+    STRASSBURG = {"utm_rw_oben": "407876", "utm_hw_oben": "5381721"}
+
+    def test_weist_einen_punkt_in_bayern_zurueck_und_nennt_beide_boxen(self) -> None:
+        verstoesse = pruefe_koordinaten(mit_koordinaten(**self.WUERZBURG))
+        assert [(v.pfad, v.schluessel) for v in verstoesse] == [
+            ("probestrecke.utm_rw_unten", AUSSERHALB_LANDES),
+            ("probestrecke.utm_hw_unten", AUSSERHALB_LANDES),
+        ]
+
+    def test_prueft_beide_punkte(self) -> None:
+        assert pfade(mit_koordinaten(**self.WUERZBURG, **self.STRASSBURG)) == [
+            "probestrecke.utm_rw_unten",
+            "probestrecke.utm_hw_unten",
+            "probestrecke.utm_rw_oben",
+            "probestrecke.utm_hw_oben",
+        ]
+
+    def test_nimmt_das_ferne_rheinufer_bei_kehl(self) -> None:
+        kehl = {"utm_rw_unten": "411403", "utm_hw_unten": "5380353"}
+        assert pruefe_koordinaten(mit_koordinaten(**kehl)) == []
+
+    def test_schweigt_zu_einem_punkt_mit_einer_leeren_box(self) -> None:
+        nur_rechtswert = {"probestrecke": {"utm_rw_unten": "566895"}}
+        assert pruefe_koordinaten(nur_rechtswert) == []
+
+    def test_schweigt_zu_einem_punkt_dessen_box_schon_falsch_ist(self) -> None:
+        # The rectangle's message is the useful one; a second about the border
+        # would only repeat it.
+        vertauscht = mit_koordinaten(utm_rw_unten="5385000", utm_hw_unten="512000")
+        assert AUSSERHALB_LANDES not in schluessel(vertauscht)

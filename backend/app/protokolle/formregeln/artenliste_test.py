@@ -63,9 +63,7 @@ class TestDoppelteArten:
     def test_meldet_die_zweite_nennung_nicht_die_erste(self) -> None:
         # The row named first is not the one that went wrong.
         verstoesse = pruefe_doppelte_arten(tabelle(("HECH",), ("COGO",), ("HECH",)))
-        assert [(v.pfad, v.schluessel) for v in verstoesse] == [
-            ("arten.art3.name", ART_DOPPELT)
-        ]
+        assert [(v.pfad, v.schluessel) for v in verstoesse] == [("arten.art3.name", ART_DOPPELT)]
 
     def test_meldet_jede_weitere_nennung(self) -> None:
         verstoesse = pruefe_doppelte_arten(tabelle(("HECH",), ("HECH",), ("HECH",)))

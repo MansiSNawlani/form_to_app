@@ -132,7 +132,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   message naming them when they are not; a second test, always run, checks the committed file:
   one or more polygons, every coordinate an integer inside the old rectangle.
 
-- [ ] **Step 6 - The backend rule** - `formregeln/landesgrenze.py`: a pure point-in-polygon
+- [x] **Step 6 - The backend rule** - `formregeln/landesgrenze.py`: a pure point-in-polygon
   (even-odd, holes respected) over the committed file, read once. `koordinaten.py` checks each of
   the two boundary points after both its values pass the rectangle, and adds
   `protokoll.regeln.koordinateAusserhalbLandes` to **both fields of that point**. The rectangle

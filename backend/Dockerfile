@@ -33,6 +33,7 @@ COPY app ./app
 # site-packages, nowhere near the repository layout a relative path assumes.
 COPY --from=seed . ./seed
 ENV FORMULAR_SEED_DIR=/srv/seed/form_version_20260609
+ENV LANDESGRENZE_DATEI=/srv/seed/landesgrenze/landesgrenze_bw.json
 
 # No dev extras: pytest, ruff and mypy have no business in a shipped image.
 RUN pip install --no-cache-dir .
