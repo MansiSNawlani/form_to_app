@@ -121,7 +121,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   database from the host and `liste` shows it with 20 421 and 11 509 waters (recorded in
   Evidence, with the load time and the table size).
 
-- [ ] **Step 5 - The border file** - `backend/scripts/landesgrenze.py`, a one-off like
+- [x] **Step 5 - The border file** - `backend/scripts/landesgrenze.py`, a one-off like
   `extract_form_definition.py`: reads every `ARS = '08'` record of `VG250_LAN.shp` and the two
   Bodensee polygons from AWGN, unions them, widens by 2 000 m, simplifies with a tolerance of at most 100 m (so the margin never shrinks
   below 1.9 km), rounds to whole metres
