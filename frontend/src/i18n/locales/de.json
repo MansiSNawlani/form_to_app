@@ -903,6 +903,7 @@
       "koordinateRechtswertAusserhalb": "Der Rechtswert liegt außerhalb Baden-Württembergs. Erwartet werden {{rechtswertMin}} bis {{rechtswertMax}}.",
       "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}.",
       "koordinateAusserhalbLandes": "Dieser Punkt liegt mehr als {{randKm}} km außerhalb Baden-Württembergs. Bitte Rechtswert und Hochwert prüfen oder den Punkt in der Karte setzen.",
+      "gewaesserKennungPasstNicht": "Der Name passt nicht mehr zum gewählten amtlichen Gewässer. Bitte wählen Sie das Gewässer erneut aus der Liste, oder tippen Sie den Namen frei ein, dann wird es ohne amtliche Kennung gespeichert.",
       "hydrologieBeiStillgewaesser": "Bei einem stehenden Gewässer wird die Hydrologie nicht erhoben. Bitte leeren Sie die Angabe, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
       "hydrologieNichtZutreffendBeiFliessgewaesser": "Die Angabe ist als «nicht zutreffend» gespeichert, obwohl es sich um ein Fließgewässer handelt. Bitte beantworten Sie sie, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
       "schaetzwertOhneBand": "Bitte zuerst oben die Bandbreite auswählen.",

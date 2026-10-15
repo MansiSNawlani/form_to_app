@@ -24,6 +24,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gewaessernetz.kennung import pruefe_gewaesserkennung
 from app.models.benutzer import User
 from app.models.protokoll import Submission
 from app.protokolle.dienst import hole_protokoll
@@ -67,7 +68,13 @@ async def sende_ab(
     _pruefe_absendbar(protokoll)
     pruefe_version(version, protokoll.version)
 
-    verstoesse = pruefe_protokoll(protokoll.antworten)
+    # The identifier check reads the loaded network, so it cannot sit among the
+    # pure rules; it reports into the same list so the surveyor sees everything
+    # at once. See app/gewaessernetz/kennung.py.
+    verstoesse = [
+        *pruefe_protokoll(protokoll.antworten),
+        *await pruefe_gewaesserkennung(session, protokoll.antworten),
+    ]
     if verstoesse:
         raise ProtokollUnvollstaendig(tuple(verstoesse))
 
