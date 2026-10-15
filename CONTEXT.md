@@ -77,6 +77,14 @@ _English_: Water body type (Gewässertyp)
 _Avoid_: water type, category, and the codes `31` and `32`, which the legacy form's JavaScript
 tests for but the field never exports (see [defect 9](docs/ffs-defect-list.md))
 
+**Gewässernetz**:
+The official network of every flowing and standing water in the state, LUBW's AWGN, loaded into the
+application one release (Stand) at a time. It is where a Gewässer's identifier comes from: the
+13-digit Gewässerkennzahl for a flowing water, the See-ID for a standing one. Reference data that
+nobody using the application edits.
+_English_: Water body network (Gewässernetz)
+_Avoid_: river network, GIS layer, water dataset
+
 **Vorfluter**:
 The Gewässer that a Gewässer flows into. Recorded as a chain that must terminate at the Rhein or the
 Donau, which establishes where in the state's drainage network a Probestrecke sits.

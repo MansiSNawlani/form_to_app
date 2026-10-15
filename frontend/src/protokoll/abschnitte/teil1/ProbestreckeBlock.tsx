@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
+import type { AntwortPfad } from '../../entwurf/typen'
+import { PUNKTE } from '../../regeln/koordinaten'
 import { useNachpruefung } from '../../regeln/useNachpruefung'
 import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
 
@@ -14,6 +16,19 @@ import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
    not reach the Rhein while somebody is still typing the word. */
 const ketteOhne = (geaendert: string) =>
   VORFLUTER_PFADE.filter((pfad) => pfad !== geaendert)
+
+/* Since feature 18b each boundary point is also tested against the state border
+   as a pair, and the message sits on both of its boxes. Correcting the Hochwert
+   has to settle the Rechtswert's message too, so a change in one box rechecks
+   the other box of the same point. */
+const KOORDINATENPAARE: Readonly<Record<string, AntwortPfad>> = Object.fromEntries(
+  PUNKTE.flatMap(([rw, hw]) => [
+    [`probestrecke.${rw}`, `probestrecke.${hw}`],
+    [`probestrecke.${hw}`, `probestrecke.${rw}`],
+  ]),
+)
+const KOORDINATEN_PFADE = Object.keys(KOORDINATENPAARE) as AntwortPfad[]
+const anderesFeldDesPunkts = (geaendert: string) => [KOORDINATENPAARE[geaendert]]
 
 // MapLibre is most of a megabyte, so it is fetched when this block first draws.
 const Probestreckenkarte = lazy(() => import('../../karte/Probestreckenkarte'))
@@ -28,6 +43,7 @@ function ProbestreckeBlock() {
   const { t } = useTranslation()
 
   useNachpruefung(VORFLUTER_PFADE, ketteOhne)
+  useNachpruefung(KOORDINATEN_PFADE, anderesFeldDesPunkts)
 
   return (
     <fieldset className="form-section">

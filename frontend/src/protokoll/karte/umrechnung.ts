@@ -1,5 +1,6 @@
 import proj4 from 'proj4'
 import { BW_GRENZEN, GANZE_ZAHL } from '../regeln/koordinaten'
+import { LANDESGRENZE, liegtImLand } from '../regeln/landesgrenze'
 import { istLeer } from '../regeln/regel'
 
 /* Between the form's coordinates and the map's.
@@ -26,8 +27,8 @@ export interface Utm {
 }
 
 /* Nothing for anything the coordinate rule would complain about: an empty
-   box, a value that is not whole metres, or one outside the rectangle around
-   Baden-Wuerttemberg. A marker on the map means "this is where your numbers
+   box, a value that is not whole metres, one outside the rectangle around
+   Baden-Wuerttemberg, or a point more than 2 km outside its border. A marker on the map means "this is where your numbers
    put the stretch", so it only appears when the numbers are ones the form
    accepts; the rule's own message covers the rest. */
 export function zuKartenpunkt(
@@ -37,6 +38,7 @@ export function zuKartenpunkt(
   const rw = ganzeZahlInnerhalb(rechtswert, BW_GRENZEN.rechtswert)
   const hw = ganzeZahlInnerhalb(hochwert, BW_GRENZEN.hochwert)
   if (rw === null || hw === null) return null
+  if (!liegtImLand(LANDESGRENZE, rw, hw)) return null
 
   const [lng, lat] = umrechner.inverse([rw, hw])
   return { lng, lat }

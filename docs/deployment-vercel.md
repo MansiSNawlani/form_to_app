@@ -157,6 +157,7 @@ Set all of these for **Production**, **Preview** and **Development**.
 | `S3_ZUGRIFFSSCHLUESSEL` | The Access Key ID from step 2 |
 | `S3_GEHEIMSCHLUESSEL` | The Secret Access Key from step 2 |
 | `FORMULAR_SEED_DIR` | `database/seed/form_version_20260609` |
+| `LANDESGRENZE_DATEI` | `database/seed/landesgrenze/landesgrenze_bw.json` |
 
 Generate the signing secret:
 
@@ -175,7 +176,11 @@ on https, and Vercel is always https.
 default is worked out relative to the source tree, and on Vercel the backend is
 installed as a package, so its own files sit somewhere that tells it nothing
 about where the repository's seed data went. The Docker image sets this variable
-for the same reason.
+for the same reason. `LANDESGRENZE_DATEI`, added in feature 18b, is the same
+case: the state border the coordinate check reads.
+
+The migrations switch on the PostGIS extension themselves, since feature 18b.
+Neon offers PostGIS, so nothing needs doing there by hand.
 
 ## 4. The first account
 

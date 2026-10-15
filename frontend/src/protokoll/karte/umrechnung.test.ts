@@ -63,10 +63,8 @@ describe('zuKartenpunkt', () => {
     expect(zuKartenpunkt(' 512000 ', '5385000')).not.toBeNull()
   })
 
-  it('accepts a value on either bound', () => {
-    const { rechtswert, hochwert } = BW_GRENZEN
-    expect(zuKartenpunkt(String(rechtswert.min), String(hochwert.min))).not.toBeNull()
-    expect(zuKartenpunkt(String(rechtswert.max), String(hochwert.max))).not.toBeNull()
+  it('gives a point on the far bank of the Rhein at Kehl', () => {
+    expect(zuKartenpunkt('411403', '5380353')).not.toBeNull()
   })
 
   it.each([
@@ -80,6 +78,7 @@ describe('zuKartenpunkt', () => {
     ['a Rechtswert below the bounds', String(BW_GRENZEN.rechtswert.min - 1), '5385000'],
     ['a Hochwert above the bounds', '512000', String(BW_GRENZEN.hochwert.max + 1)],
     ['a swapped pair', '5385000', '512000'],
+    ['a point in Wuerzburg, inside the rectangle but outside the state', '566895', '5515841'],
   ])('gives no point for %s', (_fall, rechtswert, hochwert) => {
     expect(zuKartenpunkt(rechtswert, hochwert)).toBeNull()
   })

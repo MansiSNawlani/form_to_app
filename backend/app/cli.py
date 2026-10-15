@@ -18,7 +18,11 @@ and has the least context of anyone who will ever use it.
 """
 
 import asyncio
+import time
 from collections.abc import Awaitable, Callable
+from contextlib import ExitStack
+from datetime import date
+from pathlib import Path
 from typing import Annotated, NoReturn
 
 import typer
@@ -55,7 +59,20 @@ from app.config import get_settings
 from app.db import fuer_asyncpg
 from app.demo.dienst import setze_demo_zurueck
 from app.demo.fehler import DemoAus
+from app.gewaessernetz.dienst import lade_stand, liste_staende
+from app.gewaessernetz.fehler import (
+    FalscheNetzdatei,
+    FalschesKoordinatensystem,
+    GewaessernetzFehler,
+    NetzdateiNichtGefunden,
+    ShapefileNichtEindeutig,
+    StandBereitsGeladen,
+    StandPasstNicht,
+    UngueltigerEintrag,
+)
+from app.gewaessernetz.lesen import Netzdatei, oeffne
 from app.models.benutzer import Locale, Rolle
+from app.models.gewaessernetz import Netzart
 from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 
 # The command line gets its own engine rather than app/db.py's.
@@ -86,6 +103,11 @@ demo_app = typer.Typer(
     help="Die Demo verwalten. Nur auf einer eigenen Demo-Datenbank.", no_args_is_help=True
 )
 app.add_typer(demo_app, name="demo")
+gewaessernetz_app = typer.Typer(
+    help="Das amtliche Gewässernetz der LUBW (AWGN) laden.", no_args_is_help=True
+)
+app.add_typer(gewaessernetz_app, name="gewaessernetz")
+
 
 def _abbrechen(*lines: str) -> NoReturn:
     """Print the refusal on stderr and stop with a non-zero exit code.
@@ -467,6 +489,167 @@ def demo_zuruecksetzen() -> None:
     typer.echo("Die Demo ist zurückgesetzt.")
     typer.echo(f"  Entfernte Protokolle: {ergebnis.entfernt}")
     typer.echo(f"  Neu angelegte Beispiele: {ergebnis.angelegt}")
+
+
+# Where the two archives come from, named in every refusal that fetching them
+# again would fix. docs/ffs-questions.md question 16 links the metadata pages.
+AWGN_DOWNLOADS = (
+    "    Fließgewässer:     https://rips-datenlink.lubw.de/UDO_download/Fliessgewaessernetz.zip",
+    "    Stehende Gewässer: https://rips-datenlink.lubw.de/UDO_download/StehendeGewaesser.zip",
+)
+
+NETZART_TEXT = {
+    Netzart.FLIESSGEWAESSER: "Fließgewässer",
+    Netzart.STEHENDES_GEWAESSER: "stehende Gewässer",
+}
+
+# Progress every this many waters, so a load of 30 000 says something a handful
+# of times rather than sixty.
+FORTSCHRITT_ALLE = 5000
+
+
+def _absage_gewaessernetz(fehler: GewaessernetzFehler) -> tuple[str, ...]:
+    """The message for each way a load is refused. Nothing was written in any."""
+    nichts = "Es wurde nichts geladen."
+    match fehler:
+        case NetzdateiNichtGefunden():
+            return (
+                f"{fehler.pfad} gibt es nicht. {nichts}",
+                "",
+                "Die beiden Archive unverändert von der LUBW herunterladen:",
+                *AWGN_DOWNLOADS,
+                "und ihre Pfade angeben.",
+            )
+        case ShapefileNichtEindeutig() if fehler.anzahl == 0:
+            return (
+                f"In {fehler.pfad} liegt kein Shapefile. {nichts}",
+                "",
+                "Erwartet wird das ZIP der LUBW, so wie es heruntergeladen wurde:",
+                *AWGN_DOWNLOADS,
+            )
+        case ShapefileNichtEindeutig():
+            return (
+                f"In {fehler.pfad} liegen {fehler.anzahl} Shapefiles, "
+                f"und es ist nicht klar, welches gemeint ist. {nichts}",
+                "",
+                "Jedes der beiden ZIPs der LUBW einzeln angeben, nicht einen Ordner mit beiden.",
+            )
+        case FalscheNetzdatei() if fehler.gefunden is not None:
+            return (
+                f"{fehler.pfad} enthält {NETZART_TEXT[fehler.gefunden]}, "
+                f"erwartet waren {NETZART_TEXT[fehler.erwartet]}. {nichts}",
+                "",
+                "Die beiden Dateien sind vermutlich vertauscht. Das Fließgewässernetz",
+                "gehört zu --fliessgewaesser, die stehenden Gewässer zu --stehende.",
+            )
+        case FalscheNetzdatei():
+            return (
+                f"{fehler.pfad} ist kein Shapefile des AWGN. {nichts}",
+                "",
+                "Es fehlen die Spalten, die die LUBW-Dateien haben. Die Archive gibt es hier:",
+                *AWGN_DOWNLOADS,
+            )
+        case FalschesKoordinatensystem():
+            gefunden = fehler.gefunden or "keine .prj-Datei"
+            return (
+                f"{fehler.pfad} ist nicht in ETRS89 / UTM Zone 32N (EPSG:25832). {nichts}",
+                f"  Gefunden: {gefunden}",
+                "",
+                "Das Original-ZIP der LUBW verwenden. Eine umprojizierte Kopie wird nicht",
+                "geladen, weil jedes Gewässer sonst ohne Fehlermeldung am falschen Ort läge.",
+            )
+        case UngueltigerEintrag():
+            return (
+                f"Satz {fehler.satz} in {fehler.pfad} lässt sich nicht laden: "
+                f"{fehler.grund}. {nichts}",
+                "",
+                "Das Archiv noch einmal herunterladen, falls es beschädigt ist. Tritt es",
+                "mit einer frischen Kopie wieder auf, liegt der Fehler in der Datei der",
+                "LUBW, und die Datenbank bleibt beim bisherigen Stand.",
+            )
+        case StandPasstNicht():
+            genannt = ", ".join(sorted(fehler.staende)) or "keinen"
+            return (
+                f"Die Dateien nennen den Stand {genannt}, angegeben war "
+                f"{fehler.stand.isoformat()}. {nichts}",
+                "",
+                "Den Ersten des Monats angeben, den die Dateien nennen,",
+                "zum Beispiel --stand 2025-05-01 für Mai 2025.",
+            )
+        case StandBereitsGeladen():
+            return (
+                f"Der Stand {fehler.stand.isoformat()} ist bereits geladen. "
+                "Es wurde nichts geändert.",
+                "",
+                "befischung gewaessernetz liste zeigt, was geladen ist. Ein neuerer Stand",
+                "der LUBW wird mit seinem eigenen Datum geladen und liegt neben diesem.",
+            )
+    return (f"{fehler} {nichts}",)
+
+
+def _fortschritt(datei: Netzdatei, geschrieben: int) -> None:
+    bisher = (geschrieben - 1) // FORTSCHRITT_ALLE
+    if geschrieben == datei.anzahl or geschrieben // FORTSCHRITT_ALLE > bisher:
+        typer.echo(f"  {NETZART_TEXT[datei.art]}: {geschrieben} von {datei.anzahl}")
+
+
+@gewaessernetz_app.command("laden")
+def gewaessernetz_laden(
+    stand: Annotated[
+        str, typer.Option(help="Der Erste des Monats der Veröffentlichung, etwa 2025-05-01.")
+    ],
+    fliessgewaesser: Annotated[
+        Path, typer.Option(help="Fliessgewaessernetz.zip der LUBW, oder der entpackte Ordner.")
+    ],
+    stehende: Annotated[
+        Path, typer.Option(help="StehendeGewaesser.zip der LUBW, oder der entpackte Ordner.")
+    ],
+) -> None:
+    """Einen Stand des Gewässernetzes laden. Ganz oder gar nicht: scheitert ein
+    Satz, bleibt die Datenbank, wie sie war. Ältere Stände bleiben erhalten."""
+    try:
+        datum = date.fromisoformat(stand)
+    except ValueError:
+        _abbrechen(
+            f"--stand {stand} ist kein Datum. Es wurde nichts geladen.",
+            "",
+            "Das Datum der Veröffentlichung als Jahr-Monat-Tag angeben,",
+            "zum Beispiel --stand 2025-05-01 für den Stand Mai 2025.",
+        )
+
+    beginn = time.monotonic()
+    try:
+        with ExitStack() as dateien:
+            fg = dateien.enter_context(oeffne(fliessgewaesser, Netzart.FLIESSGEWAESSER))
+            sg = dateien.enter_context(oeffne(stehende, Netzart.STEHENDES_GEWAESSER))
+            typer.echo(f"Lade den Stand {datum.isoformat()} ...")
+            geladen = _ausfuehren(
+                lambda session: lade_stand(session, datum, fg, sg, fortschritt=_fortschritt)
+            )
+    except GewaessernetzFehler as fehler:
+        _abbrechen(*_absage_gewaessernetz(fehler))
+
+    typer.echo(f"Der Stand {geladen.stand.isoformat()} ist geladen.")
+    typer.echo(f"  Fließgewässer: {geladen.anzahl_fliessgewaesser}")
+    typer.echo(f"  Stehende Gewässer: {geladen.anzahl_stehende}")
+    typer.echo(f"  Dauer: {time.monotonic() - beginn:.0f} Sekunden")
+
+
+@gewaessernetz_app.command("liste")
+def gewaessernetz_liste() -> None:
+    """Die geladenen Stände, der neueste zuerst. Suche und Einrasten nutzen ihn."""
+    staende = _ausfuehren(liste_staende)
+    if not staende:
+        typer.echo("Es ist noch kein Stand des Gewässernetzes geladen.")
+        typer.echo("Laden mit: befischung gewaessernetz laden --help")
+        return
+
+    typer.echo(f"{'Stand':<12}{'Fließgewässer':>15}{'Stehende':>10}  Geladen am")
+    for eintrag in staende:
+        typer.echo(
+            f"{eintrag.stand.isoformat():<12}{eintrag.anzahl_fliessgewaesser:>15}"
+            f"{eintrag.anzahl_stehende:>10}  {eintrag.geladen_am.astimezone():%Y-%m-%d %H:%M}"
+        )
 
 
 if __name__ == "__main__":

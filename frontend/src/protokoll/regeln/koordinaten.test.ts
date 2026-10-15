@@ -33,7 +33,9 @@ describe('pruefeKoordinaten', () => {
     expect(pruefeKoordinaten(mitKoordinaten({ utm_rw_unten: '  ' }))).toEqual([])
   })
 
-  it('accepts a value on either bound', () => {
+  /* The corners of the rectangle lie outside the state, so the border check
+     speaks up there. The rectangle itself must not. */
+  it('does not reject a value on either bound of the rectangle', () => {
     const anDenGrenzen: Antworten = {
       probestrecke: {
         utm_rw_unten: String(BW_GRENZEN.rechtswert.min),
@@ -42,7 +44,9 @@ describe('pruefeKoordinaten', () => {
         utm_hw_oben: String(BW_GRENZEN.hochwert.max),
       },
     }
-    expect(pruefeKoordinaten(anDenGrenzen)).toEqual([])
+    expect(new Set(schluessel(anDenGrenzen))).toEqual(
+      new Set(['protokoll.regeln.koordinateAusserhalbLandes']),
+    )
   })
 
   it('rejects a value below the minimum', () => {
@@ -121,5 +125,46 @@ describe('pruefeKoordinaten', () => {
       'probestrecke.utm_rw_oben',
       'probestrecke.utm_hw_oben',
     ])
+  })
+
+  /* Both inside the rectangle and outside the state, so only the border check
+     can catch them. Munich and Colmar would not do: the rectangle already does. */
+  describe('the border', () => {
+    const WUERZBURG = { utm_rw_unten: '566895', utm_hw_unten: '5515841' }
+    const STRASSBURG = { utm_rw_oben: '407876', utm_hw_oben: '5381721' }
+    const AUSSERHALB = 'protokoll.regeln.koordinateAusserhalbLandes'
+
+    it('rejects a point in Bavaria and names both its boxes', () => {
+      expect(pruefeKoordinaten(mitKoordinaten(WUERZBURG))).toEqual([
+        { pfad: 'probestrecke.utm_rw_unten', schluessel: AUSSERHALB },
+        { pfad: 'probestrecke.utm_hw_unten', schluessel: AUSSERHALB },
+      ])
+    })
+
+    it('checks both points', () => {
+      expect(pfade(mitKoordinaten({ ...WUERZBURG, ...STRASSBURG }))).toEqual([
+        'probestrecke.utm_rw_unten',
+        'probestrecke.utm_hw_unten',
+        'probestrecke.utm_rw_oben',
+        'probestrecke.utm_hw_oben',
+      ])
+    })
+
+    it('accepts the far bank of the Rhein at Kehl', () => {
+      expect(
+        pruefeKoordinaten(mitKoordinaten({ utm_rw_unten: '411403', utm_hw_unten: '5380353' })),
+      ).toEqual([])
+    })
+
+    it('says nothing about a point with one box empty', () => {
+      expect(pruefeKoordinaten({ probestrecke: { utm_rw_unten: '566895' } })).toEqual([])
+    })
+
+    /* The rectangle's message is the useful one; a second about the border
+       would only repeat it. */
+    it('says nothing more about a point whose box is already wrong', () => {
+      const vertauscht = mitKoordinaten({ utm_rw_unten: '5385000', utm_hw_unten: '512000' })
+      expect(schluessel(vertauscht)).not.toContain(AUSSERHALB)
+    })
   })
 })
