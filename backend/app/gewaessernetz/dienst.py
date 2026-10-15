@@ -9,6 +9,7 @@ Loading is a deploy step somebody runs, like migrating, and never happens when
 the application starts. app/cli.py is the only caller.
 """
 
+import uuid
 from collections.abc import Callable, Iterator, Sequence
 from datetime import date
 from itertools import islice
@@ -46,7 +47,7 @@ MONATE = {
 EINFUEGEN = text(
     "INSERT INTO gewaessernetz"
     " (id, stand, art, kennung, name, vorfluter_kennung, vorfluter_name, geometrie)"
-    " VALUES (gen_random_uuid(), :stand, :art, :kennung, :name, :vorfluter_kennung,"
+    " VALUES (:id, :stand, :art, :kennung, :name, :vorfluter_kennung,"
     f" :vorfluter_name, ST_Multi(ST_GeomFromWKB(:wkb, {SRID})))"
 )
 
@@ -54,13 +55,18 @@ Fortschritt = Callable[[Netzdatei, int], None]
 
 
 def stand_passt(stand: date, staende: frozenset[str]) -> bool:
-    """Whether every file names the month and year of the release date given.
+    """Whether the release date given is the first of the month every file names.
 
     The administrator types the date and the files carry only a month, so this is
     what catches loading the new download under last year's date, which would
     otherwise record the wrong release on every identifier taken from it.
+
+    The first of the month and no other day. The files say nothing finer than a
+    month, so any other day would be invented by whoever typed it, and the same
+    download given as 2025-05-01 and as 2025-05-15 would load twice as two
+    releases.
     """
-    if len(staende) != 1:
+    if stand.day != 1 or len(staende) != 1:
         return False
     teile = next(iter(staende)).lower().split()
     if len(teile) != 2 or not teile[1].isdigit():
@@ -125,6 +131,9 @@ def _stapel(eintraege: Iterator[Netzeintrag]) -> Iterator[list[Netzeintrag]]:
 
 def _zeile(stand: date, eintrag: Netzeintrag) -> dict[str, Any]:
     return {
+        # In Python, as every id in this schema is. The model's default does not
+        # apply to a statement written out as text.
+        "id": uuid.uuid4(),
         "stand": stand,
         "art": eintrag.art.value,
         "kennung": eintrag.kennung,

@@ -245,7 +245,7 @@ def _multilinie(form: Any, ungueltig: Ungueltig) -> bytes:
     linien = [teil for teil in _teile(form) if len(teil) >= 2]
     if not linien:
         raise ungueltig("keine Linie mit mindestens zwei Punkten")
-    return _wkb_multi(5, [_wkb_linie(linie) for linie in linien])
+    return _wkb_multi(WKB_MULTILINESTRING, [_wkb_linie(linie) for linie in linien])
 
 
 def _multiflaeche(form: Any, ungueltig: Ungueltig) -> bytes:
@@ -258,14 +258,19 @@ def _multiflaeche(form: Any, ungueltig: Ungueltig) -> bytes:
     else:
         raise ungueltig("keine Fläche")
     return _wkb_multi(
-        6, [_wkb_polygon([_punkte(ring) for ring in polygon]) for polygon in polygone]
+        WKB_MULTIPOLYGON,
+        [_wkb_polygon([_punkte(ring) for ring in polygon]) for polygon in polygone],
     )
 
 
 # Well-known binary, little-endian, written out by hand because it is twenty lines
 # and the alternative is a geometry library at run time for the sake of them.
-# Type codes from the OGC Simple Features specification: 2 LineString, 3 Polygon,
-# 5 MultiLineString, 6 MultiPolygon.
+# Type codes from the OGC Simple Features specification.
+WKB_LITTLE_ENDIAN = 1
+WKB_LINESTRING = 2
+WKB_POLYGON = 3
+WKB_MULTILINESTRING = 5
+WKB_MULTIPOLYGON = 6
 
 
 def _wkb_punkte(punkte: list[Punkt]) -> bytes:
@@ -273,12 +278,13 @@ def _wkb_punkte(punkte: list[Punkt]) -> bytes:
 
 
 def _wkb_linie(punkte: list[Punkt]) -> bytes:
-    return struct.pack("<BI", 1, 2) + _wkb_punkte(punkte)
+    return struct.pack("<BI", WKB_LITTLE_ENDIAN, WKB_LINESTRING) + _wkb_punkte(punkte)
 
 
 def _wkb_polygon(ringe: list[Ring]) -> bytes:
-    return struct.pack("<BII", 1, 3, len(ringe)) + b"".join(_wkb_punkte(ring) for ring in ringe)
+    kopf = struct.pack("<BII", WKB_LITTLE_ENDIAN, WKB_POLYGON, len(ringe))
+    return kopf + b"".join(_wkb_punkte(ring) for ring in ringe)
 
 
 def _wkb_multi(typ: int, teile: list[bytes]) -> bytes:
-    return struct.pack("<BII", 1, typ, len(teile)) + b"".join(teile)
+    return struct.pack("<BII", WKB_LITTLE_ENDIAN, typ, len(teile)) + b"".join(teile)

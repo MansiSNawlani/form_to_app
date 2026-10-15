@@ -48,7 +48,7 @@ from shapely.ops import unary_union
 
 from app.config import REPO_WURZEL
 from app.gewaessernetz.lesen import oeffne
-from app.models.gewaessernetz import Netzart
+from app.models.gewaessernetz import SRID, Netzart
 
 GEODATEN = REPO_WURZEL / "Resources" / "Geodaten"
 VG250 = GEODATEN / "vg250_01-01.utm32s.shape.ebenen.zip"
@@ -133,7 +133,7 @@ def als_json(flaeche: MultiPolygon) -> dict[str, Any]:
     return {
         "quelle": QUELLE,
         "veraenderung": VERAENDERUNG,
-        "srid": 25832,
+        "srid": SRID,
         "verbreiterung_m": VERBREITERUNG_M,
         "polygone": polygone,
     }
@@ -157,10 +157,10 @@ def main() -> int:
     if not vorhanden():
         print(FEHLT, file=sys.stderr)
         return 1
-    flaeche = landesflaeche(VG250, STEHENDE)
-    schreibe(als_json(flaeche), ZIEL)
-    punkte = sum(len(ring) for polygon in als_json(flaeche)["polygone"] for ring in polygon)
-    print(f"{ZIEL}: {len(flaeche.geoms)} Flächen, {punkte} Punkte, {ZIEL.stat().st_size} Bytes")
+    daten = als_json(landesflaeche(VG250, STEHENDE))
+    schreibe(daten, ZIEL)
+    punkte = sum(len(ring) for polygon in daten["polygone"] for ring in polygon)
+    print(f"{ZIEL}: {len(daten['polygone'])} Flächen, {punkte} Punkte, {ZIEL.stat().st_size} Bytes")
     return 0
 
 

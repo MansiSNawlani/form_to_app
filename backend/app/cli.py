@@ -87,7 +87,9 @@ from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 # closes its loop at the end, so any second one would be handed a connection
 # that no longer works. That is the failure found on 2026-09-07, and with
 # nothing pooled it cannot happen at all.
-_engine = create_async_engine(fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool)
+_engine = create_async_engine(
+    fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool
+)
 # expire_on_commit=False to match app/db.py. The protocol services commit part
 # way through and keep using the account they were handed; expiring it would turn
 # the next read into a lazy load, which async SQLAlchemy cannot do. The demo
@@ -571,7 +573,7 @@ def _absage_gewaessernetz(fehler: GewaessernetzFehler) -> tuple[str, ...]:
                 f"Die Dateien nennen den Stand {genannt}, angegeben war "
                 f"{fehler.stand.isoformat()}. {nichts}",
                 "",
-                "Das Datum angeben, das die LUBW für diese Veröffentlichung nennt,",
+                "Den Ersten des Monats angeben, den die Dateien nennen,",
                 "zum Beispiel --stand 2025-05-01 für Mai 2025.",
             )
         case StandBereitsGeladen():
@@ -594,7 +596,7 @@ def _fortschritt(datei: Netzdatei, geschrieben: int) -> None:
 @gewaessernetz_app.command("laden")
 def gewaessernetz_laden(
     stand: Annotated[
-        str, typer.Option(help="Das Datum der Veröffentlichung, zum Beispiel 2025-05-01.")
+        str, typer.Option(help="Der Erste des Monats der Veröffentlichung, etwa 2025-05-01.")
     ],
     fliessgewaesser: Annotated[
         Path, typer.Option(help="Fliessgewaessernetz.zip der LUBW, oder der entpackte Ordner.")

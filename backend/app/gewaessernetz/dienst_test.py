@@ -50,7 +50,7 @@ class TestStandPasst:
         ("stand", "staende", "passt"),
         [
             (date(2025, 5, 1), {"Mai 2025"}, True),
-            (date(2025, 5, 20), {"Mai 2025"}, True),
+            (date(2025, 5, 20), {"Mai 2025"}, False),
             (date(2025, 3, 1), {"März 2025"}, True),
             (date(2025, 6, 1), {"Mai 2025"}, False),
             (date(2026, 5, 1), {"Mai 2025"}, False),

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
 import type { AntwortPfad } from '../../entwurf/typen'
+import { PUNKTE } from '../../regeln/koordinaten'
 import { useNachpruefung } from '../../regeln/useNachpruefung'
 import { VORFLUTER_PFADE } from '../../regeln/vorfluter'
 
@@ -20,12 +21,12 @@ const ketteOhne = (geaendert: string) =>
    as a pair, and the message sits on both of its boxes. Correcting the Hochwert
    has to settle the Rechtswert's message too, so a change in one box rechecks
    the other box of the same point. */
-const KOORDINATENPAARE: Readonly<Record<string, AntwortPfad>> = {
-  'probestrecke.utm_rw_unten': 'probestrecke.utm_hw_unten',
-  'probestrecke.utm_hw_unten': 'probestrecke.utm_rw_unten',
-  'probestrecke.utm_rw_oben': 'probestrecke.utm_hw_oben',
-  'probestrecke.utm_hw_oben': 'probestrecke.utm_rw_oben',
-}
+const KOORDINATENPAARE: Readonly<Record<string, AntwortPfad>> = Object.fromEntries(
+  PUNKTE.flatMap(([rw, hw]) => [
+    [`probestrecke.${rw}`, `probestrecke.${hw}`],
+    [`probestrecke.${hw}`, `probestrecke.${rw}`],
+  ]),
+)
 const KOORDINATEN_PFADE = Object.keys(KOORDINATENPAARE) as AntwortPfad[]
 const anderesFeldDesPunkts = (geaendert: string) => [KOORDINATENPAARE[geaendert]]
 

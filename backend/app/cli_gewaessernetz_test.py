@@ -86,6 +86,13 @@ def test_ein_stand_der_nicht_zu_den_dateien_passt(dateien: tuple[Path, Path]) ->
     assert "Mai 2025" in ergebnis.output
 
 
+def test_ein_anderer_tag_im_selben_monat(dateien: tuple[Path, Path]) -> None:
+    ergebnis = laden(*dateien, stand="2025-05-15")
+
+    assert ergebnis.exit_code == 1
+    assert "Ersten des Monats" in ergebnis.output
+
+
 def test_ein_stand_der_kein_datum_ist(dateien: tuple[Path, Path]) -> None:
     ergebnis = laden(*dateien, stand="Mai 2025")
 

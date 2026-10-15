@@ -55,7 +55,7 @@ const FELDER: Koordinatenfeld[] = [
 export const GANZE_ZAHL = /^-?\d+$/
 
 /* The two boundary points, each as its Rechtswert and Hochwert box. */
-const PUNKTE = [
+export const PUNKTE = [
   ['utm_rw_unten', 'utm_hw_unten'],
   ['utm_rw_oben', 'utm_hw_oben'],
 ] as const
