@@ -112,7 +112,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   same release is refused and leaves the first untouched, a failure halfway leaves nothing behind,
   and two releases sit side by side.
 
-- [ ] **Step 4 - The command** - `befischung gewaessernetz laden --stand 2025-05-01
+- [x] **Step 4 - The command** - `befischung gewaessernetz laden --stand 2025-05-01
   --fliessgewaesser <zip> --stehende <zip>` and `befischung gewaessernetz liste`, messages in
   German naming the thing, the reason and the way out, as `cli.py` already does. Prints progress,
   the two counts and the time taken. *Done when:* `cli_test.py` covers success, the duplicate
