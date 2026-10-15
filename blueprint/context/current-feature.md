@@ -99,7 +99,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   unpaired `rw`, the response shape below, and `stand: null` with no results on an empty
   network; the endpoint shows in `/api/v1/docs`.
 
-- [ ] **Step 3 - The identifier in the answers and on the row** - `ZUSAETZLICHE_PFADE` gains the
+- [x] **Step 3 - The identifier in the answers and on the row** - `ZUSAETZLICHE_PFADE` gains the
   two paths, with the reason and a pointer to question 16. `zuordnung/regeln.py` reads them into
   `Gewaesserangaben`; `zuordnung/dienst.py` matches a protocol with an identifier on
   `amtliche_id` alone, and one without only against rows that have none. A new row carries both

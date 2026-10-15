@@ -361,3 +361,70 @@ async def test_die_drei_saetze_wissen_wann_sie_entstanden_sind(
     assert (await session.scalars(select(Gewaesser))).one().created_at is not None
     assert (await session.scalars(select(Probestrecke))).one().created_at is not None
     assert (await session.scalars(select(Person))).one().created_at is not None
+
+
+SCHUSSEN = {"amtliche_id": "2111000000000", "gis_dataset_version": "AWGN 2025-05-01"}
+
+
+async def test_eine_gewaehlte_kennung_steht_auf_dem_neuen_gewaesser(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    await ordne_zu(session, lies_umschlag(gewaesser(**SCHUSSEN)), besitzer)
+
+    gespeichert = (await session.scalars(select(Gewaesser))).one()
+    assert (gespeichert.amtliche_id, gespeichert.gis_dataset_version) == (
+        "2111000000000",
+        "AWGN 2025-05-01",
+    )
+
+
+async def test_dieselbe_kennung_ist_dasselbe_gewaesser(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    """The identifier is the identity, so a different chain does not split it.
+
+    The second protocol's own chain stays in its own answers; the row keeps the
+    first, since rows are never updated.
+    """
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    eine = await ordne_zu(session, lies_umschlag(gewaesser(**SCHUSSEN)), besitzer)
+    andere = await ordne_zu(
+        session,
+        lies_umschlag(gewaesser(**SCHUSSEN, vorfluter1="Rhein", vorfluter2="")),
+        besitzer,
+    )
+
+    assert eine.gewaesser_id == andere.gewaesser_id
+    assert await _zaehle(session, Gewaesser) == 1
+
+
+async def test_ein_getippter_name_bekommt_keine_kennung(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    """Refused, never guessed at: the typed Schussen is not given the picked
+    one's identifier, whichever is filed first. 18e proposes those matches."""
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    gewaehlt = await ordne_zu(session, lies_umschlag(gewaesser(**SCHUSSEN)), besitzer)
+    getippt = await ordne_zu(session, lies_umschlag(VOLLSTAENDIG), besitzer)
+
+    assert gewaehlt.gewaesser_id != getippt.gewaesser_id
+    ohne = await session.get(Gewaesser, getippt.gewaesser_id)
+    assert ohne is not None and ohne.amtliche_id is None
+
+
+async def test_eine_kennung_haengt_sich_nicht_an_ein_getipptes_gewaesser(
+    session: AsyncSession, konto: Callable[..., Awaitable[User]]
+) -> None:
+    """The other order. The typed row is left exactly as it was."""
+    besitzer = await konto(email="bergmann@ffs.de")
+
+    getippt = await ordne_zu(session, lies_umschlag(VOLLSTAENDIG), besitzer)
+    gewaehlt = await ordne_zu(session, lies_umschlag(gewaesser(**SCHUSSEN)), besitzer)
+
+    assert gewaehlt.gewaesser_id != getippt.gewaesser_id
+    ohne = await session.get(Gewaesser, getippt.gewaesser_id)
+    assert ohne is not None and ohne.amtliche_id is None

@@ -32,6 +32,20 @@ def test_ein_ausgefuelltes_protokoll_geht_durch() -> None:
     assert finde_verstoesse(GUELTIG) == ()
 
 
+def test_die_kennung_eines_gewaehlten_gewaessers_geht_durch() -> None:
+    """Feature 18c's two additions are answers like any other on save."""
+    gewaehlt = {
+        "probestrecke": {
+            "gewaesser": {
+                "gewaessername": "Schussen",
+                "amtliche_id": "2111000000000",
+                "gis_dataset_version": "AWGN 2025-05-01",
+            }
+        }
+    }
+    assert finde_verstoesse(gewaehlt) == ()
+
+
 def test_ein_leeres_protokoll_geht_durch() -> None:
     """A draft is incomplete by definition, and a brand new one holds nothing."""
     assert finde_verstoesse({}) == ()

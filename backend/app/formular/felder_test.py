@@ -70,7 +70,11 @@ def test_kennt_die_eingetragenen_zusaetze() -> None:
     save; one added here but not in the app is an allowance nobody is using. Both
     are worth failing on, which is why this asserts the whole set.
     """
-    assert ZUSAETZLICHE_PFADE == {"bearbeiter.ort"}
+    assert ZUSAETZLICHE_PFADE == {
+        "bearbeiter.ort",
+        "probestrecke.gewaesser.amtliche_id",
+        "probestrecke.gewaesser.gis_dataset_version",
+    }
     assert ZUSAETZLICHE_PFADE <= lade(FORMULAR_SEED).pfade
 
 

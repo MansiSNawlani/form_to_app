@@ -72,6 +72,10 @@ BEARBEITER_EMAIL = "bearbeiter.email"
 BEARBEITER_OPTIONAL = ("firma", "strasse", "plz", "ort", "telefon")
 
 GEWAESSERNAME = "probestrecke.gewaesser.gewaessername"
+# Written by picking a water from the official network (feature 18c), never by
+# typing. Named after the Gewaesser columns they end up in.
+AMTLICHE_ID = "probestrecke.gewaesser.amtliche_id"
+GIS_DATASET_VERSION = "probestrecke.gewaesser.gis_dataset_version"
 ORTSANGABE = "probestrecke.ortsangabe"
 GEWAESSERTYP = "probestrecke.gewaessertyp"
 LAENGE = "probestrecke.laenge"
@@ -115,17 +119,21 @@ class Gewaesserangaben:
 
     name: str
     vorfluter: tuple[str, ...]
+    #: The official identifier, when the surveyor picked the water from the
+    #: network. None for a water typed in, which is every one before 18c and
+    #: every one the network does not hold.
+    amtliche_id: str | None = None
+    gis_dataset_version: str | None = None
 
     @property
     def schluessel(self) -> tuple[str, ...]:
-        """What decides whether this is a water already on record.
+        """What decides whether a water typed in is one already on record.
 
         The name together with the whole chain. The name alone is not an
-        identity: Baden-Wuerttemberg has many a Muehlbach, and the authoritative
-        identifier that would settle it, Gewaesser.amtliche_id, stays empty until
-        feature 18. The chain is what places the water in the drainage network,
-        so a Muehlbach flowing to the Neckar and one flowing to the Iller are two
-        waters.
+        identity: Baden-Wuerttemberg has many a Muehlbach. The chain is what
+        places the water in the drainage network, so a Muehlbach flowing to the
+        Neckar and one flowing to the Iller are two waters. A picked water is
+        matched on amtliche_id instead, which settles it.
         """
         return (normalisiert(self.name), *(normalisiert(name) for name in self.vorfluter))
 
@@ -296,6 +304,8 @@ def lies_umschlag(antworten: Mapping[str, Any]) -> Umschlag:
     gewaesser = Gewaesserangaben(
         name=leser.text(GEWAESSERNAME),
         vorfluter=_kette(antworten, leser),
+        amtliche_id=leser.optional(AMTLICHE_ID),
+        gis_dataset_version=leser.optional(GIS_DATASET_VERSION),
     )
     probestrecke = Probestreckenangaben(
         monitoringstrecke_nr=leser.optional(MONITORINGNUMMER),
