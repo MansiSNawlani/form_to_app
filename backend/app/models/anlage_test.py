@@ -50,9 +50,7 @@ def anlage(protokoll: Submission, **felder: object) -> Attachment:
 
 
 @pytest.fixture
-async def protokoll(
-    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
-) -> Submission:
+async def protokoll(session: AsyncSession, anlegen: Callable[..., Awaitable[User]]) -> Submission:
     besitzer = await anlegen(email="bergmann@ffs.de")
     eintrag = entwurf(besitzer)
     session.add(eintrag)

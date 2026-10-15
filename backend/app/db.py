@@ -65,9 +65,7 @@ def fuer_asyncpg(url: str) -> str:
         return url
 
     behalten = [
-        (UMBENANNT.get(name, name), wert)
-        for name, wert in parameter
-        if name not in VERWORFEN
+        (UMBENANNT.get(name, name), wert) for name, wert in parameter if name not in VERWORFEN
     ]
     return urlunsplit(geteilt._replace(query=urlencode(behalten)))
 

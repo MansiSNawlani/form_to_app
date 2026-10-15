@@ -88,9 +88,7 @@ class Person(Base):
     # a record with no age is the odd one out. func.now() rather than the
     # clock_timestamp() attachments uses: nothing orders by this column, so rows
     # written in one transaction sharing a timestamp costs nothing.
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self) -> str:
         # The address, not the name. It is the identity this row is keyed on, and

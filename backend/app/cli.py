@@ -87,9 +87,7 @@ from app.security.passwoerter import PasswortZuKurz, PasswortZuLang
 # closes its loop at the end, so any second one would be handed a connection
 # that no longer works. That is the failure found on 2026-09-07, and with
 # nothing pooled it cannot happen at all.
-_engine = create_async_engine(
-    fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool
-)
+_engine = create_async_engine(fuer_asyncpg(str(get_settings().database_url)), poolclass=NullPool)
 # expire_on_commit=False to match app/db.py. The protocol services commit part
 # way through and keep using the account they were handed; expiring it would turn
 # the next read into a lazy load, which async SQLAlchemy cannot do. The demo

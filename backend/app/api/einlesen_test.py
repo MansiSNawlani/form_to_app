@@ -107,9 +107,7 @@ async def test_etwas_das_keine_pdf_ist(client: AsyncClient, angemeldet: None) ->
     assert antwort.json()["nachricht"].startswith("urlaubsfoto.jpg: ")
 
 
-async def test_ein_krebsprotokoll_sagt_was_es_ist(
-    client: AsyncClient, angemeldet: None
-) -> None:
+async def test_ein_krebsprotokoll_sagt_was_es_ist(client: AsyncClient, angemeldet: None) -> None:
     """Not "invalid form". The message names the form it probably is.
 
     The one refusal somebody will hit by picking the neighbouring file out of the
@@ -196,9 +194,7 @@ async def test_ein_unbekanntes_feld_steht_nicht_in_der_antwort(
     }
 
 
-async def test_die_bilder_der_datei_werden_gemeldet(
-    client: AsyncClient, angemeldet: None
-) -> None:
+async def test_die_bilder_der_datei_werden_gemeldet(client: AsyncClient, angemeldet: None) -> None:
     """Beside the violations, not among them.
 
     An attachment is part of the protocol, so a surveyor whose map excerpt did

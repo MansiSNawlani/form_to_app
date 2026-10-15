@@ -189,9 +189,7 @@ async def einlesen(
     )
     return EingelesenesProtokoll(
         protokoll=ProtokollAntwort.model_validate(
-            Protokollansicht.aus(
-                entwurf, eingereicht_von=benutzer.email, regierungspraesidium=None
-            )
+            Protokollansicht.aus(entwurf, eingereicht_von=benutzer.email, regierungspraesidium=None)
         ),
         bericht=EinleseAntwort.model_validate(bericht),
     )

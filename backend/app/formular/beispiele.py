@@ -101,9 +101,7 @@ def knopffelder() -> frozenset[str]:
     about the field names themselves: a list of 81 written out by hand is 81
     chances to miss one, and a missed one is a box that never gets ticked.
     """
-    return frozenset(
-        name for name, feld in felder(_leser()) if str(feld.get("/FT", "")) == "/Btn"
-    )
+    return frozenset(name for name, feld in felder(_leser()) if str(feld.get("/FT", "")) == "/Btn")
 
 
 def gefuellt(werte: Mapping[str, str]) -> bytes:
@@ -204,9 +202,7 @@ def mit_bild(*namen: str) -> bytes:
                 continue
             symbol = DecodedStreamObject()
             symbol.set_data(b"")
-            kind[NameObject("/MK")].update(
-                {NameObject("/I"): schreiber._add_object(symbol)}
-            )
+            kind[NameObject("/MK")].update({NameObject("/I"): schreiber._add_object(symbol)})
             gesucht.discard(f"fotos.{kind.get('/T')}")
 
     if gesucht:

@@ -157,7 +157,7 @@ class Submission(Base):
         # which is where jsonb_path_ops is asked for and why.
         Index(
             "ix_submissions_artcodes",
-            text("jsonb_path_query_array(antworten, '$.\"arten\".*.\"name\"'::jsonpath)"),
+            text('jsonb_path_query_array(antworten, \'$."arten".*."name"\'::jsonpath)'),
             postgresql_using="gin",
         ),
     )

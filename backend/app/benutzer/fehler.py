@@ -62,9 +62,7 @@ class RegierungspraesidiumUnzulaessig(BenutzerFehler):
 
     def __init__(self, regierungspraesidium: int) -> None:
         self.regierungspraesidium = regierungspraesidium
-        super().__init__(
-            f"Regierungspraesidium {regierungspraesidium} on a non-regional account"
-        )
+        super().__init__(f"Regierungspraesidium {regierungspraesidium} on a non-regional account")
 
 
 class RegierungspraesidiumAusserhalbBereich(BenutzerFehler):

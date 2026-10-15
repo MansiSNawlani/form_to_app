@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.anlage import Anlagenart
 from app.models.benutzer import Locale, Rolle
+from app.models.gewaessernetz import Netzart
 from app.models.protokoll import Status
 from app.protokolle.regeln import MAX_ZEICHEN_PRO_ANTWORT
 from app.protokolle.uebergang.regeln import Aktion
@@ -640,6 +641,30 @@ class EingelesenesProtokoll(BaseModel):
 
     protokoll: ProtokollAntwort
     bericht: EinleseAntwort
+
+
+class GewaessertrefferAntwort(BaseModel):
+    """One water the search found. Mirrors Treffer in app/gewaessernetz/suche.py,
+    which is where what each value promises is written down."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    kennung: str
+    art: Netzart
+    name: str
+    vorfluter_name: str | None
+    vorfluter: list[str] | None
+    entfernung_m: int | None
+
+
+class GewaessersucheAntwort(BaseModel):
+    """What the search found, and in which release. stand is null when nothing
+    is loaded, which the browser reads as "type the name freely"."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    stand: date | None
+    treffer: list[GewaessertrefferAntwort]
 
 
 # The values a refusal names: a number, a name, or a list of field paths.

@@ -142,9 +142,7 @@ class S3Speicher:
                 geschrieben += len(block)
             await asyncio.to_thread(puffer.seek, 0)
 
-            await asyncio.to_thread(
-                self._client.upload_fileobj, puffer, self.bucket, schluessel
-            )
+            await asyncio.to_thread(self._client.upload_fileobj, puffer, self.bucket, schluessel)
 
         return geschrieben
 

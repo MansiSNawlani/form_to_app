@@ -64,9 +64,7 @@ class TestWasDurchgeht:
 class TestAusserhalb:
     def test_weist_einen_wert_unter_dem_minimum_zurueck(self) -> None:
         zu_weit_westlich = str(RECHTSWERT_MIN - 1)
-        assert schluessel(mit_koordinaten(utm_rw_unten=zu_weit_westlich)) == [
-            RECHTSWERT_AUSSERHALB
-        ]
+        assert schluessel(mit_koordinaten(utm_rw_unten=zu_weit_westlich)) == [RECHTSWERT_AUSSERHALB]
 
     def test_weist_einen_wert_ueber_dem_maximum_zurueck(self) -> None:
         zu_weit_noerdlich = str(HOCHWERT_MAX + 1)

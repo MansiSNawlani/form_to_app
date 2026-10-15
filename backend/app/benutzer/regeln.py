@@ -97,9 +97,7 @@ def normalisiere_rollen(rollen: Sequence[Rolle]) -> list[Rolle]:
     return ohne_wiederholung
 
 
-def pruefe_regierungspraesidium(
-    rollen: Sequence[Rolle], regierungspraesidium: int | None
-) -> None:
+def pruefe_regierungspraesidium(rollen: Sequence[Rolle], regierungspraesidium: int | None) -> None:
     """The region number and the regional role require each other.
 
     Checked in this order on purpose. An account that should not carry a number

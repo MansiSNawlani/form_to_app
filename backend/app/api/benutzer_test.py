@@ -445,9 +445,7 @@ async def test_ein_neues_passwort_ersetzt_das_alte(
     await als_admin()
     frisch = await anlegen(email="extern@buero.de")
 
-    gesetzt = await client.put(
-        f"{PFAD}/{frisch.id}/passwort", json={"passwort": NEUES_PASSWORT}
-    )
+    gesetzt = await client.put(f"{PFAD}/{frisch.id}/passwort", json={"passwort": NEUES_PASSWORT})
     assert gesetzt.status_code == 200, gesetzt.text
     assert NEUES_PASSWORT not in gesetzt.text
 
@@ -481,9 +479,7 @@ async def test_ein_passwort_fuer_ein_unbekanntes_konto_ist_nicht_gefunden(
 ) -> None:
     await als_admin()
 
-    antwort = await client.put(
-        f"{PFAD}/{uuid.uuid4()}/passwort", json={"passwort": NEUES_PASSWORT}
-    )
+    antwort = await client.put(f"{PFAD}/{uuid.uuid4()}/passwort", json={"passwort": NEUES_PASSWORT})
 
     assert antwort.status_code == 404
     assert antwort.json()["code"] == "KONTO_NICHT_GEFUNDEN"

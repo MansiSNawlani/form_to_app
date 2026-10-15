@@ -1,10 +1,8 @@
-from datetime import date
-
 import pytest
-from geoalchemy2 import WKTElement
 from sqlalchemy import literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gewaessernetz.beispiele import ENZ, MAI_2025, MAI_2026, fliess, netz, see, stand
 from app.gewaessernetz.suche import (
     MAX_TREFFER,
     kette_fuer_formular,
@@ -12,14 +10,7 @@ from app.gewaessernetz.suche import (
     suchform,
     suchform_sql,
 )
-from app.models.gewaessernetz import SRID, Gewaessernetz, GewaessernetzStand, Netzart
-
-MAI_2025 = date(2025, 5, 1)
-MAI_2026 = date(2026, 5, 1)
-
-RHEIN = "2000000000000"
-NECKAR = "2380000000000"
-ENZ = "2384000000000"
+from app.models.gewaessernetz import Netzart
 
 
 class TestSuchform:
@@ -58,58 +49,6 @@ class TestKetteFuerFormular:
 
     def test_keine_kette(self) -> None:
         assert kette_fuer_formular([]) is None
-
-
-async def stand(session: AsyncSession, tag: date = MAI_2025) -> None:
-    session.add(GewaessernetzStand(stand=tag, anzahl_fliessgewaesser=0, anzahl_stehende=0))
-    await session.flush()
-
-
-def fliess(
-    kennung: str,
-    name: str,
-    vorfluter: str | None = None,
-    vorfluter_name: str | None = None,
-    rw: int = 500000,
-    hw: int = 5400000,
-    tag: date = MAI_2025,
-) -> Gewaessernetz:
-    return Gewaessernetz(
-        stand=tag,
-        art=Netzart.FLIESSGEWAESSER,
-        kennung=kennung,
-        name=name,
-        vorfluter_kennung=vorfluter,
-        vorfluter_name=vorfluter_name,
-        geometrie=WKTElement(f"MULTILINESTRING(({rw} {hw}, {rw + 100} {hw}))", srid=SRID),
-    )
-
-
-def see(kennung: str, name: str, rw: int = 500000, hw: int = 5400000) -> Gewaessernetz:
-    return Gewaessernetz(
-        stand=MAI_2025,
-        art=Netzart.STEHENDES_GEWAESSER,
-        kennung=kennung,
-        name=name,
-        geometrie=WKTElement(
-            f"MULTIPOLYGON((({rw} {hw}, {rw} {hw + 50}, {rw + 50} {hw + 50}, {rw} {hw})))",
-            srid=SRID,
-        ),
-    )
-
-
-def flussnetz() -> list[Gewaessernetz]:
-    return [
-        fliess(RHEIN, "Rhein"),
-        fliess(NECKAR, "Neckar", RHEIN, "Rhein"),
-        fliess(ENZ, "Enz", NECKAR, "Neckar"),
-    ]
-
-
-async def netz(session: AsyncSession, *gewaesser: Gewaessernetz) -> None:
-    await stand(session)
-    session.add_all([*flussnetz(), *gewaesser])
-    await session.flush()
 
 
 class TestSuchformInSql:

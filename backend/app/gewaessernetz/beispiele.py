@@ -6,10 +6,15 @@ need them. They carry the same columns, codepage and shape types as LUBW's real
 that Resources/ would otherwise have to hold.
 """
 
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 import shapefile
+from geoalchemy2 import WKTElement
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.gewaessernetz import SRID, Gewaessernetz, GewaessernetzStand, Netzart
 
 # What LUBW ships, shortened. ArcGIS writes the ESRI form of the name.
 PRJ_UTM32 = (
@@ -99,3 +104,66 @@ def stehende(
             )
     schreibe_prj(basis, prj)
     return basis.with_suffix(".shp")
+
+
+# Rows rather than files, for the tests that search the network rather than load
+# it: a three-river drainage network the size of a test, with real identifiers.
+
+MAI_2025 = date(2025, 5, 1)
+MAI_2026 = date(2026, 5, 1)
+
+RHEIN = "2000000000000"
+NECKAR = "2380000000000"
+ENZ = "2384000000000"
+
+
+async def stand(session: AsyncSession, tag: date = MAI_2025) -> None:
+    session.add(GewaessernetzStand(stand=tag, anzahl_fliessgewaesser=0, anzahl_stehende=0))
+    await session.flush()
+
+
+def fliess(
+    kennung: str,
+    name: str,
+    vorfluter: str | None = None,
+    vorfluter_name: str | None = None,
+    rw: int = 500000,
+    hw: int = 5400000,
+    tag: date = MAI_2025,
+) -> Gewaessernetz:
+    return Gewaessernetz(
+        stand=tag,
+        art=Netzart.FLIESSGEWAESSER,
+        kennung=kennung,
+        name=name,
+        vorfluter_kennung=vorfluter,
+        vorfluter_name=vorfluter_name,
+        geometrie=WKTElement(f"MULTILINESTRING(({rw} {hw}, {rw + 100} {hw}))", srid=SRID),
+    )
+
+
+def see(kennung: str, name: str, rw: int = 500000, hw: int = 5400000) -> Gewaessernetz:
+    return Gewaessernetz(
+        stand=MAI_2025,
+        art=Netzart.STEHENDES_GEWAESSER,
+        kennung=kennung,
+        name=name,
+        geometrie=WKTElement(
+            f"MULTIPOLYGON((({rw} {hw}, {rw} {hw + 50}, {rw + 50} {hw + 50}, {rw} {hw})))",
+            srid=SRID,
+        ),
+    )
+
+
+def flussnetz() -> list[Gewaessernetz]:
+    return [
+        fliess(RHEIN, "Rhein"),
+        fliess(NECKAR, "Neckar", RHEIN, "Rhein"),
+        fliess(ENZ, "Enz", NECKAR, "Neckar"),
+    ]
+
+
+async def netz(session: AsyncSession, *gewaesser: Gewaessernetz) -> None:
+    await stand(session)
+    session.add_all([*flussnetz(), *gewaesser])
+    await session.flush()

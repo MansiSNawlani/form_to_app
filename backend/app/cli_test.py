@@ -68,9 +68,7 @@ def _konto(factory: async_sessionmaker[AsyncSession], email: str) -> User | None
     return _abfragen(factory, lambda session: finde_nach_email(session, email))
 
 
-def _anlegen(
-    *argumente: str, passwort: str = PASSWORT, wiederholung: str | None = None
-) -> Result:
+def _anlegen(*argumente: str, passwort: str = PASSWORT, wiederholung: str | None = None) -> Result:
     eingaben = f"{passwort}\n{passwort if wiederholung is None else wiederholung}\n"
     return runner.invoke(cli.app, ["benutzer", "anlegen", *argumente], input=eingaben)
 

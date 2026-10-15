@@ -181,6 +181,4 @@ def bewerte_gruppe(gruppe: Prozentgruppe, antworten: Mapping[str, Any]) -> list[
 
 
 def pruefe_prozentgruppen(antworten: Mapping[str, Any]) -> list[Formverstoss]:
-    return [
-        verstoss for gruppe in PROZENTGRUPPEN for verstoss in bewerte_gruppe(gruppe, antworten)
-    ]
+    return [verstoss for gruppe in PROZENTGRUPPEN for verstoss in bewerte_gruppe(gruppe, antworten)]

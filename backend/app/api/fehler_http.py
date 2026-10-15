@@ -304,9 +304,7 @@ def _antwort(
         code=code,
         nachricht=nachricht,
         verstoesse=(
-            None
-            if verstoesse is None
-            else [VerstossAntwort.model_validate(v) for v in verstoesse]
+            None if verstoesse is None else [VerstossAntwort.model_validate(v) for v in verstoesse]
         ),
         werte=werte or None,
     )
@@ -662,9 +660,7 @@ def _anlagen_zusatz(fehler: AnlageFehler) -> str:
         )
 
     if isinstance(fehler, AnlagenartVoll):
-        return ART_SATZ[fehler.art].format(
-            vorhanden=fehler.vorhanden, hoechstens=fehler.hoechstens
-        )
+        return ART_SATZ[fehler.art].format(vorhanden=fehler.vorhanden, hoechstens=fehler.hoechstens)
 
     return ""
 

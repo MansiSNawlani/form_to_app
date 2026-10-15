@@ -187,9 +187,7 @@ async def test_die_reihenfolge_ist_auch_bei_gleicher_zeit_eindeutig(
 
     zeilen = await liste_protokolle(session, besitzer=besitzer)
 
-    assert [zeile.id for zeile in zeilen] == sorted(
-        (zeile.id for zeile in zeilen), reverse=True
-    )
+    assert [zeile.id for zeile in zeilen] == sorted((zeile.id for zeile in zeilen), reverse=True)
 
 
 async def test_die_liste_liest_die_anzeigewerte_aus_den_antworten(

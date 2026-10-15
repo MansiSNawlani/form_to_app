@@ -45,9 +45,7 @@ async def test_status_sagt_aus_wenn_der_schalter_aus_ist(
     assert antwort.json() == {"aktiv": False}
 
 
-async def test_status_sagt_an_wenn_der_schalter_an_ist(
-    demo_an: None, client: AsyncClient
-) -> None:
+async def test_status_sagt_an_wenn_der_schalter_an_ist(demo_an: None, client: AsyncClient) -> None:
     antwort = await client.get("/api/v1/anmeldung/demo")
 
     assert antwort.json() == {"aktiv": True}
@@ -102,9 +100,7 @@ async def test_super_admin_gibt_es_als_demo_nicht(
     assert "set-cookie" not in antwort.headers
 
 
-async def test_fehlende_demokonten_werden_benannt(
-    demo_an: None, client: AsyncClient
-) -> None:
+async def test_fehlende_demokonten_werden_benannt(demo_an: None, client: AsyncClient) -> None:
     antwort = await client.post("/api/v1/anmeldung/demo", json={"rolle": "REVIEWER"})
 
     assert antwort.status_code == 503

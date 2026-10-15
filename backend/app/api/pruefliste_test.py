@@ -62,9 +62,7 @@ def als(
 
 
 class TestWerHineindarf:
-    @pytest.mark.parametrize(
-        "rolle", [Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN]
-    )
+    @pytest.mark.parametrize("rolle", [Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN])
     async def test_laesst_ffs_personal_hinein(
         self, client: AsyncClient, als: Callable[..., Awaitable[None]], rolle: Rolle
     ) -> None:
@@ -272,9 +270,7 @@ class TestFilterparameter:
         protokoll_id = await eingereichtes_protokoll()
         await als("lehmann@ffs.de", Rolle.REVIEWER)
 
-        antwort = await client.get(
-            PFAD, params=[("status", "SUBMITTED"), ("status", "IN_REVIEW")]
-        )
+        antwort = await client.get(PFAD, params=[("status", "SUBMITTED"), ("status", "IN_REVIEW")])
 
         assert antwort.status_code == 200
         assert [zeile["id"] for zeile in antwort.json()["zeilen"]] == [protokoll_id]
@@ -480,9 +476,7 @@ class TestNachbarn:
         assert antwort.status_code == 200
         return [zeile["id"] for zeile in antwort.json()["zeilen"]]
 
-    @pytest.mark.parametrize(
-        "rolle", [Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN]
-    )
+    @pytest.mark.parametrize("rolle", [Rolle.REVIEWER, Rolle.DATA_STEWARD, Rolle.SUPER_ADMIN])
     async def test_laesst_ffs_personal_hinein(
         self,
         client: AsyncClient,
@@ -592,9 +586,7 @@ class TestNachbarn:
         await als("lehmann@ffs.de", Rolle.REVIEWER)
         ids = await self.reihenfolge(client)
 
-        antwort = await client.get(
-            f"{PFAD}/nachbarn/{ids[0]}", params={"status": "REJECTED"}
-        )
+        antwort = await client.get(f"{PFAD}/nachbarn/{ids[0]}", params={"status": "REJECTED"})
 
         assert antwort.status_code == 200
         assert antwort.json() == {
@@ -629,8 +621,6 @@ class TestNachbarn:
         # The same refusal the list gives, because it is the same parameter.
         await als("lehmann@ffs.de", Rolle.REVIEWER)
 
-        antwort = await client.get(
-            f"{PFAD}/nachbarn/{uuid.uuid4()}", params={"status": "DRAFT"}
-        )
+        antwort = await client.get(f"{PFAD}/nachbarn/{uuid.uuid4()}", params={"status": "DRAFT"})
 
         assert antwort.status_code == 422

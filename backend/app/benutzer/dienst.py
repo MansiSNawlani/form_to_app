@@ -163,9 +163,7 @@ async def finde_nach_id(session: AsyncSession, benutzer_id: uuid.UUID) -> User |
     return gefunden
 
 
-async def zaehle_andere_aktive_super_admins(
-    session: AsyncSession, *, ausser: uuid.UUID
-) -> int:
+async def zaehle_andere_aktive_super_admins(session: AsyncSession, *, ausser: uuid.UUID) -> int:
     """How many active Super Admins there are apart from this one account.
 
     The number pruefe_super_admin_bleibt needs. Counted rather than fetched,
@@ -390,9 +388,7 @@ async def melde_an(session: AsyncSession, *, email: str, passwort: str) -> User:
     return benutzer
 
 
-async def _erneuere_hash_falls_noetig(
-    session: AsyncSession, benutzer: User, passwort: str
-) -> None:
+async def _erneuere_hash_falls_noetig(session: AsyncSession, benutzer: User, passwort: str) -> None:
     """Store a stronger hash when the settings have moved on since this one was made.
 
     A stored hash keeps its own settings forever, so without this an account

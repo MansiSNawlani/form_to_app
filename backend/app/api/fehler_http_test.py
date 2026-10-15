@@ -96,9 +96,7 @@ async def test_die_liste_der_felder_bleibt_lesbar() -> None:
     A few are named and the rest are counted, which is enough to work with and
     still fits in a message somebody will read.
     """
-    verstoesse = tuple(
-        Verstoss(f"erfunden{n}", Verstossgrund.UNBEKANNT) for n in range(20)
-    )
+    verstoesse = tuple(Verstoss(f"erfunden{n}", Verstossgrund.UNBEKANNT) for n in range(20))
 
     _, koerper = await antworte(AntwortenUngueltig(verstoesse))
 
@@ -285,9 +283,7 @@ async def test_ein_zu_grosses_protokoll_schickt_beide_zahlen() -> None:
 
 
 async def test_ungueltige_antworten_schicken_anzahl_und_einige_felder() -> None:
-    verstoesse = tuple(
-        Verstoss(f"erfunden{n:02}", Verstossgrund.UNBEKANNT) for n in range(20)
-    )
+    verstoesse = tuple(Verstoss(f"erfunden{n:02}", Verstossgrund.UNBEKANNT) for n in range(20))
 
     _, koerper = await antworte(AntwortenUngueltig(verstoesse))
 

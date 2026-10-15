@@ -64,9 +64,7 @@ def pruefe_vorfluterkette(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     ende = letzter_index if ende_index == -1 else ende_index
 
     verstoesse = [
-        Formverstoss(VORFLUTER_PFADE[index], LUECKE)
-        for index in range(ende)
-        if not gefuellt[index]
+        Formverstoss(VORFLUTER_PFADE[index], LUECKE) for index in range(ende) if not gefuellt[index]
     ]
 
     if ende_index == -1:

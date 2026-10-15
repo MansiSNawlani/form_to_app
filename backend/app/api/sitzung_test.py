@@ -60,9 +60,7 @@ async def test_ich_mit_verfaelschtem_cookie_ist_401(
     assert (await client.get("/api/v1/ich")).status_code == 401
 
 
-async def test_ich_mit_abgelaufenem_cookie_ist_401(
-    anlegen: Anlegen, client: AsyncClient
-) -> None:
+async def test_ich_mit_abgelaufenem_cookie_ist_401(anlegen: Anlegen, client: AsyncClient) -> None:
     benutzer = await anlegen()
     _setze_cookie(
         client,

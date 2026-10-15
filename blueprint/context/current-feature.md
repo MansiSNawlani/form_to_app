@@ -92,7 +92,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   searched, and an empty result when nothing is loaded. Against the real release, `Mühlbach`
   with and without a point is timed (Evidence); under 150 ms means no index.
 
-- [ ] **Step 2 - The endpoint** - `app/api/gewaessernetz.py`: `GET /api/v1/gewaessernetz/suche?q=
+- [x] **Step 2 - The endpoint** - `app/api/gewaessernetz.py`: `GET /api/v1/gewaessernetz/suche?q=
   &rw=&hw=`, `rw` and `hw` repeatable in pairs (up to the stretch's two points), signed-in only,
   `q` at least 2 characters after trimming. Pydantic schemas in `schemas.py`. Router stays thin.
   *Done when:* API tests prove 401 without a session, 422 for a one-letter `q` and for an
