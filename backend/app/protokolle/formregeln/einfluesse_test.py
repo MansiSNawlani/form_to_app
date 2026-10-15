@@ -65,7 +65,9 @@ class TestEineBlankettantwortAllein:
 class TestBeideBlankettantworten:
     def test_meldet_beide_zugleich(self) -> None:
         # "There are none" and "we do not know" are different claims.
-        verstoesse = pruefe_einfluesse(einfluesse(keine_einfluesse=JA, unbekannt_einfluesse=JA))
+        verstoesse = pruefe_einfluesse(
+            einfluesse(keine_einfluesse=JA, unbekannt_einfluesse=JA)
+        )
         assert [(v.pfad, v.schluessel) for v in verstoesse] == [
             ("widerspruch.einfluesse", BEIDE_BLANKETT)
         ]

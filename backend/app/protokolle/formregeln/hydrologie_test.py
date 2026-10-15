@@ -103,7 +103,9 @@ class TestStillgewaesser:
 
     def test_meldet_jedes_beantwortete_feld(self) -> None:
         ein_fluss_auf_einem_teich = protokoll("26", **{feld: "2" for feld in MARKIERTE_FELDER})
-        assert schluessel(ein_fluss_auf_einem_teich) == [BEI_STILLGEWAESSER] * len(MARKIERTE_FELDER)
+        assert schluessel(ein_fluss_auf_einem_teich) == [BEI_STILLGEWAESSER] * len(
+            MARKIERTE_FELDER
+        )
 
     def test_weist_einen_gesetzten_haken_auf_einem_stillgewaesser_zurueck(self) -> None:
         # There is no 0 for a checkbox, so not ticked is the whole of what one
