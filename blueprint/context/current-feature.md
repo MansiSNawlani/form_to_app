@@ -30,7 +30,7 @@ below are facts, not guesses.
 | Download | `https://rips-datenlink.lubw.de/UDO_download/Fliessgewaessernetz.zip` (80 MB) | `https://rips-datenlink.lubw.de/UDO_download/StehendeGewaesser.zip` (10 MB) |
 | Shape type | 23, **PolyLineM** (lines carrying a measure) | 5, Polygon, some multipart |
 | Records | 20 421, **one per water**, no grouping needed | 11 509 |
-| Identifier | `GEW_KENNZA`, a **float** in the DBF (`2381333920000.000…`), always 13 digits, unique | `SEE_ID`, a float (`7174.000…`), unique |
+| Identifier | `GEW_KENNZA`, a **float** in the DBF (`2381333920000.0`, with fifteen decimal places), always 13 digits, unique | `SEE_ID`, a float (`7174.0`), unique |
 | Name | `GEW_NAME`, never empty | `LANGNAME`; 9 879 of them are placeholders like `NN-YBP` |
 | Also useful | `VOR_GEW_KE`, `VOR_GEW_NA` (the receiving water's GKZ and name) | `FGKZ_NR` (GKZ of the catchment it lies in) |
 | Release | `STAND_FACH` = `Mai 2025` | same |
@@ -190,7 +190,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 | Column | Type | Notes |
 |---|---|---|
-| `stand` | date, primary key | The release date, `2025-05-01`. Written to `Gewaesser.gis_dataset_version` as `AWGN 2025-05-01` by 18c and 18e |
+| `stand` | date, primary key | The first of the month the files name, `2025-05-01` for `Mai 2025`; any other day is refused, so one release cannot load twice under two dates. Written to `Gewaesser.gis_dataset_version` as `AWGN 2025-05-01` by 18c and 18e |
 | `geladen_am` | timestamptz | The newest `stand` (by the date it names, not by `geladen_am`) is what search and snapping use |
 | `anzahl_fliessgewaesser`, `anzahl_stehende` | int | Recorded at load, shown by `liste` |
 
@@ -212,9 +212,15 @@ is loaded whole or not at all.
 `database/seed/landesgrenze/landesgrenze_bw.json`:
 
 ```
-{ "quelle": "...", "stand": "...", "lizenz": "...", "verbreiterung_m": 2000,
-  "polygone": [ [ [[rw, hw], ...], [[rw, hw], ...] ], ... ] }
+{ "quelle": "<both datasets, their releases and licences, in words>",
+  "veraenderung": "<the Veraenderungshinweis dl-de/by-2-0 asks for>",
+  "srid": 25832, "verbreiterung_m": 2000,
+  "polygone": [ [ <outer ring>, <hole>, <hole> ], [ <outer ring> ] ] }
 ```
+
+Each ring is a list of `[rw, hw]` pairs. The release and the licence sit inside `quelle` rather
+than in keys of their own, because the file draws on two datasets with two of each; the code reads
+only `polygone` and `verbreiterung_m`.
 
 Each polygon is its outer ring followed by any holes, integer metres in EPSG:25832.
 
@@ -270,7 +276,15 @@ The real-data load is evidence, not a test, because the archives are not in the 
 - **The border is one polygon with one hole.** Büsingen merges into the state once widened, and
   the hole is the Hessian enclave in the Neckar valley around Neckarsteinach, more than 2 km from
   any part of Baden-Württemberg. 855 points, 15 KB.
-- **`stand` is a date, not text** as first drafted, so "the newest release" is an ORDER BY.
+- **`stand` is a date, not text** as first drafted, so "the newest release" is an ORDER BY. The
+  code review found that the files name only a month, so `2025-05-01` and `2025-05-15` would have
+  loaded the same download twice; the date must now be the first of the month.
+- **Row ids are written by Python**, as every id in this schema is. The first version let the
+  database generate them, because the insert is written as SQL text and the model's default does
+  not apply to it; the code review caught it.
+- **The flow diagrams are about the frontend and the save path**, so the network table and the
+  load command, which neither touches, have no place in them. What changed in them is the border
+  file both halves of the coordinate check read.
 - **A cross-field message went stale.** With the message on both boxes of a point, correcting the
   Hochwert left the Rechtswert's message standing, because React Hook Form rechecks only the box
   being edited. `ProbestreckeBlock.tsx` now rechecks the other box of the same point through the
@@ -292,7 +306,7 @@ The real-data load is evidence, not a test, because the archives are not in the 
 - **Container:** the rebuilt backend image reads `/srv/seed/landesgrenze/landesgrenze_bw.json` and
   refuses a point in Würzburg on both boxes.
 - **Tests:** backend 1 780 passed, 85 skipped; frontend 1 526 passed; `ruff`, `mypy`, `oxlint` and
-  `npm run build` clean. `npm run e2e` for `karte.spec.ts`: 4 passed, including the new border
+  `npm run build` clean. `npm run e2e` for `karte.spec.ts`: 4 passed, again after the review fixes, including the new border
   test, run with a throwaway submitter `pruefung-18b@test.de` on the development database. The
   other e2e specs need the reviewer and admin accounts, whose password is not in this
   environment, and were not run.

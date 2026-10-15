@@ -102,6 +102,11 @@ note right of Zod
   normal state of this form and is saved exactly as typed."
   The real gate is the backend Pydantic model (step 19) and,
   for SUBMIT specifically, the domain rules in protokolle/regeln.py.
+  One rule reads a file rather than only the answers: the
+  coordinate check (regeln/koordinaten.ts here, formregeln/
+  koordinaten.py on the server) tests each boundary point against
+  database/seed/landesgrenze/landesgrenze_bw.json, the same file
+  on both sides, since feature 18b.
 end note
 
 ' ------------------------------------------------------------------------------

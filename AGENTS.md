@@ -240,8 +240,8 @@ is a deploy step like migrating, never something the service does on start.
   `befischung gewaessernetz laden --stand 2025-05-01 --fliessgewaesser ../Resources/Geodaten/Fliessgewaessernetz.zip --stehende ../Resources/Geodaten/StehendeGewaesser.zip`
 - What is loaded: `befischung gewaessernetz liste`
 
-`--stand` is the date LUBW gives the release, and the command refuses it when the files
-name a different month. A release is loaded whole or not at all, a release already
+`--stand` is the first of the month LUBW gives the release, `Mai 2025` in the files, and
+the command refuses any other day and any other month. A release is loaded whole or not at all, a release already
 loaded is refused, and an older one stays beside a newer one. The 2025-05-01 release is
 20 421 flowing and 11 509 standing waters, takes about 15 seconds from the host and
 about 95 MB in the database. Run it from the host against `localhost:5432` rather than
