@@ -149,7 +149,8 @@ def schreibe(daten: dict[str, Any], ziel: Path) -> None:
         komma = "," if i < len(daten["polygone"]) - 1 else ""
         zeilen.append(f" [\n  {ringe}\n ]{komma}")
     zeilen.append("]}")
-    ziel.write_text("\n".join(zeilen) + "\n", encoding="utf-8")
+    # newline="\n" so the file is the same bytes on Windows as everywhere else.
+    ziel.write_text("\n".join(zeilen) + "\n", encoding="utf-8", newline="\n")
 
 
 def main() -> int:
