@@ -81,3 +81,16 @@ class StandBereitsGeladen(GewaessernetzFehler):
     def __init__(self, stand: date) -> None:
         self.stand = stand
         super().__init__(f"Stand {stand} ist bereits geladen")
+
+
+class StandPasstNicht(GewaessernetzFehler):
+    """The release date given does not match what the files say they are.
+
+    staende is every STAND_FACH value found in the two files, so the message can
+    say what the files do claim to be.
+    """
+
+    def __init__(self, stand: date, staende: frozenset[str]) -> None:
+        self.stand = stand
+        self.staende = staende
+        super().__init__(f"Stand {stand} passt nicht zu {sorted(staende)}")

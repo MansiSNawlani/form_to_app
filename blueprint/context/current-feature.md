@@ -104,7 +104,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   a PolyLineM comes out without its measure; reading the real archive yields 20 421 and 11 509
   records (run by hand, recorded in Evidence).
 
-- [ ] **Step 3 - Loading a release** - `app/gewaessernetz/dienst.py`: `lade_stand(session,
+- [x] **Step 3 - Loading a release** - `app/gewaessernetz/dienst.py`: `lade_stand(session,
   stand, fliessgewaesser, stehende)` inserts the release row and every water in one transaction,
   in batches, and raises `StandBereitsGeladen` for a release already present. Geometry goes in
   through `ST_Multi(ST_GeomFromWKB(:wkb, 25832))`. *Done when:* database tests (skipping when no
