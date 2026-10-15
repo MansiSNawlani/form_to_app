@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import de from './locales/de.json'
 import en from './locales/en.json'
 import { BW_GRENZEN } from '../protokoll/regeln/koordinaten'
+import { RAND_KM } from '../protokoll/regeln/landesgrenze'
 import { ERLAUBTE_FORMATE, MAX_MB } from '../protokoll/anlagen/regeln'
 import { FALLBACK_LOCALE, SUPPORTED_LOCALES, type Locale } from './sprachen'
 
@@ -85,6 +86,8 @@ void i18n.use(initReactI18next).init({
       rechtswertMax: BW_GRENZEN.rechtswert.max,
       hochwertMin: BW_GRENZEN.hochwert.min,
       hochwertMax: BW_GRENZEN.hochwert.max,
+      // The margin around the border, read out of the border file itself.
+      randKm: RAND_KM,
       /* Feature 10's attachment limits, here for the same reason as the bounds
          above: the section's hint and three of its refusal messages name the
          accepted formats and the size cap, and a locale file that spelled them

@@ -141,7 +141,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   2 km) pass; Colmar, Munich, Würzburg, Zürich and Frankfurt are refused; every existing backend test still passes,
   including the demo, import and e2e fixture protocols.
 
-- [ ] **Step 7 - The browser rule and the map** - `regeln/landesgrenze.ts` reading the same JSON
+- [x] **Step 7 - The browser rule and the map** - `regeln/landesgrenze.ts` reading the same JSON
   file (`vite.config.ts` widens its existing allow entry from `form_version_20260609` to
   `database/seed`), the same algorithm and the same test cases as step 6, ported case for case.
   `koordinaten.ts` and `karte/umrechnung.ts` use it, so the marker vanishes for a point outside

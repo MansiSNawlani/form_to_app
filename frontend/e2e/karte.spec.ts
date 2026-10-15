@@ -51,6 +51,28 @@ test('eingetippte Koordinaten setzen die Marke', async ({ page }) => {
   await expect(marke).toHaveCount(0)
 })
 
+/* Wuerzburg sits inside the old rectangle, so only the real border, since feature
+   18b, catches it. Kehl is on the French half of the Rhein, within the 2 km margin. */
+test('ein Punkt ausserhalb des Landes bekommt eine Meldung und keine Marke', async ({ page }) => {
+  await abschnitt1MitKarte(page)
+  const marke = page.getByRole('img', { name: 'Untere Grenze' })
+  const meldung = page.getByText('Dieser Punkt liegt mehr als 2 km außerhalb Baden-Württembergs.', {
+    exact: false,
+  })
+
+  await page.getByLabel('Untere Grenze, Rechtswert').fill('566895')
+  await page.getByLabel('Untere Grenze, Hochwert').fill('5515841')
+  await page.getByLabel('Untere Grenze, Hochwert').blur()
+  await expect(meldung).toHaveCount(2)
+  await expect(marke).toHaveCount(0)
+
+  await page.getByLabel('Untere Grenze, Rechtswert').fill('411403')
+  await page.getByLabel('Untere Grenze, Hochwert').fill('5380353')
+  await page.getByLabel('Untere Grenze, Hochwert').blur()
+  await expect(meldung).toHaveCount(0)
+  await expect(marke).toBeVisible()
+})
+
 test('ein Klick in die Karte fuellt die untere Grenze', async ({ page }) => {
   const flaeche = await abschnitt1MitKarte(page)
   const wahl = page.getByRole('group', { name: 'Ein Klick in die Karte setzt die' })
