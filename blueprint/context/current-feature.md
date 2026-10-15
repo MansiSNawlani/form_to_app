@@ -1,196 +1,260 @@
-# Fix: Refused answers marked at the field
+# Feature: Gewässersuche
 
-**Type:** Fix
-**Status:** built, awaiting review
-**Branch:** `fix/fehler-am-feld`, from `main`
-**Requested by:** FFS feedback, relayed by Mansi on 2026-10-15
+**From build-plan:** feature 18c
+**Status:** not started
+**Branch:** `feature/18c-gewaessersuche`
 
-> Feature 18c's spec was here and is paused, not dropped. It is in commit `199cd86`
-> (`git show 199cd86:blueprint/context/current-feature.md`) and comes back once this fix is
-> complete.
+## Goal
 
-## The problem
+The Gewässer field in section 1 searches LUBW's official water body network (loaded by 18b) as
+the surveyor types. Picking a result fills in the name, the official identifier
+(`amtliche_id`) and, where it fits the form's five boxes, the Vorfluter chain. A water the
+network does not hold is still typed freely and filed without an identifier, never refused.
 
-When the server refuses a protocol, at Absenden or after a PDF import, its problems are shown
-in two places only: the collapsible list above the section and the badge count on each step.
-The field that caused a problem looks exactly like every other field. In a long section the
-surveyor reads the list, then hunts for the box.
+This is the first time an identifier reaches a protocol, so it is also where the identifier
+travels through the answers, is checked at submit and lands on the `Gewaesser` row.
 
-FFS asked for the field itself to stand out: a red border and the message line under it, both
-for an import and for an ordinary submit.
+## Decisions taken while speccing (2026-10-15, Mansi)
 
-Half of this already exists. Every field draws through `felder/FeldRahmen.tsx`, which shows a
-red border and a message when it is given a `fehlerKey`. Today that key comes only from the
-browser's own rules (`useFeldFehler` reads React Hook Form's errors, set by `regeln/schema.ts`).
-The server's refusals (`useAbsenden().verstoesse`, the same list an import writes through
-`pruefungsStore`) never reach the fields. Mandatory fields are the most common case, and they
-are checked only on the server.
+| Question | Answer |
+|---|---|
+| Does a pick fill the Vorfluter boxes? | **Yes, when the chain fits.** LUBW's chain is written into the five boxes when it reaches the Rhein or the Donau within five links. When it is longer (about 950 small waters need 6 to 9) or the water is a standing one, the boxes are left as they are and a short note says why |
+| How are 102 Mühlbäche told apart? | **Each result names what it flows into**, and when the stretch already has coordinates (typed or set on the map), **the nearest waters come first** with their distance |
+| Where is the identifier shown? | **Form, review screen and PDF download**: a read-only line under the Gewässer name |
 
-## The fix
+## Facts checked against the loaded 2025-05-01 release
 
-Hand the server's list to the fields and let the existing error display do the rest.
+- 20 421 flowing, 11 509 standing waters. 3 171 flowing and 9 879 standing names are
+  placeholders like `NN-YBP`.
+- The most repeated names: Mühlbach 102, Riedgraben 72, Mühlkanal 63, Tobelbach 54.
+- Every flowing water's `vorfluter_kennung` resolves to another row except the Rhein's and the
+  Donau's, which have none. Links to the Rhein or Donau: 1 for 731 waters, 2 to 5 for 18 735,
+  6 to 9 for 953.
+- `pg_trgm` and `unaccent` are available but not installed.
 
-- A small context, `absenden/verstossKontext.tsx`, provided by `ProtokollFormular` from
-  `absendung.verstoesse`, holding a map from path to message key. Its value changes only when
-  a submit or an import answers, never on a keystroke, so providing it does not re-render the
-  form while somebody types.
-- `useFeldFehler(name)` returns the browser's own error first, and otherwise the server's key
-  for that path, **as long as the field is still empty**. "Filled in" means what
-  `useErledigtePfade` already means by it (a non-blank string), and both read one shared
-  function, so the field, the list and the badge can never disagree about whether a problem
-  is dealt with.
-- The message is the same sentence the list prints for that key (`meldung` in
-  `AbsendeProbleme.tsx`, moved somewhere both can call it), including the fallback for a key
-  the screen does not know.
-- Problems that name a block rather than a field (`summe.*`, `block.*`, `bereich.*`, `paar.*`,
-  `widerspruch.*`, `tabelle.arten`, see `istSammelpfad`) outline the block's fieldset in the
-  error colour with the message under its legend, and stay until the next submit, the same as
-  the list treats them today.
-- Accessibility: the message line is reached through the control's `aria-describedby` and
-  `aria-invalid` is set, which `feldAria` already does for a `fehlerKey`; block messages are
-  referenced by their fieldset.
+## In scope
 
-**Must not break**
+- A search over the newest release by name: case-insensitive, umlaut-tolerant (`Muehlbach`
+  finds `Mühlbach`), prefix matches before matches inside the name, placeholder `NN-` names left
+  out, at most 20 results; ordered by distance when a point is given
+- The Vorfluter chain for each flowing result, built from `vorfluter_kennung`, offered only when
+  it fits the form
+- `GET /api/v1/gewaessernetz/suche`, any signed-in account
+- Two answers the app adds on top of the legacy form, `probestrecke.gewaesser.amtliche_id` and
+  `probestrecke.gewaesser.gis_dataset_version`, in `ZUSAETZLICHE_PFADE` beside `bearbeiter.ort`
+- At submit: an identifier must exist in the release it names, and the name must still be that
+  water's name (compared loosely); otherwise a message on the Gewässer field with a way out
+- The Gewässer row: a protocol carrying an identifier is matched on the identifier and a new row
+  is written with `amtliche_id` and `gis_dataset_version` set
+- The Gewässer field as an MUI `Autocomplete` with free text; picking fills, typing clears the
+  identifier; a quiet fallback when no release is loaded or the search fails
+- The read-only identifier line in the form, on the review screen and in the PDF download
+- German and English wording, `CONTEXT.md`, the flow diagrams, and the "until feature 18"
+  comments that this feature makes untrue
 
-- **Typing speed.** The 338 fields do not re-render while somebody types (the catch table's
-  206 ms redraw is the reason). Clearing the red once a field is filled needs that field's
-  value; subscribe per field, by name, and only where the path is on the list, or measure
-  before and after on the catch table.
-- **The browser's own rules** keep their onTouched timing and their messages, and win when
-  both apply.
-- **Read-only view** (`nurlesen`): no red anywhere; a filed protocol is not being asked for
-  anything.
-- **The list and badges** behave exactly as today.
-- **Server is still the gate.** Clearing the red when a field is filled is a hint, not a
-  verdict; only the next submit says whether the answer is right.
+## Out of scope
+
+- Snapping a point to the network and the far-from-water warning: 18d
+- Searching by clicking the map, or drawing the network on the map: 18d
+- Identifiers for Gewässer already on record, and merging duplicate rows: 18e
+- Matching a protocol **without** an identifier to a row **with** one. A typed "Neckar" is not
+  silently given the Neckar's identifier: refused, never guessed at. 18e proposes those
+- A Vorfluter chain for standing waters (AWGN gives a catchment, not a receiving water)
+- Checking that the picked water's kind agrees with the Gewässertyp (a See picked for type 13
+  Bach). Worth raising with FFS; not a rule anyone has asked for yet
+- Re-checking protocols already submitted. The new check runs at submit only
+- Searching any release but the newest
+- A trigram index, unless step 1's measurement shows the plain query is too slow
+
+## Build loop
+
+Build one step at a time, never the whole feature at once.
+
+1. Plan mode lays out the step before any code.
+2. The AI implements just that step.
+3. It shows the diff (not full files); you read it and understand it.
+4. You approve, then choose whether to commit a checkpoint or roll straight on.
+   Checkpoints are optional; `/complete` makes the real feature-level commit at the end.
+
+Never accept a step you haven't read. If a diff is too big to review, the step was too big, so split it.
 
 ## Build steps
 
-- [x] **Step 1 - Server refusals reach single fields.** The context, the shared "filled in"
-  function and the shared message function, and `useFeldFehler` reading them, which covers
-  `FeldText`, `FeldDatum`, `FeldAuswahl`, `FeldRadio`, `FeldSuche` and the catch table's cells
-  in one place. *Done when:* `npm test` covers the pure part (which key a field shows given a
-  browser error, a server key and a value: browser wins, server key while empty, nothing once
-  filled); `npm test`, `npm run lint` and `npm run build` pass; in the browser, Absenden on a
-  protocol with empty mandatory fields draws them red with the message under each, typing into
-  one clears it while the list marks it ausgefüllt, and the catch table types as fast as
-  before (screenshots in Evidence).
+- [ ] **Step 1 - The search, in the backend** - `app/gewaessernetz/suche.py`. Two pure functions:
+  `suchform(text)` (lower, trim, `ä ö ü ß` to `ae oe ue ss`, used on both sides of the
+  comparison and spelled identically in the SQL) and `kette_fuer_formular(namen)` (the chain if
+  it reaches an end point within five links, by `formregeln/vorfluter.ist_endpunkt`, else
+  `None`). One service function `suche(session, text, punkte)` over the newest release: a
+  recursive query for each result's chain, capped at six links. *Done when:* unit tests cover the
+  folding, the chain cut-off at five and six, a chain that never ends, and a standing water;
+  database tests over a small release built with `beispiele.py` prove prefix-before-contains,
+  placeholders left out, the 20 limit, nearest-first with a point, only the newest release
+  searched, and an empty result when nothing is loaded. Against the real release, `Mühlbach`
+  with and without a point is timed (Evidence); under 150 ms means no index.
 
-- [x] **Step 2 - Block-level refusals outline their block.** A way for each block to look up
-  its own path in the context, used by the percentage groups, Einflüsse, Bewirtschaftung, the
-  fished areas, the three part 5 pairs and the catch table. *Done when:* a refused percentage
-  group and a refused empty catch table each show the outline and message (screenshots); the
-  read-only view shows none of it.
+- [ ] **Step 2 - The endpoint** - `app/api/gewaessernetz.py`: `GET /api/v1/gewaessernetz/suche?q=
+  &rw=&hw=`, `rw` and `hw` repeatable in pairs (up to the stretch's two points), signed-in only,
+  `q` at least 2 characters after trimming. Pydantic schemas in `schemas.py`. Router stays thin.
+  *Done when:* API tests prove 401 without a session, 422 for a one-letter `q` and for an
+  unpaired `rw`, the response shape below, and `stand: null` with no results on an empty
+  network; the endpoint shows in `/api/v1/docs`.
 
-- [x] **Step 3 - Browser test and import path.** Extend an existing e2e spec: submit a protocol
-  with an empty mandatory field, expect the field to be invalid (by role and name, with
-  `aria-invalid` and its description), fill it, expect it valid. Then import a PDF with gaps
-  and confirm the same fields are marked on opening. *Done when:* `npm run e2e` passes and the
-  existing specs still pass.
+- [ ] **Step 3 - The identifier in the answers and on the row** - `ZUSAETZLICHE_PFADE` gains the
+  two paths, with the reason and a pointer to question 16. `zuordnung/regeln.py` reads them into
+  `Gewaesserangaben`; `zuordnung/dienst.py` matches a protocol with an identifier on
+  `amtliche_id` alone, and one without only against rows that have none. A new row carries both
+  values. *Done when:* tests prove two protocols picking the same water share one row, a picked
+  water and a typed one of the same name and chain get two rows, an identified row is never
+  matched by a typed name, and no `UPDATE` appears; the import still refuses neither path (it
+  never sees them) and the existing zuordnung, submit and import tests pass.
 
-## Evidence
+- [ ] **Step 4 - The check at submit** - in `absenden.py`, after the pure rules and before
+  `ordne_zu`: an identifier without a release, a release not loaded, an identifier not in that
+  release, or a name that no longer matches (by `normalisiert`) is a `Formverstoss` on
+  `probestrecke.gewaesser.gewaessername` with one new message key, whose wording says to pick the
+  water from the list again or to clear the name and type it. A release that has since been
+  replaced by a newer one still counts, since releases are kept. A resubmission after
+  `NEEDS_CHANGES` goes through the same `sende_ab`, so it is checked the same way. *Done when:*
+  tests for each of the four refusals and for a release without an identifier, plus a pick that
+  passes, plus a protocol with no identifier that passes exactly as before.
 
-**Step 1** (2026-10-15)
+- [ ] **Step 5 - The search field** - `felder/Gewaessersuche.tsx`: MUI `Autocomplete` with
+  `freeSolo` inside the usual `FeldRahmen`, replacing the `FeldText` for the Gewässer name.
+  TanStack Query for the request, debounced, starting at 2 characters, without points yet. Each
+  option shows the name and `fließt in <Vorfluter>` or `stehendes Gewässer`. Picking writes the
+  name, the identifier and the release; typing anything that differs from the picked name clears
+  the identifier and the release. Every write goes through `setValue` with `shouldDirty` and
+  `shouldValidate`, so the automatic save sees it. No release loaded or a failed request: the
+  field behaves as a plain text box and a hint says the official list is unavailable. Types in
+  `entwurf/typen.ts`; wording in `de.json` and `en.json`. *Done when:* `npm test`, `npm run lint`,
+  `npm run build` pass; unit tests for the pure parts (what a pick writes, when typing clears); in
+  the browser, picking `Neckar` saves the identifier (visible in the saved draft) and editing the
+  name clears it; keyboard only works throughout and the screen reader name is the field's label;
+  with the backend's network empty, the field still takes a typed name.
 
-- `npm test`: 67 files, 1534 tests passed, including `absenden/amFeld.test.ts` (8). `npm run lint`,
-  `tsc -b` and `npm run build` clean.
-- Browser, a fresh draft with only the Bearbeiter name typed, Absenden pressed: section 1 shows
-  16 refusals in the panel and the same fields red with the message under each (Anlass,
-  Regierungspräsidium, Datum, Uhrzeit, E-Mail, Gewässer, Gewässertyp, Länge, Ortsangabe,
-  Vorfluter 1, the six coordinate boxes). Unrefused fields are unchanged.
-- `bearbeiter.email`: `aria-invalid="true"` and `aria-describedby="bearbeiter.email-fehler"`
-  while empty; cleared on typing; back when emptied again. Choosing an Anlass clears its red.
-- After a reload the marks come back with the remembered list.
-- Catch table, 40 keystrokes into one cell, three runs: `main` 2672 / 2334 / 2631 ms, this fix
-  2692 / 2506 / 2360 ms. No measurable difference.
+- [ ] **Step 6 - Chain and distance** - picking a flowing water whose chain fits writes all five
+  Vorfluter boxes (emptying the ones past its end) and rechecks them, so a stale chain message
+  clears; when it does not fit, or the water is standing, the boxes stay and a note under the
+  field says why. The boundary points that pass the coordinate rule are sent with the search, and
+  each option shows its distance. *Done when:* a unit test covers what a fitting, a long and a
+  standing pick write to the boxes; in the browser, `Mühlb` with coordinates near Pforzheim lists
+  the nearest Mühlbach first with its distance, picking it fills the chain with no message
+  standing, and a long-chain water leaves the boxes and shows the note (screenshots in Evidence).
 
-**Step 2** (2026-10-16)
+- [ ] **Step 7 - The identifier shown** - a read-only line `Amtliche Kennung: <id> (AWGN
+  <stand>)` under the Gewässer field when one is set, the same line on the review screen
+  (`nurlesen`), and the identifier in the PDF download (`ausgabe/dokument.py`, and
+  `npm run beschriftungen` regenerated if the label list changes). *Done when:* the line shows in
+  both screens for a picked water and not for a typed one (screenshot); a backend test proves the
+  PDF text contains the identifier; the beschriftungen test passes.
 
-- `npm test`: 1538 passed, including `blockAnzeige` in `absenden/amFeld.test.ts` (4 more).
-  Lint, `tsc -b` and build clean.
-- Browser, the same empty draft submitted: section 3 outlines all six percentage groups with
-  "Dieser Block ist noch nicht ausgefüllt" on the total's line; section 4 outlines Einflüsse
-  and Bewirtschaftung with the message under each; section 6 outlines the catch table with
-  "Das Protokoll nennt noch keine Art". Section 5 has none, as an empty draft has no
-  half-filled area to refuse.
-- Typing 100 into one Umland share lifts that group's message and outline at once.
-- Two layout fixes found on the screenshots: an inward outline crossed the section legend, and
-  an outward one ran into the fields next to a block. The outline now sits on the block's own
-  edge, with padding the side margins cancel.
-- The server's message goes into the line the block already had, so a block never shows the
-  same sentence twice; the browser's own message wins when both apply.
+- [ ] **Step 8 - Browser test** - `frontend/e2e/gewaessersuche.spec.ts`: search, pick, the chain
+  filled, the identifier line, typing clears it, save and reload keeps it. Skips with a sentence
+  when no release is loaded, the same way the suite skips without accounts. *Done when:* it passes
+  against the Compose database with 2025-05-01 loaded, and `karte.spec.ts` still passes.
 
-**Step 3** (2026-10-16)
-
-- New `frontend/e2e/fehler-am-feld.spec.ts`, four tests: a refused field is invalid with the
-  message as its accessible description, clears when filled and returns when emptied; an
-  unrefused field stays unmarked; a refused percentage group is outlined and described, and
-  both lift at 100; the marks survive a reload. All four pass. The first fails against
-  `main`'s `fehler.ts`, so it tests the change.
-- The empty draft is waited for by its 422 rather than the panel: the panel lists only the
-  open section's problems, and an empty draft owes nothing in section 7.
-- `npm run e2e` in full: 11 passed, 68 skipped, 0 failed. Only a throwaway Einreicher account
-  (`fehleramfeld@test.de`, local database) was available, so the specs needing the Prüfer and
-  Admin accounts skipped. Worth a full run with the usual three accounts before `/complete`.
-- Import, by hand with two real protocols from `Resources/echte-protokolle/` (untracked, so not
-  in the committed test): Rench opens with the step badge, the panel and the two Grenze fields
-  all saying 2; Pflaumbach opens with the two Grenze fields, the Damm share, and the Einflüsse
-  and Bewirtschaftung blocks marked. No import-specific code was needed.
-
-**Code review** (2026-10-16, standards and spec in parallel)
-
-Fixed:
-
-- The four block message lines were the same markup four times: now one `BlockMeldung`
-  (renamed from `BlockAblehnung`), given the browser's key and the block's own "erledigt".
-- The catch table's message had no id and its fieldset no `aria-describedby`, so the outline
-  was not announced. Now `meldung-arten`, described by.
-- The catch table counted itself put right as soon as a species was named, whatever the server
-  had refused it for. Now only when a species is named **and** the browser's rule is quiet,
-  which covers both of the server's keys for that path.
-- `replaceAll` for the area ids, one e2e line over 100 columns.
-
-Deviations from the text above, kept deliberately:
-
-- **Blocks that can judge themselves lift their outline when put right**, not at the next
-  submit: a run at 100, a pair no longer both zero, a contradiction gone, a species named.
-  Only the Einflüsse and Bewirtschaftung ticks and the two fished areas keep theirs until
-  the next submit, as the list does. A run showing "Summe: 100 %" in red would contradict
-  itself.
-- **Block messages sit at the foot of the block**, in the line each block already had, not
-  under the legend: one line per block, never two.
-- **The import case is checked by hand only.** The real protocols are untracked
-  (`Resources/`), so no committed test can read one.
-
-Open, for Mansi to decide:
-
-- **A refused field that is filled in is not marked.** The rule "red while still empty" was
-  taken from the list's "ausgefüllt" so the two agree. It means a server-only refusal of a
-  value that is there, chiefly a boundary point outside Baden-Württemberg, never reaches the
-  field. The browser's own twin covers most others (Vorfluter chain, estimates, duplicate
-  species). Closing it means "red until changed since the refusal" for both field and list.
-
-## Verify
-
-1. Open a draft with some mandatory fields empty and press **Absenden**.
-2. The list and badges appear as before, **and** each empty field in the open section has a
-   red border and the message under it. Switch sections: the same there.
-3. Type into one marked field: its red goes away and the list shows it as ausgefüllt.
-4. A refused percentage group or empty catch table is outlined as a block.
-5. Import a PDF with gaps: on opening, the same fields are marked without pressing anything.
-6. Reload the page: the marks come back with the remembered list.
-7. Open a submitted protocol read-only: no red anywhere.
-8. Keyboard and screen reader: tabbing to a marked field announces it as invalid with its
-   message.
+- [ ] **Step 9 - Documentation** - `CONTEXT.md` (Amtliche Kennung, how a pick and a typed name
+  differ); the comments in `models/gewaesser.py`, `zuordnung/regeln.py` and `zuordnung/dienst.py`
+  that say the identifier stays empty until feature 18; the flow diagrams under
+  `blueprint/history/flow_diagrams/` (the search request and the identifier on the save and
+  submit path); `docs/ffs-questions.md` question 16 notes that the two added answers depend on
+  its answer. *Done when:* no comment in the code still says the identifier arrives later.
 
 ## Files / areas
 
-- `frontend/src/protokoll/absenden/verstossKontext.tsx` (new), `useErledigte.ts`,
-  `AbsendeProbleme.tsx`
-- `frontend/src/protokoll/felder/fehler.ts` and a test beside the pure part
-- `frontend/src/protokoll/ProtokollFormular.tsx` (provide the context)
-- The block components named in step 2, and `muiTheme.ts` if the fieldset outline is themed
-- `frontend/e2e/` (one spec extended)
-- `frontend/src/i18n/locales/de.json`, `en.json` only if a new string is needed (none expected)
+- `backend/app/gewaessernetz/suche.py`, `suche_test.py`, `beispiele.py` (a few more tiny waters)
+- `backend/app/api/gewaessernetz.py`, its test, `backend/app/api/schemas.py`, `backend/app/main.py`
+- `backend/app/formular/felder.py` (`ZUSAETZLICHE_PFADE`)
+- `backend/app/protokolle/zuordnung/regeln.py`, `dienst.py` and their tests
+- `backend/app/protokolle/absenden.py` and its test, one message key in the locale files
+- `backend/app/protokolle/ausgabe/dokument.py` and its test
+- `frontend/src/protokoll/felder/Gewaessersuche.tsx` (new), a small pure module beside it with
+  its test, `abschnitte/teil1/ProbestreckeBlock.tsx`
+- `frontend/src/protokoll/entwurf/typen.ts`, `nurlesen/` (the read-only line)
+- `frontend/src/i18n/locales/de.json`, `en.json`
+- `frontend/e2e/gewaessersuche.spec.ts`
+- `database/seed/form_version_20260609/beschriftungen.json` if regenerated
+- `CONTEXT.md`, `docs/ffs-questions.md`, `blueprint/history/flow_diagrams/*.puml`
 
-No backend change: the server already names the path and key of every problem.
+No migration: `amtliche_id` and `gis_dataset_version` have existed on `gewaesser` since v1.
+
+## Data / contracts
+
+**Load-bearing for 18d and 18e.**
+
+`GET /api/v1/gewaessernetz/suche?q=muehlb&rw=478000&hw=5420000&rw=478400&hw=5421000`
+
+```json
+{
+  "stand": "2025-05-01",
+  "treffer": [
+    {
+      "kennung": "2381333920000",
+      "art": "FLIESSGEWAESSER",
+      "name": "Mühlbach",
+      "vorfluter_name": "Enz",
+      "vorfluter": ["Enz", "Neckar", "Rhein"],
+      "entfernung_m": 640
+    }
+  ]
+}
+```
+
+- `stand` is `null` and `treffer` empty when no release is loaded
+- `vorfluter` is `null` when the chain is longer than five, never ends, or the water is standing;
+  `vorfluter_name` is `null` for a standing water
+- `entfernung_m` is `null` without a point, else whole metres to the nearest of the points given
+
+Two answers added on top of the legacy form, in `ZUSAETZLICHE_PFADE`:
+
+| Path | Value | Set by |
+|---|---|---|
+| `probestrecke.gewaesser.amtliche_id` | The `kennung`, as text | A pick; cleared by typing |
+| `probestrecke.gewaesser.gis_dataset_version` | `AWGN 2025-05-01`, the form 18b fixed | A pick; cleared by typing |
+
+Both or neither: one without the other is refused at submit with the same message. Named after
+the `Gewaesser` columns they end up in.
+
+`Gewaesser` rows, matching rule from step 3 on:
+
+- identifier present: match on `amtliche_id`; else create with name, chain, `amtliche_id`,
+  `gis_dataset_version`
+- identifier absent: match on name and chain **among rows with no `amtliche_id`**, as today
+
+New message key: `protokoll.regeln.gewaesserKennungPasstNicht`.
+
+## Testing
+
+The test gate is on (`pytest` in `backend/`, `npm test` in `frontend/`). In-scope logic needing
+tests:
+
+- **Search** (step 1): folding, ordering, the limit, placeholders, newest release, chain cut-off
+- **Endpoint** (step 2): authorisation and the parameter refusals
+- **Matching** (step 3): the identifier rule and that a typed name never gains an identifier
+- **Submit check** (step 4): each refusal and both passes
+- **The field's pure parts** (steps 5 and 6): what a pick writes to the name, the identifier and the boxes, what typing clears
+
+The control itself, the list's look, the note and the read-only line ride on screenshots, the
+build and the e2e test in step 8.
+
+## Notes for the AI
+
+- **The typed name stays the record of what was typed.** A pick writes LUBW's spelling because
+  the surveyor chose it; nothing ever rewrites a typed name (defect 2). Compare loosely, store
+  faithfully.
+- **Refused, never guessed at.** No identifier is attached to a protocol that did not pick one,
+  and no existing `Gewaesser` row is updated. 18e owns both.
+- **Server is the gate.** The browser clears a stale identifier, but the submit check is what
+  guarantees the name and the identifier still belong together. This check needs the database,
+  so it lives in the service layer, not in `formregeln/`; say so in its docstring, since every
+  other rule is pure.
+- **Folding must match on both sides.** `suchform` in Python and the expression in SQL are one
+  rule written twice; a test runs both over the same names.
+- **The search is not authorisation-sensitive** (the network is open data), but it still needs a
+  session, like every other endpoint.
+- **Use MUI's `Autocomplete`**, themed through `muiTheme.ts` where it differs from the species
+  search's look; label above via `FormLabel`; accessibility is an acceptance criterion.
+- **Writing rules:** German identifiers, no em dashes, messages that name the thing, the reason
+  and the way out; update the flow diagrams in the same feature.
+- **FFS may still answer question 16 differently.** The added paths and `AWGN <stand>` are the
+  working answer of 2026-10-14.
