@@ -1,7 +1,7 @@
 # Feature: Das Gewässernetz laden
 
 **From build-plan:** feature 18b
-**Status:** in progress
+**Status:** built, awaiting review
 **Branch:** `feature/18b-gewaessernetz-laden`
 
 ## Goal
@@ -151,7 +151,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   and Stuttgart's shows a marker and no message (screenshot in Evidence); `npm run e2e` still
   passes.
 
-- [ ] **Step 8 - Documentation** - `AGENTS.md` Commands: the two `gewaessernetz` commands, the
+- [x] **Step 8 - Documentation** - `AGENTS.md` Commands: the two `gewaessernetz` commands, the
   border script, and where to download AWGN and VG250 into `Resources/` (untracked). `CONTEXT.md`:
   the term **Gewässernetz**. The licence wording for both datasets in `docs/` beside the existing
   basemap.de attribution. The flow diagrams under `blueprint/history/flow_diagrams/` gain the
@@ -163,16 +163,24 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 - `backend/pyproject.toml` - `geoalchemy2`, `pyshp`; `shapely` under dev
 - `backend/app/models/gewaessernetz.py`, `backend/app/models/__init__.py`
-- `database/migrations/versions/2026xxxx_<rev>_gewaessernetz.py`
-- `backend/app/gewaessernetz/` - `lesen.py`, `dienst.py`, `fehler.py` and their tests
-- `backend/app/cli.py`, `backend/app/cli_test.py`
+- `database/migrations/versions/20261014_8f948c3df12b_gewaessernetz.py`
+- `backend/app/gewaessernetz/` - `lesen.py`, `dienst.py`, `fehler.py`, `beispiele.py` (tiny
+  AWGN-shaped shapefiles for tests) and their tests
+- `backend/app/cli.py`, `backend/app/cli_gewaessernetz_test.py` (its own file, as
+  `cli_demo_test.py` is, rather than `cli_test.py`, whose fixtures are about accounts)
 - `backend/scripts/landesgrenze.py` and its test
 - `database/seed/landesgrenze/landesgrenze_bw.json` (generated, committed)
+- `backend/app/config.py`, `backend/Dockerfile`, `.env.example` - `LANDESGRENZE_DATEI`
 - `backend/app/protokolle/formregeln/landesgrenze.py`, `koordinaten.py` and their tests
 - `frontend/src/protokoll/regeln/landesgrenze.ts`, `koordinaten.ts` and their tests
 - `frontend/src/protokoll/karte/umrechnung.ts` and its test
-- `frontend/vite.config.ts`, `frontend/src/i18n/locales/de.json`, `en.json`
-- `AGENTS.md`, `CONTEXT.md`, `docs/`, `blueprint/history/flow_diagrams/*.puml`
+- `frontend/src/protokoll/abschnitte/teil1/ProbestreckeBlock.tsx` - the two boxes of a point
+  recheck each other
+- `frontend/vite.config.ts`, `frontend/tsconfig.app.json`, `frontend/src/i18n/index.ts`,
+  `frontend/src/i18n/locales/de.json`, `en.json`
+- `frontend/e2e/karte.spec.ts`
+- `AGENTS.md`, `CONTEXT.md`, `docs/datenquellen.md`, `docs/deployment-vercel.md`,
+  `blueprint/history/flow_diagrams/FRONTEND_ARCHITECTURE_DIAGRAM.puml`
 
 ## Data / contracts
 
@@ -250,3 +258,43 @@ The real-data load is evidence, not a test, because the archives are not in the 
   (a standing request from Mansi).
 - **FFS may still answer question 16 differently.** Keep the AWGN-specific column names inside
   `lesen.py`, so another dataset is a new reader, not a new table.
+
+## What building it turned up
+
+- **Nothing had ever switched PostGIS on.** The development database had the extension only
+  because the postgis/postgis image creates it on first start; the test database pytest creates
+  did not, and neither would a managed one. The 18b migration now runs `CREATE EXTENSION IF NOT
+  EXISTS postgis` and leaves it in place on downgrade.
+- **pyshp hands back requested fields in the file's order**, not the order asked for, so
+  `iterRecords(fields=[...])` silently reads the wrong column. The reader reads by name.
+- **The border is one polygon with one hole.** Büsingen merges into the state once widened, and
+  the hole is the Hessian enclave in the Neckar valley around Neckarsteinach, more than 2 km from
+  any part of Baden-Württemberg. 855 points, 15 KB.
+- **`stand` is a date, not text** as first drafted, so "the newest release" is an ORDER BY.
+- **A cross-field message went stale.** With the message on both boxes of a point, correcting the
+  Hochwert left the Rechtswert's message standing, because React Hook Form rechecks only the box
+  being edited. `ProbestreckeBlock.tsx` now rechecks the other box of the same point through the
+  existing `useNachpruefung`, as the Vorfluter boxes already do. The browser test caught it.
+- **The rectangle's corners are now refused**, by the border check. The tests that said "a value on
+  either bound passes" now say the rectangle itself does not complain there.
+- **Munich, Colmar and Zürich lie outside the rectangle**, so the rectangle catches them before the
+  border check runs. The rule tests use Würzburg and Strasbourg, which only the border catches.
+
+## Evidence
+
+- **Real archives read** (step 2): 20 421 flowing and 11 509 standing waters, every record valid,
+  both `Mai 2025`, 11 s and 5 s.
+- **Real release loaded** (step 4), from the host into the Compose database:
+  `befischung gewaessernetz laden --stand 2025-05-01 ...` in 15 s; `liste` shows
+  `2025-05-01  20421  11509`; the table is 95 MB. Nearest water to Stuttgart's centre is the
+  Nesenbach (GKZ 2383400000000), and both Bodensee basins are present (38252, 38253).
+- **Migration:** upgrade, downgrade, upgrade and `alembic check` clean.
+- **Container:** the rebuilt backend image reads `/srv/seed/landesgrenze/landesgrenze_bw.json` and
+  refuses a point in Würzburg on both boxes.
+- **Tests:** backend 1 780 passed, 85 skipped; frontend 1 526 passed; `ruff`, `mypy`, `oxlint` and
+  `npm run build` clean. `npm run e2e` for `karte.spec.ts`: 4 passed, including the new border
+  test, run with a throwaway submitter `pruefung-18b@test.de` on the development database. The
+  other e2e specs need the reviewer and admin accounts, whose password is not in this
+  environment, and were not run.
+- **Screenshot:** Würzburg typed as the lower boundary shows the message under both boxes and no
+  marker; Stuttgart as the upper boundary shows its marker.

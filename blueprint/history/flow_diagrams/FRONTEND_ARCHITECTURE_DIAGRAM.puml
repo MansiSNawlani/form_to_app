@@ -262,7 +262,7 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
   package "regeln/  (validation rules, mirrors the backend)" as regeln #D4EDDA {
     [schema.ts (the combined Zod schema)]
     [prozent.ts, hydrologie.ts, vorfluter.ts]
-    [koordinaten.ts, arten.ts, ausruestung.ts]
+    [koordinaten.ts, landesgrenze.ts, arten.ts, ausruestung.ts]
     [einfluesse.ts, monitoring.ts, schaetzwert.ts]
     [useHydrologieAbgleich.ts, useNachpruefung.ts]
     note bottom of regeln
@@ -274,6 +274,10 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       only; Pydantic on the backend is the authoritative gate. Being
       plain functions is what makes every *.test.ts beside them
       possible without spinning up a browser.
+      landesgrenze.ts (feature 18b) is the state border widened by
+      2 km, imported through the @landesgrenze alias from
+      database/seed/landesgrenze/landesgrenze_bw.json, the same file
+      the backend reads, so both halves agree on where the border is.
     end note
   }
 
@@ -310,7 +314,8 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       boxes stay the record: the map reads them with useWatch and
       writes them with setValue, so a click or drag saves through
       useAutoSave exactly like typing. umrechnung.ts (proj4) is the
-      one place EPSG:25832 metres become map degrees and back.
+      one place EPSG:25832 metres become map degrees and back, and
+      draws no marker for a point outside regeln/landesgrenze.ts.
       basiskarte.ts fetches the map style straight from BKG's
       server, the one fetch() in src/ that is not to our backend.
     end note

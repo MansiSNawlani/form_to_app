@@ -228,6 +228,34 @@ It refuses unless `DEMO_MODUS=true`. It creates the two demo accounts if missing
 deletes every protocol the two demo accounts own (never anybody else's), and creates the
 four example protocols again.
 
+**The water body network** (also from `backend/`, added on 2026-10-15 in feature 18b,
+run that day against the Compose database, needs it running and migrated). LUBW's
+AWGN, which features 18c to 18e search, snap to and take identifiers from. Loading
+is a deploy step like migrating, never something the service does on start.
+
+- Download the two archives, unchanged, into `Resources/Geodaten/`:
+  `https://rips-datenlink.lubw.de/UDO_download/Fliessgewaessernetz.zip` and
+  `https://rips-datenlink.lubw.de/UDO_download/StehendeGewaesser.zip`
+- Load a release:
+  `befischung gewaessernetz laden --stand 2025-05-01 --fliessgewaesser ../Resources/Geodaten/Fliessgewaessernetz.zip --stehende ../Resources/Geodaten/StehendeGewaesser.zip`
+- What is loaded: `befischung gewaessernetz liste`
+
+`--stand` is the date LUBW gives the release, and the command refuses it when the files
+name a different month. A release is loaded whole or not at all, a release already
+loaded is refused, and an older one stays beside a newer one. The 2025-05-01 release is
+20 421 flowing and 11 509 standing waters, takes about 15 seconds from the host and
+about 95 MB in the database. Run it from the host against `localhost:5432` rather than
+copying 90 MB into the container.
+
+**The state border** (also from `backend/`, added in feature 18b): the coordinate check
+tests each boundary point against Baden-Württemberg widened by 2 km, from the committed
+`database/seed/landesgrenze/landesgrenze_bw.json`. Regenerate it with
+`python scripts/landesgrenze.py` after putting BKG's
+`vg250_01-01.utm32s.shape.ebenen.zip` (from
+`https://daten.gdz.bkg.bund.de/produkte/vg/vg250_ebenen_0101/aktuell/`) and LUBW's
+`StehendeGewaesser.zip` in `Resources/Geodaten/`. Nothing at run time needs either.
+`docs/datenquellen.md` has the licences and the credit each one asks for.
+
 **The FFS source material is not in the repository.** `Resources/` is untracked by
 decision on 2026-09-22, and holds two kinds of file that both belong outside git. The
 blank forms and their embedded JavaScript are FFS's own documents rather than this
@@ -251,7 +279,9 @@ when no database is running. To run them, get these two from FFS and put them in
 
 Then `pytest` from `backend/` runs the full set. Without them the run reports "60 skipped"
 rather than failing, and the two tests that hold the committed seed against freshly
-generated output are among those that do not run.
+generated output are among those that do not run. One more skips without the two
+downloads in `Resources/Geodaten/`: the test that holds the committed border file against
+freshly generated output.
 
 **Backend tests use a real database.** Added in feature 2a. `pytest` creates a
 separate `befischung_test` database, migrates it to head, and runs each test in a
