@@ -80,7 +80,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - The search, in the backend** - `app/gewaessernetz/suche.py`. Two pure functions:
+- [x] **Step 1 - The search, in the backend** - `app/gewaessernetz/suche.py`. Two pure functions:
   `suchform(text)` (lower, trim, `ä ö ü ß` to `ae oe ue ss`, used on both sides of the
   comparison and spelled identically in the SQL) and `kette_fuer_formular(namen)` (the chain if
   it reaches an end point within five links, by `formregeln/vorfluter.ist_endpunkt`, else
@@ -258,3 +258,10 @@ build and the e2e test in step 8.
   and the way out; update the flow diagrams in the same feature.
 - **FFS may still answer question 16 differently.** The added paths and `AWGN <stand>` are the
   working answer of 2026-10-14.
+
+## Evidence
+
+- **Search timed on the real 2025-05-01 release** (step 1), second call of each, from the host:
+  `Mühlbach` 46 ms, `Mühlbach` with two points 39 ms, `bach` 43 ms, `bach` with a point 56 ms,
+  `Neckar` 36 ms. Well under 150 ms, so no trigram index. `Neckar` comes back with the chain
+  `Rhein`; the first `Mühlbach` alphabetically flows `Brigach, Donau`.
