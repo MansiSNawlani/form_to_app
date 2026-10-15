@@ -314,7 +314,7 @@ These are not features and are not tracked here. They happen first.
         background, showing the two boundary points of the stretch. Clicking or dragging sets the
         coordinates, typing them moves the points, and the review screen shows the same map read
         only. Needs no water body dataset
-  - [ ] 18b. Das Gewässernetz laden: a PostGIS table for the official water body network, a
+  - [x] 18b. Das Gewässernetz laden: a PostGIS table for the official water body network, a
         command that loads one dataset version into it, and the coordinate check tested against
         the real Baden-Württemberg border instead of a rectangle
   - [ ] 18c. Gewässersuche: searching the official water bodies by name in the Gewässer field,
@@ -338,7 +338,7 @@ These are not features and are not tracked here. They happen first.
 
   - **The dataset is AWGN**, flowing and standing waters both.
   - **`amtliche_id` holds the 13-digit Gewässerkennzahl** for a flowing water. For a standing
-    water the See-ID is the candidate, settled when 18b is specced.
+    water it is LUBW's SEE_ID, settled by Mansi on 2026-10-14 when 18b was specced.
   - **The public LUBW download is loaded**, the release of 2025-05-01 first, and a newer public
     release is loaded when LUBW publishes one. `gis_dataset_version` records which.
   - **A water missing from the dataset is still accepted.** The protocol is filed without an
