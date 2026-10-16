@@ -917,6 +917,7 @@
       "koordinateHochwertAusserhalb": "The northing lies outside Baden-Württemberg. Expected: {{hochwertMin}} to {{hochwertMax}}.",
       "koordinateAusserhalbLandes": "This point lies more than {{randKm}} km outside Baden-Württemberg. Please check the easting and northing, or set the point on the map.",
       "gewaesserKennungPasstNicht": "The name no longer matches the official water body you picked. Please pick the water body from the list again, or type its name freely to file it without an official identifier.",
+      "abstandBegruendungFehlt": "A boundary point lies more than 100 m from the water body. Please check the coordinates, or explain here in one sentence why the distance is right, for example because the ditch is missing from the official map.",
       "hydrologieBeiStillgewaesser": "Hydrology is not recorded for standing water. Please clear this answer, or change the water body type above if it is wrong.",
       "hydrologieNichtZutreffendBeiFliessgewaesser": "This answer is saved as \"not applicable\", although the water body is flowing water. Please answer it, or change the water body type above if it is wrong.",
       "schaetzwertOhneBand": "Please choose the range above first.",

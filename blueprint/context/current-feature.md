@@ -99,7 +99,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   without `name` and `version`, and for a `version` not of the form `AWGN JJJJ-MM-TT`, the response shape below, and `stand: null` with `treffer: null` on an empty
   network; the endpoint shows in `/api/v1/docs`.
 
-- [ ] **Step 3 - The new answers, worked out again at submit** - `ZUSAETZLICHE_PFADE` gains the
+- [x] **Step 3 - The new answers, worked out again at submit** - `ZUSAETZLICHE_PFADE` gains the
   eight paths with the reason they exist. In `absenden.py`, after the pure rules and the 18c
   identifier check: for each point that passed the coordinate rule, `einrasten` is run and the
   three answers of that point and the release are written from its result; a point that did not
@@ -108,7 +108,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   is snapped to, an empty network empties all six position answers and submits exactly as before,
   and the existing submit, import and zuordnung tests pass.
 
-- [ ] **Step 4 - The reason, required when far** - in the same place: either point further than
+- [x] **Step 4 - The reason, required when far** - in the same place: either point further than
   `WARNABSTAND_M` from its water and an empty `probestrecke.abstand_begruendung` is a
   `Formverstoss` on the reason with one new message key, naming the point and the distance and
   saying to check the coordinates or explain the distance. A resubmission after `NEEDS_CHANGES`

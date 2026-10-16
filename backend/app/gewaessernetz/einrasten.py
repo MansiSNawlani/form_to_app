@@ -14,23 +14,68 @@ NN- names included, since a nameless ditch is still a water.
 
 **A point inside a standing water stays where it is**, at distance 0: a lake is
 an area and the point is on it. One outside snaps to the shore.
+
+**At submit the server works it out again** and stores what it found, whatever
+the draft held, so a submitted protocol never carries a position the browser
+made up or one gone stale since. Like kennung.py, this needs the loaded network
+and so sits here rather than among the pure rules in
+app/protokolle/formregeln/. A point far from its water is never refused; only
+a missing reason for it is (pruefe_abstand).
 """
 
+import copy
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
+from typing import Any
 
 from sqlalchemy import Integer, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gewaessernetz.kennung import datensatzversion, stand_aus_version
 from app.models.gewaessernetz import SRID, Gewaessernetz, GewaessernetzStand, Netzart
-from app.protokolle.zuordnung.regeln import normalisiert
+from app.protokolle.formregeln.koordinaten import GANZE_ZAHL
+from app.protokolle.formregeln.regel import Formverstoss, ist_leer, setze_wert, wert_aus
+from app.protokolle.zuordnung.regeln import (
+    AMTLICHE_ID,
+    GEWAESSERNAME,
+    GIS_DATASET_VERSION,
+    normalisiert,
+)
 
 #: Further than this from its water and a point is warned about, and the submit
 #: asks for a reason. Written again in frontend/src/protokoll/karte/einrasten.ts.
 WARNABSTAND_M = 100
 
 Punkt = tuple[int, int]
+
+EINGERASTET_VERSION = "probestrecke.eingerastet_version"
+ABSTAND_BEGRUENDUNG = "probestrecke.abstand_begruendung"
+BEGRUENDUNG_FEHLT = "protokoll.regeln.abstandBegruendungFehlt"
+
+
+@dataclass(frozen=True, slots=True)
+class Grenzpunkt:
+    """One boundary point: the two boxes typed, and the three answers snapped."""
+
+    rw: str
+    hw: str
+    eingerastet_rw: str
+    eingerastet_hw: str
+    eingerastet_kennung: str
+
+
+GRENZPUNKTE = tuple(
+    Grenzpunkt(
+        rw=f"probestrecke.utm_rw_{grenze}",
+        hw=f"probestrecke.utm_hw_{grenze}",
+        eingerastet_rw=f"probestrecke.eingerastet_rw_{grenze}",
+        eingerastet_hw=f"probestrecke.eingerastet_hw_{grenze}",
+        eingerastet_kennung=f"probestrecke.eingerastet_kennung_{grenze}",
+    )
+    for grenze in ("unten", "oben")
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,3 +169,84 @@ async def einrasten(
             entfernung_m=abstand_m(punkt, (rw, hw)),
         ),
     )
+
+
+async def raste_protokoll_ein(
+    session: AsyncSession, antworten: Mapping[str, Any], verstoesse: Sequence[Formverstoss]
+) -> dict[str, str]:
+    """The seven snapped answers as the server finds them, by path.
+
+    A point is snapped only when both its boxes passed the rules, so one with a
+    message of its own is not also given a position on some water. A point that
+    is not snapped has its three answers emptied, and the release is empty when
+    neither point was.
+    """
+    falsch = {verstoss.pfad for verstoss in verstoesse}
+    gewaehlt = _gewaehlt(antworten)
+    werte: dict[str, str] = {EINGERASTET_VERSION: ""}
+
+    for grenzpunkt in GRENZPUNKTE:
+        werte[grenzpunkt.eingerastet_rw] = ""
+        werte[grenzpunkt.eingerastet_hw] = ""
+        werte[grenzpunkt.eingerastet_kennung] = ""
+        if {grenzpunkt.rw, grenzpunkt.hw} & falsch:
+            continue
+        punkt = _punkt(antworten, grenzpunkt.rw, grenzpunkt.hw)
+        if punkt is None:
+            continue
+        ergebnis = await einrasten(session, punkt, gewaehlt)
+        if ergebnis.stand is None or ergebnis.treffer is None:
+            continue
+        werte[grenzpunkt.eingerastet_rw] = str(ergebnis.treffer.rw)
+        werte[grenzpunkt.eingerastet_hw] = str(ergebnis.treffer.hw)
+        werte[grenzpunkt.eingerastet_kennung] = ergebnis.treffer.kennung
+        werte[EINGERASTET_VERSION] = datensatzversion(ergebnis.stand)
+
+    return werte
+
+
+def mit_werten(antworten: Mapping[str, Any], werte: Mapping[str, str]) -> dict[str, Any]:
+    """A copy of the answers with these values written in.
+
+    A copy, so the column is assigned a new document: SQLAlchemy does not see a
+    change made inside the JSON it already holds.
+    """
+    neu: dict[str, Any] = copy.deepcopy(dict(antworten))
+    for pfad, wert in werte.items():
+        setze_wert(neu, pfad, wert)
+    return neu
+
+
+def pruefe_abstand(antworten: Mapping[str, Any]) -> list[Formverstoss]:
+    """Nothing, or one message on the reason: a point is far and none is given.
+
+    Pure, and run over the answers after raste_protokoll_ein has written the
+    server's positions into them. Without a loaded network there is no snapped
+    position, so nothing can be judged and nothing is asked for.
+    """
+    if not ist_leer(wert_aus(antworten, ABSTAND_BEGRUENDUNG)):
+        return []
+    for grenzpunkt in GRENZPUNKTE:
+        punkt = _punkt(antworten, grenzpunkt.rw, grenzpunkt.hw)
+        eingerastet = _punkt(antworten, grenzpunkt.eingerastet_rw, grenzpunkt.eingerastet_hw)
+        if punkt and eingerastet and ist_fern(abstand_m(punkt, eingerastet)):
+            return [Formverstoss(pfad=ABSTAND_BEGRUENDUNG, schluessel=BEGRUENDUNG_FEHLT)]
+    return []
+
+
+def _punkt(antworten: Mapping[str, Any], rw_pfad: str, hw_pfad: str) -> Punkt | None:
+    rw = wert_aus(antworten, rw_pfad).strip()
+    hw = wert_aus(antworten, hw_pfad).strip()
+    if not GANZE_ZAHL.match(rw) or not GANZE_ZAHL.match(hw):
+        return None
+    return int(rw), int(hw)
+
+
+def _gewaehlt(antworten: Mapping[str, Any]) -> Gewaehlt | None:
+    """The picked water, when the three answers 18c writes are all there."""
+    kennung = wert_aus(antworten, AMTLICHE_ID)
+    name = wert_aus(antworten, GEWAESSERNAME)
+    stand = stand_aus_version(wert_aus(antworten, GIS_DATASET_VERSION))
+    if ist_leer(kennung) or ist_leer(name) or stand is None:
+        return None
+    return Gewaehlt(kennung=kennung, name=name, stand=stand)

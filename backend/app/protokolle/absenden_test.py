@@ -7,17 +7,22 @@ the matching creates in feature 11b are shared with every other protocol on the
 same stretch, so half a submission is worse than none.
 """
 
+import copy
 import uuid
 from collections.abc import Awaitable, Callable
 from datetime import date, time
+from typing import Any
 
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.anlagen.speicher import Anlagenspeicher
+from app.gewaessernetz.beispiele import fliess, netz
+from app.gewaessernetz.einrasten import ABSTAND_BEGRUENDUNG, BEGRUENDUNG_FEHLT
 from app.models.benutzer import Rolle, User
 from app.models.gewaesser import Gewaesser
+from app.models.gewaessernetz import Gewaessernetz
 from app.models.person import Person
 from app.models.probestrecke import Probestrecke
 from app.models.protokoll import Status, Submission
@@ -31,7 +36,7 @@ from app.protokolle.fehler import (
     ProtokollUnvollstaendig,
     ProtokollVeraendert,
 )
-from app.protokolle.formregeln import pruefe_protokoll
+from app.protokolle.formregeln import Formverstoss, pruefe_protokoll
 from app.protokolle.formregeln.beispiele import KAPUTT, VOLLSTAENDIG
 from app.protokolle.uebergang.dienst import fuehre_uebergang_aus
 from app.protokolle.uebergang.regeln import Aktion
@@ -549,3 +554,153 @@ async def test_ein_zurueckgegebenes_protokoll_darf_nicht_geloescht_werden(
 
     with pytest.raises(ProtokollNichtLoeschbar):
         await loesche_protokoll(session, speicher, protokoll_id=entwurf.id, besitzer=besitzer)
+
+
+# Feature 18d. VOLLSTAENDIG's stretch runs from 551034 / 5296712 to 551098 / 5296801.
+WOLFEGGER_ACH = "2111200000000"
+MUEHLBACH = "2111210000000"
+EINGERASTETE_PFADE = (
+    "eingerastet_rw_unten",
+    "eingerastet_hw_unten",
+    "eingerastet_kennung_unten",
+    "eingerastet_rw_oben",
+    "eingerastet_hw_oben",
+    "eingerastet_kennung_oben",
+    "eingerastet_version",
+)
+
+
+def _mit_probestrecke(**werte: str) -> dict[str, Any]:
+    antworten: dict[str, Any] = copy.deepcopy(dict(VOLLSTAENDIG))
+    antworten["probestrecke"].update(werte)
+    return antworten
+
+
+def _probestrecke(protokoll: Submission) -> dict[str, Any]:
+    probestrecke = protokoll.antworten["probestrecke"]
+    assert isinstance(probestrecke, dict)
+    return probestrecke
+
+
+def _ach(hw: int) -> Gewaessernetz:
+    """The Wolfegger Ach as a line east from the lower point's Rechtswert."""
+    return fliess(WOLFEGGER_ACH, "Wolfegger Ach", rw=551034, hw=hw)
+
+
+async def test_die_lage_am_gewaesser_ist_die_des_servers(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """Whatever the draft held, the stored position is the one worked out here."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    await netz(session, _ach(5296712))
+    entwurf = await _entwurf(
+        session,
+        besitzer,
+        _mit_probestrecke(
+            eingerastet_rw_unten="1",
+            eingerastet_hw_unten="2",
+            eingerastet_kennung_unten="erfunden",
+            eingerastet_version="AWGN 1999-01-01",
+        ),
+    )
+
+    protokoll = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    probestrecke = _probestrecke(protokoll)
+    assert probestrecke["eingerastet_rw_unten"] == "551034"
+    assert probestrecke["eingerastet_hw_unten"] == "5296712"
+    assert probestrecke["eingerastet_kennung_unten"] == WOLFEGGER_ACH
+    assert probestrecke["eingerastet_rw_oben"] == "551098"
+    assert probestrecke["eingerastet_hw_oben"] == "5296712"
+    assert probestrecke["eingerastet_kennung_oben"] == WOLFEGGER_ACH
+    assert probestrecke["eingerastet_version"] == "AWGN 2025-05-01"
+    # The typed boxes are the record and stay exactly as they were.
+    assert probestrecke["utm_hw_oben"] == "5296801"
+
+
+async def test_das_gewaehlte_gewaesser_gewinnt_beim_einrasten(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    await netz(
+        session,
+        _ach(5296760),
+        fliess(MUEHLBACH, "Mühlbach", rw=551034, hw=5296712),
+    )
+    antworten = _mit_probestrecke()
+    antworten["probestrecke"]["gewaesser"].update(
+        gewaessername="Wolfegger Ach",
+        amtliche_id=WOLFEGGER_ACH,
+        gis_dataset_version="AWGN 2025-05-01",
+    )
+    entwurf = await _entwurf(session, besitzer, antworten)
+
+    protokoll = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    assert _probestrecke(protokoll)["eingerastet_kennung_unten"] == WOLFEGGER_ACH
+    assert _probestrecke(protokoll)["eingerastet_hw_unten"] == "5296760"
+
+
+async def test_ohne_gewaessernetz_bleibt_die_lage_leer(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """Nothing loaded: nothing snapped, nothing asked for, submitted as before."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    entwurf = await _entwurf(
+        session,
+        besitzer,
+        _mit_probestrecke(
+            eingerastet_rw_unten="1",
+            eingerastet_kennung_oben="erfunden",
+            eingerastet_version="AWGN 2025-05-01",
+            abstand_begruendung="Graben fehlt in der Karte.",
+        ),
+    )
+
+    protokoll = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    probestrecke = _probestrecke(protokoll)
+    for pfad in EINGERASTETE_PFADE:
+        assert probestrecke[pfad] == "", pfad
+    # The surveyor's own words are never the server's to clear.
+    assert probestrecke["abstand_begruendung"] == "Graben fehlt in der Karte."
+
+
+async def test_ein_ferner_punkt_ohne_begruendung_wird_abgelehnt(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    await netz(session, _ach(5296500))
+    entwurf = await _entwurf(session, besitzer, _mit_probestrecke())
+
+    with pytest.raises(ProtokollUnvollstaendig) as erhoben:
+        await sende_ab(session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version)
+
+    assert list(erhoben.value.verstoesse) == [Formverstoss(ABSTAND_BEGRUENDUNG, BEGRUENDUNG_FEHLT)]
+    await session.refresh(entwurf)
+    assert entwurf.status is Status.DRAFT
+    assert "eingerastet_rw_unten" not in _probestrecke(entwurf)
+
+
+async def test_ein_ferner_punkt_mit_begruendung_geht_raus(
+    session: AsyncSession, anlegen: Callable[..., Awaitable[User]]
+) -> None:
+    """Warned about, never refused: the reason is all that is asked for."""
+    besitzer = await anlegen(email="bergmann@ffs.de")
+    await netz(session, _ach(5296500))
+    entwurf = await _entwurf(
+        session, besitzer, _mit_probestrecke(abstand_begruendung="Graben fehlt in der Karte.")
+    )
+
+    protokoll = await sende_ab(
+        session, protokoll_id=entwurf.id, besitzer=besitzer, version=entwurf.version
+    )
+
+    assert protokoll.status is Status.SUBMITTED
+    assert _probestrecke(protokoll)["eingerastet_hw_unten"] == "5296500"

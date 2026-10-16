@@ -4,13 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.gewaessernetz.beispiele import ENZ, MAI_2025, MAI_2026, fliess, netz, see, stand
 from app.gewaessernetz.einrasten import (
+    ABSTAND_BEGRUENDUNG,
+    BEGRUENDUNG_FEHLT,
     WARNABSTAND_M,
     Gewaehlt,
     abstand_m,
     einrasten,
     ist_fern,
+    mit_werten,
+    pruefe_abstand,
 )
 from app.models.gewaessernetz import SRID, Gewaessernetz, Netzart
+from app.protokolle.formregeln.regel import Formverstoss
 
 # flussnetz() lays the Rhein, Neckar and Enz all along 500000..500100 at
 # 5400000, so these tests put the waters they snap to somewhere of their own.
@@ -169,3 +174,65 @@ class TestEinrasten:
 
         assert ergebnis.treffer is not None
         assert ergebnis.treffer.entfernung_m == 0
+
+
+def _strecke(abstand_unten: int, abstand_oben: int, begruendung: str = "") -> dict[str, object]:
+    """Typed points, and positions on the water that far north of them."""
+    return {
+        "probestrecke": {
+            "utm_rw_unten": "500000",
+            "utm_hw_unten": "5400000",
+            "utm_rw_oben": "500500",
+            "utm_hw_oben": "5400000",
+            "eingerastet_rw_unten": "500000",
+            "eingerastet_hw_unten": str(5400000 + abstand_unten),
+            "eingerastet_rw_oben": "500500",
+            "eingerastet_hw_oben": str(5400000 + abstand_oben),
+            "abstand_begruendung": begruendung,
+        }
+    }
+
+
+FEHLT = [Formverstoss(ABSTAND_BEGRUENDUNG, BEGRUENDUNG_FEHLT)]
+
+
+class TestPruefeAbstand:
+    def test_beide_nah(self) -> None:
+        assert pruefe_abstand(_strecke(100, 0)) == []
+
+    def test_unten_fern(self) -> None:
+        assert pruefe_abstand(_strecke(101, 0)) == FEHLT
+
+    def test_oben_fern(self) -> None:
+        assert pruefe_abstand(_strecke(0, 101)) == FEHLT
+
+    def test_beide_fern_eine_meldung(self) -> None:
+        assert pruefe_abstand(_strecke(500, 500)) == FEHLT
+
+    def test_mit_begruendung(self) -> None:
+        assert pruefe_abstand(_strecke(500, 0, "Graben fehlt in der Karte.")) == []
+
+    def test_nur_leerzeichen_ist_keine_begruendung(self) -> None:
+        assert pruefe_abstand(_strecke(500, 0, "   ")) == FEHLT
+
+    def test_ohne_eingerastete_lage(self) -> None:
+        """No network loaded: nothing to judge, nothing asked for."""
+        antworten = _strecke(500, 500)
+        antworten["probestrecke"] = {
+            "utm_rw_unten": "500000",
+            "utm_hw_unten": "5400000",
+        }
+        assert pruefe_abstand(antworten) == []
+
+
+class TestMitWerten:
+    def test_schreibt_in_eine_kopie(self) -> None:
+        antworten: dict[str, object] = {"probestrecke": {"utm_rw_unten": "500000"}}
+
+        neu = mit_werten(antworten, {"probestrecke.eingerastet_rw_unten": "500010"})
+
+        assert neu["probestrecke"] == {
+            "utm_rw_unten": "500000",
+            "eingerastet_rw_unten": "500010",
+        }
+        assert antworten == {"probestrecke": {"utm_rw_unten": "500000"}}

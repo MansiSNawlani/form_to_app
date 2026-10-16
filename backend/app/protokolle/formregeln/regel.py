@@ -108,6 +108,20 @@ def wert_aus(antworten: Mapping[str, Any], pfad: str) -> str:
     return aktuell if isinstance(aktuell, str) else ""
 
 
+def setze_wert(antworten: dict[str, Any], pfad: str, wert: str) -> None:
+    """Put one value at its dotted path, making the levels above it as needed.
+
+    `arten.art1.klasse_3` becomes `{"arten": {"art1": {"klasse_3": ...}}}`, which
+    is the shape `frontend/src/protokoll/entwurf/typen.ts` describes and the
+    shape the save endpoint already accepts.
+    """
+    *eltern, blatt = pfad.split(".")
+    ziel = antworten
+    for teil in eltern:
+        ziel = ziel.setdefault(teil, {})
+    ziel[blatt] = wert
+
+
 def als_zahl(wert: str | None) -> float | None:
     """An answer read as a number, however it was written.
 
