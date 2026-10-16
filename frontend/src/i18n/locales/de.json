@@ -500,7 +500,10 @@
           "stehend": "stehendes Gewässer",
           "laedt": "Das amtliche Gewässernetz wird durchsucht.",
           "keinTreffer": "Kein Treffer im amtlichen Gewässernetz. Sie können den Namen frei eintippen; das Protokoll wird dann ohne amtliche Kennung gespeichert.",
-          "nichtVerfuegbar": "Die amtliche Gewässerliste ist gerade nicht verfügbar. Tippen Sie den Namen frei ein; das Protokoll wird dann ohne amtliche Kennung gespeichert."
+          "nichtVerfuegbar": "Die amtliche Gewässerliste ist gerade nicht verfügbar. Tippen Sie den Namen frei ein; das Protokoll wird dann ohne amtliche Kennung gespeichert.",
+          "entfernt": "{{entfernung}} entfernt",
+          "ketteZuLang": "Die Vorfluterkette dieses Gewässers ist länger als die fünf Felder unten und wurde deshalb nicht eingetragen. Bitte tragen Sie die Vorfluter selbst ein.",
+          "ketteStehend": "Für ein stehendes Gewässer kennt das amtliche Gewässernetz keine Vorfluter. Bitte tragen Sie sie unten selbst ein."
         },
         "feld": {
           "gewaessername": "Gewässer",

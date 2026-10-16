@@ -132,7 +132,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   name clears it; keyboard only works throughout and the screen reader name is the field's label;
   with the backend's network empty, the field still takes a typed name.
 
-- [ ] **Step 6 - Chain and distance** - picking a flowing water whose chain fits writes all five
+- [x] **Step 6 - Chain and distance** - picking a flowing water whose chain fits writes all five
   Vorfluter boxes (emptying the ones past its end) and rechecks them, so a stale chain message
   clears; when it does not fit, or the water is standing, the boxes stay and a note under the
   field says why. The boundary points that pass the coordinate rule are sent with the search, and
@@ -274,3 +274,10 @@ build and the e2e test in step 8.
   empty network, and again as a server error, the hint "Die amtliche Gewässerliste ist gerade
   nicht verfügbar" shows under the field, is the field's `aria-describedby`, and the typed name
   `Dorfbach` is saved.
+- **Chain and distance in the browser** (step 6), same setup, lower boundary typed as 476000 /
+  5416000 near Pforzheim: `Mühlb` lists the nearest match first with its distance, `Agenbacher
+  Sägmühlbach, fließt in Kleine Enz, 24 km entfernt`, ahead of the nearest plain `Mühlbach`
+  (Nagold, 32 km); the search matches inside a name, so the nearest match is not always the
+  plain name. Picking it, over a stale chain with two messages standing (a gap at box 3), saved
+  `Kleine Enz, Enz, Neckar, Rhein` with box 5 emptied, and left no chain message. Picking
+  `Knappengrund` (7 links to the Rhein) left the boxes as they were and showed the note.

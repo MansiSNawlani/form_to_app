@@ -500,7 +500,10 @@
           "stehend": "standing water",
           "laedt": "Searching the official water body network.",
           "keinTreffer": "No match in the official water body network. You can type the name freely; the protocol is then saved without an official identifier.",
-          "nichtVerfuegbar": "The official list of water bodies is not available right now. Type the name freely; the protocol is then saved without an official identifier."
+          "nichtVerfuegbar": "The official list of water bodies is not available right now. Type the name freely; the protocol is then saved without an official identifier.",
+          "entfernt": "{{entfernung}} away",
+          "ketteZuLang": "This water body's chain of receiving waters is longer than the five boxes below, so it was not filled in. Please enter the receiving waters yourself.",
+          "ketteStehend": "The official network records no receiving waters for a standing water. Please enter them below yourself."
         },
         "feld": {
           "gewaessername": "Water body (Gewässer)",

@@ -14,11 +14,17 @@ import { gewaessersucheAbfrage, type Gewaessertreffer } from '../gewaessernetz/a
 import {
   KENNUNG_LEEREN,
   KENNUNG_PFAD,
+  entfernungText,
   kennungBleibt,
+  kettenHinweis,
+  suchpunkte,
   wahlSchreibt,
   type Eintraege,
+  type KettenHinweis,
 } from '../gewaessernetz/auswahl'
+import { VORFLUTER_PFADE } from '../regeln/vorfluter'
 import type { Antworten } from '../entwurf/typen'
+import { useLocale } from '../../i18n/useLocale'
 
 /* The Gewaesser name, searched against LUBW's official network as it is typed.
  *
@@ -41,14 +47,25 @@ interface GewaessersucheProps extends Omit<FeldRahmenProps, 'id'> {
 
 function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: GewaessersucheProps) {
   const { t } = useTranslation()
-  const { control, getValues, setValue } = useFormContext<Antworten>()
+  const { control, getValues, setValue, trigger } = useFormContext<Antworten>()
+  const sprache = useLocale()
   const fehlerKey = useFeldFehler(name)
   const nurLesen = useNurLesen()
 
   const [offen, setOffen] = useState(false)
   const [eingabe, setEingabe] = useState('')
   const gesucht = useVerzoegert(eingabe, VERZOEGERUNG_MS)
-  const suche = useQuery({ ...gewaessersucheAbfrage(gesucht), enabled: offen && gesucht.trim().length >= 2 })
+  /* Read on each render rather than watched: this field re-renders as it is
+     typed into, which is the only moment the points matter, and a subscription
+     would re-render it on every keystroke in the coordinate boxes too. */
+  const punkte = suchpunkte(getValues('probestrecke'))
+  const suche = useQuery({
+    ...gewaessersucheAbfrage(gesucht, punkte),
+    enabled: offen && gesucht.trim().length >= 2,
+  })
+
+  // Why the last pick left the Vorfluter boxes alone, until the name is typed over.
+  const [kette, setKette] = useState<KettenHinweis | null>(null)
 
   /* The name the current identifier was picked with. Held for this visit only:
      after a reload it is unknown, and the first change to the box then clears
@@ -74,12 +91,19 @@ function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: Gewaes
       gewaehlt.current = undefined
       schreibe(KENNUNG_LEEREN)
     }
+    setKette(null)
   }
 
   /* Said under the field once a search has shown it cannot help: nothing loaded
      on the server, or the request failed. Typing still works either way. */
   const nichtVerfuegbar = suche.isError || (suche.data !== undefined && suche.data.stand === null)
-  const hinweis: ParseKeys | undefined = nichtVerfuegbar ? `${SUCHE}.nichtVerfuegbar` : hinweisKey
+  const hinweis: ParseKeys | undefined = nichtVerfuegbar
+    ? `${SUCHE}.nichtVerfuegbar`
+    : kette === 'zuLang'
+      ? `${SUCHE}.ketteZuLang`
+      : kette === 'stehend'
+        ? `${SUCHE}.ketteStehend`
+        : hinweisKey
   const treffer = nichtVerfuegbar ? [] : (suche.data?.treffer ?? [])
 
   return (
@@ -124,6 +148,10 @@ function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: Gewaes
               if (!stand) return
               gewaehlt.current = gewaehlterTreffer.name
               schreibe(wahlSchreibt(gewaehlterTreffer, stand))
+              setKette(kettenHinweis(gewaehlterTreffer))
+              /* The chain rule reads all five boxes together, and each box above
+                 was checked while the others still held the old chain. */
+              void trigger([...VORFLUTER_PFADE])
             }}
             onBlur={field.onBlur}
             getOptionLabel={(option) => (typeof option === 'string' ? option : option.name)}
@@ -139,6 +167,8 @@ function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: Gewaes
                     {option.vorfluter_name === null
                       ? t(`${SUCHE}.stehend`)
                       : t(`${SUCHE}.fliesstIn`, { name: option.vorfluter_name })}
+                    {option.entfernung_m !== null &&
+                      `, ${t(`${SUCHE}.entfernt`, { entfernung: entfernungText(option.entfernung_m, sprache) })}`}
                   </span>
                 </span>
               </li>

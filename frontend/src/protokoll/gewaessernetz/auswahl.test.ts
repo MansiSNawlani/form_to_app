@@ -6,7 +6,10 @@ import {
   NAME_PFAD,
   VERSION_PFAD,
   datensatzversion,
+  entfernungText,
   kennungBleibt,
+  kettenHinweis,
+  suchpunkte,
   wahlSchreibt,
 } from './auswahl'
 
@@ -19,13 +22,75 @@ const MUEHLBACH: Gewaessertreffer = {
   entfernung_m: 640,
 }
 
+const KETTE = [1, 2, 3, 4, 5].map((n) => `probestrecke.gewaesser.vorfluter${n}`)
+
 describe('wahlSchreibt', () => {
-  it('schreibt Name, Kennung und Stand', () => {
+  it('schreibt Name, Kennung, Stand und die passende Kette, leert den Rest', () => {
     expect(wahlSchreibt(MUEHLBACH, '2025-05-01')).toEqual([
       [NAME_PFAD, 'Mühlbach'],
       [KENNUNG_PFAD, '2384100000000'],
       [VERSION_PFAD, 'AWGN 2025-05-01'],
+      [KETTE[0], 'Enz'],
+      [KETTE[1], 'Neckar'],
+      [KETTE[2], 'Rhein'],
+      [KETTE[3], ''],
+      [KETTE[4], ''],
     ])
+  })
+
+  it('laesst die Vorfluter stehen, wenn die Kette nicht passt', () => {
+    const lang = { ...MUEHLBACH, vorfluter: null }
+    expect(wahlSchreibt(lang, '2025-05-01').map(([pfad]) => pfad)).toEqual([
+      NAME_PFAD,
+      KENNUNG_PFAD,
+      VERSION_PFAD,
+    ])
+  })
+})
+
+describe('kettenHinweis', () => {
+  it('nichts, wenn die Kette eingetragen wird', () => {
+    expect(kettenHinweis(MUEHLBACH)).toBeNull()
+  })
+
+  it('zu lang bei einem Fliessgewaesser ohne passende Kette', () => {
+    expect(kettenHinweis({ ...MUEHLBACH, vorfluter: null })).toBe('zuLang')
+  })
+
+  it('stehend bei einem stehenden Gewaesser', () => {
+    expect(
+      kettenHinweis({ ...MUEHLBACH, art: 'STEHENDES_GEWAESSER', vorfluter: null, vorfluter_name: null }),
+    ).toBe('stehend')
+  })
+})
+
+describe('entfernungText', () => {
+  it.each([
+    [0, 'de', '0 m'],
+    [640, 'de', '640 m'],
+    [999, 'de', '999 m'],
+    [1000, 'de', '1 km'],
+    [12345, 'de', '12,3 km'],
+    [12345, 'en', '12.3 km'],
+  ] as const)('%d m auf %s', (meter, sprache, erwartet) => {
+    expect(entfernungText(meter, sprache)).toBe(erwartet)
+  })
+})
+
+describe('suchpunkte', () => {
+  it('nimmt nur Punkte, die die Koordinatenregel annimmt', () => {
+    expect(
+      suchpunkte({
+        utm_rw_unten: '513224',
+        utm_hw_unten: '5402838',
+        utm_rw_oben: '700000',
+        utm_hw_oben: '5402838',
+      }),
+    ).toEqual([[513224, 5402838]])
+  })
+
+  it('nichts ohne Koordinaten', () => {
+    expect(suchpunkte(undefined)).toEqual([])
   })
 })
 

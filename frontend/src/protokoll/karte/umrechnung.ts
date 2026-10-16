@@ -35,13 +35,25 @@ export function zuKartenpunkt(
   rechtswert: string | undefined,
   hochwert: string | undefined,
 ): Kartenpunkt | null {
+  const punkt = gueltigerPunkt(rechtswert, hochwert)
+  if (punkt === null) return null
+
+  const [lng, lat] = umrechner.inverse([...punkt])
+  return { lng, lat }
+}
+
+/* The same test in whole metres, for what needs the numbers rather than a map
+   position: the Gewaesser search sends the stretch's points to rank the nearest
+   waters first, and only ones the form accepts. */
+export function gueltigerPunkt(
+  rechtswert: string | undefined,
+  hochwert: string | undefined,
+): readonly [number, number] | null {
   const rw = ganzeZahlInnerhalb(rechtswert, BW_GRENZEN.rechtswert)
   const hw = ganzeZahlInnerhalb(hochwert, BW_GRENZEN.hochwert)
   if (rw === null || hw === null) return null
   if (!liegtImLand(LANDESGRENZE, rw, hw)) return null
-
-  const [lng, lat] = umrechner.inverse([rw, hw])
-  return { lng, lat }
+  return [rw, hw]
 }
 
 /* Rounded to whole metres, because that is all regeln/koordinaten.ts accepts

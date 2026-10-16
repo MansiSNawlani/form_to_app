@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BW_GRENZEN } from '../regeln/koordinaten'
-import { zuKartenpunkt, zuUtm } from './umrechnung'
+import { gueltigerPunkt, zuKartenpunkt, zuUtm } from './umrechnung'
 
 /* Reference values from pyproj 3.8.0 (PROJ), computed independently of proj4
    on 2026-10-14. A conversion checked only against itself would pass while
@@ -81,5 +81,22 @@ describe('zuKartenpunkt', () => {
     ['a point in Wuerzburg, inside the rectangle but outside the state', '566895', '5515841'],
   ])('gives no point for %s', (_fall, rechtswert, hochwert) => {
     expect(zuKartenpunkt(rechtswert, hochwert)).toBeNull()
+  })
+})
+
+describe('gueltigerPunkt', () => {
+  it('gibt einen Punkt im Land in ganzen Metern zurueck', () => {
+    expect(gueltigerPunkt('513224', '5402838')).toEqual([513224, 5402838])
+  })
+
+  it.each([
+    ['', '5402838'],
+    ['513224', undefined],
+    ['513224.5', '5402838'],
+    ['700000', '5402838'],
+    // Wuerzburg: inside the rectangle, outside the border.
+    ['567000', '5517000'],
+  ])('nichts fuer %j, %j', (rw, hw) => {
+    expect(gueltigerPunkt(rw, hw)).toBeNull()
   })
 })
