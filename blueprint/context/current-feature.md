@@ -148,7 +148,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   both screens for a picked water and not for a typed one (screenshot); a backend test proves the
   PDF text contains the identifier; the beschriftungen test passes.
 
-- [ ] **Step 8 - Browser test** - `frontend/e2e/gewaessersuche.spec.ts`: search, pick, the chain
+- [x] **Step 8 - Browser test** - `frontend/e2e/gewaessersuche.spec.ts`: search, pick, the chain
   filled, the identifier line, typing clears it, save and reload keeps it. Skips with a sentence
   when no release is loaded, the same way the suite skips without accounts. *Done when:* it passes
   against the Compose database with 2025-05-01 loaded, and `karte.spec.ts` still passes.
@@ -288,3 +288,10 @@ build and the e2e test in step 8.
   check accepted the real identifier) shows the same line on its read-only page. The PDF prints
   `Amtliche Kennung` and `Stand des Gewässernetzes` right after the Gewässer name, proved by
   `dokument_test.py`; `npm run beschriftungen` placed both paths there (176 labels).
+- **Browser test** (step 8): `npm run e2e` for `gewaessersuche.spec.ts` (3 passed) and
+  `karte.spec.ts` (4 passed) against the Compose database with 2025-05-01 loaded, and
+  `fehler-am-feld.spec.ts` (4 passed), run as the throwaway submitter through
+  `E2E_EMAIL_EINREICHER`. The third 18c test holds the fix of 2026-10-15 for the new control: an
+  empty Gewässer refused at submit is `aria-invalid` with the message as its description until a
+  name is typed. The specs needing the reviewer and admin accounts were not run: their password
+  is not in this environment.
