@@ -174,7 +174,11 @@ function setzeMarke(
 
 function einpassen(map: maplibregl.Map, unten: Kartenpunkt | null, oben: Kartenpunkt | null) {
   if (unten && oben) {
-    map.fitBounds([unten, oben], { padding: 80, maxZoom: 15 })
+    /* Grown from both points rather than given as a pair, which MapLibre reads
+       as south-west then north-east: a lower boundary east of the upper one
+       would otherwise be a box round the far side of the globe. */
+    const rahmen = new maplibregl.LngLatBounds(unten, unten).extend(oben)
+    map.fitBounds(rahmen, { padding: 80, maxZoom: 15 })
   } else if (unten || oben) {
     map.easeTo({ center: (unten ?? oben)!, zoom: 14 })
   } else {
