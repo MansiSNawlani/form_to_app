@@ -97,6 +97,34 @@ def test_laesst_unbeantwortete_felder_weg() -> None:
     assert "Sichttiefe" not in text
 
 
+def test_druckt_die_amtliche_kennung_eines_gewaehlten_gewaessers() -> None:
+    """Feature 18c: a water picked from the official network carries its identifier
+    onto paper, labelled from the same keys the form uses."""
+    gewaehlt = {
+        **ANTWORTEN,
+        "probestrecke": {
+            "gewaesser": {
+                "gewaessername": "Neckar",
+                "amtliche_id": "2380000000000",
+                "gis_dataset_version": "AWGN 2025-05-01",
+            }
+        },
+    }
+
+    text = text_von(baue(KOPF, gewaehlt))
+
+    assert "Amtliche Kennung" in text
+    assert "2380000000000" in text
+    assert "Stand des Gewässernetzes" in text
+    assert "AWGN 2025-05-01" in text
+
+
+def test_ohne_kennung_keine_zeile_dafuer() -> None:
+    text = text_von(baue(KOPF, ANTWORTEN))
+
+    assert "Amtliche Kennung" not in text
+
+
 def test_laesst_einen_ganzen_abschnitt_weg_wenn_nichts_beantwortet_ist() -> None:
     text = text_von(baue(KOPF, {"anlass": "best"}))
 

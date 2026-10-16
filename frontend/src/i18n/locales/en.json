@@ -507,6 +507,8 @@
         },
         "feld": {
           "gewaessername": "Water body (Gewässer)",
+          "amtlicheId": "Official identifier",
+          "gewaessernetzStand": "Water body network release",
           "gewaessertyp": "Water body type (Gewässertyp)",
           "gewaessertypHinweis": "For a lake, a pond and a cut-off oxbow, section 2 (hydrology) is left out.",
           "laenge": "Length of the stretch",

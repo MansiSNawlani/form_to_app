@@ -507,6 +507,8 @@
         },
         "feld": {
           "gewaessername": "Gewässer",
+          "amtlicheId": "Amtliche Kennung",
+          "gewaessernetzStand": "Stand des Gewässernetzes",
           "gewaessertyp": "Gewässertyp",
           "gewaessertypHinweis": "Bei See, Teich und abgeschnittenem Altwasser entfällt Abschnitt 2 (Hydrologie).",
           "laenge": "Länge der Strecke",

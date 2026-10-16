@@ -141,7 +141,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   the nearest Mühlbach first with its distance, picking it fills the chain with no message
   standing, and a long-chain water leaves the boxes and shows the note (screenshots in Evidence).
 
-- [ ] **Step 7 - The identifier shown** - a read-only line `Amtliche Kennung: <id> (AWGN
+- [x] **Step 7 - The identifier shown** - a read-only line `Amtliche Kennung: <id> (AWGN
   <stand>)` under the Gewässer field when one is set, the same line on the review screen
   (`nurlesen`), and the identifier in the PDF download (`ausgabe/dokument.py`, and
   `npm run beschriftungen` regenerated if the label list changes). *Done when:* the line shows in
@@ -281,3 +281,10 @@ build and the e2e test in step 8.
   plain name. Picking it, over a stale chain with two messages standing (a gap at box 3), saved
   `Kleine Enz, Enz, Neckar, Rhein` with box 5 emptied, and left no chain message. Picking
   `Knappengrund` (7 links to the Rhein) left the boxes as they were and showed the note.
+- **The identifier shown** (step 7): a draft holding the backend's complete test protocol, picked
+  as the real Wolfegger Ach (`2154600000000`), shows `Amtliche Kennung: 2154600000000 (AWGN
+  2025-05-01)` under the Gewässer field, and the field's `aria-describedby` names that line;
+  typing one letter into the name removes it. The same protocol submitted (200, so the submit
+  check accepted the real identifier) shows the same line on its read-only page. The PDF prints
+  `Amtliche Kennung` and `Stand des Gewässernetzes` right after the Gewässer name, proved by
+  `dokument_test.py`; `npm run beschriftungen` placed both paths there (176 labels).

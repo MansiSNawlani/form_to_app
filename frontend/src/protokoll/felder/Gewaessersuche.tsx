@@ -3,7 +3,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import { useQuery } from '@tanstack/react-query'
 import type { ParseKeys } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import FeldRahmen from './FeldRahmen'
 import { useFeldFehler } from './fehler'
@@ -14,6 +14,8 @@ import { gewaessersucheAbfrage, type Gewaessertreffer } from '../gewaessernetz/a
 import {
   KENNUNG_LEEREN,
   KENNUNG_PFAD,
+  NAME_PFAD,
+  VERSION_PFAD,
   entfernungText,
   kennungBleibt,
   kettenHinweis,
@@ -23,7 +25,7 @@ import {
   type KettenHinweis,
 } from '../gewaessernetz/auswahl'
 import { VORFLUTER_PFADE } from '../regeln/vorfluter'
-import type { Antworten } from '../entwurf/typen'
+import type { Antworten, AntwortPfad } from '../entwurf/typen'
 import { useLocale } from '../../i18n/useLocale'
 
 /* The Gewaesser name, searched against LUBW's official network as it is typed.
@@ -41,11 +43,27 @@ const VERZOEGERUNG_MS = 250
 
 const SUCHE = 'protokoll.abschnitt1.probestrecke.gewaessersuche'
 
-interface GewaessersucheProps extends Omit<FeldRahmenProps, 'id'> {
-  name: 'probestrecke.gewaesser.gewaessername'
+/** An answer shown read-only under the field, and what to call it. */
+interface Zusatz<P extends AntwortPfad> {
+  pfad: P
+  labelKey: ParseKeys
 }
 
-function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: GewaessersucheProps) {
+interface GewaessersucheProps extends Omit<FeldRahmenProps, 'id'> {
+  name: typeof NAME_PFAD
+  kennung: Zusatz<typeof KENNUNG_PFAD>
+  stand: Zusatz<typeof VERSION_PFAD>
+}
+
+function Gewaessersuche({
+  name,
+  labelKey,
+  spalten,
+  pflicht,
+  hinweisKey,
+  kennung,
+  stand,
+}: GewaessersucheProps) {
   const { t } = useTranslation()
   const { control, getValues, setValue, trigger } = useFormContext<Antworten>()
   const sprache = useLocale()
@@ -72,10 +90,30 @@ function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: Gewaes
      the identifier, which is the safe direction to be wrong in. */
   const gewaehlt = useRef<string | undefined>(undefined)
 
+  /* Two answers that change only when a water is picked or the name typed over,
+     so watching them costs nothing while somebody types elsewhere. */
+  const [amtlicheId, version] = useWatch<Antworten>({
+    name: [kennung.pfad, stand.pfad],
+  }) as readonly (string | undefined)[]
+  const kennungId = `${name}-kennung`
+  const kennungszeile = amtlicheId ? (
+    <p className="gewaessersuche__kennung" id={kennungId}>
+      {t(kennung.labelKey)}: {amtlicheId}
+      {version ? ` (${version})` : ''}
+    </p>
+  ) : null
+
   if (nurLesen) {
     return (
-      <FeldRahmen id={name} labelKey={labelKey} spalten={spalten} pflicht={pflicht} hinweisKey={hinweisKey}>
+      <FeldRahmen
+        id={name}
+        labelKey={labelKey}
+        spalten={spalten}
+        pflicht={pflicht}
+        hinweisKey={hinweisKey}
+      >
         <Feldwert wert={getValues(name)} />
+        {kennungszeile}
       </FeldRahmen>
     )
   }
@@ -173,16 +211,28 @@ function Gewaessersuche({ name, labelKey, spalten, pflicht, hinweisKey }: Gewaes
                 </span>
               </li>
             )}
-            renderInput={({ slotProps }) => (
-              <OutlinedInput
-                {...slotProps.input}
-                inputProps={{ ...slotProps.htmlInput, ...feldAria(name, pflicht, hinweis, fehlerKey) }}
-                fullWidth
-              />
-            )}
+            renderInput={({ slotProps }) => {
+              const aria = feldAria(name, pflicht, hinweis, fehlerKey)
+              // The identifier is read out with the field, as part of what it holds.
+              const beschrieben = [aria['aria-describedby'], kennungszeile && kennungId]
+                .filter(Boolean)
+                .join(' ')
+              return (
+                <OutlinedInput
+                  {...slotProps.input}
+                  inputProps={{
+                    ...slotProps.htmlInput,
+                    ...aria,
+                    'aria-describedby': beschrieben || undefined,
+                  }}
+                  fullWidth
+                />
+              )
+            }}
           />
         )}
       />
+      {kennungszeile}
     </FeldRahmen>
   )
 }
