@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { EINFLUESSE } from './bloecke'
 import EinfluesseWiderspruch from './EinfluesseWiderspruch'
 import FeldHaken from '../../felder/FeldHaken'
-import BlockAblehnung from '../../absenden/BlockAblehnung'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import FeldText from '../../felder/FeldText'
 
 /* What people do with the water along the stretch.
@@ -49,7 +49,7 @@ function EinfluesseBlock() {
       </div>
 
       <EinfluesseWiderspruch id={WIDERSPRUCH_ID} />
-      <BlockAblehnung pfad="block.einfluesse" id={ABLEHNUNG_ID} />
+      <BlockMeldung pfad="block.einfluesse" id={ABLEHNUNG_ID} />
     </fieldset>
   )
 }

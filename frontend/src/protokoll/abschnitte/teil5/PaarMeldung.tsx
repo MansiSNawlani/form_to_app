@@ -1,11 +1,9 @@
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import type { Paarpfad } from './bloecke'
 import { findePaar, istLeeresPaar } from '../../regeln/ausruestung'
 import type { Antworten } from '../../entwurf/typen'
-import { blockAnzeige } from '../../absenden/amFeld'
-import { useServerMeldung } from '../../absenden/verstossKontext'
+import BlockMeldung from '../../absenden/BlockMeldung'
 
 /* What a pair of numbers currently fails to say, shown under the two of them.
 
@@ -29,7 +27,6 @@ interface PaarMeldungProps {
 }
 
 function PaarMeldung({ id, paar }: PaarMeldungProps) {
-  const { t } = useTranslation()
   const { schluessel } = findePaar(paar)
 
   /* Memoised because useWatch resubscribes when the name array changes
@@ -45,19 +42,9 @@ function PaarMeldung({ id, paar }: PaarMeldungProps) {
   const werte = useWatch<Antworten>({ name: pfade }) as readonly (string | undefined)[]
 
   const leer = istLeeresPaar(werte)
-  const { meldung, abgelehnt } = blockAnzeige(
-    leer ? schluessel : undefined,
-    useServerMeldung(paar),
-    !leer,
-  )
 
   return (
-    /* Always rendered, empty when there is nothing to say. A live region added
-       to the page at the same moment as its text is unreliably announced; one
-       that is already there is not. */
-    <p className="block-message" id={id} role="status" data-abgelehnt={abgelehnt || undefined}>
-      {meldung ? t(meldung) : ''}
-    </p>
+    <BlockMeldung pfad={paar} id={id} browser={leer ? schluessel : undefined} erledigt={!leer} />
   )
 }
 

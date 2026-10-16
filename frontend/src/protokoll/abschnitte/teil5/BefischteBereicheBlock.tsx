@@ -7,7 +7,7 @@ import {
 } from './bloecke'
 import PaarMeldung from './PaarMeldung'
 import FeldHaken from '../../felder/FeldHaken'
-import BlockAblehnung from '../../absenden/BlockAblehnung'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import FeldText from '../../felder/FeldText'
 
 /* Which stretch of water was actually fished, in which direction and how.
@@ -37,7 +37,7 @@ interface BereichZeileProps {
 function BereichZeile({ bereich }: BereichZeileProps) {
   const { t } = useTranslation()
   const { id, legendKey, laenge, breite, richtung, methode } = bereich
-  const ablehnungId = `ablehnung-${id.replace('.', '-')}`
+  const ablehnungId = `ablehnung-${id.replaceAll('.', '-')}`
 
   return (
     <fieldset className="form-block" aria-describedby={ablehnungId}>
@@ -83,7 +83,7 @@ function BereichZeile({ bereich }: BereichZeileProps) {
         </div>
       </fieldset>
 
-      <BlockAblehnung pfad={id} id={ablehnungId} />
+      <BlockMeldung pfad={id} id={ablehnungId} />
     </fieldset>
   )
 }

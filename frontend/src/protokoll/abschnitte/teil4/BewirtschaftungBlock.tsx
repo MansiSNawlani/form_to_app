@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import BesatzZeilen from './BesatzZeilen'
 import { BEWIRTSCHAFTUNG } from './bloecke'
 import FeldHaken from '../../felder/FeldHaken'
-import BlockAblehnung from '../../absenden/BlockAblehnung'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import FeldText from '../../felder/FeldText'
 
 /* How the water is fished and by whom.
@@ -44,7 +44,7 @@ function BewirtschaftungBlock() {
       </div>
 
       <BesatzZeilen />
-      <BlockAblehnung pfad="block.bewirtschaftung" id={ABLEHNUNG_ID} />
+      <BlockMeldung pfad="block.bewirtschaftung" id={ABLEHNUNG_ID} />
     </fieldset>
   )
 }

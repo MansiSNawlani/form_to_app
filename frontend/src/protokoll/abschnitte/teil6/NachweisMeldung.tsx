@@ -1,10 +1,8 @@
 import { useMemo } from 'react'
 import { useFormState, useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { zaehlzelleBeruehrt } from './tabelle'
 import { benannteArten, fangOhneNachweisCode } from '../../regeln/arten'
-import { blockAnzeige } from '../../absenden/amFeld'
-import { useServerMeldung } from '../../absenden/verstossKontext'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import type { Antworten } from '../../entwurf/typen'
 
 /* The one thing that can be wrong with the catch table as a whole: it records a
@@ -33,9 +31,12 @@ import type { Antworten } from '../../entwurf/typen'
  * straight away.
  */
 
-function NachweisMeldung() {
-  const { t } = useTranslation()
+interface NachweisMeldungProps {
+  /** The table's fieldset points at this with aria-describedby. */
+  id: string
+}
 
+function NachweisMeldung({ id }: NachweisMeldungProps) {
   /* One subscription to the group rather than 312 to its cells. Wide by design
      and acceptable because this is a leaf, the same trade Gesamtsumme.tsx makes:
      a keystroke re-renders this message and no cell. */
@@ -52,21 +53,18 @@ function NachweisMeldung() {
 
   const sprechen = zaehlzelleBeruehrt(touchedFields.arten) || vorbefuellt
 
-  /* Refused at submit for naming no species at all, which lifts as soon as one
-     row names one: the same reading the server's rule makes. */
-  const { meldung, abgelehnt } = blockAnzeige(
-    schluessel && sprechen ? schluessel : undefined,
-    useServerMeldung('tabelle.arten'),
-    benannteArten({ arten }).length > 0,
-  )
+  /* Put right once a species is named and the browser's own rule is quiet. The
+     server refuses this table either for naming no species at all or for a
+     catch beside a no-detection code, and this reading covers both. */
+  const erledigt = benannteArten({ arten }).length > 0 && schluessel === undefined
 
   return (
-    /* Always rendered, empty when there is nothing to say. A live region added to
-       the page at the same moment as its text is unreliably announced; one that
-       is already there is not. */
-    <p className="block-message" role="status" data-abgelehnt={abgelehnt || undefined}>
-      {meldung ? t(meldung) : ''}
-    </p>
+    <BlockMeldung
+      pfad="tabelle.arten"
+      id={id}
+      browser={schluessel && sprechen ? schluessel : undefined}
+      erledigt={erledigt}
+    />
   )
 }
 

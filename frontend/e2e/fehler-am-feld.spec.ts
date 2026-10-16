@@ -87,5 +87,6 @@ test('die Markierung uebersteht das Neuladen', async ({ page }) => {
   await page.goto(`/protokolle/${id}/abschnitt/1`)
   await page.reload()
 
-  await expect(page.getByRole('textbox', { name: 'E-Mail' })).toHaveAttribute('aria-invalid', 'true')
+  const email = page.getByRole('textbox', { name: 'E-Mail' })
+  await expect(email).toHaveAttribute('aria-invalid', 'true')
 })

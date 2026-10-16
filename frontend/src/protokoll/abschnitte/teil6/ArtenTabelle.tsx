@@ -48,6 +48,8 @@ const LOESEN_AUS: readonly AntwortPfad[] = alleArtPfade()
  * before opening the rest.
  */
 
+const NACHWEIS_ID = 'meldung-arten'
+
 function ArtenTabelle() {
   const { t } = useTranslation()
   const { getValues, setValue, trigger } = useFormContext<Antworten>()
@@ -102,7 +104,7 @@ function ArtenTabelle() {
   )
 
   return (
-    <fieldset className="form-section form-section--tabelle">
+    <fieldset className="form-section form-section--tabelle" aria-describedby={NACHWEIS_ID}>
       <legend>{t('protokoll.abschnitt6.tabelle.legend')}</legend>
       <p className="form-section__hint">{t('protokoll.abschnitt6.tabelle.hinweis')}</p>
 
@@ -182,7 +184,7 @@ function ArtenTabelle() {
           somebody can go to; the table's own verdict after, because it is about
           all of them. */}
       <Zellmeldungen />
-      <NachweisMeldung />
+      <NachweisMeldung id={NACHWEIS_ID} />
 
       <div className="tabelle-aktionen">
         <Button

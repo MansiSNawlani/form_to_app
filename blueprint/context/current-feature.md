@@ -137,6 +137,39 @@ Hand the server's list to the fields and let the existing error display do the r
   all saying 2; Pflaumbach opens with the two Grenze fields, the Damm share, and the Einflüsse
   and Bewirtschaftung blocks marked. No import-specific code was needed.
 
+**Code review** (2026-10-16, standards and spec in parallel)
+
+Fixed:
+
+- The four block message lines were the same markup four times: now one `BlockMeldung`
+  (renamed from `BlockAblehnung`), given the browser's key and the block's own "erledigt".
+- The catch table's message had no id and its fieldset no `aria-describedby`, so the outline
+  was not announced. Now `meldung-arten`, described by.
+- The catch table counted itself put right as soon as a species was named, whatever the server
+  had refused it for. Now only when a species is named **and** the browser's rule is quiet,
+  which covers both of the server's keys for that path.
+- `replaceAll` for the area ids, one e2e line over 100 columns.
+
+Deviations from the text above, kept deliberately:
+
+- **Blocks that can judge themselves lift their outline when put right**, not at the next
+  submit: a run at 100, a pair no longer both zero, a contradiction gone, a species named.
+  Only the Einflüsse and Bewirtschaftung ticks and the two fished areas keep theirs until
+  the next submit, as the list does. A run showing "Summe: 100 %" in red would contradict
+  itself.
+- **Block messages sit at the foot of the block**, in the line each block already had, not
+  under the legend: one line per block, never two.
+- **The import case is checked by hand only.** The real protocols are untracked
+  (`Resources/`), so no committed test can read one.
+
+Open, for Mansi to decide:
+
+- **A refused field that is filled in is not marked.** The rule "red while still empty" was
+  taken from the list's "ausgefüllt" so the two agree. It means a server-only refusal of a
+  value that is there, chiefly a boundary point outside Baden-Württemberg, never reaches the
+  field. The browser's own twin covers most others (Vorfluter chain, estimates, duplicate
+  species). Closing it means "red until changed since the refusal" for both field and list.
+
 ## Verify
 
 1. Open a draft with some mandatory fields empty and press **Absenden**.
