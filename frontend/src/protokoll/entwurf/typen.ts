@@ -448,6 +448,11 @@ export interface Antworten {
       vorfluter3?: string
       vorfluter4?: string
       vorfluter5?: string
+      /* Not on the printed form. Written together by picking a water from the
+         official network (feature 18c), cleared together by typing over its name,
+         and checked at submit by backend/app/gewaessernetz/kennung.py. */
+      amtliche_id?: string
+      gis_dataset_version?: string
     }
     ortsangabe?: string
     gewaessertyp?: string

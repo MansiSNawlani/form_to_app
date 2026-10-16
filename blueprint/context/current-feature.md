@@ -108,7 +108,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   matched by a typed name, and no `UPDATE` appears; the import still refuses neither path (it
   never sees them) and the existing zuordnung, submit and import tests pass.
 
-- [ ] **Step 4 - The check at submit** - in `absenden.py`, after the pure rules and before
+- [x] **Step 4 - The check at submit** - in `absenden.py`, after the pure rules and before
   `ordne_zu`: an identifier without a release, a release not loaded, an identifier not in that
   release, or a name that no longer matches (by `normalisiert`) is a `Formverstoss` on
   `probestrecke.gewaesser.gewaessername` with one new message key, whose wording says to pick the
@@ -118,7 +118,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   tests for each of the four refusals and for a release without an identifier, plus a pick that
   passes, plus a protocol with no identifier that passes exactly as before.
 
-- [ ] **Step 5 - The search field** - `felder/Gewaessersuche.tsx`: MUI `Autocomplete` with
+- [x] **Step 5 - The search field** - `felder/Gewaessersuche.tsx`: MUI `Autocomplete` with
   `freeSolo` inside the usual `FeldRahmen`, replacing the `FeldText` for the Gewässer name.
   TanStack Query for the request, debounced, starting at 2 characters, without points yet. Each
   option shows the name and `fließt in <Vorfluter>` or `stehendes Gewässer`. Picking writes the
@@ -265,3 +265,12 @@ build and the e2e test in step 8.
   `Mühlbach` 46 ms, `Mühlbach` with two points 39 ms, `bach` 43 ms, `bach` with a point 56 ms,
   `Neckar` 36 ms. Well under 150 ms, so no trigram index. `Neckar` comes back with the chain
   `Rhein`; the first `Mühlbach` alphabetically flows `Brigach, Donau`.
+- **The search field in the browser** (step 5), against the rebuilt Compose backend and the
+  2025-05-01 release, with a throwaway submitter `pruefung-18c@test.de`: typing `Neckar` lists 20
+  waters, each with `fließt in ...` under its name; picking `Neckar` saved `amtliche_id`
+  `2380000000000` and `gis_dataset_version` `AWGN 2025-05-01`; typing one more letter saved both
+  empty with the name `Neckarx`; keyboard only (type, arrow down, Enter) picked the Enz
+  (`2384000000000`). The field is the combobox named `Gewässer`. With the search answered as an
+  empty network, and again as a server error, the hint "Die amtliche Gewässerliste ist gerade
+  nicht verfügbar" shows under the field, is the field's `aria-describedby`, and the typed name
+  `Dorfbach` is saved.

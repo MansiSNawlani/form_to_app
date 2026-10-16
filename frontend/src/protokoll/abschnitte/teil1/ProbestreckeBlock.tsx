@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
+import Gewaessersuche from '../../felder/Gewaessersuche'
 import type { AntwortPfad } from '../../entwurf/typen'
 import { PUNKTE } from '../../regeln/koordinaten'
 import { useNachpruefung } from '../../regeln/useNachpruefung'
@@ -53,7 +54,7 @@ function ProbestreckeBlock() {
       </p>
 
       <div className="grid">
-        <FeldText
+        <Gewaessersuche
           name="probestrecke.gewaesser.gewaessername"
           labelKey="protokoll.abschnitt1.probestrecke.feld.gewaessername"
           spalten={5}

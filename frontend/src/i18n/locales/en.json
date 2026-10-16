@@ -495,6 +495,13 @@
           "titel": "Chain of receiving waters.",
           "text": "Enter them going downstream from the sampling stretch. The chain must end at the Rhein (Rhine) or the Donau (Danube), so that the stretch can be placed in the river network."
         },
+        "gewaessersuche": {
+          "fliesstIn": "flows into {{name}}",
+          "stehend": "standing water",
+          "laedt": "Searching the official water body network.",
+          "keinTreffer": "No match in the official water body network. You can type the name freely; the protocol is then saved without an official identifier.",
+          "nichtVerfuegbar": "The official list of water bodies is not available right now. Type the name freely; the protocol is then saved without an official identifier."
+        },
         "feld": {
           "gewaessername": "Water body (Gewässer)",
           "gewaessertyp": "Water body type (Gewässertyp)",

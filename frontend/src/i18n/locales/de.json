@@ -495,6 +495,13 @@
           "titel": "Vorfluterkette.",
           "text": "Von der Probestrecke abwärts eintragen. Die Kette muss beim Rhein oder bei der Donau enden, damit die Strecke im Gewässernetz eingeordnet werden kann."
         },
+        "gewaessersuche": {
+          "fliesstIn": "fließt in {{name}}",
+          "stehend": "stehendes Gewässer",
+          "laedt": "Das amtliche Gewässernetz wird durchsucht.",
+          "keinTreffer": "Kein Treffer im amtlichen Gewässernetz. Sie können den Namen frei eintippen; das Protokoll wird dann ohne amtliche Kennung gespeichert.",
+          "nichtVerfuegbar": "Die amtliche Gewässerliste ist gerade nicht verfügbar. Tippen Sie den Namen frei ein; das Protokoll wird dann ohne amtliche Kennung gespeichert."
+        },
         "feld": {
           "gewaessername": "Gewässer",
           "gewaessertyp": "Gewässertyp",
