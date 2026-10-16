@@ -139,10 +139,12 @@ class Probestrecke(Base):
 
     # EPSG:25832 (ETRS89 / UTM zone 32N), the system the legacy form uses.
     #
-    # Plain integers, not PostGIS geometry. Nothing before feature 18 asks a
-    # spatial question of them, and the equality these are matched on is an
-    # integer comparison. Feature 18 is where a geometry column and the snapping
-    # that needs it belong.
+    # Plain integers, not PostGIS geometry, and these are the typed values. The
+    # equality a stretch is matched on is an integer comparison. Snapping
+    # (feature 18d) asks its spatial question of the water body network instead
+    # and keeps each point's position on the water in the protocol's answers,
+    # beside these rather than in place of them, so no geometry column was
+    # needed here.
     #
     # No bounds check here even though formregeln/koordinaten.py has one. That
     # module says its numbers are still to be confirmed with FFS, and a check

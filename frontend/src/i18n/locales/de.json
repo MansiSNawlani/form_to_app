@@ -525,7 +525,18 @@
           "utmHwUnten": "Untere Grenze, Hochwert",
           "obere": "Obere Grenze",
           "utmRwOben": "Obere Grenze, Rechtswert",
-          "utmHwOben": "Obere Grenze, Hochwert"
+          "utmHwOben": "Obere Grenze, Hochwert",
+          "eingerastetRwUnten": "Untere Grenze am Gewässer, Rechtswert",
+          "eingerastetHwUnten": "Untere Grenze am Gewässer, Hochwert",
+          "eingerastetKennungUnten": "Untere Grenze am Gewässer, amtliche Kennung",
+          "eingerastetNameUnten": "Untere Grenze am Gewässer, Gewässer",
+          "eingerastetRwOben": "Obere Grenze am Gewässer, Rechtswert",
+          "eingerastetHwOben": "Obere Grenze am Gewässer, Hochwert",
+          "eingerastetKennungOben": "Obere Grenze am Gewässer, amtliche Kennung",
+          "eingerastetNameOben": "Obere Grenze am Gewässer, Gewässer",
+          "eingerastetVersion": "Stand des Gewässernetzes beim Einrasten",
+          "abstandBegruendung": "Begründung für den Abstand zum Gewässer",
+          "abstandBegruendungHinweis": "Ein Satz genügt, zum Beispiel: Der Graben fehlt in der amtlichen Karte."
         },
         "koordinatenCallout": {
           "titel": "Koordinaten in EPSG:25832",
@@ -541,6 +552,8 @@
       "oben": "Oben",
       "untereGrenze": "Untere Grenze",
       "obereGrenze": "Obere Grenze",
+      "untereGrenzeAmWasser": "Untere Grenze am Gewässer",
+      "obereGrenzeAmWasser": "Obere Grenze am Gewässer",
       "setzen": "Ein Klick in die Karte setzt die",
       "fehlerWebgl": "Dieser Browser kann die Karte nicht anzeigen. Die Koordinaten lassen sich weiterhin oben eintippen.",
       "fehlerLaden": "Die Hintergrundkarte von basemap.de ließ sich nicht laden. Die Koordinaten lassen sich weiterhin oben eintippen. Laden Sie die Seite später neu, um die Karte zu sehen.",
@@ -549,7 +562,16 @@
       "quellenEinblenden": "Quellenangabe ein- oder ausblenden",
       "strgScrollen": "Zum Vergrößern Strg gedrückt halten und scrollen",
       "befehlScrollen": "Zum Vergrößern ⌘ gedrückt halten und scrollen",
-      "zweiFinger": "Die Karte mit zwei Fingern verschieben"
+      "zweiFinger": "Die Karte mit zwei Fingern verschieben",
+      "amWasserTitel": "Lage am Gewässer",
+      "amWasserHinweis": "Der Ring zeigt für jede Grenze die nächste Stelle am Gewässer nach dem amtlichen Gewässernetz. Die Koordinaten oben bleiben, wie Sie sie eingegeben haben.",
+      "amWasserHinweisNurLesen": "Der Ring zeigt für jede Grenze die nächste Stelle am Gewässer nach dem amtlichen Gewässernetz. Maßgeblich sind die eingegebenen Koordinaten.",
+      "abstand": "{{grenze}}: {{abstand}} vom Gewässer {{name}}",
+      "abstandOhneName": "{{grenze}}: {{abstand}} von einem Gewässer ohne Namen",
+      "aufsWasser": "{{grenze}} auf das Gewässer setzen",
+      "fern": "{{grenze}} liegt {{abstand}} vom Gewässer {{name}} entfernt, mehr als {{warnabstandM}} m.",
+      "fernOhneName": "{{grenze}} liegt {{abstand}} von einem Gewässer ohne Namen entfernt, mehr als {{warnabstandM}} m.",
+      "fernHinweis": "Bitte prüfen Sie die Koordinaten, oder setzen Sie den Punkt auf das Gewässer. Stimmt der Abstand, erklären Sie ihn bitte unten in einem Satz. Das Protokoll lässt sich dann trotzdem absenden."
     },
     "abschnitt2": {
       "messdaten": {
@@ -917,6 +939,7 @@
       "koordinateHochwertAusserhalb": "Der Hochwert liegt außerhalb Baden-Württembergs. Erwartet werden {{hochwertMin}} bis {{hochwertMax}}.",
       "koordinateAusserhalbLandes": "Dieser Punkt liegt mehr als {{randKm}} km außerhalb Baden-Württembergs. Bitte Rechtswert und Hochwert prüfen oder den Punkt in der Karte setzen.",
       "gewaesserKennungPasstNicht": "Der Name passt nicht mehr zum gewählten amtlichen Gewässer. Bitte wählen Sie das Gewässer erneut aus der Liste, oder tippen Sie den Namen frei ein, dann wird es ohne amtliche Kennung gespeichert.",
+      "abstandBegruendungFehlt": "Ein Grenzpunkt liegt mehr als {{warnabstandM}} m vom Gewässer entfernt. Prüfen Sie die Koordinaten, oder erklären Sie hier in einem Satz, warum der Abstand stimmt, zum Beispiel weil der Graben in der amtlichen Karte fehlt.",
       "hydrologieBeiStillgewaesser": "Bei einem stehenden Gewässer wird die Hydrologie nicht erhoben. Bitte leeren Sie die Angabe, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
       "hydrologieNichtZutreffendBeiFliessgewaesser": "Die Angabe ist als «nicht zutreffend» gespeichert, obwohl es sich um ein Fließgewässer handelt. Bitte beantworten Sie sie, oder ändern Sie oben den Gewässertyp, falls er nicht stimmt.",
       "schaetzwertOhneBand": "Bitte zuerst oben die Bandbreite auswählen.",

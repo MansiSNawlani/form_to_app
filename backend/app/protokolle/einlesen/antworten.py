@@ -17,6 +17,7 @@ from app.formular.felder import FormularDefinition, formular
 from app.formular.pdf import decode, felder
 from app.protokolle.einlesen.felder import ist_antwort
 from app.protokolle.einlesen.werte import umwandle
+from app.protokolle.formregeln.regel import setze_wert
 from app.protokolle.regeln import MAX_ZEICHEN_PRO_ANTWORT
 
 #: What an unticked box and an unchosen radio group hold.
@@ -102,7 +103,7 @@ def lies_antworten(
             continue
         if not ergebnis.brauchbar:
             unbrauchbar.append(name)
-        _setze(antworten, name, ergebnis.text)
+        setze_wert(antworten, name, ergebnis.text)
 
     return Einleseergebnis(
         antworten=antworten,
@@ -159,17 +160,3 @@ def _ist_knopf(feld: DictionaryObject, wert: Any) -> bool:
     if str(feld.get("/FT", "")) == "/Btn":
         return True
     return isinstance(wert, NameObject)
-
-
-def _setze(antworten: dict[str, Any], pfad: str, wert: str) -> None:
-    """Put one value at its dotted path, making the levels above it as needed.
-
-    `arten.art1.klasse_3` becomes `{"arten": {"art1": {"klasse_3": ...}}}`, which
-    is the shape `frontend/src/protokoll/entwurf/typen.ts` describes and the
-    shape the save endpoint already accepts.
-    """
-    *eltern, blatt = pfad.split(".")
-    ziel = antworten
-    for teil in eltern:
-        ziel = ziel.setdefault(teil, {})
-    ziel[blatt] = wert

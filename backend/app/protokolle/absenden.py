@@ -24,6 +24,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gewaessernetz.einrasten import mit_werten, pruefe_abstand, raste_protokoll_ein
 from app.gewaessernetz.kennung import pruefe_gewaesserkennung
 from app.models.benutzer import User
 from app.models.protokoll import Submission
@@ -75,8 +76,19 @@ async def sende_ab(
         *pruefe_protokoll(protokoll.antworten),
         *await pruefe_gewaesserkennung(session, protokoll.antworten),
     ]
+
+    # Where each boundary point lies on the water, worked out here whatever the
+    # draft held, and a reason asked for when one lies far from it. Kept out of
+    # protokoll.antworten until everything has passed, so a refusal leaves the
+    # draft exactly as it was. See app/gewaessernetz/einrasten.py.
+    antworten = mit_werten(
+        protokoll.antworten,
+        await raste_protokoll_ein(session, protokoll.antworten, verstoesse),
+    )
+    verstoesse.extend(pruefe_abstand(antworten))
     if verstoesse:
         raise ProtokollUnvollstaendig(tuple(verstoesse))
+    protokoll.antworten = antworten
 
     # Reading the envelope after the rules have passed, not before. The rules
     # name every missing answer with a message that belongs beside its field, and

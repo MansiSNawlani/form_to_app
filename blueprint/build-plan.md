@@ -319,7 +319,7 @@ These are not features and are not tracked here. They happen first.
         the real Baden-Württemberg border instead of a rectangle
   - [x] 18c. Gewässersuche: searching the official water bodies by name in the Gewässer field,
         and picking one fills in the name and `amtliche_id`
-  - [ ] 18d. Einrasten mit Übersteuern: a placed point snaps to the nearest water body, both the
+  - [x] 18d. Einrasten mit Übersteuern: a placed point snaps to the nearest water body, both the
         typed and the snapped position are kept, and a point far from any water gets a warning,
         never a refusal (decisions.md section 9)
   - [ ] 18e. Kennungen nachtragen: finding the likely `amtliche_id` for every Gewässer already

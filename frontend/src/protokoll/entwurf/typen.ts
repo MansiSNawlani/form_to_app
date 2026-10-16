@@ -466,6 +466,23 @@ export interface Antworten {
     obere?: string
     utm_rw_oben?: string
     utm_hw_oben?: string
+    /* Not on the printed form either. Where each boundary point lies on the
+       official network, which water that is and the release (feature 18d),
+       beside the typed coordinates rather than in place of them. The browser
+       keeps them current while editing; the server works them out again at
+       submit, in backend/app/gewaessernetz/einrasten.py. */
+    eingerastet_rw_unten?: string
+    eingerastet_hw_unten?: string
+    eingerastet_kennung_unten?: string
+    eingerastet_name_unten?: string
+    eingerastet_rw_oben?: string
+    eingerastet_hw_oben?: string
+    eingerastet_kennung_oben?: string
+    eingerastet_name_oben?: string
+    eingerastet_version?: string
+    /* The surveyor's reason when a point lies far from its water, which the
+       submit asks for instead of refusing the location (decisions.md section 9). */
+    abstand_begruendung?: string
   }
 }
 

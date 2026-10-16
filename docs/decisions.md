@@ -242,6 +242,15 @@ genuine survey becomes unsubmittable and real field data is lost.
 them continue with a reason. The reviewer sees the override. Only genuinely impossible values are
 rejected outright, meaning coordinates outside Baden-Württemberg.
 
+**As built in feature 18d (2026-10-16).** Each boundary point is matched to the nearest position
+on the official water body network, on the water picked from the search when there is one. The
+typed coordinates stay the record and are never moved without the surveyor pressing a button; the
+position on the water is stored beside them. A point more than **100 m** from its water shows a
+warning, and the submit asks for a one-sentence reason (the Abstandsbegründung) rather than
+refusing the location. The reviewer sees both positions on the map, the distance, the warning and
+the reason. "Outside Baden-Württemberg" became, in feature 18b, more than 2 km outside the real
+state border.
+
 ---
 
 ## 10. Who uses the application

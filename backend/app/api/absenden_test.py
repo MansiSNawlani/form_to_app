@@ -212,7 +212,8 @@ def _gewaehlt(name: str) -> dict[str, object]:
 async def test_ein_gewaehltes_gewaesser_wird_angenommen(
     angemeldet: AsyncClient, session: AsyncSession
 ) -> None:
-    await netz(session, fliess(WOLFEGGER_ACH, "Wolfegger Ach"))
+    # Drawn through the protocol's lower point, so neither point is far from it.
+    await netz(session, fliess(WOLFEGGER_ACH, "Wolfegger Ach", rw=551034, hw=5296712))
     protokoll_id, version = await _entwurf(angemeldet, _gewaehlt("Wolfegger Ach"))
 
     antwort = await angemeldet.post(

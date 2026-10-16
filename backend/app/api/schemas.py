@@ -667,6 +667,30 @@ class GewaessersucheAntwort(BaseModel):
     treffer: list[GewaessertrefferAntwort]
 
 
+class EinrastungAntwort(BaseModel):
+    """Where on the water a point lies. Mirrors Einrastung in
+    app/gewaessernetz/einrasten.py."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    kennung: str
+    art: Netzart
+    name: str
+    rw: int
+    hw: int
+    entfernung_m: int
+
+
+class EinrastenAntwort(BaseModel):
+    """stand and treffer are both null when the release is not loaded; treffer
+    alone is null when the picked water is not in it."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    stand: date | None
+    treffer: EinrastungAntwort | None
+
+
 # The values a refusal names: a number, a name, or a list of field paths.
 Werte = dict[str, str | int | float | list[str]]
 

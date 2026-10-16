@@ -11,8 +11,8 @@ import { istLeer } from '../regeln/regel'
    a whole-metre value can express, so the definition below treats them as the
    same datum, the way EPSG's own entry for 25832 does.
 
-   This is the one place the two are converted. Snapping in feature 18d will
-   keep a typed and a snapped position apart, and both go through here. */
+   This is the one place the two are converted. Since feature 18d a typed and a
+   snapped position are kept apart, and both go through here. */
 const UTM32 = '+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
 const umrechner = proj4('EPSG:4326', UTM32)
 

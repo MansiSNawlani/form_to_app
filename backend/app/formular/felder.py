@@ -44,11 +44,29 @@ FELDER_DATEI = "felder.json"
 # identifier of a water picked from LUBW's network, and the release it came from.
 # Added in feature 18c; written only by picking, never typed. FiaKa's key for a
 # water is the likeliest thing for them to carry, which is question 16.
+#
+# probestrecke.eingerastet_*: where on the water each boundary point lies, which
+# water that is (identifier and name), and the release, beside the typed coordinates rather than in
+# place of them. Added in feature 18d; worked out by the server at submit, never
+# typed (app/gewaessernetz/einrasten.py). probestrecke.abstand_begruendung is the
+# surveyor's reason when a point lies far from its water, which decisions.md
+# section 9 asks for instead of refusing the location. Question 16 again, since
+# the identifiers are AWGN's.
 ZUSAETZLICHE_PFADE = frozenset(
     {
         "bearbeiter.ort",
         "probestrecke.gewaesser.amtliche_id",
         "probestrecke.gewaesser.gis_dataset_version",
+        "probestrecke.eingerastet_rw_unten",
+        "probestrecke.eingerastet_hw_unten",
+        "probestrecke.eingerastet_kennung_unten",
+        "probestrecke.eingerastet_name_unten",
+        "probestrecke.eingerastet_rw_oben",
+        "probestrecke.eingerastet_hw_oben",
+        "probestrecke.eingerastet_kennung_oben",
+        "probestrecke.eingerastet_name_oben",
+        "probestrecke.eingerastet_version",
+        "probestrecke.abstand_begruendung",
     }
 )
 

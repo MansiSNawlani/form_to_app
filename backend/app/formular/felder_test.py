@@ -74,6 +74,16 @@ def test_kennt_die_eingetragenen_zusaetze() -> None:
         "bearbeiter.ort",
         "probestrecke.gewaesser.amtliche_id",
         "probestrecke.gewaesser.gis_dataset_version",
+        "probestrecke.eingerastet_rw_unten",
+        "probestrecke.eingerastet_hw_unten",
+        "probestrecke.eingerastet_kennung_unten",
+        "probestrecke.eingerastet_name_unten",
+        "probestrecke.eingerastet_rw_oben",
+        "probestrecke.eingerastet_hw_oben",
+        "probestrecke.eingerastet_kennung_oben",
+        "probestrecke.eingerastet_name_oben",
+        "probestrecke.eingerastet_version",
+        "probestrecke.abstand_begruendung",
     }
     assert ZUSAETZLICHE_PFADE <= lade(FORMULAR_SEED).pfade
 

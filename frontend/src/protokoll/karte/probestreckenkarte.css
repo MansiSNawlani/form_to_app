@@ -69,3 +69,39 @@
   background: var(--surface);
   color: var(--text);
 }
+
+/* Where a boundary point lies on the water: a ring, so it differs from the
+   labelled marker in shape and not only in colour. Filled for the lower
+   boundary and hollow for the upper, as the two markers are. */
+.wassermarke {
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.wassermarke--unten {
+  background: var(--accent);
+  outline: 2px solid var(--surface);
+}
+
+.wassermarke--oben {
+  background: var(--surface);
+}
+
+.einrastanzeige {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.einrastanzeige__lagen {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.einrastanzeige__lage {
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
