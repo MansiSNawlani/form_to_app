@@ -116,7 +116,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   one (passes), both points near with no reason (passes), and no release loaded (passes, since
   nothing can be judged).
 
-- [ ] **Step 5 - The point on the water, on the map** - `karte/einrasten.ts`: the request through
+- [x] **Step 5 - The point on the water, on the map** - `karte/einrasten.ts`: the request through
   TanStack Query, keyed by point and pick, sent only for points that pass the coordinate rule, and
   a pure function deciding what a response writes. Each response's position, identifier and
   release are written to the answers with `setValue` and `shouldDirty`, **only when they differ
@@ -131,14 +131,14 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   no unsaved change, and picking a water in the Gewässer field moves the second mark onto that
   water; the marks have accessible names. Screenshots in light and dark mode.
 
-- [ ] **Step 6 - Distance and the button** - under the map, per point, a line `Untere Grenze: 14 m
+- [x] **Step 6 - Distance and the button** - under the map, per point, a line `Untere Grenze: 14 m
   von der Enz` and an MUI button `Auf das Gewässer setzen` that writes the snapped position into
   the two boxes through `setValue`, as a map click does. Wording in `de.json` and `en.json`.
   *Done when:* in the browser the line names the water and distance for each point, the button
   moves the boxes onto the water and the line then reads 0 m, the automatic save runs, and the
   button is reachable and operable by keyboard with visible focus (screenshot).
 
-- [ ] **Step 7 - The warning and the reason** - when either point is further than 100 m, an MUI
+- [x] **Step 7 - The warning and the reason** - when either point is further than 100 m, an MUI
   `Alert` with severity `warning` under the map names the point, the water and the distance, and
   a `Begründung` text field (label above via `FormLabel`) appears; it also stays visible while it
   holds text. The 100 m is one constant on each side, with a comment naming the other. On the

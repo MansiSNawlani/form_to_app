@@ -5,6 +5,7 @@ import en from './locales/en.json'
 import { BW_GRENZEN } from '../protokoll/regeln/koordinaten'
 import { RAND_KM } from '../protokoll/regeln/landesgrenze'
 import { ERLAUBTE_FORMATE, MAX_MB } from '../protokoll/anlagen/regeln'
+import { WARNABSTAND_M } from '../protokoll/regeln/abstand'
 import { FALLBACK_LOCALE, SUPPORTED_LOCALES, type Locale } from './sprachen'
 
 /* The single place the active locale is decided.
@@ -94,6 +95,8 @@ void i18n.use(initReactI18next).init({
          out would quietly disagree with anlagen/regeln.ts the day one changes. */
       formate: ERLAUBTE_FORMATE,
       maxMb: MAX_MB,
+      // Feature 18d's far-from-water warning and the submit's message about it.
+      warnabstandM: WARNABSTAND_M,
     },
   },
 })

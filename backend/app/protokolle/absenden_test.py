@@ -563,9 +563,11 @@ EINGERASTETE_PFADE = (
     "eingerastet_rw_unten",
     "eingerastet_hw_unten",
     "eingerastet_kennung_unten",
+    "eingerastet_name_unten",
     "eingerastet_rw_oben",
     "eingerastet_hw_oben",
     "eingerastet_kennung_oben",
+    "eingerastet_name_oben",
     "eingerastet_version",
 )
 
@@ -612,6 +614,7 @@ async def test_die_lage_am_gewaesser_ist_die_des_servers(
     assert probestrecke["eingerastet_rw_unten"] == "551034"
     assert probestrecke["eingerastet_hw_unten"] == "5296712"
     assert probestrecke["eingerastet_kennung_unten"] == WOLFEGGER_ACH
+    assert probestrecke["eingerastet_name_unten"] == "Wolfegger Ach"
     assert probestrecke["eingerastet_rw_oben"] == "551098"
     assert probestrecke["eingerastet_hw_oben"] == "5296712"
     assert probestrecke["eingerastet_kennung_oben"] == WOLFEGGER_ACH

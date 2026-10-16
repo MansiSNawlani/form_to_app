@@ -1,7 +1,7 @@
 {
   "version": "20260609",
   "quelle": "frontend/src/protokoll, gelesen von frontend/scripts/beschriftungen.ts",
-  "anzahl": 176,
+  "anzahl": 186,
   "abschnitte": [
     {
       "titel": "Anlass und Probestrecke",
@@ -50,7 +50,17 @@
             "probestrecke.utm_hw_unten",
             "probestrecke.obere",
             "probestrecke.utm_rw_oben",
-            "probestrecke.utm_hw_oben"
+            "probestrecke.utm_hw_oben",
+            "probestrecke.eingerastet_rw_unten",
+            "probestrecke.eingerastet_hw_unten",
+            "probestrecke.eingerastet_kennung_unten",
+            "probestrecke.eingerastet_name_unten",
+            "probestrecke.eingerastet_rw_oben",
+            "probestrecke.eingerastet_hw_oben",
+            "probestrecke.eingerastet_kennung_oben",
+            "probestrecke.eingerastet_name_oben",
+            "probestrecke.eingerastet_version",
+            "probestrecke.abstand_begruendung"
           ]
         }
       ]
@@ -508,6 +518,16 @@
     "messdaten.temperatur": "Wassertemperatur",
     "messdaten.truebung": "Trübung",
     "messdaten.uhrzeit": "Uhrzeit",
+    "probestrecke.abstand_begruendung": "Begründung für den Abstand zum Gewässer",
+    "probestrecke.eingerastet_hw_oben": "Obere Grenze am Gewässer, Hochwert",
+    "probestrecke.eingerastet_hw_unten": "Untere Grenze am Gewässer, Hochwert",
+    "probestrecke.eingerastet_kennung_oben": "Obere Grenze am Gewässer, amtliche Kennung",
+    "probestrecke.eingerastet_kennung_unten": "Untere Grenze am Gewässer, amtliche Kennung",
+    "probestrecke.eingerastet_name_oben": "Obere Grenze am Gewässer, Gewässer",
+    "probestrecke.eingerastet_name_unten": "Untere Grenze am Gewässer, Gewässer",
+    "probestrecke.eingerastet_rw_oben": "Obere Grenze am Gewässer, Rechtswert",
+    "probestrecke.eingerastet_rw_unten": "Untere Grenze am Gewässer, Rechtswert",
+    "probestrecke.eingerastet_version": "Stand des Gewässernetzes beim Einrasten",
     "probestrecke.gewaesser.amtliche_id": "Amtliche Kennung",
     "probestrecke.gewaesser.gewaessername": "Gewässer",
     "probestrecke.gewaesser.gis_dataset_version": "Stand des Gewässernetzes",

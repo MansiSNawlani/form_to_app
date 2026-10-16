@@ -45,7 +45,7 @@ from app.protokolle.zuordnung.regeln import (
 )
 
 #: Further than this from its water and a point is warned about, and the submit
-#: asks for a reason. Written again in frontend/src/protokoll/karte/einrasten.ts.
+#: asks for a reason. Written again in frontend/src/protokoll/regeln/abstand.ts.
 WARNABSTAND_M = 100
 
 Punkt = tuple[int, int]
@@ -57,13 +57,18 @@ BEGRUENDUNG_FEHLT = "protokoll.regeln.abstandBegruendungFehlt"
 
 @dataclass(frozen=True, slots=True)
 class Grenzpunkt:
-    """One boundary point: the two boxes typed, and the three answers snapped."""
+    """One boundary point: the two boxes typed, and the four answers snapped.
+
+    The name beside the identifier so the review screen and the PDF can say
+    which water without looking the identifier up again.
+    """
 
     rw: str
     hw: str
     eingerastet_rw: str
     eingerastet_hw: str
     eingerastet_kennung: str
+    eingerastet_name: str
 
 
 GRENZPUNKTE = tuple(
@@ -73,6 +78,7 @@ GRENZPUNKTE = tuple(
         eingerastet_rw=f"probestrecke.eingerastet_rw_{grenze}",
         eingerastet_hw=f"probestrecke.eingerastet_hw_{grenze}",
         eingerastet_kennung=f"probestrecke.eingerastet_kennung_{grenze}",
+        eingerastet_name=f"probestrecke.eingerastet_name_{grenze}",
     )
     for grenze in ("unten", "oben")
 )
@@ -174,11 +180,11 @@ async def einrasten(
 async def raste_protokoll_ein(
     session: AsyncSession, antworten: Mapping[str, Any], verstoesse: Sequence[Formverstoss]
 ) -> dict[str, str]:
-    """The seven snapped answers as the server finds them, by path.
+    """The nine snapped answers as the server finds them, by path.
 
     A point is snapped only when both its boxes passed the rules, so one with a
     message of its own is not also given a position on some water. A point that
-    is not snapped has its three answers emptied, and the release is empty when
+    is not snapped has its four answers emptied, and the release is empty when
     neither point was.
     """
     falsch = {verstoss.pfad for verstoss in verstoesse}
@@ -189,6 +195,7 @@ async def raste_protokoll_ein(
         werte[grenzpunkt.eingerastet_rw] = ""
         werte[grenzpunkt.eingerastet_hw] = ""
         werte[grenzpunkt.eingerastet_kennung] = ""
+        werte[grenzpunkt.eingerastet_name] = ""
         if {grenzpunkt.rw, grenzpunkt.hw} & falsch:
             continue
         punkt = _punkt(antworten, grenzpunkt.rw, grenzpunkt.hw)
@@ -200,6 +207,7 @@ async def raste_protokoll_ein(
         werte[grenzpunkt.eingerastet_rw] = str(ergebnis.treffer.rw)
         werte[grenzpunkt.eingerastet_hw] = str(ergebnis.treffer.hw)
         werte[grenzpunkt.eingerastet_kennung] = ergebnis.treffer.kennung
+        werte[grenzpunkt.eingerastet_name] = ergebnis.treffer.name
         werte[EINGERASTET_VERSION] = datensatzversion(ergebnis.stand)
 
     return werte

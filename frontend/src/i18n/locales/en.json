@@ -525,7 +525,18 @@
           "utmHwUnten": "Lower boundary, northing",
           "obere": "Upper boundary",
           "utmRwOben": "Upper boundary, easting",
-          "utmHwOben": "Upper boundary, northing"
+          "utmHwOben": "Upper boundary, northing",
+          "eingerastetRwUnten": "Lower boundary on the water, easting",
+          "eingerastetHwUnten": "Lower boundary on the water, northing",
+          "eingerastetKennungUnten": "Lower boundary on the water, official identifier",
+          "eingerastetNameUnten": "Lower boundary on the water, water body",
+          "eingerastetRwOben": "Upper boundary on the water, easting",
+          "eingerastetHwOben": "Upper boundary on the water, northing",
+          "eingerastetKennungOben": "Upper boundary on the water, official identifier",
+          "eingerastetNameOben": "Upper boundary on the water, water body",
+          "eingerastetVersion": "Water network release used for snapping",
+          "abstandBegruendung": "Reason for the distance from the water",
+          "abstandBegruendungHinweis": "One sentence is enough, for example: the ditch is missing from the official map."
         },
         "koordinatenCallout": {
           "titel": "Coordinates in EPSG:25832",
@@ -541,6 +552,8 @@
       "oben": "Upper",
       "untereGrenze": "Lower boundary",
       "obereGrenze": "Upper boundary",
+      "untereGrenzeAmWasser": "Lower boundary on the water",
+      "obereGrenzeAmWasser": "Upper boundary on the water",
       "setzen": "A click on the map sets the",
       "fehlerWebgl": "This browser cannot show the map. The coordinates can still be typed in above.",
       "fehlerLaden": "The background map from basemap.de could not be loaded. The coordinates can still be typed in above. Reload the page later to see the map.",
@@ -549,7 +562,15 @@
       "quellenEinblenden": "Show or hide the map sources",
       "strgScrollen": "Hold Ctrl and scroll to zoom the map",
       "befehlScrollen": "Hold ⌘ and scroll to zoom the map",
-      "zweiFinger": "Use two fingers to move the map"
+      "zweiFinger": "Use two fingers to move the map",
+      "amWasserTitel": "Position on the water",
+      "amWasserHinweis": "For each boundary, the ring shows the nearest point on the water in the official water network. The coordinates above stay as you entered them.",
+      "amWasserHinweisNurLesen": "For each boundary, the ring shows the nearest point on the water in the official water network. The coordinates as entered are the record.",
+      "abstand": "{{grenze}}: {{abstand}} from the water body {{name}}",
+      "abstandOhneName": "{{grenze}}: {{abstand}} from an unnamed water body",
+      "aufsWasser": "Move {{grenze}} onto the water",
+      "fern": "{{grenze}} lies {{abstand}} from the water, more than {{warnabstandM}} m.",
+      "fernHinweis": "Please check the coordinates, or move the point onto the water. If the distance is right, please explain it below in one sentence. The protocol can still be submitted."
     },
     "abschnitt2": {
       "messdaten": {
@@ -917,7 +938,7 @@
       "koordinateHochwertAusserhalb": "The northing lies outside Baden-Württemberg. Expected: {{hochwertMin}} to {{hochwertMax}}.",
       "koordinateAusserhalbLandes": "This point lies more than {{randKm}} km outside Baden-Württemberg. Please check the easting and northing, or set the point on the map.",
       "gewaesserKennungPasstNicht": "The name no longer matches the official water body you picked. Please pick the water body from the list again, or type its name freely to file it without an official identifier.",
-      "abstandBegruendungFehlt": "A boundary point lies more than 100 m from the water body. Please check the coordinates, or explain here in one sentence why the distance is right, for example because the ditch is missing from the official map.",
+      "abstandBegruendungFehlt": "A boundary point lies more than {{warnabstandM}} m from the water body. Please check the coordinates, or explain here in one sentence why the distance is right, for example because the ditch is missing from the official map.",
       "hydrologieBeiStillgewaesser": "Hydrology is not recorded for standing water. Please clear this answer, or change the water body type above if it is wrong.",
       "hydrologieNichtZutreffendBeiFliessgewaesser": "This answer is saved as \"not applicable\", although the water body is flowing water. Please answer it, or change the water body type above if it is wrong.",
       "schaetzwertOhneBand": "Please choose the range above first.",
