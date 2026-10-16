@@ -1,8 +1,9 @@
-"""Searching the official water body network.
+"""Searching the official water body network, and snapping a point to it.
 
 Open data, so nothing here is narrowed by role, but it still needs a session
 like every other route: the application is not a public mirror of LUBW's
-dataset. What the search does lives in app/gewaessernetz/suche.py.
+dataset. What the search does lives in app/gewaessernetz/suche.py, and what
+snapping does in app/gewaessernetz/einrasten.py.
 """
 
 from typing import Annotated, Any
@@ -13,8 +14,10 @@ from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
-from app.api.schemas import FehlerAntwort, GewaessersucheAntwort
+from app.api.schemas import EinrastenAntwort, FehlerAntwort, GewaessersucheAntwort
 from app.db import get_session
+from app.gewaessernetz.einrasten import Gewaehlt, einrasten
+from app.gewaessernetz.kennung import stand_aus_version
 from app.gewaessernetz.suche import suche
 
 router = APIRouter(prefix="/api/v1/gewaessernetz", tags=["Gewaessernetz"])
@@ -74,3 +77,34 @@ async def gewaesser_suchen(
         raise _abgelehnt("q", f"Mindestens {MIN_ZEICHEN} Zeichen.")
     ergebnis = await suche(session, q, _punkte(rw, hw))
     return GewaessersucheAntwort.model_validate(ergebnis)
+
+
+def _gewaehlt(kennung: str | None, name: str | None, version: str | None) -> Gewaehlt | None:
+    if kennung is None and name is None and version is None:
+        return None
+    if kennung is None or name is None or version is None:
+        raise _abgelehnt("kennung", "kennung, name und version kommen nur zusammen.")
+    stand = stand_aus_version(version)
+    if stand is None:
+        raise _abgelehnt("version", "version hat die Form 'AWGN JJJJ-MM-TT'.")
+    return Gewaehlt(kennung=kennung, name=name, stand=stand)
+
+
+@router.get("/einrasten", response_model=EinrastenAntwort, responses=ANGEMELDET)
+async def punkt_einrasten(
+    _benutzer: AngemeldeterBenutzer,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    rw: Annotated[Koordinate, Query(description="Rechtswert in Metern, EPSG:25832.")],
+    hw: Annotated[Koordinate, Query(description="Hochwert in Metern, EPSG:25832.")],
+    kennung: Annotated[str | None, Query(max_length=MAX_ZEICHEN)] = None,
+    name: Annotated[str | None, Query(max_length=MAX_ZEICHEN)] = None,
+    version: Annotated[str | None, Query(max_length=MAX_ZEICHEN)] = None,
+) -> EinrastenAntwort:
+    """Die naechste Stelle am Gewaesser fuer einen Grenzpunkt.
+
+    Mit kennung, name und version (alle drei oder keins) am ausgewaehlten
+    Gewaesser in dessen Stand, sonst am naechsten Gewaesser des neuesten Stands.
+    Ist der Stand nicht geladen, sind stand und treffer null.
+    """
+    ergebnis = await einrasten(session, (rw, hw), _gewaehlt(kennung, name, version))
+    return EinrastenAntwort.model_validate(ergebnis)

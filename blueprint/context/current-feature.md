@@ -77,7 +77,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Build steps
 
-- [ ] **Step 1 - Snapping, in the backend** - `app/gewaessernetz/einrasten.py`. A constant
+- [x] **Step 1 - Snapping, in the backend** - `app/gewaessernetz/einrasten.py`. A constant
   `WARNABSTAND_M = 100` and a pure function `ist_fern(abstand_m)`. One service function
   `einrasten(session, punkt, gewaehlt=None)`, where `gewaehlt` is the picked identifier, name and
   release: with it, `ST_ClosestPoint` on that water in that release (matched on identifier and
@@ -92,11 +92,11 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   network and for an unknown pick. On the real 2025-05-01 release a snap with and without a pick
   is timed (Evidence); under 100 ms each.
 
-- [ ] **Step 2 - The endpoint** - `GET /api/v1/gewaessernetz/einrasten?rw=&hw=&kennung=&version=`
-  in `app/api/gewaessernetz.py`, `kennung` and `version` optional but only together, one point per
+- [x] **Step 2 - The endpoint** - `GET /api/v1/gewaessernetz/einrasten?rw=&hw=&kennung=&name=&version=`
+  in `app/api/gewaessernetz.py`, `kennung`, `name` and `version` optional but only all three, one point per
   request so the browser can cache each point on its own. Pydantic schema in `schemas.py`.
-  *Done when:* API tests prove 401 without a session, 422 for a missing `hw` and for `kennung`
-  without `version`, the response shape below, and `stand: null` with `treffer: null` on an empty
+  *Done when:* API tests prove 401 without a session, 422 for a missing `hw`, for `kennung`
+  without `name` and `version`, and for a `version` not of the form `AWGN JJJJ-MM-TT`, the response shape below, and `stand: null` with `treffer: null` on an empty
   network; the endpoint shows in `/api/v1/docs`.
 
 - [ ] **Step 3 - The new answers, worked out again at submit** - `ZUSAETZLICHE_PFADE` gains the
@@ -190,7 +190,7 @@ the `probestrecken` columns stay the typed coordinates, which are what a stretch
 
 **Load-bearing for 18e and item 20.**
 
-`GET /api/v1/gewaessernetz/einrasten?rw=478000&hw=5420000&kennung=2384000000000&version=AWGN%202025-05-01`
+`GET /api/v1/gewaessernetz/einrasten?rw=478000&hw=5420000&kennung=2384000000000&name=Enz&version=AWGN%202025-05-01`
 
 ```json
 {
@@ -208,6 +208,8 @@ the `probestrecken` columns stay the typed coordinates, which are what a stretch
 
 - `stand` and `treffer` are both `null` when nothing is loaded; `treffer` alone is `null` when
   the picked water is not in the release named
+- `name` is needed beside `kennung` because a flowing and a standing water's numbers overlap; it
+  is compared loosely, as the 18c submit check does
 - `rw` and `hw` are whole metres in EPSG:25832, like the typed boxes
 - `entfernung_m` is whole metres from the given point
 
@@ -260,3 +262,11 @@ the build and the e2e test in step 9.
   and the way out; update the flow diagrams in the same feature.
 - **FFS may still answer question 16 differently.** The added paths and `AWGN <stand>` follow the
   working answer of 2026-10-14, like 18c's.
+
+## Evidence
+
+- **Snapping timed on the real 2025-05-01 release** (step 1), second call of each, from the host:
+  a point near Pforzheim (476000 / 5416000) without a pick 3 ms, landing on a Mühlgraben 793 m
+  away; the same point with the Enz picked 4 ms, 903 m; a point in Stuttgart 3 ms, on the
+  Nesenbach 58 m away. Far under 100 ms; the nearest-neighbour search uses the existing index.
+
