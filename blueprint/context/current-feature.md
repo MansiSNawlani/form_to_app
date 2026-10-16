@@ -153,7 +153,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   when no release is loaded, the same way the suite skips without accounts. *Done when:* it passes
   against the Compose database with 2025-05-01 loaded, and `karte.spec.ts` still passes.
 
-- [ ] **Step 9 - Documentation** - `CONTEXT.md` (Amtliche Kennung, how a pick and a typed name
+- [x] **Step 9 - Documentation** - `CONTEXT.md` (Amtliche Kennung, how a pick and a typed name
   differ); the comments in `models/gewaesser.py`, `zuordnung/regeln.py` and `zuordnung/dienst.py`
   that say the identifier stays empty until feature 18; the flow diagrams under
   `blueprint/history/flow_diagrams/` (the search request and the identifier on the save and

@@ -107,8 +107,8 @@ def normalisiert(wert: str) -> str:
     Treating them as one here while the index treated them as two would be worse
     than either answer on its own: the lookup and the constraint would disagree
     about what a duplicate is. A sharp s spelled two ways is the same class of
-    duplicate as a typo, which this feature already accepts and feature 18
-    merges.
+    duplicate as a typo, which this feature already accepts and which 18e
+    is meant to bring before a person.
     """
     return wert.strip().lower()
 

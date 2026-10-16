@@ -13,10 +13,10 @@ Person's contact details and stamped a Monitoringstrecken-Nr. onto a stretch tha
 had none. Both write to rows other protocols already point at.
 
 The cost is duplicates: a typo makes a second water body, and a stretch that
-gains a number gains a second record. That cost is paid deliberately. Feature 18
-brings the official water body dataset, which is the first point at which two
-records can be merged correctly, and merging is a step a person runs rather than
-something that happens quietly at submit.
+gains a number gains a second record. That cost is paid deliberately. The official
+water body network (loaded since feature 18b) is what makes merging two records
+correct, and merging is a step a person runs rather than something that happens
+quietly at submit; how is decided when 18e is specced.
 
 **Nothing here is a protocol.** Two submissions pointing at one Probestrecke stay
 two entirely separate submissions, with their own answers, Bearbeiter, Anlass and
