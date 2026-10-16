@@ -302,6 +302,14 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     [useAbsenden.ts]
     [AbsendeErgebnis.tsx]
     [AbsendeProbleme.tsx]
+    [verstossKontext.ts, amFeld.ts, BlockMeldung.tsx]
+    note bottom of absenden
+      Since the fix of 2026-10-15 a refused submit or import marks the
+      field it names, not only the list: verstossKontext.ts hands the
+      server's list to the fields, amFeld.ts decides which message a
+      field shows (the browser's own first), and BlockMeldung.tsx
+      outlines a block such as a percentage group.
+    end note
   }
 
   package "nurlesen/  (read-only rendering mode)" as nurlesen {
