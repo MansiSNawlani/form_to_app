@@ -30,12 +30,13 @@ right state but in the wrong field, village or valley.
   Flowing waters snap to the line; a point inside a standing water stays where it is (distance 0),
   one outside snaps to its shore
 - `GET /api/v1/gewaessernetz/einrasten`, any signed-in account
-- Eight answers the app adds on top of the legacy form, in `ZUSAETZLICHE_PFADE`: the snapped
-  position and water of each point, the release, and the reason (see Data / contracts)
+- Ten answers the app adds on top of the legacy form, in `ZUSAETZLICHE_PFADE`: the snapped
+  position, identifier and name of each point's water, the release, and the reason (see Data / contracts)
 - At submit, the server works the snapped positions out again itself and stores what it found,
   so a submitted protocol never carries positions the browser made up or that went stale
 - At submit, a point more than 100 m from its water without a reason is a `Formverstoss` on the
-  reason field, with a message naming the distance and the way out
+  reason field, with a message giving the limit and the way out (the warning under the map names
+  the point, the water and the distance)
 - The map: a second, smaller mark per point on the water, told apart from the typed mark by
   shape and label as well as colour, joined to it by a dashed line
 - Under the map, per point: which water it is on and how far away, and a button that moves the
@@ -100,12 +101,12 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   network; the endpoint shows in `/api/v1/docs`.
 
 - [x] **Step 3 - The new answers, worked out again at submit** - `ZUSAETZLICHE_PFADE` gains the
-  eight paths with the reason they exist. In `absenden.py`, after the pure rules and the 18c
+  ten paths with the reason they exist. In `absenden.py`, after the pure rules and the 18c
   identifier check: for each point that passed the coordinate rule, `einrasten` is run and the
-  three answers of that point and the release are written from its result; a point that did not
-  pass, or found nothing, has its three answers emptied. The reason is never touched. *Done when:*
+  four answers of that point and the release are written from its result; a point that did not
+  pass, or found nothing, has its four answers emptied. The reason is never touched. *Done when:*
   tests prove the stored values are the server's even when the draft held others, a picked water
-  is snapped to, an empty network empties all six position answers and submits exactly as before,
+  is snapped to, an empty network empties all nine snapped answers and submits exactly as before,
   and the existing submit, import and zuordnung tests pass.
 
 - [x] **Step 4 - The reason, required when far** - in the same place: either point further than
@@ -149,8 +150,9 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   description), typing a reason lets it send, and the sent protocol's review screen shows the
   warning and the reason (screenshots).
 
-- [x] **Step 8 - The PDF** - the snapped positions, their water and the reason in
-  `ausgabe/dokument.py`, and `npm run beschriftungen` regenerated for the new labels. *Done when:*
+- [x] **Step 8 - The PDF** - the snapped positions, their water and the reason in the PDF
+  download. `ausgabe/dokument.py` needed no change: it prints every labelled answer of a block, so
+  declaring the labels (`karte/einrasten.ts`) and running `npm run beschriftungen` was enough. *Done when:*
   a backend test proves the PDF text holds a snapped position and the reason, and the
   beschriftungen test passes.
 
@@ -169,12 +171,12 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
 
 ## Files / areas
 
-- `backend/app/gewaessernetz/einrasten.py` and `einrasten_test.py` (new), `beispiele.py` (a lake
-  and a nameless ditch if missing)
+- `backend/app/gewaessernetz/einrasten.py` and `einrasten_test.py` (new; the tests build their own
+  lake and nameless ditch from `beispiele.py`'s helpers)
 - `backend/app/api/gewaessernetz.py`, its test, `backend/app/api/schemas.py`
 - `backend/app/formular/felder.py` (`ZUSAETZLICHE_PFADE`)
 - `backend/app/protokolle/absenden.py` and its test, one message key in the locale files
-- `backend/app/protokolle/ausgabe/dokument.py` and its test
+- `backend/app/protokolle/ausgabe/dokument_test.py`
 - `frontend/src/protokoll/karte/einrasten.ts`, its test, `Probestreckenkarte.tsx`,
   `probestreckenkarte.css`, and a small component for the distance lines, warning and reason
 - `frontend/src/protokoll/entwurf/typen.ts`
@@ -213,13 +215,14 @@ the `probestrecken` columns stay the typed coordinates, which are what a stretch
 - `rw` and `hw` are whole metres in EPSG:25832, like the typed boxes
 - `entfernung_m` is whole metres from the given point
 
-Eight answers added on top of the legacy form, in `ZUSAETZLICHE_PFADE`:
+Ten answers added on top of the legacy form, in `ZUSAETZLICHE_PFADE`:
 
 | Path | Value | Set by |
 |---|---|---|
 | `probestrecke.eingerastet_rw_unten`, `eingerastet_hw_unten` | Lower point on the water | Browser while editing, server at submit |
 | `probestrecke.eingerastet_rw_oben`, `eingerastet_hw_oben` | Upper point on the water | Browser while editing, server at submit |
 | `probestrecke.eingerastet_kennung_unten`, `eingerastet_kennung_oben` | The identifier of the water each point is on | Browser while editing, server at submit |
+| `probestrecke.eingerastet_name_unten`, `eingerastet_name_oben` | That water's name as LUBW writes it, added while building so the review screen and the PDF can name it | Browser while editing, server at submit |
 | `probestrecke.eingerastet_version` | `AWGN 2025-05-01`, the same form as 18c's `gis_dataset_version` | Browser while editing, server at submit |
 | `probestrecke.abstand_begruendung` | One sentence, free text | The surveyor |
 
@@ -297,4 +300,23 @@ the build and the e2e test in step 9.
 - **Full suites** (step 10): `pytest` 1898 passed, 85 skipped (the FFS source files are not in
   this checkout); `ruff check .`, `mypy .` and `alembic check` clean; `npm run build`,
   `npm run lint` and `npm test` (1585 passed) clean.
+
+## What the code review turned up (2026-10-16)
+
+- **Fixed: a moved point was measured against where it used to be.** While a new request ran, or
+  after one failed, the stored position on the water still belonged to the old point, so the
+  panel and the map showed a wrong distance, and could show a false warning and the reason box.
+  `useEinrasten` now reports such a point as unsicher, and the map and the panel leave it out
+  until its answer arrives (`lagen` in `karte/einrasten.ts`). Checked in the browser with the
+  request blocked: the line disappears instead of reading 1 km, and returns with the answer.
+- **Fixed:** the panel uses MUI's `Typography`, `List` and `ListItem` instead of bare elements,
+  and the per-instance rule reaching into the alert's paragraphs is gone.
+- **Fixed:** the warning names the water as well as the point and the distance.
+- **Fixed:** "either point is far" is now a pure function with a test (`lagen` and `ferne`),
+  instead of logic inside the component; the panel reads its answers by name, not by position.
+- **Left as they are, judgement calls:** `Probestreckenkarte()` is long; the coordinate paths are
+  listed in three files; the two small `_gewaehlt` helpers (one refuses a partial pick, one
+  ignores it); `undefined` as "not known yet" in `Punktstand`.
+- **Checked, not a gap:** a pick whose release is no longer loaded snaps to nothing, but the 18c
+  identifier check refuses such a protocol at submit anyway.
 

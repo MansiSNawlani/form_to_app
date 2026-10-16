@@ -5,6 +5,8 @@ import {
   einrastenAbfrage,
   einrastenSchreibt,
   einrastpfad,
+  ferne,
+  lagen,
   gewaehltAus,
   nurGeaenderte,
   type EinrastenAntwort,
@@ -129,3 +131,41 @@ describe('nurGeaenderte', () => {
     )
   })
 })
+
+describe('lagen und ferne', () => {
+  /* A typed point and a position that many metres north of it, at a place
+     inside Baden-Wuerttemberg so the coordinate rule accepts both. */
+  const punkt = (abstand: number, unsicher = false) => ({
+    rwGesetzt: '513224',
+    hwGesetzt: '5402838',
+    rw: '513224',
+    hw: String(5402838 + abstand),
+    name: 'Nesenbach',
+    unsicher,
+  })
+
+  it('misst jeden Punkt', () => {
+    expect(lagen({ unten: punkt(100), oben: punkt(7) }).map((l) => l.abstand)).toEqual([100, 7])
+  })
+
+  it('warnt bei 101 m, an welchem Punkt auch immer', () => {
+    expect(ferne(lagen({ unten: punkt(100), oben: punkt(0) }))).toEqual([])
+    expect(ferne(lagen({ unten: punkt(101), oben: punkt(0) })).map((l) => l.grenze)).toEqual([
+      'unten',
+    ])
+    expect(ferne(lagen({ unten: punkt(0), oben: punkt(101) })).map((l) => l.grenze)).toEqual([
+      'oben',
+    ])
+  })
+
+  it('lässt einen Punkt weg, der gerade neu erfragt wird', () => {
+    expect(lagen({ unten: punkt(500, true), oben: punkt(5) }).map((l) => l.grenze)).toEqual([
+      'oben',
+    ])
+  })
+
+  it('lässt einen Punkt ohne Lage am Gewässer weg', () => {
+    expect(lagen({ unten: { ...punkt(0), rw: '', hw: '' }, oben: punkt(5) })).toHaveLength(1)
+  })
+})
+

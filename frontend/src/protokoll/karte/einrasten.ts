@@ -12,7 +12,9 @@ import { apiAnfrage } from '../../api/client'
 import type { AntwortPfad } from '../entwurf/typen'
 import type { Netzart, Punkt } from '../gewaessernetz/api'
 import { datensatzversion, type Eintraege } from '../gewaessernetz/auswahl'
+import { abstandM, istFern } from '../regeln/abstand'
 import type { Grenze } from './Grenzwahl'
+import { gueltigerPunkt } from './umrechnung'
 
 export interface Einrastung {
   kennung: string
@@ -179,3 +181,42 @@ export function nurGeaenderte(
 ): Eintraege {
   return eintraege.filter(([pfad, wert]) => (aktuell(pfad) ?? '') !== wert)
 }
+
+/** What is known about one boundary point, as the answers and the request have it. */
+export interface Punktangaben {
+  rwGesetzt?: string
+  hwGesetzt?: string
+  rw?: string
+  hw?: string
+  name?: string
+  /* Its request is still running or failed, so the stored position may belong
+     to where the point was before it moved. */
+  unsicher: boolean
+}
+
+export interface Lage {
+  grenze: Grenze
+  rw: string
+  hw: string
+  name: string
+  abstand: number
+}
+
+/* The points that have a position on the water worth showing, with their
+   distance. A point being asked about again is left out rather than measured
+   against where it used to be. */
+export function lagen(angaben: Readonly<Record<Grenze, Punktangaben>>): Lage[] {
+  return GRENZEN.flatMap((grenze): Lage[] => {
+    const { rwGesetzt, hwGesetzt, rw, hw, name, unsicher } = angaben[grenze]
+    if (unsicher || !rw || !hw) return []
+    const gesetzt = gueltigerPunkt(rwGesetzt, hwGesetzt)
+    const amWasser = gueltigerPunkt(rw, hw)
+    if (!gesetzt || !amWasser) return []
+    return [{ grenze, rw, hw, name: name ?? '', abstand: abstandM(gesetzt, amWasser) }]
+  })
+}
+
+export function ferne(alle: readonly Lage[]): Lage[] {
+  return alle.filter((lage) => istFern(lage.abstand))
+}
+

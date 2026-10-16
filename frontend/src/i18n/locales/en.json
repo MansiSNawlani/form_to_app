@@ -569,7 +569,8 @@
       "abstand": "{{grenze}}: {{abstand}} from the water body {{name}}",
       "abstandOhneName": "{{grenze}}: {{abstand}} from an unnamed water body",
       "aufsWasser": "Move {{grenze}} onto the water",
-      "fern": "{{grenze}} lies {{abstand}} from the water, more than {{warnabstandM}} m.",
+      "fern": "{{grenze}} lies {{abstand}} from the water body {{name}}, more than {{warnabstandM}} m.",
+      "fernOhneName": "{{grenze}} lies {{abstand}} from an unnamed water body, more than {{warnabstandM}} m.",
       "fernHinweis": "Please check the coordinates, or move the point onto the water. If the distance is right, please explain it below in one sentence. The protocol can still be submitted."
     },
     "abschnitt2": {

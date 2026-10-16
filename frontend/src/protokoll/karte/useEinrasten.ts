@@ -11,6 +11,7 @@ import {
   nurGeaenderte,
   type Punktstand,
 } from './einrasten'
+import type { Grenze } from './Grenzwahl'
 import { gueltigerPunkt } from './umrechnung'
 
 const BEOBACHTET = [
@@ -28,8 +29,12 @@ const BEOBACHTET = [
    Asks once per valid point, again whenever the point or the picked water
    changes, and writes only what differs, so opening a draft whose answers are
    already current leaves it unchanged. Off on the read-only screens, where the
-   stored answers are what is shown. */
-export function useEinrasten(aktiv: boolean) {
+   stored answers are what is shown.
+
+   Answers which points are unsicher: asked about and not yet answered, or
+   failed. Their stored position may belong to where the point was before it
+   moved, so the map and the panel leave them out until the answer arrives. */
+export function useEinrasten(aktiv: boolean): Readonly<Record<Grenze, boolean>> {
   const { getValues, setValue } = useFormContext<Antworten>()
   const [rwUnten, hwUnten, rwOben, hwOben, kennung, name, version] = useWatch<Antworten>({
     name: BEOBACHTET,
@@ -53,6 +58,14 @@ export function useEinrasten(aktiv: boolean) {
     )
     for (const [pfad, wert] of eintraege) setValue(pfad, wert, { shouldDirty: true })
   }, [aktiv, standUnten, standOben, getValues, setValue])
+
+  const untenUnsicher = aktiv && standUnten === undefined
+  const obenUnsicher = aktiv && standOben === undefined
+  // One object per change rather than per render, since the map's effect lists it.
+  return useMemo(
+    () => ({ unten: untenUnsicher, oben: obenUnsicher }),
+    [untenUnsicher, obenUnsicher],
+  )
 }
 
 function punktstand(

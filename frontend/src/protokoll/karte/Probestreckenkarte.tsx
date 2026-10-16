@@ -55,7 +55,7 @@ function Probestreckenkarte() {
     marken: { unten: null, oben: null },
     wasser: { unten: null, oben: null },
   })
-  useEinrasten(!nurLesen)
+  const unsicher = useEinrasten(!nurLesen)
   const [gewaehlt, setGewaehlt] = useState<Grenze>('unten')
   const gewaehltRef = useRef(gewaehlt)
   // Set by a map edit, so the map does not refit itself under the pointer.
@@ -139,12 +139,12 @@ function Probestreckenkarte() {
     for (const grenze of ['unten', 'oben'] as const) {
       const punkt = grenze === 'unten' ? unten : oben
       setzeMarke(map, marken.current.marken, grenze, punkt, beschriftung[grenze], ziehen)
-      const amWasser = grenze === 'unten' ? untenAmWasser : obenAmWasser
+      const amWasser = unsicher[grenze] ? null : grenze === 'unten' ? untenAmWasser : obenAmWasser
       setzeWassermarke(map, marken.current.wasser, grenze, punkt && amWasser, wasserName[grenze])
     }
     zeichneVerbindungen(map, [
-      { gesetzt: unten, amWasser: untenAmWasser },
-      { gesetzt: oben, amWasser: obenAmWasser },
+      { gesetzt: unten, amWasser: unsicher.unten ? null : untenAmWasser },
+      { gesetzt: oben, amWasser: unsicher.oben ? null : obenAmWasser },
     ])
     if (ausKarte.current) {
       ausKarte.current = false
@@ -159,6 +159,7 @@ function Probestreckenkarte() {
     oben,
     untenAmWasser,
     obenAmWasser,
+    unsicher,
     beschriftung,
     wasserName,
     nurLesen,
@@ -187,7 +188,7 @@ function Probestreckenkarte() {
           aria-busy={zustand === 'laedt'}
         />
       )}
-      <Einrastanzeige />
+      <Einrastanzeige unsicher={unsicher} />
     </div>
   )
 }

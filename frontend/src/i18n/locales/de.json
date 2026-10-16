@@ -569,7 +569,8 @@
       "abstand": "{{grenze}}: {{abstand}} vom Gewässer {{name}}",
       "abstandOhneName": "{{grenze}}: {{abstand}} von einem Gewässer ohne Namen",
       "aufsWasser": "{{grenze}} auf das Gewässer setzen",
-      "fern": "{{grenze}} liegt {{abstand}} vom Gewässer entfernt, mehr als {{warnabstandM}} m.",
+      "fern": "{{grenze}} liegt {{abstand}} vom Gewässer {{name}} entfernt, mehr als {{warnabstandM}} m.",
+      "fernOhneName": "{{grenze}} liegt {{abstand}} von einem Gewässer ohne Namen entfernt, mehr als {{warnabstandM}} m.",
       "fernHinweis": "Bitte prüfen Sie die Koordinaten, oder setzen Sie den Punkt auf das Gewässer. Stimmt der Abstand, erklären Sie ihn bitte unten in einem Satz. Das Protokoll lässt sich dann trotzdem absenden."
     },
     "abschnitt2": {
