@@ -7,6 +7,7 @@ import {
 } from './bloecke'
 import PaarMeldung from './PaarMeldung'
 import FeldHaken from '../../felder/FeldHaken'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import FeldText from '../../felder/FeldText'
 
 /* Which stretch of water was actually fished, in which direction and how.
@@ -35,10 +36,11 @@ interface BereichZeileProps {
 
 function BereichZeile({ bereich }: BereichZeileProps) {
   const { t } = useTranslation()
-  const { legendKey, laenge, breite, richtung, methode } = bereich
+  const { id, legendKey, laenge, breite, richtung, methode } = bereich
+  const ablehnungId = `ablehnung-${id.replaceAll('.', '-')}`
 
   return (
-    <fieldset className="form-block">
+    <fieldset className="form-block" aria-describedby={ablehnungId}>
       <legend>{t(legendKey)}</legend>
 
       <div className="grid">
@@ -80,6 +82,8 @@ function BereichZeile({ bereich }: BereichZeileProps) {
           ))}
         </div>
       </fieldset>
+
+      <BlockMeldung pfad={id} id={ablehnungId} />
     </fieldset>
   )
 }
@@ -105,7 +109,7 @@ function BefischteBereicheBlock() {
       </p>
 
       {BEFISCHTE_BEREICHE.map((bereich) => (
-        <BereichZeile key={bereich.legendKey} bereich={bereich} />
+        <BereichZeile key={bereich.id} bereich={bereich} />
       ))}
 
       <PaarMeldung

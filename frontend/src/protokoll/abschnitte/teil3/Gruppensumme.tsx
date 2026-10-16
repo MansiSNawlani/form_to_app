@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import type { Prozentgruppe } from './gruppen'
 import { bewerteAnteile, bewerteGruppe } from '../../regeln/prozent'
 import { useNurLesen } from '../../nurlesen/kontext'
+import { blockAnzeige } from '../../absenden/amFeld'
+import { useServerMeldung } from '../../absenden/verstossKontext'
 import type { Antworten } from '../../entwurf/typen'
 
 /* What a Prozentgruppe currently adds up to, under the group.
@@ -86,10 +88,17 @@ function Gruppensumme({ gruppe, id }: GruppensummeProps) {
    * surveyor to fix something. Whether a reviewer should be shown a protocol's
    * problems, and how, is the decision panel's question and belongs to feature
    * 11f. */
-  const meldung =
-    !nurLesen && summenfehler && (angefasst || vorbefuellt) ? t(summenfehler.schluessel) : ''
-
   const vollstaendig = summe === 100 && verstoesse.length === 0
+
+  /* A refusal at submit, most often a run nobody started, shares this line and
+     lifts once the run adds up. */
+  const server = useServerMeldung(gruppe.id)
+  const anzeige = blockAnzeige(
+    !nurLesen && summenfehler && (angefasst || vorbefuellt) ? summenfehler.schluessel : undefined,
+    server,
+    vollstaendig,
+  )
+  const meldung = anzeige.meldung ? t(anzeige.meldung) : ''
   const zustand =
     nurLesen
       ? ''
@@ -100,7 +109,7 @@ function Gruppensumme({ gruppe, id }: GruppensummeProps) {
           : ''
 
   return (
-    <p className={`group-total${zustand}`} id={id}>
+    <p className={`group-total${zustand}`} id={id} data-abgelehnt={anzeige.abgelehnt || undefined}>
       <span className="group-total__value">{t('protokoll.abschnitt3.summe', { summe })}</span>
       {/* Always rendered, empty when there is nothing to say. A live region that
           is added to the page at the same moment as its text is unreliably

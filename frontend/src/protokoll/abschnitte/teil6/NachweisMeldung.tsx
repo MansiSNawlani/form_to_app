@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { useFormState, useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { zaehlzelleBeruehrt } from './tabelle'
-import { fangOhneNachweisCode } from '../../regeln/arten'
+import { benannteArten, fangOhneNachweisCode } from '../../regeln/arten'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import type { Antworten } from '../../entwurf/typen'
 
 /* The one thing that can be wrong with the catch table as a whole: it records a
@@ -31,9 +31,12 @@ import type { Antworten } from '../../entwurf/typen'
  * straight away.
  */
 
-function NachweisMeldung() {
-  const { t } = useTranslation()
+interface NachweisMeldungProps {
+  /** The table's fieldset points at this with aria-describedby. */
+  id: string
+}
 
+function NachweisMeldung({ id }: NachweisMeldungProps) {
   /* One subscription to the group rather than 312 to its cells. Wide by design
      and acceptable because this is a leaf, the same trade Gesamtsumme.tsx makes:
      a keystroke re-renders this message and no cell. */
@@ -50,13 +53,18 @@ function NachweisMeldung() {
 
   const sprechen = zaehlzelleBeruehrt(touchedFields.arten) || vorbefuellt
 
+  /* Put right once a species is named and the browser's own rule is quiet. The
+     server refuses this table either for naming no species at all or for a
+     catch beside a no-detection code, and this reading covers both. */
+  const erledigt = benannteArten({ arten }).length > 0 && schluessel === undefined
+
   return (
-    /* Always rendered, empty when there is nothing to say. A live region added to
-       the page at the same moment as its text is unreliably announced; one that
-       is already there is not. */
-    <p className="block-message" role="status">
-      {schluessel && sprechen ? t(schluessel) : ''}
-    </p>
+    <BlockMeldung
+      pfad="tabelle.arten"
+      id={id}
+      browser={schluessel && sprechen ? schluessel : undefined}
+      erledigt={erledigt}
+    />
   )
 }
 

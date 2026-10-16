@@ -391,6 +391,30 @@
   display: none;
 }
 
+/* A block the server refused at the last submit, outlined so it is found
+   without reading the list. Asked for by FFS on 2026-10-15.
+
+   Set by the block's own message line, through data-abgelehnt, rather than by
+   the block: the line is the one place that already watches what the block
+   holds, so the outline lifts at the same moment the message does without the
+   whole block re-rendering on every keystroke. */
+.form-block:has(> [data-abgelehnt]),
+.form-section:has(> [data-abgelehnt]) {
+  outline: 2px solid var(--danger);
+  outline-offset: 0;
+  border-radius: var(--radius);
+}
+
+/* On the box's own edge, never inside it: a fieldset's legend sits on its top
+   edge, so an outline drawn inward runs straight through the block's own name.
+   Not outside it either, where it ran into the message and the label of the
+   fields around the block. A block has no padding of its own, so it gains a
+   little here, given back at the sides so its columns line up as before. */
+.form-block:has(> [data-abgelehnt]) {
+  padding: 0.5rem;
+  margin-inline: -0.5rem;
+}
+
 /* ---------- save indicator ---------- */
 
 .save-state {

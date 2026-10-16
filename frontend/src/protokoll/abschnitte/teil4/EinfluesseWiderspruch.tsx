@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
-import { EINFLUESSE } from './bloecke'
+import { EINFLUESSE, EINFLUSS_WIDERSPRUCH } from './bloecke'
+import BlockMeldung from '../../absenden/BlockMeldung'
 import { pruefeWiderspruch } from '../../regeln/einfluesse'
 import type { Antworten } from '../../entwurf/typen'
 
@@ -22,8 +22,6 @@ interface EinfluesseWiderspruchProps {
 }
 
 function EinfluesseWiderspruch({ id }: EinfluesseWiderspruchProps) {
-  const { t } = useTranslation()
-
   /* Memoised because useWatch resubscribes when the name array changes
      identity, and a fresh array every render would mean a fresh subscription
      every render. EINFLUESSE is a module constant, so this never recomputes. */
@@ -45,12 +43,12 @@ function EinfluesseWiderspruch({ id }: EinfluesseWiderspruchProps) {
   const [verstoss] = pruefeWiderspruch({ einfluesse })
 
   return (
-    /* Always rendered, empty when there is nothing to say. A live region added
-       to the page at the same moment as its text is unreliably announced; one
-       that is already there is not. */
-    <p className="block-message" id={id} role="status">
-      {verstoss ? t(verstoss.schluessel) : ''}
-    </p>
+    <BlockMeldung
+      pfad={EINFLUSS_WIDERSPRUCH}
+      id={id}
+      browser={verstoss?.schluessel}
+      erledigt={verstoss === undefined}
+    />
   )
 }
 

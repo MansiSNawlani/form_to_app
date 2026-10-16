@@ -17,6 +17,7 @@ import { zeitpunktAnzeige } from '../liste/anzeige'
 import { optionen } from '../optionen'
 import { useLocale } from '../../i18n/useLocale'
 import type { Locale } from '../../i18n/sprachen'
+import { bekannteMeldung } from './amFeld'
 import { gruppiere, type Problem } from './gruppierung'
 import { useErledigtePfade } from './useErledigte'
 import type { Verstoss } from '../../api/typen'
@@ -86,14 +87,9 @@ function AbsendeProbleme({
   const sprache = useLocale()
   const panel = useRef<HTMLDivElement>(null)
 
-  /* The message key arrives from the server as a plain string, so it is checked
-     before it is translated. A backend deployed ahead of the browser can name a
-     rule this locale file has never heard of, and printing the raw key at a
-     surveyor is exactly what feature 11a's step 10 test exists to prevent. */
+  // Checked the same way the field checks it, so both print the same sentence.
   const meldung = (schluessel: string): string =>
-    i18n.exists(schluessel)
-      ? t(schluessel as ParseKeys)
-      : t('protokoll.absenden.probleme.unbekannteRegel')
+    t(bekannteMeldung(schluessel, (k) => i18n.exists(k)))
 
   const erledigt = useErledigtePfade(verstoesse)
 
