@@ -10,7 +10,7 @@ import { useFeldFehler } from './fehler'
 import { feldAria, type FeldRahmenProps } from './rahmen'
 import Feldwert from '../nurlesen/Feldwert'
 import { useNurLesen } from '../nurlesen/kontext'
-import { gewaessersucheAbfrage, type Gewaessertreffer } from '../gewaessernetz/api'
+import { gewaessersucheAbfrage, suchbar, type Gewaessertreffer } from '../gewaessernetz/api'
 import {
   KENNUNG_LEEREN,
   KENNUNG_PFAD,
@@ -20,6 +20,7 @@ import {
   kennungBleibt,
   kettenHinweis,
   suchpunkte,
+  unterzeile,
   wahlSchreibt,
   type Eintraege,
   type KettenHinweis,
@@ -77,10 +78,7 @@ function Gewaessersuche({
      typed into, which is the only moment the points matter, and a subscription
      would re-render it on every keystroke in the coordinate boxes too. */
   const punkte = suchpunkte(getValues('probestrecke'))
-  const suche = useQuery({
-    ...gewaessersucheAbfrage(gesucht, punkte),
-    enabled: offen && gesucht.trim().length >= 2,
-  })
+  const suche = useQuery(gewaessersucheAbfrage(gesucht, punkte, offen))
 
   // Why the last pick left the Vorfluter boxes alone, until the name is typed over.
   const [kette, setKette] = useState<KettenHinweis | null>(null)
@@ -116,6 +114,13 @@ function Gewaessersuche({
         {kennungszeile}
       </FeldRahmen>
     )
+  }
+
+  const beschreibe = (treffer: Gewaessertreffer): string => {
+    const zeile = unterzeile(treffer)
+    return zeile.art === 'fliesstIn'
+      ? t(`${SUCHE}.fliesstIn`, { name: zeile.name })
+      : t(`${SUCHE}.${zeile.art}`)
   }
 
   const schreibe = (eintraege: Eintraege) => {
@@ -165,7 +170,7 @@ function Gewaessersuche({
             /* The server has already filtered; filtering again here would drop
                "Mühlbach" for somebody who typed "Muehlb". */
             filterOptions={(alle) => alle}
-            open={offen && gesucht.trim().length >= 2 && !nichtVerfuegbar}
+            open={offen && suchbar(gesucht) && !nichtVerfuegbar}
             onOpen={() => setOffen(true)}
             onClose={() => setOffen(false)}
             loading={suche.isFetching}
@@ -202,9 +207,7 @@ function Gewaessersuche({
                 <span className="gewaessersuche__treffer">
                   <span>{option.name}</span>
                   <span className="gewaessersuche__vorfluter">
-                    {option.vorfluter_name === null
-                      ? t(`${SUCHE}.stehend`)
-                      : t(`${SUCHE}.fliesstIn`, { name: option.vorfluter_name })}
+                    {beschreibe(option)}
                     {option.entfernung_m !== null &&
                       `, ${t(`${SUCHE}.entfernt`, { entfernung: entfernungText(option.entfernung_m, sprache) })}`}
                   </span>

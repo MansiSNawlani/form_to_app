@@ -52,13 +52,13 @@ KETTE = text(
         SELECT g.kennung, v.name, v.vorfluter_kennung, 1
         FROM gewaessernetz g
         JOIN gewaessernetz v
-          ON v.stand = g.stand AND v.art = 'FLIESSGEWAESSER' AND v.kennung = g.vorfluter_kennung
-        WHERE g.stand = :stand AND g.art = 'FLIESSGEWAESSER' AND g.kennung = ANY(:kennungen)
+          ON v.stand = g.stand AND v.art = :fliess AND v.kennung = g.vorfluter_kennung
+        WHERE g.stand = :stand AND g.art = :fliess AND g.kennung = ANY(:kennungen)
       UNION ALL
         SELECT k.start, v.name, v.vorfluter_kennung, k.tiefe + 1
         FROM kette k
         JOIN gewaessernetz v
-          ON v.stand = :stand AND v.art = 'FLIESSGEWAESSER' AND v.kennung = k.naechste
+          ON v.stand = :stand AND v.art = :fliess AND v.kennung = k.naechste
         WHERE k.tiefe <= :grenze
     )
     SELECT start, name FROM kette ORDER BY start, tiefe
@@ -185,7 +185,13 @@ async def _ketten(session: AsyncSession, stand: date, kennungen: list[str]) -> d
     if not kennungen:
         return {}
     zeilen = await session.execute(
-        KETTE, {"stand": stand, "kennungen": kennungen, "grenze": MAX_KETTE}
+        KETTE,
+        {
+            "stand": stand,
+            "kennungen": kennungen,
+            "grenze": MAX_KETTE,
+            "fliess": Netzart.FLIESSGEWAESSER.value,
+        },
     )
     ketten: dict[str, list[str]] = {}
     for start, name in zeilen:

@@ -31,6 +31,11 @@ export type Punkt = readonly [number, number]
 /** Typed text shorter than this is not sent; the backend refuses it too. */
 export const MIN_ZEICHEN = 2
 
+/** Whether the typed text is long enough to send. */
+export function suchbar(eingabe: string): boolean {
+  return eingabe.trim().length >= MIN_ZEICHEN
+}
+
 export function suchpfad(eingabe: string, punkte: readonly Punkt[] = []): string {
   const parameter = new URLSearchParams({ q: eingabe.trim() })
   for (const [rw, hw] of punkte) {
@@ -40,12 +45,18 @@ export function suchpfad(eingabe: string, punkte: readonly Punkt[] = []): string
   return `/gewaessernetz/suche?${parameter.toString()}`
 }
 
-export function gewaessersucheAbfrage(eingabe: string, punkte: readonly Punkt[] = []) {
+/* aktiv is the caller's own condition on top of the text being long enough:
+   the field asks only while its list is open. */
+export function gewaessersucheAbfrage(
+  eingabe: string,
+  punkte: readonly Punkt[] = [],
+  aktiv = true,
+) {
   const pfad = suchpfad(eingabe, punkte)
   return queryOptions({
     queryKey: ['gewaessernetz', pfad] as const,
     queryFn: () => apiAnfrage<Gewaessersuche>(pfad),
-    enabled: eingabe.trim().length >= MIN_ZEICHEN,
+    enabled: aktiv && suchbar(eingabe),
     /* The network changes when an administrator loads a release, a few times a
        year, so an answer is worth keeping for the whole visit. */
     staleTime: Infinity,

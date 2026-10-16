@@ -47,10 +47,26 @@ export function wahlSchreibt(treffer: Gewaessertreffer, stand: string): Eintraeg
 
 export type KettenHinweis = 'zuLang' | 'stehend'
 
-/** Why a pick left the Vorfluter boxes alone, or null when it filled them. */
+/* Why a pick left the Vorfluter boxes alone, or null when there is nothing to
+   say: the chain was filled, or the water is the Rhein or the Donau, where
+   every chain ends and which therefore has none of its own. */
 export function kettenHinweis(treffer: Gewaessertreffer): KettenHinweis | null {
   if (treffer.vorfluter !== null) return null
-  return treffer.art === 'STEHENDES_GEWAESSER' ? 'stehend' : 'zuLang'
+  if (treffer.art === 'STEHENDES_GEWAESSER') return 'stehend'
+  return treffer.vorfluter_name === null ? null : 'zuLang'
+}
+
+export type Unterzeile =
+  | { art: 'fliesstIn'; name: string }
+  | { art: 'stehend' }
+  | { art: 'endpunkt' }
+
+/* What the line under a result says. By the kind of water first: a flowing
+   water with no receiving water is the Rhein or the Donau, not a lake. */
+export function unterzeile(treffer: Gewaessertreffer): Unterzeile {
+  if (treffer.art === 'STEHENDES_GEWAESSER') return { art: 'stehend' }
+  if (treffer.vorfluter_name === null) return { art: 'endpunkt' }
+  return { art: 'fliesstIn', name: treffer.vorfluter_name }
 }
 
 /* Metres under a kilometre, kilometres with one decimal above, as the locale

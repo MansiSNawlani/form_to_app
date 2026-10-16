@@ -295,3 +295,20 @@ build and the e2e test in step 8.
   empty Gewässer refused at submit is `aria-invalid` with the message as its description until a
   name is typed. The specs needing the reviewer and admin accounts were not run: their password
   is not in this environment.
+
+## What the code review turned up (2026-10-16)
+
+- **Fixed: the Rhein and the Donau read as standing waters.** Both are flowing waters with no
+  receiving water, and the list decided "stehendes Gewässer" from the missing Vorfluter rather
+  than from the kind of water; picking one also claimed its chain was too long. The line under
+  a result now follows `art` (`unterzeile` in `gewaessernetz/auswahl.ts`), the two end points
+  read `Ende der Vorfluterkette`, and picking one shows no note. Checked in the browser.
+- **Fixed:** the minimum search length is decided once (`suchbar` in `gewaessernetz/api.ts`),
+  and the chain query binds the water type instead of spelling it three times.
+- **Left as they are, judgement calls:** `Gewaessersuche.tsx` is long for one component; the
+  `AWGN <stand>` format is written on both sides (each names the other); `amtliche_id` and
+  `gis_dataset_version` travel as a pair without a type of their own; the submit check sits in
+  `gewaessernetz/` and reads the protocol's path constants.
+- **Unrelated, found on the way:** commit `a3c5974` had run `ruff format` over the whole backend
+  and reflowed 46 files this feature never touched; `96106eb` put every one back, each proved a
+  pure reflow before it was restored.

@@ -10,6 +10,7 @@ import {
   kennungBleibt,
   kettenHinweis,
   suchpunkte,
+  unterzeile,
   wahlSchreibt,
 } from './auswahl'
 
@@ -55,6 +56,12 @@ describe('kettenHinweis', () => {
 
   it('zu lang bei einem Fliessgewaesser ohne passende Kette', () => {
     expect(kettenHinweis({ ...MUEHLBACH, vorfluter: null })).toBe('zuLang')
+  })
+
+  /* The Rhein and the Donau are where every chain ends, so they have none
+     themselves. Nothing to fill and nothing wrong, so no note. */
+  it('nichts beim Rhein, der selbst das Ende jeder Kette ist', () => {
+    expect(kettenHinweis(RHEIN)).toBeNull()
   })
 
   it('stehend bei einem stehenden Gewaesser', () => {
@@ -135,5 +142,30 @@ describe('suchpfad', () => {
         [478400, 5421000],
       ]),
     ).toBe('/gewaessernetz/suche?q=M%C3%BChlb&rw=478000&hw=5420000&rw=478400&hw=5421000')
+  })
+})
+
+const RHEIN: Gewaessertreffer = {
+  kennung: '2000000000000',
+  art: 'FLIESSGEWAESSER',
+  name: 'Rhein',
+  vorfluter_name: null,
+  vorfluter: null,
+  entfernung_m: null,
+}
+
+describe('unterzeile', () => {
+  it('ein Fliessgewaesser nennt, wohin es fliesst', () => {
+    expect(unterzeile(MUEHLBACH)).toEqual({ art: 'fliesstIn', name: 'Enz' })
+  })
+
+  it('ein stehendes Gewaesser sagt das, nach seiner Art und nicht nach dem Vorfluter', () => {
+    expect(
+      unterzeile({ ...MUEHLBACH, art: 'STEHENDES_GEWAESSER', vorfluter: null, vorfluter_name: null }),
+    ).toEqual({ art: 'stehend' })
+  })
+
+  it('der Rhein ist ein Fliessgewaesser, das nirgends hinfliesst', () => {
+    expect(unterzeile(RHEIN)).toEqual({ art: 'endpunkt' })
   })
 })

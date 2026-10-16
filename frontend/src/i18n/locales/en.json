@@ -498,6 +498,7 @@
         "gewaessersuche": {
           "fliesstIn": "flows into {{name}}",
           "stehend": "standing water",
+          "endpunkt": "end of the chain of receiving waters",
           "laedt": "Searching the official water body network.",
           "keinTreffer": "No match in the official water body network. You can type the name freely; the protocol is then saved without an official identifier.",
           "nichtVerfuegbar": "The official list of water bodies is not available right now. Type the name freely; the protocol is then saved without an official identifier.",
