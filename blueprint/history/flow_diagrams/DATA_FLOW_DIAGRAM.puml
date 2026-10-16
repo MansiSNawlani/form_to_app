@@ -107,6 +107,11 @@ note right of Zod
   koordinaten.py on the server) tests each boundary point against
   database/seed/landesgrenze/landesgrenze_bw.json, the same file
   on both sides, since feature 18b.
+  One SUBMIT check reads the database rather than only the answers:
+  gewaessernetz/kennung.py (feature 18c), called from
+  protokolle/absenden.py, holds a picked water's amtliche_id against
+  the loaded Gewaessernetz and its name. It cannot be a pure rule, so
+  it sits beside them and reports into the same list.
 end note
 
 ' ------------------------------------------------------------------------------
@@ -128,6 +133,14 @@ note right of AutoSave
   karte/Probestreckenkarte.tsx writes the two utm_* answers with
   setValue, which fires this same watch, so a point set on the map
   is saved by exactly this path and needs no save of its own.
+
+  So does a pick from the Gewaesser search (feature 18c).
+  felder/Gewaessersuche.tsx writes the name, amtliche_id,
+  gis_dataset_version and, when LUBW's chain fits, vorfluter1-5
+  with setValue; typing over the name empties the two identifier
+  answers the same way. The search itself is a separate GET
+  /api/v1/gewaessernetz/suche (gewaessernetz/api.ts, through
+  apiAnfrage and TanStack Query), never part of a save.
 end note
 
 ' ------------------------------------------------------------------------------
@@ -169,7 +182,7 @@ note over Client
   karte/basiskarte.ts asking BKG's server for the background
   map's style, which carries no cookie and no protocol data.)
   Every other file (entwurf/api.ts, useSitzung.ts,
-  etc.) goes through apiAnfrage(). That is what keeps 4 concerns
+  gewaessernetz/api.ts, etc.) goes through apiAnfrage(). That is what keeps 4 concerns
   centralised instead of repeated at every call site:
   (a) the cookie is sent, (b) a non-2xx response becomes a typed
   ApiFehler instead of a silently-resolved promise, (c) the JSON

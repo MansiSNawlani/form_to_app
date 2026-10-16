@@ -317,7 +317,7 @@ These are not features and are not tracked here. They happen first.
   - [x] 18b. Das Gewässernetz laden: a PostGIS table for the official water body network, a
         command that loads one dataset version into it, and the coordinate check tested against
         the real Baden-Württemberg border instead of a rectangle
-  - [ ] 18c. Gewässersuche: searching the official water bodies by name in the Gewässer field,
+  - [x] 18c. Gewässersuche: searching the official water bodies by name in the Gewässer field,
         and picking one fills in the name and `amtliche_id`
   - [ ] 18d. Einrasten mit Übersteuern: a placed point snaps to the nearest water body, both the
         typed and the snapped position are kept, and a point far from any water gets a warning,

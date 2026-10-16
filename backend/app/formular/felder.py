@@ -39,7 +39,18 @@ FELDER_DATEI = "felder.json"
 # bearbeiter.ort: the PDF has a street and a postcode but no town, which both the
 # mockup and the Person model have. Added in feature 4b; question 1 in
 # docs/ffs-questions.md.
-ZUSAETZLICHE_PFADE = frozenset({"bearbeiter.ort"})
+#
+# probestrecke.gewaesser.amtliche_id and gis_dataset_version: the official
+# identifier of a water picked from LUBW's network, and the release it came from.
+# Added in feature 18c; written only by picking, never typed. FiaKa's key for a
+# water is the likeliest thing for them to carry, which is question 16.
+ZUSAETZLICHE_PFADE = frozenset(
+    {
+        "bearbeiter.ort",
+        "probestrecke.gewaesser.amtliche_id",
+        "probestrecke.gewaesser.gis_dataset_version",
+    }
+)
 
 
 class FormularDefinitionFehlt(RuntimeError):

@@ -226,6 +226,7 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     [FeldDatum.tsx]
     [FeldHaken.tsx]
     [Optionssuche.tsx / Suche.tsx]
+    [Gewaessersuche.tsx]
     [fehler.ts (useFeldFehler hook)]
     [rahmen.ts (feldAria, fehlerId helpers)]
     note bottom of felder
@@ -237,6 +238,22 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       that every Feld* wraps itself in, so keyboard/label/ARIA
       behaviour is written once and inherited everywhere - exactly the
       "theme/build a component once" rule from coding-standards.md.
+      Gewaessersuche.tsx (feature 18c) is the Gewaesser name as a
+      free-text MUI Autocomplete that asks the backend's search as it
+      is typed; see gewaessernetz/ below for what a pick writes.
+    end note
+  }
+
+  package "gewaessernetz/  (searching LUBW's water body network, feature 18c)" as gewaessernetz #D4EDDA {
+    [api.ts (suchpfad, gewaessersucheAbfrage)]
+    [auswahl.ts (wahlSchreibt, kennungBleibt, suchpunkte)]
+    note bottom of gewaessernetz
+      api.ts asks GET /api/v1/gewaessernetz/suche through apiAnfrage,
+      cached by TanStack Query. auswahl.ts is plain functions: what a
+      pick writes (name, amtliche_id, gis_dataset_version, the five
+      Vorfluter boxes when the chain fits), when typing takes the
+      identifier back, and which boundary points may rank the results.
+      The server checks the same pairing again at submit.
     end note
   }
 
@@ -285,6 +302,14 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     [useAbsenden.ts]
     [AbsendeErgebnis.tsx]
     [AbsendeProbleme.tsx]
+    [verstossKontext.ts, amFeld.ts, BlockMeldung.tsx]
+    note bottom of absenden
+      Since the fix of 2026-10-15 a refused submit or import marks the
+      field it names, not only the list: verstossKontext.ts hands the
+      server's list to the fields, amFeld.ts decides which message a
+      field shows (the browser's own first), and BlockMeldung.tsx
+      outlines a block such as a percentage group.
+    end note
   }
 
   package "nurlesen/  (read-only rendering mode)" as nurlesen {
@@ -306,7 +331,7 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     [Grenzwahl.tsx]
     [useBasiskarte.ts]
     [basiskarte.ts]
-    [umrechnung.ts]
+    [umrechnung.ts (zuKartenpunkt, gueltigerPunkt)]
     note bottom of karte
       MapLibre on the basemap.de background from BKG, loaded with
       React.lazy from teil1/ProbestreckeBlock.tsx, so the map's
@@ -395,6 +420,9 @@ formcore --> abschnitte
 formcore --> useAutoSave
 formcore --> absenden
 abschnitte --> felder
+felder --> gewaessernetz
+gewaessernetz --> client
+gewaessernetz --> karte
 felder --> nurlesen
 felder --> regeln
 abschnitte --> karte

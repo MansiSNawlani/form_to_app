@@ -13,10 +13,10 @@ Person's contact details and stamped a Monitoringstrecken-Nr. onto a stretch tha
 had none. Both write to rows other protocols already point at.
 
 The cost is duplicates: a typo makes a second water body, and a stretch that
-gains a number gains a second record. That cost is paid deliberately. Feature 18
-brings the official water body dataset, which is the first point at which two
-records can be merged correctly, and merging is a step a person runs rather than
-something that happens quietly at submit.
+gains a number gains a second record. That cost is paid deliberately. The official
+water body network (loaded since feature 18b) is what makes merging two records
+correct, and merging is a step a person runs rather than something that happens
+quietly at submit; how is decided when 18e is specced.
 
 **Nothing here is a protocol.** Two submissions pointing at one Probestrecke stay
 two entirely separate submissions, with their own answers, Bearbeiter, Anlass and
@@ -82,7 +82,16 @@ async def ordne_zu(session: AsyncSession, umschlag: Umschlag, konto: User) -> Zu
 
 
 async def _gewaesser(session: AsyncSession, angaben: Gewaesserangaben) -> Gewaesser:
-    """The water this protocol names, matched on its name and its whole chain.
+    """The water this protocol names.
+
+    **A picked water is matched on its official identifier alone**, since 18c.
+    That is the authoritative identity CONTEXT.md asks for, so two protocols
+    picking the same water share its row whatever chains they give. A typed water
+    is matched as below, and only against rows without an identifier: a typed
+    "Neckar" is never quietly handed the Neckar's identifier, in either order.
+    Proposing those matches is 18e's, for a person to confirm.
+
+    A typed water is matched on its name and its whole chain.
 
     Compared after normalising and stored as typed, which is the rule defect 2
     exists to enforce.
@@ -102,16 +111,34 @@ async def _gewaesser(session: AsyncSession, angaben: Gewaesserangaben) -> Gewaes
     close produces a duplicate, and duplicates are a cost this feature already
     accepts.
     """
-    gleichnamige = await session.scalars(
-        select(Gewaesser)
-        .where(func.lower(func.btrim(Gewaesser.name)) == normalisiert(angaben.name))
-        .where(func.cardinality(Gewaesser.vorfluter) == len(angaben.vorfluter))
-    )
-    for kandidat in gleichnamige:
-        if _kette(kandidat.vorfluter) == _kette(angaben.vorfluter):
-            return kandidat
+    if angaben.amtliche_id is not None:
+        # The oldest, should the race models/gewaesser.py accepts have made two.
+        bekannt = await session.scalar(
+            select(Gewaesser)
+            .where(Gewaesser.amtliche_id == angaben.amtliche_id)
+            .order_by(Gewaesser.created_at, Gewaesser.id)
+            .limit(1)
+        )
+        if bekannt is not None:
+            return bekannt
+    else:
+        gleichnamige = await session.scalars(
+            select(Gewaesser)
+            .where(Gewaesser.amtliche_id.is_(None))
+            .where(func.lower(func.btrim(Gewaesser.name)) == normalisiert(angaben.name))
+            .where(func.cardinality(Gewaesser.vorfluter) == len(angaben.vorfluter))
+        )
+        for kandidat in gleichnamige:
+            if _kette(kandidat.vorfluter) == _kette(angaben.vorfluter):
+                return kandidat
 
-    neu = Gewaesser(id=uuid.uuid4(), name=angaben.name, vorfluter=list(angaben.vorfluter))
+    neu = Gewaesser(
+        id=uuid.uuid4(),
+        name=angaben.name,
+        vorfluter=list(angaben.vorfluter),
+        amtliche_id=angaben.amtliche_id,
+        gis_dataset_version=angaben.gis_dataset_version,
+    )
     session.add(neu)
     await session.flush()
     return neu

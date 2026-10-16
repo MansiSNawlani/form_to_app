@@ -8,6 +8,6 @@ The rule both halves are built around, decided on 2026-09-11: **the matching
 reads an existing record or creates a new one, and never updates one.** A
 protocol is an official survey record on its way to FiaKa, so anything an
 accepted one points at has to be as fixed as the protocol itself. The cost is
-duplicates, paid deliberately, and feature 18 is where merging them can be done
-correctly with the official water body dataset behind it.
+duplicates, paid deliberately. Merging them needs the official water body network
+behind it, which 18b loaded, and a person deciding, which is 18e's to work out.
 """

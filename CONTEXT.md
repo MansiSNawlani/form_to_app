@@ -64,7 +64,9 @@ _English_: Anode operator (Anodenführer)
 
 **Gewässer**:
 A named body of water. Identified authoritatively by an identifier from the state GIS dataset, never
-by name alone.
+by name alone. A Gewässer picked from the Gewässernetz carries that identifier, its Amtliche Kennung;
+one typed in freely does not, and is identified by its name and Vorfluter chain until somebody
+confirms which water it is.
 _English_: Water body (Gewässer); "water body" in a sentence
 _Avoid_: water, river, stream
 
@@ -84,6 +86,14 @@ application one release (Stand) at a time. It is where a Gewässer's identifier 
 nobody using the application edits.
 _English_: Water body network (Gewässernetz)
 _Avoid_: river network, GIS layer, water dataset
+
+**Amtliche Kennung**:
+The identifier a Gewässer has in the Gewässernetz, stored as `amtliche_id`, together with the
+release it was read from (`AWGN 2025-05-01`). It reaches a protocol only by picking the water from
+the search on the Gewässer field, never by typing; typing over a picked name takes it back. Checked
+at submit against the release it names.
+_English_: Official identifier (Amtliche Kennung)
+_Avoid_: GIS ID, water ID, Gewässer-ID
 
 **Vorfluter**:
 The Gewässer that a Gewässer flows into. Recorded as a chain that must terminate at the Rhein or the

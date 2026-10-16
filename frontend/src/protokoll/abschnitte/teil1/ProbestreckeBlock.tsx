@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import FeldAuswahl from '../../felder/FeldAuswahl'
 import FeldText from '../../felder/FeldText'
+import Gewaessersuche from '../../felder/Gewaessersuche'
 import type { AntwortPfad } from '../../entwurf/typen'
 import { PUNKTE } from '../../regeln/koordinaten'
 import { useNachpruefung } from '../../regeln/useNachpruefung'
@@ -53,10 +54,20 @@ function ProbestreckeBlock() {
       </p>
 
       <div className="grid">
-        <FeldText
+        {/* The identifier and release a pick fills in, shown under the name. Given
+            here as data so the PDF labels them from the same keys, in this place. */}
+        <Gewaessersuche
           name="probestrecke.gewaesser.gewaessername"
           labelKey="protokoll.abschnitt1.probestrecke.feld.gewaessername"
           spalten={5}
+          kennung={{
+            pfad: 'probestrecke.gewaesser.amtliche_id',
+            labelKey: 'protokoll.abschnitt1.probestrecke.feld.amtlicheId',
+          }}
+          stand={{
+            pfad: 'probestrecke.gewaesser.gis_dataset_version',
+            labelKey: 'protokoll.abschnitt1.probestrecke.feld.gewaessernetzStand',
+          }}
         />
         {/* A radio group in the PDF, a dropdown here, following the mockup:
             eight options with labels this long do not fit the row as radios.

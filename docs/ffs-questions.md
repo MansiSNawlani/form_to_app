@@ -339,6 +339,12 @@ place. The background map is basemap.de from the federal mapping agency (BKG), a
 browser showing it fetches map tiles from BKG's servers, so BKG sees the address of whoever opens
 the map. If that needs mentioning in a privacy notice, FFS should say so.
 
+**Built on these answers since 2026-10-16 (feature 18c):** the Gewässer field searches the loaded
+release by name, and picking a water stores two values with the protocol that the printed form has
+no box for: the identifier (`amtliche_id`) and the release it came from (`AWGN 2025-05-01`). Both
+depend on the answer here. A different dataset or identifier changes what those two values hold,
+not where they are kept.
+
 Asked on 2026-10-04, when feature 18 was split.
 
 ---

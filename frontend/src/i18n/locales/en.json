@@ -495,8 +495,21 @@
           "titel": "Chain of receiving waters.",
           "text": "Enter them going downstream from the sampling stretch. The chain must end at the Rhein (Rhine) or the Donau (Danube), so that the stretch can be placed in the river network."
         },
+        "gewaessersuche": {
+          "fliesstIn": "flows into {{name}}",
+          "stehend": "standing water",
+          "endpunkt": "end of the chain of receiving waters",
+          "laedt": "Searching the official water body network.",
+          "keinTreffer": "No match in the official water body network. You can type the name freely; the protocol is then saved without an official identifier.",
+          "nichtVerfuegbar": "The official list of water bodies is not available right now. Type the name freely; the protocol is then saved without an official identifier.",
+          "entfernt": "{{entfernung}} away",
+          "ketteZuLang": "This water body's chain of receiving waters is longer than the five boxes below, so it was not filled in. Please enter the receiving waters yourself.",
+          "ketteStehend": "The official network records no receiving waters for a standing water. Please enter them below yourself."
+        },
         "feld": {
           "gewaessername": "Water body (Gewässer)",
+          "amtlicheId": "Official identifier",
+          "gewaessernetzStand": "Water body network release",
           "gewaessertyp": "Water body type (Gewässertyp)",
           "gewaessertypHinweis": "For a lake, a pond and a cut-off oxbow, section 2 (hydrology) is left out.",
           "laenge": "Length of the stretch",
@@ -903,6 +916,7 @@
       "koordinateRechtswertAusserhalb": "The easting lies outside Baden-Württemberg. Expected: {{rechtswertMin}} to {{rechtswertMax}}.",
       "koordinateHochwertAusserhalb": "The northing lies outside Baden-Württemberg. Expected: {{hochwertMin}} to {{hochwertMax}}.",
       "koordinateAusserhalbLandes": "This point lies more than {{randKm}} km outside Baden-Württemberg. Please check the easting and northing, or set the point on the map.",
+      "gewaesserKennungPasstNicht": "The name no longer matches the official water body you picked. Please pick the water body from the list again, or type its name freely to file it without an official identifier.",
       "hydrologieBeiStillgewaesser": "Hydrology is not recorded for standing water. Please clear this answer, or change the water body type above if it is wrong.",
       "hydrologieNichtZutreffendBeiFliessgewaesser": "This answer is saved as \"not applicable\", although the water body is flowing water. Please answer it, or change the water body type above if it is wrong.",
       "schaetzwertOhneBand": "Please choose the range above first.",

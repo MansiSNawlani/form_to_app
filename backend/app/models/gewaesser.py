@@ -1,11 +1,12 @@
 """A named body of water, and where it drains to.
 
 CONTEXT.md is firm that a Gewässer is identified authoritatively by an identifier
-from the state GIS dataset and never by name alone. That identifier is not here
-yet: amtliche_id exists from v1 and stays empty until feature 18 backfills it,
-which is the whole reason the column is created now rather than then. Until it
-arrives, the name together with the Vorfluter chain is the best identity
-available, and app/protokolle/zuordnung/ is where that is spelled out.
+from the state GIS dataset and never by name alone. Since feature 18c a water
+picked from LUBW's network arrives with that identifier in amtliche_id, and is
+matched on it. A water typed in still has none, and for those the name together
+with the Vorfluter chain is the best identity available;
+app/protokolle/zuordnung/ is where both are spelled out. Rows created before 18c,
+and every typed one since, wait for 18e.
 
 **Nothing in this table is ever updated.** A row is found or it is created. The
 reasoning is in zuordnung/dienst.py and it is the rule that governs all three of
@@ -61,7 +62,7 @@ class Gewaesser(Base):
     # lookup asks, and indexing the normalised form of a text array needs an
     # immutable helper function for the sake of a race between two submissions
     # naming the same new water in the same instant. Duplicates are an accepted
-    # cost here; feature 18 is where merging them can be done correctly.
+    # cost here; 18e decides how a person brings them together.
     name: Mapped[str] = mapped_column(Text)
 
     # The receiving-water chain, read downstream: this water flows into the
@@ -72,15 +73,17 @@ class Gewaesser(Base):
     # An ordered array rather than five columns, because the order is the chain.
     vorfluter: Mapped[list[str]] = mapped_column(ARRAY(Text))
 
-    # The authoritative GIS identifier. Created empty in v1 on purpose, so
-    # feature 18 is a backfill script and not a schema change.
+    # The authoritative GIS identifier: a flowing water's 13-digit
+    # Gewaesserkennzahl or a standing water's SEE_ID. Created empty in v1 on
+    # purpose, so feature 18 needed no schema change. Written when a row is
+    # created for a picked water (18c); never written onto an existing row.
     #
     # Not unique. Two rows sharing an identifier is exactly the duplicate feature
     # 18 goes looking for, and a unique index would make the backfill fail
     # halfway through rather than find them.
     amtliche_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    #: Which GIS dataset amtliche_id was read from. Empty until feature 18.
+    #: Which release amtliche_id was read from, as "AWGN 2025-05-01". Set with it.
     gis_dataset_version: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # When this record first appeared. Not on project-overview.md's sketch for

@@ -74,6 +74,7 @@ package "5. HOOKS / CLIENT LOGIC LAYER" as L5 #D4EDDA {
 
 package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
   component "regeln/ (schema.ts, prozent.ts,\nhydrologie.ts, vorfluter.ts, ...)" as D1
+  component "gewaessernetz/auswahl.ts\n(what picking a water writes)" as D4
   component "karte/umrechnung.ts
 (EPSG:25832 metres <-> map degrees)" as D3
   component "entwurf/speicherzustand.ts,\nauth/weiter.ts, auth/startseite.ts,\nverwaltung/benutzer/aendern.ts" as D2
@@ -95,7 +96,7 @@ package "6. PURE DOMAIN LOGIC LAYER" as L6 #D4EDDA {
 
 package "7. DATA / SERVICE LAYER" as L7 #A8DADC {
   component "api/client.ts (apiAnfrage)\n<- the only fetch() to our backend" as A1
-  component "entwurf/api.ts, absenden's api calls,\n(one small api.ts per feature)" as A2
+  component "entwurf/api.ts, gewaessernetz/api.ts,\nabsenden's api calls\n(one small api.ts per feature)" as A2
   component "TanStack Query\n(useQuery / cache, api/queryClient.ts)" as A3
   note bottom of L7
     **Pattern: Service/Repository layer + server-state cache.**

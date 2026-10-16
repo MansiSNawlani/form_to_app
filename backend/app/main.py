@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Response, status
 from pydantic import BaseModel
 
-from app.api import anlagen, anmeldung, benutzer, protokolle, pruefliste
+from app.api import anlagen, anmeldung, benutzer, gewaessernetz, protokolle, pruefliste
 from app.api.fehler_http import registriere_fehlerbehandlung
 from app.db import database_is_reachable
 
@@ -23,6 +23,7 @@ app.include_router(benutzer.router)
 app.include_router(protokolle.router)
 app.include_router(anlagen.router)
 app.include_router(pruefliste.router)
+app.include_router(gewaessernetz.router)
 
 
 class Health(BaseModel):

@@ -11,8 +11,12 @@ from collections.abc import Awaitable, Callable
 
 import pytest
 from httpx import AsyncClient, Response
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gewaessernetz.beispiele import fliess, netz
 from app.models.benutzer import User
+from app.models.gewaesser import Gewaesser
 from app.protokolle.formregeln.beispiele import VOLLSTAENDIG
 
 
@@ -188,3 +192,54 @@ async def test_ohne_version_wird_nicht_abgesendet(angemeldet: AsyncClient) -> No
 
     assert antwort.status_code == 422
     assert antwort.json()["code"] == "ANFRAGE_UNGUELTIG"
+
+
+WOLFEGGER_ACH = "2111200000000"
+
+
+def _gewaehlt(name: str) -> dict[str, object]:
+    """The complete protocol with Wolfegger Ach picked from the network."""
+    probestrecke = dict(VOLLSTAENDIG["probestrecke"])
+    probestrecke["gewaesser"] = {
+        **probestrecke["gewaesser"],
+        "gewaessername": name,
+        "amtliche_id": WOLFEGGER_ACH,
+        "gis_dataset_version": "AWGN 2025-05-01",
+    }
+    return {**VOLLSTAENDIG, "probestrecke": probestrecke}
+
+
+async def test_ein_gewaehltes_gewaesser_wird_angenommen(
+    angemeldet: AsyncClient, session: AsyncSession
+) -> None:
+    await netz(session, fliess(WOLFEGGER_ACH, "Wolfegger Ach"))
+    protokoll_id, version = await _entwurf(angemeldet, _gewaehlt("Wolfegger Ach"))
+
+    antwort = await angemeldet.post(
+        f"/api/v1/protokolle/{protokoll_id}/absenden", json={"version": version}
+    )
+
+    assert antwort.status_code == 200
+    gewaesser = (await session.scalars(select(Gewaesser))).one()
+    assert gewaesser.amtliche_id == WOLFEGGER_ACH
+
+
+async def test_ein_ueberschriebener_name_wird_abgelehnt(
+    angemeldet: AsyncClient, session: AsyncSession
+) -> None:
+    """The name typed over after picking: the identifier no longer belongs to it."""
+    await netz(session, fliess(WOLFEGGER_ACH, "Wolfegger Ach"))
+    protokoll_id, version = await _entwurf(angemeldet, _gewaehlt("Wolfegger Aach"))
+
+    antwort = await angemeldet.post(
+        f"/api/v1/protokolle/{protokoll_id}/absenden", json={"version": version}
+    )
+
+    assert antwort.status_code == 422
+    assert antwort.json()["verstoesse"] == [
+        {
+            "pfad": "probestrecke.gewaesser.gewaessername",
+            "schluessel": "protokoll.regeln.gewaesserKennungPasstNicht",
+        }
+    ]
+    assert await session.scalar(select(func.count()).select_from(Gewaesser)) == 0
