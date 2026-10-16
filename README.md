@@ -151,8 +151,9 @@ is not recoverable afterwards.
 An account is never deleted, only locked: deleting one would take the owner of every protocol
 it filed with it, and those records have to stay readable.
 
-> The screenshots are of the real application driven through a browser, not mockups. The survey
-> data in them is invented. See [docs/screenshots/](docs/screenshots/).
+> The screenshots are of the real application driven through a browser, not mockups. Every
+> account, person, water, place and count in them is invented sample data. See
+> [docs/screenshots/](docs/screenshots/).
 
 ## Start here
 
