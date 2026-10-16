@@ -100,12 +100,12 @@ describe('einrastenSchreibt', () => {
   })
 
   it('schreibt für einen noch unbekannten Punkt nichts', () => {
-    const eintraege = einrastenSchreibt({ unten: 'leer', oben: undefined })
+    const eintraege = einrastenSchreibt({ unten: 'leer', oben: 'unbekannt' })
     expect(eintraege).toEqual(LEER_UNTEN)
   })
 
   it('schreibt den Stand, sobald ein Punkt getroffen hat', () => {
-    const eintraege = einrastenSchreibt({ unten: ENZ, oben: undefined })
+    const eintraege = einrastenSchreibt({ unten: ENZ, oben: 'unbekannt' })
     expect(eintraege.at(-1)).toEqual([EINGERASTET_VERSION.pfad, 'AWGN 2025-05-01'])
   })
 })

@@ -1,6 +1,7 @@
 import type { FeatureCollection, LineString } from 'geojson'
 import * as maplibregl from 'maplibre-gl'
 import type { Grenze } from './Grenzwahl'
+import type { Kartenpunkte } from './useKartenpunkte'
 import type { Kartenpunkt } from './umrechnung'
 
 /* The point on the water for each boundary, and a dashed line from where the
@@ -9,10 +10,6 @@ import type { Kartenpunkt } from './umrechnung'
 
 export type Wassermarken = Record<Grenze, maplibregl.Marker | null>
 
-export interface Verbindung {
-  gesetzt: Kartenpunkt | null
-  amWasser: Kartenpunkt | null
-}
 
 const QUELLE = 'einrastlinien'
 
@@ -48,7 +45,7 @@ export function setzeWassermarke(
     .addTo(map)
 }
 
-export function zeichneVerbindungen(map: maplibregl.Map, verbindungen: Verbindung[]) {
+export function zeichneVerbindungen(map: maplibregl.Map, verbindungen: readonly Kartenpunkte[]) {
   const daten: FeatureCollection<LineString> = {
     type: 'FeatureCollection',
     features: verbindungen.flatMap(({ gesetzt, amWasser }) =>

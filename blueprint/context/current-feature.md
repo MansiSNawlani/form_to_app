@@ -314,9 +314,12 @@ the build and the e2e test in step 9.
 - **Fixed:** the warning names the water as well as the point and the distance.
 - **Fixed:** "either point is far" is now a pure function with a test (`lagen` and `ferne`),
   instead of logic inside the component; the panel reads its answers by name, not by position.
-- **Left as they are, judgement calls:** `Probestreckenkarte()` is long; the coordinate paths are
-  listed in three files; the two small `_gewaehlt` helpers (one refuses a partial pick, one
-  ignores it); `undefined` as "not known yet" in `Punktstand`.
+- **Tidied, at Mansi's request:** `Probestreckenkarte()` is down from about 145 lines to about
+  80, its words in `useKartentexte` and its points in `useKartenpunkte`; the typed coordinate
+  paths live once, as `GESETZT` in `karte/einrasten.ts`; the two `_gewaehlt` helpers share
+  `gewaehlt_aus` in `gewaessernetz/einrasten.py`, the endpoint's own one renamed
+  `_wahl_aus_anfrage`; and "not known yet" in `Punktstand` is the named state `'unbekannt'`
+  instead of `undefined`.
 - **Checked, not a gap:** a pick whose release is no longer loaded snaps to nothing, but the 18c
   identifier check refuses such a protocol at submit anyway.
 

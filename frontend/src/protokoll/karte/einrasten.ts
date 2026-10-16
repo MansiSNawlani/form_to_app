@@ -53,6 +53,13 @@ export interface EinrastPfade {
 
 export const GRENZEN = ['unten', 'oben'] as const satisfies readonly Grenze[]
 
+/* The two boxes each boundary is typed into, in one place for the map, the
+   request and the panel. */
+export const GESETZT: Readonly<Record<Grenze, { rw: AntwortPfad; hw: AntwortPfad }>> = {
+  unten: { rw: 'probestrecke.utm_rw_unten', hw: 'probestrecke.utm_hw_unten' },
+  oben: { rw: 'probestrecke.utm_rw_oben', hw: 'probestrecke.utm_hw_oben' },
+}
+
 /* Each answer with the label the PDF download prints it under. Declared as
    data, pfad beside labelKey, because that is how npm run beschriftungen finds
    a label; the screen shows these answers as a sentence instead. */
@@ -142,8 +149,8 @@ export function gewaehltAus(
 }
 
 /* What is known about one point: no valid point ('leer'), an answer, or
-   nothing yet (undefined), while the request runs or after it failed. */
-export type Punktstand = EinrastenAntwort | 'leer' | undefined
+   nothing yet ('unbekannt'), while the request runs or after it failed. */
+export type Punktstand = EinrastenAntwort | 'leer' | 'unbekannt'
 
 /* The answers the two points' states write. A point still unknown writes
    nothing, and so does the release while it could still change. */
@@ -153,7 +160,7 @@ export function einrastenSchreibt(staende: Readonly<Record<Grenze, Punktstand>>)
 
   for (const grenze of GRENZEN) {
     const zustand = staende[grenze]
-    if (zustand === undefined) continue
+    if (zustand === 'unbekannt') continue
     const pfade = EINGERASTET[grenze]
     const treffer = zustand === 'leer' ? null : zustand.treffer
     eintraege.push(
@@ -162,12 +169,12 @@ export function einrastenSchreibt(staende: Readonly<Record<Grenze, Punktstand>>)
       [pfade.kennung.pfad, treffer?.kennung ?? ''],
       [pfade.name.pfad, treffer?.name ?? ''],
     )
-    if (treffer && zustand !== 'leer' && zustand.stand) stand = zustand.stand
+    if (treffer && zustand !== 'leer') stand = zustand.stand ?? stand
   }
 
   if (stand !== null) {
     eintraege.push([EINGERASTET_VERSION.pfad, datensatzversion(stand)])
-  } else if (GRENZEN.every((grenze) => staende[grenze] !== undefined)) {
+  } else if (GRENZEN.every((grenze) => staende[grenze] !== 'unbekannt')) {
     eintraege.push([EINGERASTET_VERSION.pfad, ''])
   }
   return eintraege

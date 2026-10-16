@@ -16,8 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.abhaengigkeiten import AngemeldeterBenutzer
 from app.api.schemas import EinrastenAntwort, FehlerAntwort, GewaessersucheAntwort
 from app.db import get_session
-from app.gewaessernetz.einrasten import Gewaehlt, einrasten
-from app.gewaessernetz.kennung import stand_aus_version
+from app.gewaessernetz.einrasten import Gewaehlt, einrasten, gewaehlt_aus
 from app.gewaessernetz.suche import suche
 
 router = APIRouter(prefix="/api/v1/gewaessernetz", tags=["Gewaessernetz"])
@@ -79,15 +78,20 @@ async def gewaesser_suchen(
     return GewaessersucheAntwort.model_validate(ergebnis)
 
 
-def _gewaehlt(kennung: str | None, name: str | None, version: str | None) -> Gewaehlt | None:
+def _wahl_aus_anfrage(
+    kennung: str | None, name: str | None, version: str | None
+) -> Gewaehlt | None:
+    """No pick when none of the three is sent; a refusal when only some are, or
+    when the version names no release."""
     if kennung is None and name is None and version is None:
         return None
-    if kennung is None or name is None or version is None:
-        raise _abgelehnt("kennung", "kennung, name und version kommen nur zusammen.")
-    stand = stand_aus_version(version)
-    if stand is None:
-        raise _abgelehnt("version", "version hat die Form 'AWGN JJJJ-MM-TT'.")
-    return Gewaehlt(kennung=kennung, name=name, stand=stand)
+    gewaehlt = gewaehlt_aus(kennung or "", name or "", version or "")
+    if gewaehlt is None:
+        raise _abgelehnt(
+            "kennung",
+            "kennung, name und version kommen nur zusammen, version als 'AWGN JJJJ-MM-TT'.",
+        )
+    return gewaehlt
 
 
 @router.get("/einrasten", response_model=EinrastenAntwort, responses=ANGEMELDET)
@@ -106,5 +110,5 @@ async def punkt_einrasten(
     Gewaesser in dessen Stand, sonst am naechsten Gewaesser des neuesten Stands.
     Ist der Stand nicht geladen, sind stand und treffer null.
     """
-    ergebnis = await einrasten(session, (rw, hw), _gewaehlt(kennung, name, version))
+    ergebnis = await einrasten(session, (rw, hw), _wahl_aus_anfrage(kennung, name, version))
     return EinrastenAntwort.model_validate(ergebnis)

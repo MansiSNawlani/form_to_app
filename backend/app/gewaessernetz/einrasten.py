@@ -112,6 +112,15 @@ class Einrastergebnis:
     treffer: Einrastung | None
 
 
+def gewaehlt_aus(kennung: str, name: str, version: str) -> Gewaehlt | None:
+    """The picked water, when the three answers 18c writes are all there and the
+    version names a release; otherwise None."""
+    stand = stand_aus_version(version)
+    if ist_leer(kennung) or ist_leer(name) or stand is None:
+        return None
+    return Gewaehlt(kennung=kennung, name=name, stand=stand)
+
+
 def abstand_m(punkt: Punkt, eingerastet: Punkt) -> int:
     """Whole metres between a typed point and its position on the water.
 
@@ -188,7 +197,11 @@ async def raste_protokoll_ein(
     neither point was.
     """
     falsch = {verstoss.pfad for verstoss in verstoesse}
-    gewaehlt = _gewaehlt(antworten)
+    gewaehlt = gewaehlt_aus(
+        wert_aus(antworten, AMTLICHE_ID),
+        wert_aus(antworten, GEWAESSERNAME),
+        wert_aus(antworten, GIS_DATASET_VERSION),
+    )
     werte: dict[str, str] = {EINGERASTET_VERSION: ""}
 
     for grenzpunkt in GRENZPUNKTE:
@@ -248,13 +261,3 @@ def _punkt(antworten: Mapping[str, Any], rw_pfad: str, hw_pfad: str) -> Punkt | 
     if not GANZE_ZAHL.match(rw) or not GANZE_ZAHL.match(hw):
         return None
     return int(rw), int(hw)
-
-
-def _gewaehlt(antworten: Mapping[str, Any]) -> Gewaehlt | None:
-    """The picked water, when the three answers 18c writes are all there."""
-    kennung = wert_aus(antworten, AMTLICHE_ID)
-    name = wert_aus(antworten, GEWAESSERNAME)
-    stand = stand_aus_version(wert_aus(antworten, GIS_DATASET_VERSION))
-    if ist_leer(kennung) or ist_leer(name) or stand is None:
-        return None
-    return Gewaehlt(kennung=kennung, name=name, stand=stand)

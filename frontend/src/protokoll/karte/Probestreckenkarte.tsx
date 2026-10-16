@@ -1,17 +1,19 @@
 import Alert from '@mui/material/Alert'
 import * as maplibregl from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNurLesen } from '../nurlesen/kontext'
 import type { Antworten } from '../entwurf/typen'
 import { BW } from './basiskarte'
-import { EINGERASTET } from './einrasten'
+import { GESETZT, GRENZEN } from './einrasten'
 import Einrastanzeige from './Einrastanzeige'
 import Grenzwahl, { type Grenze } from './Grenzwahl'
 import { useBasiskarte } from './useBasiskarte'
 import { useEinrasten } from './useEinrasten'
-import { zuKartenpunkt, zuUtm, type Kartenpunkt } from './umrechnung'
+import { useKartenpunkte } from './useKartenpunkte'
+import { useKartentexte } from './useKartentexte'
+import { zuUtm, type Kartenpunkt } from './umrechnung'
 import { setzeWassermarke, zeichneVerbindungen, type Wassermarken } from './wasserpunkte'
 import './probestreckenkarte.css'
 
@@ -29,33 +31,30 @@ import './probestreckenkarte.css'
    answers, which useEinrasten keeps current while editing, so the review
    screen shows exactly what was filed. */
 
-const PFADE = [
-  'probestrecke.utm_rw_unten',
-  'probestrecke.utm_hw_unten',
-  'probestrecke.utm_rw_oben',
-  'probestrecke.utm_hw_oben',
-] as const
-
-const WASSERPFADE = [
-  EINGERASTET.unten.rw.pfad,
-  EINGERASTET.unten.hw.pfad,
-  EINGERASTET.oben.rw.pfad,
-  EINGERASTET.oben.hw.pfad,
-] as const
-
 type Marken = Record<Grenze, maplibregl.Marker | null>
+
+interface Kartenmarken {
+  karte: maplibregl.Map | null
+  marken: Marken
+  wasser: Wassermarken
+}
+
+// Markers belong to one map. A map rebuilt for a new language starts bare.
+const leereMarken = (karte: maplibregl.Map | null): Kartenmarken => ({
+  karte,
+  marken: { unten: null, oben: null },
+  wasser: { unten: null, oben: null },
+})
 
 function Probestreckenkarte() {
   const { t } = useTranslation()
   const nurLesen = useNurLesen()
   const { setValue } = useFormContext<Antworten>()
   const behaelter = useRef<HTMLDivElement>(null)
-  const marken = useRef<{ karte: maplibregl.Map | null; marken: Marken; wasser: Wassermarken }>({
-    karte: null,
-    marken: { unten: null, oben: null },
-    wasser: { unten: null, oben: null },
-  })
+  const marken = useRef<Kartenmarken>(leereMarken(null))
   const unsicher = useEinrasten(!nurLesen)
+  const punkte = useKartenpunkte(unsicher)
+  const texte = useKartentexte()
   const [gewaehlt, setGewaehlt] = useState<Grenze>('unten')
   const gewaehltRef = useRef(gewaehlt)
   // Set by a map edit, so the map does not refit itself under the pointer.
@@ -70,8 +69,8 @@ function Probestreckenkarte() {
       const { rechtswert, hochwert } = zuUtm(punkt)
       const optionen = { shouldDirty: true, shouldTouch: true, shouldValidate: true }
       ausKarte.current = true
-      setValue(`probestrecke.utm_rw_${grenze}`, rechtswert, optionen)
-      setValue(`probestrecke.utm_hw_${grenze}`, hochwert, optionen)
+      setValue(GESETZT[grenze].rw, rechtswert, optionen)
+      setValue(GESETZT[grenze].hw, hochwert, optionen)
     },
     [setValue],
   )
@@ -80,91 +79,27 @@ function Probestreckenkarte() {
     [nurLesen, schreibe],
   )
 
-  /* MapLibre's own control labels, in the interface's language. Map.Title is
-     the accessible name of the map region. */
-  const kartentexte = useMemo(
-    () => ({
-      'Map.Title': t('protokoll.karte.bezeichnung'),
-      'NavigationControl.ZoomIn': t('protokoll.karte.vergroessern'),
-      'NavigationControl.ZoomOut': t('protokoll.karte.verkleinern'),
-      'AttributionControl.ToggleAttribution': t('protokoll.karte.quellenEinblenden'),
-      'CooperativeGesturesHandler.WindowsHelpText': t('protokoll.karte.strgScrollen'),
-      'CooperativeGesturesHandler.MacHelpText': t('protokoll.karte.befehlScrollen'),
-      'CooperativeGesturesHandler.MobileHelpText': t('protokoll.karte.zweiFinger'),
-    }),
-    [t],
-  )
-  const beschriftung = useMemo(
-    () => ({
-      unten: { kurz: t('protokoll.karte.unten'), lang: t('protokoll.karte.untereGrenze') },
-      oben: { kurz: t('protokoll.karte.oben'), lang: t('protokoll.karte.obereGrenze') },
-    }),
-    [t],
-  )
-  const wasserName = useMemo(
-    () => ({
-      unten: t('protokoll.karte.untereGrenzeAmWasser'),
-      oben: t('protokoll.karte.obereGrenzeAmWasser'),
-    }),
-    [t],
-  )
-
-  const { karte, zustand, geladen } = useBasiskarte(behaelter, kartentexte, beiKlick)
-
-  const [rwUnten, hwUnten, rwOben, hwOben] = useWatch<Antworten>({
-    name: PFADE,
-  }) as readonly (string | undefined)[]
-  const unten = useMemo(() => zuKartenpunkt(rwUnten, hwUnten), [rwUnten, hwUnten])
-  const oben = useMemo(() => zuKartenpunkt(rwOben, hwOben), [rwOben, hwOben])
-
-  const [wRwUnten, wHwUnten, wRwOben, wHwOben] = useWatch<Antworten>({
-    name: WASSERPFADE,
-  }) as readonly (string | undefined)[]
-  const untenAmWasser = useMemo(() => zuKartenpunkt(wRwUnten, wHwUnten), [wRwUnten, wHwUnten])
-  const obenAmWasser = useMemo(() => zuKartenpunkt(wRwOben, wHwOben), [wRwOben, wHwOben])
+  const { karte, zustand, geladen } = useBasiskarte(behaelter, texte.steuerung, beiKlick)
 
   useEffect(() => {
     const map = karte.current
     if (zustand !== 'bereit' || !map) return
-    // Markers belong to one map. A map rebuilt for a new language starts bare.
-    if (marken.current.karte !== map) {
-      marken.current = {
-        karte: map,
-        marken: { unten: null, oben: null },
-        wasser: { unten: null, oben: null },
-      }
-    }
+    if (marken.current.karte !== map) marken.current = leereMarken(map)
 
     const ziehen = nurLesen ? null : schreibe
-    for (const grenze of ['unten', 'oben'] as const) {
-      const punkt = grenze === 'unten' ? unten : oben
-      setzeMarke(map, marken.current.marken, grenze, punkt, beschriftung[grenze], ziehen)
-      const amWasser = unsicher[grenze] ? null : grenze === 'unten' ? untenAmWasser : obenAmWasser
-      setzeWassermarke(map, marken.current.wasser, grenze, punkt && amWasser, wasserName[grenze])
+    for (const grenze of GRENZEN) {
+      const { gesetzt, amWasser } = punkte[grenze]
+      setzeMarke(map, marken.current.marken, grenze, gesetzt, texte.marken[grenze], ziehen)
+      const ring = gesetzt && amWasser
+      setzeWassermarke(map, marken.current.wasser, grenze, ring, texte.amWasser[grenze])
     }
-    zeichneVerbindungen(map, [
-      { gesetzt: unten, amWasser: unsicher.unten ? null : untenAmWasser },
-      { gesetzt: oben, amWasser: unsicher.oben ? null : obenAmWasser },
-    ])
+    zeichneVerbindungen(map, [punkte.unten, punkte.oben])
     if (ausKarte.current) {
       ausKarte.current = false
     } else {
-      einpassen(map, unten, oben)
+      einpassen(map, punkte.unten.gesetzt, punkte.oben.gesetzt)
     }
-  }, [
-    karte,
-    zustand,
-    geladen,
-    unten,
-    oben,
-    untenAmWasser,
-    obenAmWasser,
-    unsicher,
-    beschriftung,
-    wasserName,
-    nurLesen,
-    schreibe,
-  ])
+  }, [karte, zustand, geladen, punkte, texte, nurLesen, schreibe])
 
   const fehler =
     zustand === 'ohneWebgl'

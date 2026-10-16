@@ -332,6 +332,7 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     [Einrastanzeige.tsx]
     [useBasiskarte.ts]
     [useEinrasten.ts]
+    [useKartenpunkte.ts, useKartentexte.ts]
     [basiskarte.ts]
     [wasserpunkte.ts]
     [einrasten.ts (einrastenAbfrage, einrastenSchreibt, nurGeaenderte)]

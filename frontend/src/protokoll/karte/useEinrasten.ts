@@ -5,20 +5,22 @@ import type { Antworten, AntwortPfad } from '../entwurf/typen'
 import { KENNUNG_PFAD, NAME_PFAD, VERSION_PFAD } from '../gewaessernetz/auswahl'
 import type { Punkt } from '../gewaessernetz/api'
 import {
+  GESETZT,
   einrastenAbfrage,
   einrastenSchreibt,
   gewaehltAus,
   nurGeaenderte,
+  type EinrastenAntwort,
   type Punktstand,
 } from './einrasten'
 import type { Grenze } from './Grenzwahl'
 import { gueltigerPunkt } from './umrechnung'
 
 const BEOBACHTET = [
-  'probestrecke.utm_rw_unten',
-  'probestrecke.utm_hw_unten',
-  'probestrecke.utm_rw_oben',
-  'probestrecke.utm_hw_oben',
+  GESETZT.unten.rw,
+  GESETZT.unten.hw,
+  GESETZT.oben.rw,
+  GESETZT.oben.hw,
   KENNUNG_PFAD,
   NAME_PFAD,
   VERSION_PFAD,
@@ -47,8 +49,8 @@ export function useEinrasten(aktiv: boolean): Readonly<Record<Grenze, boolean>> 
   const abfrageUnten = useQuery(einrastenAbfrage(aktiv ? unten : null, gewaehlt))
   const abfrageOben = useQuery(einrastenAbfrage(aktiv ? oben : null, gewaehlt))
 
-  const standUnten = punktstand(unten, abfrageUnten.data, abfrageUnten.isSuccess)
-  const standOben = punktstand(oben, abfrageOben.data, abfrageOben.isSuccess)
+  const standUnten = punktstand(unten, abfrageUnten.isSuccess ? abfrageUnten.data : null)
+  const standOben = punktstand(oben, abfrageOben.isSuccess ? abfrageOben.data : null)
 
   useEffect(() => {
     if (!aktiv) return
@@ -59,8 +61,8 @@ export function useEinrasten(aktiv: boolean): Readonly<Record<Grenze, boolean>> 
     for (const [pfad, wert] of eintraege) setValue(pfad, wert, { shouldDirty: true })
   }, [aktiv, standUnten, standOben, getValues, setValue])
 
-  const untenUnsicher = aktiv && standUnten === undefined
-  const obenUnsicher = aktiv && standOben === undefined
+  const untenUnsicher = aktiv && standUnten === 'unbekannt'
+  const obenUnsicher = aktiv && standOben === 'unbekannt'
   // One object per change rather than per render, since the map's effect lists it.
   return useMemo(
     () => ({ unten: untenUnsicher, oben: obenUnsicher }),
@@ -68,11 +70,8 @@ export function useEinrasten(aktiv: boolean): Readonly<Record<Grenze, boolean>> 
   )
 }
 
-function punktstand(
-  punkt: Punkt | null,
-  antwort: Punktstand,
-  erfolgreich: boolean,
-): Punktstand {
+/* antwort is null until the request has succeeded. */
+function punktstand(punkt: Punkt | null, antwort: EinrastenAntwort | null): Punktstand {
   if (punkt === null) return 'leer'
-  return erfolgreich ? antwort : undefined
+  return antwort ?? 'unbekannt'
 }

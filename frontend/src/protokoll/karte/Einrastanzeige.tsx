@@ -14,6 +14,7 @@ import { useNurLesen } from '../nurlesen/kontext'
 import {
   BEGRUENDUNG,
   EINGERASTET,
+  GESETZT,
   GRENZEN,
   ferne,
   lagen,
@@ -29,8 +30,8 @@ type Angabe = Exclude<keyof Punktangaben, 'unsicher'>
 const GELESEN: ReadonlyArray<readonly [Grenze, Angabe, AntwortPfad]> = GRENZEN.flatMap(
   (grenze) =>
     [
-      [grenze, 'rwGesetzt', `probestrecke.utm_rw_${grenze}`],
-      [grenze, 'hwGesetzt', `probestrecke.utm_hw_${grenze}`],
+      [grenze, 'rwGesetzt', GESETZT[grenze].rw],
+      [grenze, 'hwGesetzt', GESETZT[grenze].hw],
       [grenze, 'rw', EINGERASTET[grenze].rw.pfad],
       [grenze, 'hw', EINGERASTET[grenze].hw.pfad],
       [grenze, 'name', EINGERASTET[grenze].name.pfad],
@@ -87,8 +88,8 @@ function Einrastanzeige({ unsicher }: EinrastanzeigeProps) {
   })
   const aufsWasser = (lage: Lage) => {
     const optionen = { shouldDirty: true, shouldTouch: true, shouldValidate: true }
-    setValue(`probestrecke.utm_rw_${lage.grenze}`, lage.rw, optionen)
-    setValue(`probestrecke.utm_hw_${lage.grenze}`, lage.hw, optionen)
+    setValue(GESETZT[lage.grenze].rw, lage.rw, optionen)
+    setValue(GESETZT[lage.grenze].hw, lage.hw, optionen)
   }
 
   return (
@@ -97,11 +98,18 @@ function Einrastanzeige({ unsicher }: EinrastanzeigeProps) {
         {t('protokoll.karte.amWasserTitel')}
       </Typography>
       <Typography variant="body2" className="form-section__hint">
-        {t(nurLesen ? 'protokoll.karte.amWasserHinweisNurLesen' : 'protokoll.karte.amWasserHinweis')}
+        {t(
+          nurLesen ? 'protokoll.karte.amWasserHinweisNurLesen' : 'protokoll.karte.amWasserHinweis',
+        )}
       </Typography>
       <List disablePadding aria-labelledby={titelId} className="einrastanzeige__lagen">
         {alle.map((lage) => (
-          <ListItem key={lage.grenze} disableGutters disablePadding className="einrastanzeige__lage">
+          <ListItem
+            key={lage.grenze}
+            disableGutters
+            disablePadding
+            className="einrastanzeige__lage"
+          >
             <span>
               {t(
                 ohneName(lage) ? 'protokoll.karte.abstandOhneName' : 'protokoll.karte.abstand',
@@ -109,7 +117,12 @@ function Einrastanzeige({ unsicher }: EinrastanzeigeProps) {
               )}
             </span>
             {!nurLesen && lage.abstand > 0 && (
-              <Button type="button" variant="outlined" size="small" onClick={() => aufsWasser(lage)}>
+              <Button
+                type="button"
+                variant="outlined"
+                size="small"
+                onClick={() => aufsWasser(lage)}
+              >
                 {t('protokoll.karte.aufsWasser', { grenze: grenzwort(lage.grenze) })}
               </Button>
             )}
