@@ -119,6 +119,28 @@ def test_druckt_die_amtliche_kennung_eines_gewaehlten_gewaessers() -> None:
     assert "AWGN 2025-05-01" in text
 
 
+def test_druckt_die_lage_am_gewaesser_und_die_begruendung() -> None:
+    """Feature 18d: where each point lies on the water, and why one lies far from it."""
+    eingerastet = {
+        **ANTWORTEN,
+        "probestrecke": {
+            "eingerastet_rw_unten": "551193",
+            "eingerastet_hw_unten": "5296778",
+            "eingerastet_name_unten": "Eckbach",
+            "eingerastet_version": "AWGN 2025-05-01",
+            "abstand_begruendung": "Der Seitenarm fehlt in der amtlichen Karte.",
+        },
+    }
+
+    text = text_von(baue(KOPF, eingerastet))
+
+    assert "Untere Grenze am Gewässer, Rechtswert" in text
+    assert "551193" in text
+    assert "Eckbach" in text
+    assert "Begründung für den Abstand zum Gewässer" in text
+    assert "Der Seitenarm fehlt in der amtlichen Karte." in text
+
+
 def test_ohne_kennung_keine_zeile_dafuer() -> None:
     text = text_von(baue(KOPF, ANTWORTEN))
 

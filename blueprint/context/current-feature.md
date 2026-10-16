@@ -149,7 +149,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   description), typing a reason lets it send, and the sent protocol's review screen shows the
   warning and the reason (screenshots).
 
-- [ ] **Step 8 - The PDF** - the snapped positions, their water and the reason in
+- [x] **Step 8 - The PDF** - the snapped positions, their water and the reason in
   `ausgabe/dokument.py`, and `npm run beschriftungen` regenerated for the new labels. *Done when:*
   a backend test proves the PDF text holds a snapped position and the reason, and the
   beschriftungen test passes.
