@@ -142,7 +142,12 @@ async def test_ein_anderes_einzugsgebiet_ist_ein_anderes_gewaesser(
 async def test_andere_koordinaten_sind_eine_andere_strecke(
     session: AsyncSession, konto: Callable[..., Awaitable[User]]
 ) -> None:
-    """One metre out is a different stretch until feature 18 brings snapping."""
+    """One metre out is a different stretch.
+
+    Snapping (feature 18d) leaves this as it is: the typed coordinates are the
+    record a stretch is matched on, and the position on the water is only kept
+    beside them.
+    """
     besitzer = await konto(email="bergmann@ffs.de")
 
     erste = await ordne_zu(session, lies_umschlag(VOLLSTAENDIG), besitzer)

@@ -279,7 +279,7 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
   package "regeln/  (validation rules, mirrors the backend)" as regeln #D4EDDA {
     [schema.ts (the combined Zod schema)]
     [prozent.ts, hydrologie.ts, vorfluter.ts]
-    [koordinaten.ts, landesgrenze.ts, arten.ts, ausruestung.ts]
+    [koordinaten.ts, landesgrenze.ts, abstand.ts, arten.ts, ausruestung.ts]
     [einfluesse.ts, monitoring.ts, schaetzwert.ts]
     [useHydrologieAbgleich.ts, useNachpruefung.ts]
     note bottom of regeln
@@ -326,11 +326,15 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
     end note
   }
 
-  package "karte/  (the map beside the boundary coordinates, feature 18a)" as karte {
+  package "karte/  (the map beside the boundary coordinates, features 18a and 18d)" as karte {
     [Probestreckenkarte.tsx]
     [Grenzwahl.tsx]
+    [Einrastanzeige.tsx]
     [useBasiskarte.ts]
+    [useEinrasten.ts]
     [basiskarte.ts]
+    [wasserpunkte.ts]
+    [einrasten.ts (einrastenAbfrage, einrastenSchreibt, nurGeaenderte)]
     [umrechnung.ts (zuKartenpunkt, gueltigerPunkt)]
     note bottom of karte
       MapLibre on the basemap.de background from BKG, loaded with
@@ -343,6 +347,12 @@ package "protokoll/  (the feature: the survey form itself)" as protopkg #FDEBD0 
       draws no marker for a point outside regeln/landesgrenze.ts.
       basiskarte.ts fetches the map style straight from BKG's
       server, the one fetch() in src/ that is not to our backend.
+      Since 18d useEinrasten.ts asks the backend where each point lies
+      on the water and keeps the eingerastet_* answers current;
+      wasserpunkte.ts draws a ring there and a dashed line from the
+      marker, and Einrastanzeige.tsx shows the distance, the button
+      that moves the point onto the water, the warning beyond
+      regeln/abstand.ts's 100 m and the reason box.
     end note
   }
 

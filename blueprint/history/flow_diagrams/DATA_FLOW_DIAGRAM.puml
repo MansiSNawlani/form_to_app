@@ -112,6 +112,13 @@ note right of Zod
   protokolle/absenden.py, holds a picked water's amtliche_id against
   the loaded Gewaessernetz and its name. It cannot be a pure rule, so
   it sits beside them and reports into the same list.
+  Since feature 18d absenden.py then works out each boundary point's
+  position on the water itself (gewaessernetz/einrasten.py,
+  raste_protokoll_ein), whatever the draft held, writes the nine
+  eingerastet_* answers into a copy of the document, and asks
+  pruefe_abstand for a reason when a point lies more than 100 m from
+  its water. A refusal leaves the stored draft untouched; only a
+  passing submit stores the server's positions.
 end note
 
 ' ------------------------------------------------------------------------------
@@ -141,6 +148,15 @@ note right of AutoSave
   answers the same way. The search itself is a separate GET
   /api/v1/gewaessernetz/suche (gewaessernetz/api.ts, through
   apiAnfrage and TanStack Query), never part of a save.
+
+  And so does the position on the water (feature 18d).
+  karte/useEinrasten.ts asks GET /api/v1/gewaessernetz/einrasten
+  once per valid boundary point (karte/einrasten.ts, through
+  apiAnfrage and TanStack Query) and writes the eingerastet_*
+  answers with setValue, only those that differ, so opening a draft
+  does not trigger a save. The typed utm_* boxes are untouched,
+  except by the "auf das Gewaesser setzen" button in
+  karte/Einrastanzeige.tsx, which writes them like a map click.
 end note
 
 ' ------------------------------------------------------------------------------

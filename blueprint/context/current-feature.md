@@ -1,7 +1,7 @@
 # Feature: Einrasten mit Übersteuern
 
 **From build-plan:** feature 18d
-**Status:** not started
+**Status:** built (2026-10-16), awaiting review
 
 ## Goal
 
@@ -160,7 +160,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   loaded. *Done when:* it passes against the Compose database with 2025-05-01 loaded, and
   `karte.spec.ts` and `gewaessersuche.spec.ts` still pass.
 
-- [ ] **Step 10 - Documentation** - `CONTEXT.md` (Eingerastete Position, Abstandsbegründung, and
+- [x] **Step 10 - Documentation** - `CONTEXT.md` (Eingerastete Position, Abstandsbegründung, and
   that the typed position stays the record); `docs/decisions.md` section 9 notes what was built
   and the 100 m; the comments in `models/gewaessernetz.py` and `models/probestrecke.py` that say
   snapping comes later; the flow diagrams under `blueprint/history/flow_diagrams/` (the snapping
@@ -269,4 +269,32 @@ the build and the e2e test in step 9.
   a point near Pforzheim (476000 / 5416000) without a pick 3 ms, landing on a Mühlgraben 793 m
   away; the same point with the Enz picked 4 ms, 903 m; a point in Stuttgart 3 ms, on the
   Nesenbach 58 m away. Far under 100 ms; the nearest-neighbour search uses the existing index.
+- **Two answers added while building** (step 5): `eingerastet_name_unten` and `eingerastet_name_oben`.
+  The distance line names the water, and on the review screen only the stored answers are there to
+  read, so the name is stored beside the identifier. Ten added paths in all.
+- **The map in the browser** (steps 5 to 7), against the rebuilt Compose backend and the 2025-05-01
+  release, as the throwaway submitter `pruefung-18d@test.de`: a lower point typed at 476414 /
+  5415203 in Pforzheim shows `Untere Grenze: 9 m vom Gewässer Enz` and a ring on the Enz; an upper
+  point at 476000 / 5416000 shows `793 m vom Gewässer Mühlgraben`, the warning and the reason box.
+  The draft saved all nine answers; reloading it left its version at 2, so opening a draft does
+  not save it again. The button, pressed by keyboard, moved the lower boxes to 476417 / 5415195
+  and the line read 0 m. Picking the Enz in the Gewässer field moved the upper ring onto the Enz
+  (903 m). Screenshots in light and dark mode.
+- **Submit** (step 7): the backend's complete test protocol, whose real lower point lies 172 m
+  from the Eckbach, was refused with 422; the reason box was `aria-invalid` with the message as its
+  description, typing a reason cleared it, and the submit then went through (200) with the
+  server's positions stored. The read-only page of the sent protocol shows both rings, the dashed
+  lines, the distances, the warning and the reason, and no button.
+- **Found on the way, fixed separately** (`cc1a58a`): since 18a the map did not zoom to the
+  stretch when the lower boundary lies east of the upper one. `fitBounds` read the pair as
+  south-west and north-east, took the box to wrap the globe, and the state-wide pan limit held the
+  map at the whole state. The box is now grown from both points.
+- **Browser tests** (step 9): `einrasten.spec.ts` (2 passed), `karte.spec.ts` (4 passed) and
+  `gewaessersuche.spec.ts` (3 passed) against the Compose database with 2025-05-01 loaded, and
+  `fehler-am-feld.spec.ts` (4 passed). `karte.spec.ts` now names its markers exactly, since
+  "Untere Grenze" is also the start of "Untere Grenze am Gewässer". The specs needing the reviewer
+  and admin accounts were not run: their password is not in this environment.
+- **Full suites** (step 10): `pytest` 1898 passed, 85 skipped (the FFS source files are not in
+  this checkout); `ruff check .`, `mypy .` and `alembic check` clean; `npm run build`,
+  `npm run lint` and `npm test` (1585 passed) clean.
 

@@ -95,6 +95,23 @@ at submit against the release it names.
 _English_: Official identifier (Amtliche Kennung)
 _Avoid_: GIS ID, water ID, Gewässer-ID
 
+**Lage am Gewässer**:
+Where a boundary point of the Probestrecke lies on the Gewässernetz: the nearest point on the
+picked Gewässer, or on whatever water is nearest when the name was typed freely. A point inside a
+standing water lies on it as it is. Kept beside the typed coordinates, never in their place: the
+typed coordinates stay the record, and the Probestrecke is matched on them. Worked out again by the
+server at submit, so a filed protocol carries the server's answer, not the browser's.
+_English_: Position on the water (Lage am Gewässer); "snapped position" in code comments
+_Avoid_: corrected coordinates, snapped coordinates (they are not coordinates anybody entered)
+
+**Abstandsbegründung**:
+The surveyor's one-sentence reason why a boundary point lies more than 100 m from its Lage am
+Gewässer, for instance a ditch missing from the Gewässernetz. Asked for at submit instead of
+refusing the location, which the requirements originally demanded and `docs/decisions.md` section
+9 softened. The reviewer sees it beside the warning.
+_English_: Reason for the distance (Abstandsbegründung)
+_Avoid_: override, justification, excuse
+
 **Vorfluter**:
 The Gewässer that a Gewässer flows into. Recorded as a chain that must terminate at the Rhein or the
 Donau, which establishes where in the state's drainage network a Probestrecke sits.
