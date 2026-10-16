@@ -154,7 +154,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   a backend test proves the PDF text holds a snapped position and the reason, and the
   beschriftungen test passes.
 
-- [ ] **Step 9 - Browser test** - `frontend/e2e/einrasten.spec.ts`: a click beside a known water
+- [x] **Step 9 - Browser test** - `frontend/e2e/einrasten.spec.ts`: a click beside a known water
   shows the second mark and a distance, the button moves the boxes, a far point asks for a reason
   and sending without one is refused at the reason box. Skips with a sentence when no release is
   loaded. *Done when:* it passes against the Compose database with 2025-05-01 loaded, and

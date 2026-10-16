@@ -39,7 +39,7 @@ test.beforeEach(async ({ page }) => {
 
 test('eingetippte Koordinaten setzen die Marke', async ({ page }) => {
   await abschnitt1MitKarte(page)
-  const marke = page.getByRole('img', { name: 'Untere Grenze' })
+  const marke = page.getByRole('img', { name: 'Untere Grenze', exact: true })
   await expect(marke).toHaveCount(0)
 
   await page.getByLabel('Untere Grenze, Rechtswert').fill('513224')
@@ -55,7 +55,7 @@ test('eingetippte Koordinaten setzen die Marke', async ({ page }) => {
    18b, catches it. Kehl is on the French half of the Rhein, within the 2 km margin. */
 test('ein Punkt ausserhalb des Landes bekommt eine Meldung und keine Marke', async ({ page }) => {
   await abschnitt1MitKarte(page)
-  const marke = page.getByRole('img', { name: 'Untere Grenze' })
+  const marke = page.getByRole('img', { name: 'Untere Grenze', exact: true })
   const meldung = page.getByText('Dieser Punkt liegt mehr als 2 km außerhalb Baden-Württembergs.', {
     exact: false,
   })
@@ -86,7 +86,7 @@ test('ein Klick in die Karte fuellt die untere Grenze', async ({ page }) => {
      correctly fills the boxes and shows no marker. */
   await flaeche.click()
 
-  await expect(page.getByRole('img', { name: 'Untere Grenze' })).toBeVisible()
+  await expect(page.getByRole('img', { name: 'Untere Grenze', exact: true })).toBeVisible()
   await expect(page.getByLabel('Untere Grenze, Rechtswert')).toHaveValue(/^\d{6}$/)
   await expect(page.getByLabel('Untere Grenze, Hochwert')).toHaveValue(/^\d{7}$/)
   await expect(page.getByLabel('Obere Grenze, Rechtswert')).toHaveValue('')
