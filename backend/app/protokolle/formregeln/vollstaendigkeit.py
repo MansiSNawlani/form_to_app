@@ -164,6 +164,7 @@ BESATZ_ZEILEN = tuple(
 )
 
 
+
 def pruefe_vollstaendigkeit(antworten: Mapping[str, Any]) -> list[Formverstoss]:
     """Every answer a finished protocol needs and does not have.
 
@@ -305,6 +306,8 @@ def _unfertige_besatzzeilen(antworten: Mapping[str, Any]) -> list[Formverstoss]:
         ]
 
     return fehlend
+
+
 
 
 def _unfertige_bereiche(antworten: Mapping[str, Any]) -> list[Formverstoss]:

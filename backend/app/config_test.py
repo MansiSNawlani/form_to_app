@@ -65,7 +65,9 @@ def test_zu_kurzes_geheimnis_wird_abgelehnt(
     assert "JWT_SECRET" in str(fehler.value)
 
 
-def test_fehlende_datenbank_wird_abgelehnt(umgebung: None, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_fehlende_datenbank_wird_abgelehnt(
+    umgebung: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("JWT_SECRET", GEHEIMNIS)
 
     with pytest.raises(KonfigurationUngueltig) as fehler:
@@ -119,7 +121,9 @@ class TestWelcherAnlagenspeicher:
         assert "xyzzy-nicht-loggen" not in str(einstellungen)
         assert einstellungen.s3_geheimschluessel.get_secret_value() == "xyzzy-nicht-loggen"
 
-    @pytest.mark.parametrize("fehlt", ["S3_BUCKET", "S3_ZUGRIFFSSCHLUESSEL", "S3_GEHEIMSCHLUESSEL"])
+    @pytest.mark.parametrize(
+        "fehlt", ["S3_BUCKET", "S3_ZUGRIFFSSCHLUESSEL", "S3_GEHEIMSCHLUESSEL"]
+    )
     def test_s3_ohne_eine_pflichtangabe_wird_abgelehnt(
         self, umgebung: None, monkeypatch: pytest.MonkeyPatch, fehlt: str
     ) -> None:

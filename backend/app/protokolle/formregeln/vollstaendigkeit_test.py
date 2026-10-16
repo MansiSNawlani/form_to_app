@@ -36,7 +36,9 @@ PFLICHTFELDER_ = pflichtfelder().pfade
 #: The nine hydrology pickers among them, which several cases below work with as a
 #: group. Derived rather than listed, so a band added to the block cannot be
 #: required in one place and forgotten here.
-HYDROLOGIE_PFLICHT = tuple(pfad for pfad in PFLICHTFELDER_ if pfad.startswith("hydrologie."))
+HYDROLOGIE_PFLICHT = tuple(
+    pfad for pfad in PFLICHTFELDER_ if pfad.startswith("hydrologie.")
+)
 
 
 def setze(antworten: dict[str, Any], pfad: str, wert: str) -> None:
@@ -585,7 +587,9 @@ class TestBefischteBereiche:
         setze(antworten, "befischte_bereiche.ges_gew_stromauf", "Ja")
         setze(antworten, "befischte_bereiche.ges_gew_watend", "Ja")
 
-        assert not [pfad for pfad in fehlende_pfade(antworten) if pfad == "bereich.gesamte_breite"]
+        assert not [
+            pfad for pfad in fehlende_pfade(antworten) if pfad == "bereich.gesamte_breite"
+        ]
 
     def test_der_zweite_bereich_wird_getrennt_beurteilt(self) -> None:
         # The whole width fished properly, the bank row untouched. Only the

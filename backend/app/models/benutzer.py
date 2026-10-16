@@ -76,12 +76,16 @@ class RollenArray(TypeDecorator[list[Rolle]]):
     # compiled statement across instances of it.
     cache_ok = True
 
-    def process_bind_param(self, value: list[Rolle] | None, dialect: Dialect) -> list[str] | None:
+    def process_bind_param(
+        self, value: list[Rolle] | None, dialect: Dialect
+    ) -> list[str] | None:
         if value is None:
             return None
         return [rolle.value for rolle in value]
 
-    def process_result_value(self, value: list[str] | None, dialect: Dialect) -> list[Rolle] | None:
+    def process_result_value(
+        self, value: list[str] | None, dialect: Dialect
+    ) -> list[Rolle] | None:
         if value is None:
             return None
         return [Rolle(wert) for wert in value]
@@ -146,7 +150,9 @@ class User(Base):
     # deleting, because a deleted account takes its submissions' owner with it.
     ist_aktiv: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     # onupdate as well as a default. A server default fills this in once, on
     # insert, and then never touches it again, so without onupdate a row edited a

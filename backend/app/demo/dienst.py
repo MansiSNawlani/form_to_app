@@ -197,9 +197,7 @@ async def _lege_beispiel_an(
     aktion = _PRUEFERSCHRITT.get(beispiel.status)
     if aktion is not None:
         await fuehre_uebergang_aus(
-            session,
-            protokoll_id=entwurf.id,
-            aktion=aktion,
+            session, protokoll_id=entwurf.id, aktion=aktion,
             akteur=pruefer,
             kommentar=beispiel.kommentar,
         )

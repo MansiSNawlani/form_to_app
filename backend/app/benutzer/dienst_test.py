@@ -135,7 +135,9 @@ async def test_regionales_konto_ohne_nummer_wird_abgelehnt(session: AsyncSession
 
 
 async def test_regionales_konto_mit_nummer_wird_angelegt(session: AsyncSession) -> None:
-    benutzer = await _anlegen(session, rollen=[Rolle.REGIERUNGSPRAESIDIUM], regierungspraesidium=4)
+    benutzer = await _anlegen(
+        session, rollen=[Rolle.REGIERUNGSPRAESIDIUM], regierungspraesidium=4
+    )
     assert benutzer.regierungspraesidium == 4
 
 

@@ -245,7 +245,9 @@ class TestAdressierung:
     so a wrong guess here is a deployment where every upload fails.
     """
 
-    def test_die_erzeugte_adresse_traegt_den_eimer_im_pfad(self, speicher: S3Speicher) -> None:
+    def test_die_erzeugte_adresse_traegt_den_eimer_im_pfad(
+        self, speicher: S3Speicher
+    ) -> None:
         """What the client would actually request, rather than merely what it was
         configured with. Asserting on the configuration would pass even if botocore
         stopped honouring it."""

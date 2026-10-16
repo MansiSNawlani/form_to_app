@@ -257,7 +257,9 @@ async def _hole_beide(
     be forgotten.
     """
     protokoll = await hole_protokoll(session, protokoll_id=protokoll_id, besitzer=besitzer)
-    return protokoll, await _anlage_zu(session, protokoll_id=protokoll_id, anlage_id=anlage_id)
+    return protokoll, await _anlage_zu(
+        session, protokoll_id=protokoll_id, anlage_id=anlage_id
+    )
 
 
 async def hole_anlage(

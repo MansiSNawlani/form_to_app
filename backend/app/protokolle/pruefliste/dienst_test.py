@@ -65,7 +65,9 @@ def protokoll(session: AsyncSession) -> Callable[..., Awaitable[Submission]]:
         bearbeiter_name: str = "Anna Weber",
         arten: Mapping[int, str] | None = None,
     ) -> Submission:
-        gewaesser = Gewaesser(id=uuid.uuid4(), name=gewaessername, vorfluter=["Bodensee", "Rhein"])
+        gewaesser = Gewaesser(
+            id=uuid.uuid4(), name=gewaessername, vorfluter=["Bodensee", "Rhein"]
+        )
         strecke = Probestrecke(
             id=uuid.uuid4(),
             gewaesser_id=gewaesser.id,
@@ -82,7 +84,9 @@ def protokoll(session: AsyncSession) -> Callable[..., Awaitable[Submission]]:
         # A fresh address per call. personen.email is unique, so a test building
         # two protocols would otherwise fail on the second Bearbeiter rather than
         # on anything it was about.
-        person = Person(id=uuid.uuid4(), name=bearbeiter_name, email=f"{uuid.uuid4().hex}@ffs.de")
+        person = Person(
+            id=uuid.uuid4(), name=bearbeiter_name, email=f"{uuid.uuid4().hex}@ffs.de"
+        )
         session.add_all([gewaesser, strecke, person])
         await session.flush()
 
@@ -250,9 +254,15 @@ class TestReihenfolge:
     ) -> None:
         # A work queue, not a news feed. The protocol waiting longest is the one
         # somebody has to get to first.
-        neu = await protokoll(surveyor, submitted_at=datetime(2026, 7, 20, 8, 0, tzinfo=UTC))
-        alt = await protokoll(surveyor, submitted_at=datetime(2026, 6, 2, 8, 0, tzinfo=UTC))
-        mittel = await protokoll(surveyor, submitted_at=datetime(2026, 7, 1, 8, 0, tzinfo=UTC))
+        neu = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 20, 8, 0, tzinfo=UTC)
+        )
+        alt = await protokoll(
+            surveyor, submitted_at=datetime(2026, 6, 2, 8, 0, tzinfo=UTC)
+        )
+        mittel = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 1, 8, 0, tzinfo=UTC)
+        )
 
         seite = await liste_pruefliste(session)
 
@@ -276,10 +286,14 @@ class TestReihenfolge:
 
 class TestSeiten:
     @pytest.fixture
-    async def fuenf(self, protokoll: Protokollfabrik, surveyor: User) -> list[uuid.UUID]:
+    async def fuenf(
+        self, protokoll: Protokollfabrik, surveyor: User
+    ) -> list[uuid.UUID]:
         """Five protocols, handed in an hour apart, oldest first."""
         eingereicht = [
-            await protokoll(surveyor, submitted_at=datetime(2026, 7, 1, 8 + stunde, tzinfo=UTC))
+            await protokoll(
+                surveyor, submitted_at=datetime(2026, 7, 1, 8 + stunde, tzinfo=UTC)
+            )
             for stunde in range(5)
         ]
         return [eintrag.id for eintrag in eingereicht]
@@ -351,7 +365,9 @@ class TestStatusfilter:
         await protokoll(surveyor, status=Status.SUBMITTED)
         await protokoll(surveyor, status=Status.REJECTED)
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(status=(Status.SUBMITTED,)))
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(status=(Status.SUBMITTED,))
+        )
 
         assert seite.gesamt == 1
 
@@ -438,7 +454,9 @@ class TestSuche:
     async def test_findet_allein_ueber_die_ortsangabe(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:
-        treffer = await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Weissenau")
+        treffer = await protokoll(
+            surveyor, gewaessername="Schussen", ortsangabe="Weissenau"
+        )
         await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Eriskirch")
 
         seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="Weissenau"))
@@ -482,7 +500,9 @@ class TestSuche:
         )
         await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Eriskirch")
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="Schussen Weissenau"))
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(suche="Schussen Weissenau")
+        )
 
         assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
 
@@ -491,7 +511,9 @@ class TestSuche:
     ) -> None:
         await protokoll(surveyor, gewaessername="Schussen", ortsangabe="Weissenau")
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(suche="Schussen Donau"))
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(suche="Schussen Donau")
+        )
 
         assert seite.zeilen == []
 
@@ -652,7 +674,9 @@ class TestArtfilter:
         for _ in range(7):
             await protokoll(surveyor, arten={1: "AALE"})
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(art="HECH"), pro_seite=2)
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(art="HECH"), pro_seite=2
+        )
 
         assert seite.gesamt == 3
         assert seite.seiten == 2
@@ -660,12 +684,16 @@ class TestArtfilter:
     async def test_engt_zusammen_mit_dem_jahr_ein(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:
-        treffer = await protokoll(surveyor, arten={1: "HECH"}, datum=date(2026, 6, 9))
+        treffer = await protokoll(
+            surveyor, arten={1: "HECH"}, datum=date(2026, 6, 9)
+        )
         # Each of these matches one of the two conditions and must still be out.
         await protokoll(surveyor, arten={1: "HECH"}, datum=date(2025, 6, 9))
         await protokoll(surveyor, arten={1: "AALE"}, datum=date(2026, 6, 9))
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(jahr=2026, art="HECH"))
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(jahr=2026, art="HECH")
+        )
 
         assert [zeile.id for zeile in seite.zeilen] == [treffer.id]
         assert seite.gesamt == 1
@@ -673,7 +701,9 @@ class TestArtfilter:
     async def test_engt_zusammen_mit_dem_status_ein(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:
-        treffer = await protokoll(surveyor, arten={1: "HECH"}, status=Status.SUBMITTED)
+        treffer = await protokoll(
+            surveyor, arten={1: "HECH"}, status=Status.SUBMITTED
+        )
         await protokoll(surveyor, arten={1: "HECH"}, status=Status.REJECTED)
         await protokoll(surveyor, arten={1: "AALE"}, status=Status.SUBMITTED)
 
@@ -718,7 +748,7 @@ class TestArtindex:
         anfrage = (
             select(func.count())
             .select_from(Submission)
-            .where(artcodes().op("@>")(literal_column("'[\"HECH\"]'::jsonb")))
+            .where(artcodes().op("@>")(literal_column('\'["HECH"]\'::jsonb')))
         )
         # SQLAlchemy ships no annotation for postgresql.dialect(), and the dialect
         # has to be named: compiled against the default one, JSONPATH and @> would
@@ -745,9 +775,15 @@ class TestFilterZusammen:
             surveyor, gewaessername="Argen", anlass="wrrl", status=Status.SUBMITTED
         )
         # Each of these matches two of the three conditions and must still be out.
-        await protokoll(surveyor, gewaessername="Argen", anlass="best", status=Status.SUBMITTED)
-        await protokoll(surveyor, gewaessername="Argen", anlass="wrrl", status=Status.REJECTED)
-        await protokoll(surveyor, gewaessername="Schussen", anlass="wrrl", status=Status.SUBMITTED)
+        await protokoll(
+            surveyor, gewaessername="Argen", anlass="best", status=Status.SUBMITTED
+        )
+        await protokoll(
+            surveyor, gewaessername="Argen", anlass="wrrl", status=Status.REJECTED
+        )
+        await protokoll(
+            surveyor, gewaessername="Schussen", anlass="wrrl", status=Status.SUBMITTED
+        )
 
         seite = await liste_pruefliste(
             session,
@@ -765,7 +801,9 @@ class TestFilterZusammen:
         for _ in range(7):
             await protokoll(surveyor, anlass="best")
 
-        seite = await liste_pruefliste(session, auswahl=Prueffilter(anlass="wrrl"), pro_seite=2)
+        seite = await liste_pruefliste(
+            session, auswahl=Prueffilter(anlass="wrrl"), pro_seite=2
+        )
 
         assert seite.gesamt == 3
         assert seite.seiten == 2
@@ -775,7 +813,9 @@ class TestSortierung:
     """Four orders over three protocols chosen so that each gives a different one."""
 
     @pytest.fixture
-    async def drei(self, protokoll: Protokollfabrik, surveyor: User) -> dict[str, uuid.UUID]:
+    async def drei(
+        self, protokoll: Protokollfabrik, surveyor: User
+    ) -> dict[str, uuid.UUID]:
         neckar = await protokoll(
             surveyor,
             gewaessername="Neckar",
@@ -1016,13 +1056,17 @@ class TestNachbarn:
     async def test_ueberspringt_was_der_statusfilter_auslaesst(
         self, session: AsyncSession, protokoll: Protokollfabrik, surveyor: User
     ) -> None:
-        erstes = await protokoll(surveyor, submitted_at=datetime(2026, 7, 1, 9, 0, tzinfo=UTC))
+        erstes = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 1, 9, 0, tzinfo=UTC)
+        )
         await protokoll(
             surveyor,
             status=Status.REJECTED,
             submitted_at=datetime(2026, 7, 1, 10, 0, tzinfo=UTC),
         )
-        drittes = await protokoll(surveyor, submitted_at=datetime(2026, 7, 1, 11, 0, tzinfo=UTC))
+        drittes = await protokoll(
+            surveyor, submitted_at=datetime(2026, 7, 1, 11, 0, tzinfo=UTC)
+        )
 
         umgebung = await nachbarn(
             session, erstes.id, auswahl=Prueffilter(status=(Status.SUBMITTED,))

@@ -380,7 +380,9 @@ async def liste_pruefliste(
                 form_version=zeile.form_version,
                 datum=_pflicht(zeile.datum, "datum", zeile.id),
                 anlass=_pflicht(zeile.anlass, "anlass", zeile.id),
-                bearbeiter_name=_pflicht(zeile.bearbeiter_name, "bearbeiter_name", zeile.id),
+                bearbeiter_name=_pflicht(
+                    zeile.bearbeiter_name, "bearbeiter_name", zeile.id
+                ),
                 submitted_at=_pflicht(zeile.submitted_at, "submitted_at", zeile.id),
                 updated_at=zeile.updated_at,
                 eingereicht_von=zeile.eingereicht_von,

@@ -95,7 +95,9 @@ async def test_das_zurueckgeschickte_beispiel_traegt_die_begruendung(
 
     kommentare = (
         await session.execute(
-            select(WorkflowEvent.kommentar).where(WorkflowEvent.nach_status == Status.NEEDS_CHANGES)
+            select(WorkflowEvent.kommentar).where(
+                WorkflowEvent.nach_status == Status.NEEDS_CHANGES
+            )
         )
     ).scalars()
     assert [k for k in kommentare if k and "Länge der Probestrecke" in k]

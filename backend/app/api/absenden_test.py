@@ -53,7 +53,9 @@ async def _entwurf(
 
 
 async def test_ohne_anmeldung_wird_nichts_abgesendet(client: AsyncClient) -> None:
-    antwort = await client.post(f"/api/v1/protokolle/{uuid.uuid4()}/absenden", json={"version": 1})
+    antwort = await client.post(
+        f"/api/v1/protokolle/{uuid.uuid4()}/absenden", json={"version": 1}
+    )
 
     assert antwort.status_code == 401
 
@@ -103,7 +105,9 @@ async def test_eine_ablehnung_laesst_den_entwurf_stehen(angemeldet: AsyncClient)
     """The message promises the draft is unchanged, so this is that promise."""
     protokoll_id, version = await _entwurf(angemeldet)
 
-    await angemeldet.post(f"/api/v1/protokolle/{protokoll_id}/absenden", json={"version": version})
+    await angemeldet.post(
+        f"/api/v1/protokolle/{protokoll_id}/absenden", json={"version": version}
+    )
 
     danach = (await angemeldet.get(f"/api/v1/protokolle/{protokoll_id}")).json()
     assert danach["status"] == "DRAFT"

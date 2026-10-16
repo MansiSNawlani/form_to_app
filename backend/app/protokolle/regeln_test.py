@@ -99,7 +99,9 @@ def test_meldet_eine_zu_lange_antwort() -> None:
 
     verstoesse = finde_verstoesse({"bemerkungen": {"sonstige_bemerkungen": zu_lang}})
 
-    assert verstoesse == (Verstoss("bemerkungen.sonstige_bemerkungen", Verstossgrund.ZU_LANG),)
+    assert verstoesse == (
+        Verstoss("bemerkungen.sonstige_bemerkungen", Verstossgrund.ZU_LANG),
+    )
 
 
 def test_meldet_einen_punkt_im_schluessel() -> None:
@@ -115,7 +117,9 @@ def test_meldet_einen_punkt_im_schluessel() -> None:
 
 def test_meldet_alle_verstoesse_nicht_nur_den_ersten() -> None:
     """A client sending one wrong path is usually sending several."""
-    verstoesse = finde_verstoesse({"erfunden": "a", "bearbeiter": {"name": 7, "firma": "Ok"}})
+    verstoesse = finde_verstoesse(
+        {"erfunden": "a", "bearbeiter": {"name": 7, "firma": "Ok"}}
+    )
 
     assert set(verstoesse) == {
         Verstoss("erfunden", Verstossgrund.UNBEKANNT),

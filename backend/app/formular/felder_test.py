@@ -224,7 +224,9 @@ def test_meldet_eine_unbekannte_zifferntrennung(tmp_path: Path) -> None:
         {
             "version": "20260609",
             "anzahl": 1,
-            "felder": [{"name": "datum", "format": {"art": "zahl", "stellen": 0, "trennung": 7}}],
+            "felder": [
+                {"name": "datum", "format": {"art": "zahl", "stellen": 0, "trennung": 7}}
+            ],
         },
     )
 

@@ -67,7 +67,9 @@ ANZEIGEN = frozenset(
 #: form and marked read-only there. entwurf/typen.ts refuses to store one for the
 #: reason it gives: a stored total can disagree with the cells it claims to add
 #: up, and then there are two answers to how many fish were caught.
-SUMMEN = frozenset({f"arten.art{nummer}.summe" for nummer in range(1, 27)}) | {"arten.gesamtsumme"}
+SUMMEN = frozenset({f"arten.art{nummer}.summe" for nummer in range(1, 27)}) | {
+    "arten.gesamtsumme"
+}
 
 #: Three fields the form keeps for itself.
 #:

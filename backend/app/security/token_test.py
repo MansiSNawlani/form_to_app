@@ -34,7 +34,9 @@ def test_token_enthaelt_nur_id_ausstellung_und_ablauf() -> None:
 
 
 def test_abgelaufener_token_wird_abgelehnt() -> None:
-    ausgestellt = datetime.now(UTC) - timedelta(hours=get_settings().sitzungsdauer_stunden + 1)
+    ausgestellt = datetime.now(UTC) - timedelta(
+        hours=get_settings().sitzungsdauer_stunden + 1
+    )
     token = erstelle_token(uuid.uuid4(), ausgestellt_am=ausgestellt)
 
     with pytest.raises(TokenAbgelaufen):

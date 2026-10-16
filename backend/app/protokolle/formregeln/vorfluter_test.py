@@ -56,7 +56,9 @@ class TestEineKetteDieStimmt:
 
 
 class TestEineKetteOhneEnde:
-    @pytest.mark.parametrize("name", ["Donaubach", "Donaut", "Rheinbach", "Rheinau", "Donaukanal"])
+    @pytest.mark.parametrize(
+        "name", ["Donaubach", "Donaut", "Rheinbach", "Rheinau", "Donaukanal"]
+    )
     def test_laesst_diesen_namen_keine_kette_beenden(self, name: str) -> None:
         assert schluessel(kette("Argen", name)) == [KEIN_ENDPUNKT]
 

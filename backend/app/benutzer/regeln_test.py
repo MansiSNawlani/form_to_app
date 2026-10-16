@@ -226,4 +226,6 @@ def test_ein_fremdes_konto_darf_gesperrt_werden() -> None:
     Whether somebody else may be locked is pruefe_super_admin_bleibt's question,
     and answering it here as well would be a second opinion.
     """
-    pruefe_kein_selbstentzug(ist_eigenes_konto=False, verliert_super_admin=True, wird_gesperrt=True)
+    pruefe_kein_selbstentzug(
+        ist_eigenes_konto=False, verliert_super_admin=True, wird_gesperrt=True
+    )

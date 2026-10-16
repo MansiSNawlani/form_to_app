@@ -43,7 +43,9 @@ def _testanwendung() -> FastAPI:
 
     @test_app.get("/pruefer-oder-admin")
     async def pruefer_oder_admin(
-        benutzer: Annotated[User, Depends(erfordert_rollen(Rolle.REVIEWER, Rolle.SUPER_ADMIN))],
+        benutzer: Annotated[
+            User, Depends(erfordert_rollen(Rolle.REVIEWER, Rolle.SUPER_ADMIN))
+        ],
     ) -> dict[str, str]:
         return {"email": benutzer.email}
 

@@ -329,7 +329,9 @@ async def test_das_protokoll_wird_in_einer_abfrage_gelesen(
 
     anweisungen: list[str] = []
 
-    def _mitschreiben(conn: object, cursor: object, statement: str, *rest: object) -> None:
+    def _mitschreiben(
+        conn: object, cursor: object, statement: str, *rest: object
+    ) -> None:
         anweisungen.append(statement)
 
     ziel = connection.sync_connection

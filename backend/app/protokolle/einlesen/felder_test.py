@@ -58,7 +58,11 @@ def test_kein_druckknopf_ist_eine_antwort() -> None:
     rest. Nothing typed that list, so if a later form version adds a button, this
     fails rather than importing a page of PDF dictionary keys as an answer.
     """
-    knoepfe = {feld["name"] for feld in felder_aus_dem_seed() if "BBox" in feld.get("werte", [])}
+    knoepfe = {
+        feld["name"]
+        for feld in felder_aus_dem_seed()
+        if "BBox" in feld.get("werte", [])
+    }
 
     assert len(knoepfe) == 12
     assert knoepfe == AKTIONEN | BILDER

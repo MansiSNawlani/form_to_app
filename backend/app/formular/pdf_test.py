@@ -92,5 +92,7 @@ def test_decode_liefert_echte_umlaute() -> None:
     felderliste = dict(felder(oeffne(formular_bytes())))
     hinweis = decode(felderliste["hydrologie_box"]["/V"])
 
-    assert hinweis == ("Angaben zur Hydrologie sind bei stehenden Gewässern nicht relevant")
+    assert hinweis == (
+        "Angaben zur Hydrologie sind bei stehenden Gewässern nicht relevant"
+    )
     assert "�" not in hinweis
