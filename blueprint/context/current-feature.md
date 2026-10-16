@@ -76,7 +76,7 @@ Hand the server's list to the fields and let the existing error display do the r
   one clears it while the list marks it ausgefüllt, and the catch table types as fast as
   before (screenshots in Evidence).
 
-- [ ] **Step 2 - Block-level refusals outline their block.** A way for each block to look up
+- [x] **Step 2 - Block-level refusals outline their block.** A way for each block to look up
   its own path in the context, used by the percentage groups, Einflüsse, Bewirtschaftung, the
   fished areas, the three part 5 pairs and the catch table. *Done when:* a refused percentage
   group and a refused empty catch table each show the outline and message (screenshots); the
@@ -103,6 +103,22 @@ Hand the server's list to the fields and let the existing error display do the r
 - After a reload the marks come back with the remembered list.
 - Catch table, 40 keystrokes into one cell, three runs: `main` 2672 / 2334 / 2631 ms, this fix
   2692 / 2506 / 2360 ms. No measurable difference.
+
+**Step 2** (2026-10-16)
+
+- `npm test`: 1538 passed, including `blockAnzeige` in `absenden/amFeld.test.ts` (4 more).
+  Lint, `tsc -b` and build clean.
+- Browser, the same empty draft submitted: section 3 outlines all six percentage groups with
+  "Dieser Block ist noch nicht ausgefüllt" on the total's line; section 4 outlines Einflüsse
+  and Bewirtschaftung with the message under each; section 6 outlines the catch table with
+  "Das Protokoll nennt noch keine Art". Section 5 has none, as an empty draft has no
+  half-filled area to refuse.
+- Typing 100 into one Umland share lifts that group's message and outline at once.
+- Two layout fixes found on the screenshots: an inward outline crossed the section legend, and
+  an outward one ran into the fields next to a block. The outline now sits on the block's own
+  edge, with padding the side margins cancel.
+- The server's message goes into the line the block already had, so a block never shows the
+  same sentence twice; the browser's own message wins when both apply.
 
 ## Verify
 

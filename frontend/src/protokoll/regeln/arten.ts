@@ -167,7 +167,7 @@ function artcode(antworten: Antworten, nr: Artnummer): string {
 }
 
 /** Every species actually named in the table, in row order, blanks left out. */
-function benannteArten(antworten: Antworten): string[] {
+export function benannteArten(antworten: Antworten): string[] {
   return ARTNUMMERN.map((nr) => artcode(antworten, nr)).filter((code) => !istLeer(code))
 }
 

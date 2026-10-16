@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import type { Paarpfad } from './bloecke'
 import { findePaar, istLeeresPaar } from '../../regeln/ausruestung'
 import type { Antworten } from '../../entwurf/typen'
+import { blockAnzeige } from '../../absenden/amFeld'
+import { useServerMeldung } from '../../absenden/verstossKontext'
 
 /* What a pair of numbers currently fails to say, shown under the two of them.
 
@@ -42,12 +44,19 @@ function PaarMeldung({ id, paar }: PaarMeldungProps) {
      coding-standards.md picked React Hook Form to avoid. */
   const werte = useWatch<Antworten>({ name: pfade }) as readonly (string | undefined)[]
 
+  const leer = istLeeresPaar(werte)
+  const { meldung, abgelehnt } = blockAnzeige(
+    leer ? schluessel : undefined,
+    useServerMeldung(paar),
+    !leer,
+  )
+
   return (
     /* Always rendered, empty when there is nothing to say. A live region added
        to the page at the same moment as its text is unreliably announced; one
        that is already there is not. */
-    <p className="block-message" id={id} role="status">
-      {istLeeresPaar(werte) ? t(schluessel) : ''}
+    <p className="block-message" id={id} role="status" data-abgelehnt={abgelehnt || undefined}>
+      {meldung ? t(meldung) : ''}
     </p>
   )
 }

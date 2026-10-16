@@ -13,8 +13,11 @@
  * shows no refusals at all.
  */
 
+import type { ParseKeys } from 'i18next'
 import { createContext, use } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Verstoss } from '../../api/typen'
+import { bekannteMeldung } from './amFeld'
 
 const KEINE: ReadonlyMap<string, string> = new Map()
 
@@ -31,7 +34,9 @@ export function verstossKarte(verstoesse: readonly Verstoss[]): ReadonlyMap<stri
   return karte
 }
 
-/** What the server said about this path at the last submit, as an unchecked key. */
-export function useServerVerstoss(pfad: string): string | undefined {
-  return use(VerstossKontext).get(pfad)
+/** What the server said about this path at the last submit, as a key this locale knows. */
+export function useServerMeldung(pfad: string): ParseKeys | undefined {
+  const { i18n } = useTranslation()
+  const schluessel = use(VerstossKontext).get(pfad)
+  return schluessel === undefined ? undefined : bekannteMeldung(schluessel, (k) => i18n.exists(k))
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bekannteMeldung, feldMeldung, istAusgefuellt } from './amFeld'
+import { bekannteMeldung, blockAnzeige, feldMeldung, istAusgefuellt } from './amFeld'
 
 describe('istAusgefuellt', () => {
   it('zählt Text, der nicht nur aus Leerzeichen besteht', () => {
@@ -50,5 +50,26 @@ describe('bekannteMeldung', () => {
     expect(bekannteMeldung('protokoll.regeln.gibtEsNicht', () => false)).toBe(
       'protokoll.absenden.probleme.unbekannteRegel',
     )
+  })
+})
+
+describe('blockAnzeige', () => {
+  const server = 'protokoll.regeln.fehltBlock'
+  const browser = 'protokoll.regeln.summeNicht100'
+
+  it('zeigt die Meldung des Servers und den Rahmen, solange der Block nicht erledigt ist', () => {
+    expect(blockAnzeige(undefined, server, false)).toEqual({ meldung: server, abgelehnt: true })
+  })
+
+  it('lässt dem Browser den Vortritt, behält aber den Rahmen', () => {
+    expect(blockAnzeige(browser, server, false)).toEqual({ meldung: browser, abgelehnt: true })
+  })
+
+  it('nimmt Meldung und Rahmen des Servers zurück, sobald der Block erledigt ist', () => {
+    expect(blockAnzeige(undefined, server, true)).toEqual({ meldung: undefined, abgelehnt: false })
+  })
+
+  it('zeigt die eigene Meldung des Browsers auch ohne Ablehnung, ohne Rahmen', () => {
+    expect(blockAnzeige(browser, undefined, false)).toEqual({ meldung: browser, abgelehnt: false })
   })
 })

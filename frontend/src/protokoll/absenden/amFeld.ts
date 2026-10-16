@@ -43,3 +43,30 @@ export function bekannteMeldung(
     ? (schluessel as ParseKeys)
     : 'protokoll.absenden.probleme.unbekannteRegel'
 }
+
+export interface Blockanzeige<K extends string> {
+  /** The one message under the block, or none. */
+  meldung: K | undefined
+  /** Whether the block is outlined as refused at the last submit. */
+  abgelehnt: boolean
+}
+
+/* The same decision for a block: a percentage run, a pair, a tick group, the
+ * catch table. A block already has a message line of its own for the rules the
+ * browser runs, so the server's sentence goes into that same line rather than
+ * a second one beside it, and the browser's wins for the reason it wins at a
+ * field.
+ *
+ * erledigt is the block's own judgement, since "filled in" means something
+ * different for each: a run adding up to 100, a pair no longer both zero. A
+ * block that cannot judge it passes false, and the mark stays until the next
+ * submit, as its entry in the list does.
+ */
+export function blockAnzeige<K extends string>(
+  browser: K | undefined,
+  server: K | undefined,
+  erledigt: boolean,
+): Blockanzeige<K> {
+  const abgelehnt = server !== undefined && !erledigt
+  return { meldung: browser ?? (abgelehnt ? server : undefined), abgelehnt }
+}

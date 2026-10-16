@@ -1,8 +1,7 @@
 import type { ParseKeys } from 'i18next'
 import { useFormContext, useFormState, useWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
-import { bekannteMeldung, feldMeldung } from '../absenden/amFeld'
-import { useServerVerstoss } from '../absenden/verstossKontext'
+import { feldMeldung } from '../absenden/amFeld'
+import { useServerMeldung } from '../absenden/verstossKontext'
 import type { Antworten, AntwortPfad } from '../entwurf/typen'
 
 /* What one field currently has wrong with it, as a translation key.
@@ -20,8 +19,7 @@ export function useFeldFehler(name: AntwortPfad): ParseKeys | undefined {
   const { getFieldState, getValues } = useFormContext<Antworten>()
   const formState = useFormState<Antworten>({ name })
   const { error } = getFieldState(name, formState)
-  const { i18n } = useTranslation()
-  const server = useServerVerstoss(name)
+  const server = useServerMeldung(name)
 
   /* Watched only while the server has something to say about this field, so
      that filling it in takes the red away at once. Every other field stays as
@@ -35,9 +33,5 @@ export function useFeldFehler(name: AntwortPfad): ParseKeys | undefined {
      of de.json, so this narrowing is safe in a way the types cannot say. */
   const browser = error?.message as ParseKeys | undefined
 
-  return feldMeldung(
-    browser,
-    server === undefined ? undefined : bekannteMeldung(server, (k) => i18n.exists(k)),
-    wert,
-  )
+  return feldMeldung(browser, server, wert)
 }

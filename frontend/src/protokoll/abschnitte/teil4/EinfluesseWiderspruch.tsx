@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { EINFLUESSE } from './bloecke'
+import { EINFLUESSE, EINFLUSS_WIDERSPRUCH } from './bloecke'
+import { blockAnzeige } from '../../absenden/amFeld'
+import { useServerMeldung } from '../../absenden/verstossKontext'
 import { pruefeWiderspruch } from '../../regeln/einfluesse'
 import type { Antworten } from '../../entwurf/typen'
 
@@ -43,13 +45,18 @@ function EinfluesseWiderspruch({ id }: EinfluesseWiderspruchProps) {
   ) as Antworten['einfluesse']
 
   const [verstoss] = pruefeWiderspruch({ einfluesse })
+  const { meldung, abgelehnt } = blockAnzeige(
+    verstoss?.schluessel,
+    useServerMeldung(EINFLUSS_WIDERSPRUCH),
+    verstoss === undefined,
+  )
 
   return (
     /* Always rendered, empty when there is nothing to say. A live region added
        to the page at the same moment as its text is unreliably announced; one
        that is already there is not. */
-    <p className="block-message" id={id} role="status">
-      {verstoss ? t(verstoss.schluessel) : ''}
+    <p className="block-message" id={id} role="status" data-abgelehnt={abgelehnt || undefined}>
+      {meldung ? t(meldung) : ''}
     </p>
   )
 }

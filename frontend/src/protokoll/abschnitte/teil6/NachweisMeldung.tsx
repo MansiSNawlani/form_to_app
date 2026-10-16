@@ -2,7 +2,9 @@ import { useMemo } from 'react'
 import { useFormState, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zaehlzelleBeruehrt } from './tabelle'
-import { fangOhneNachweisCode } from '../../regeln/arten'
+import { benannteArten, fangOhneNachweisCode } from '../../regeln/arten'
+import { blockAnzeige } from '../../absenden/amFeld'
+import { useServerMeldung } from '../../absenden/verstossKontext'
 import type { Antworten } from '../../entwurf/typen'
 
 /* The one thing that can be wrong with the catch table as a whole: it records a
@@ -50,12 +52,20 @@ function NachweisMeldung() {
 
   const sprechen = zaehlzelleBeruehrt(touchedFields.arten) || vorbefuellt
 
+  /* Refused at submit for naming no species at all, which lifts as soon as one
+     row names one: the same reading the server's rule makes. */
+  const { meldung, abgelehnt } = blockAnzeige(
+    schluessel && sprechen ? schluessel : undefined,
+    useServerMeldung('tabelle.arten'),
+    benannteArten({ arten }).length > 0,
+  )
+
   return (
     /* Always rendered, empty when there is nothing to say. A live region added to
        the page at the same moment as its text is unreliably announced; one that
        is already there is not. */
-    <p className="block-message" role="status">
-      {schluessel && sprechen ? t(schluessel) : ''}
+    <p className="block-message" role="status" data-abgelehnt={abgelehnt || undefined}>
+      {meldung ? t(meldung) : ''}
     </p>
   )
 }

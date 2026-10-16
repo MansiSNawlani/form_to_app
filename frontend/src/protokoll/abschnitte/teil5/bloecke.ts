@@ -46,6 +46,8 @@ export const NETZE: readonly Blockfeld[] = [
  * them visually is not attached to either control.
  */
 export interface BefischterBereich {
+  /** The path the server refuses an unfinished row under, at submit. */
+  id: 'bereich.gesamte_breite' | 'bereich.entlang_ufer'
   /** Names the row, used as the group's legend. */
   legendKey: ParseKeys
   laenge: AntwortPfad
@@ -57,6 +59,7 @@ export interface BefischterBereich {
 
 export const BEFISCHTE_BEREICHE: readonly BefischterBereich[] = [
   {
+    id: 'bereich.gesamte_breite',
     legendKey: 'protokoll.abschnitt5.bereiche.gesamteBreite.legend',
     laenge: 'befischte_bereiche.ges_gew_laenge',
     breite: 'befischte_bereiche.ges_gew_breite',
@@ -86,6 +89,7 @@ export const BEFISCHTE_BEREICHE: readonly BefischterBereich[] = [
     ],
   },
   {
+    id: 'bereich.entlang_ufer',
     legendKey: 'protokoll.abschnitt5.bereiche.entlangUfer.legend',
     laenge: 'befischte_bereiche.ufer_laenge',
     breite: 'befischte_bereiche.ufer_breite',

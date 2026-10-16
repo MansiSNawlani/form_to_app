@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { EINFLUESSE } from './bloecke'
 import EinfluesseWiderspruch from './EinfluesseWiderspruch'
 import FeldHaken from '../../felder/FeldHaken'
+import BlockAblehnung from '../../absenden/BlockAblehnung'
 import FeldText from '../../felder/FeldText'
 
 /* What people do with the water along the stretch.
@@ -21,6 +22,7 @@ import FeldText from '../../felder/FeldText'
    writing line after it, so it is named here for the list it belongs to. */
 
 const WIDERSPRUCH_ID = 'widerspruch-einfluesse'
+const ABLEHNUNG_ID = 'ablehnung-einfluesse'
 
 function EinfluesseBlock() {
   const { t } = useTranslation()
@@ -29,7 +31,7 @@ function EinfluesseBlock() {
     /* Described by its message, so reaching the block announces what is
        currently wrong with the combination, without the message announcing
        itself again on every tick. */
-    <fieldset className="form-section" aria-describedby={WIDERSPRUCH_ID}>
+    <fieldset className="form-section" aria-describedby={`${WIDERSPRUCH_ID} ${ABLEHNUNG_ID}`}>
       <legend>{t('protokoll.abschnitt4.einfluesse.legend')}</legend>
       <p className="form-section__hint">
         {t('protokoll.abschnitt4.einfluesse.hinweis')}
@@ -47,6 +49,7 @@ function EinfluesseBlock() {
       </div>
 
       <EinfluesseWiderspruch id={WIDERSPRUCH_ID} />
+      <BlockAblehnung pfad="block.einfluesse" id={ABLEHNUNG_ID} />
     </fieldset>
   )
 }
