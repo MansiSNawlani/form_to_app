@@ -1,7 +1,7 @@
 # Fix: Refused answers marked at the field
 
 **Type:** Fix
-**Status:** in progress
+**Status:** built, awaiting review
 **Branch:** `fix/fehler-am-feld`, from `main`
 **Requested by:** FFS feedback, relayed by Mansi on 2026-10-15
 
@@ -82,7 +82,7 @@ Hand the server's list to the fields and let the existing error display do the r
   group and a refused empty catch table each show the outline and message (screenshots); the
   read-only view shows none of it.
 
-- [ ] **Step 3 - Browser test and import path.** Extend an existing e2e spec: submit a protocol
+- [x] **Step 3 - Browser test and import path.** Extend an existing e2e spec: submit a protocol
   with an empty mandatory field, expect the field to be invalid (by role and name, with
   `aria-invalid` and its description), fill it, expect it valid. Then import a PDF with gaps
   and confirm the same fields are marked on opening. *Done when:* `npm run e2e` passes and the
@@ -119,6 +119,23 @@ Hand the server's list to the fields and let the existing error display do the r
   edge, with padding the side margins cancel.
 - The server's message goes into the line the block already had, so a block never shows the
   same sentence twice; the browser's own message wins when both apply.
+
+**Step 3** (2026-10-16)
+
+- New `frontend/e2e/fehler-am-feld.spec.ts`, four tests: a refused field is invalid with the
+  message as its accessible description, clears when filled and returns when emptied; an
+  unrefused field stays unmarked; a refused percentage group is outlined and described, and
+  both lift at 100; the marks survive a reload. All four pass. The first fails against
+  `main`'s `fehler.ts`, so it tests the change.
+- The empty draft is waited for by its 422 rather than the panel: the panel lists only the
+  open section's problems, and an empty draft owes nothing in section 7.
+- `npm run e2e` in full: 11 passed, 68 skipped, 0 failed. Only a throwaway Einreicher account
+  (`fehleramfeld@test.de`, local database) was available, so the specs needing the Prüfer and
+  Admin accounts skipped. Worth a full run with the usual three accounts before `/complete`.
+- Import, by hand with two real protocols from `Resources/echte-protokolle/` (untracked, so not
+  in the committed test): Rench opens with the step badge, the panel and the two Grenze fields
+  all saying 2; Pflaumbach opens with the two Grenze fields, the Damm share, and the Einflüsse
+  and Bewirtschaftung blocks marked. No import-specific code was needed.
 
 ## Verify
 
